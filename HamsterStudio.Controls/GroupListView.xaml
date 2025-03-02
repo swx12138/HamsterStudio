@@ -1,0 +1,65 @@
+﻿<UserControl x:Class="HamsterStudio.Controls.GroupListView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:local="clr-namespace:HamsterStudio.Controls"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:scm="clr-namespace:System.ComponentModel;assembly=WindowsBase"
+             x:Name="thisCtrl"
+             d:DesignHeight="450"
+             d:DesignWidth="800"
+             mc:Ignorable="d">
+    <UserControl.Resources />
+    <Grid>
+        <ListBox x:Name="lbx1" ItemsSource="{Binding}" SelectionMode="Extended">
+            <!--  分组样式  -->
+            <ListBox.GroupStyle>
+                <GroupStyle>
+                    <GroupStyle.ContainerStyle>
+                        <Style TargetType="{x:Type GroupItem}">
+                            <Setter Property="Template">
+                                <Setter.Value>
+                                    <ControlTemplate TargetType="{x:Type GroupItem}">
+                                        <Expander>
+                                            <Expander.Header>
+                                                <Grid>
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="Auto" />
+                                                        <ColumnDefinition />
+                                                    </Grid.ColumnDefinitions>
+                                                    <Grid.RowDefinitions>
+                                                        <RowDefinition />
+                                                    </Grid.RowDefinitions>
+                                                    <StackPanel Margin="0,0,10,0" Orientation="Horizontal">
+                                                        <!--  分组的组名  -->
+                                                        <TextBlock FontWeight="Bold" Text="{Binding Path=Name}" />
+                                                        <!--  该分组元素(员工)的总和数  -->
+                                                        <TextBlock FontWeight="Bold" Text="{Binding Path=ItemCount, StringFormat=(共{0}条)}" />
+                                                    </StackPanel>
+                                                    <Line Grid.Column="1"
+                                                          SnapsToDevicePixels="true"
+                                                          Stretch="Fill"
+                                                          StrokeThickness="1"
+                                                          X1="0"
+                                                          X2="1" />
+                                                </Grid>
+                                            </Expander.Header>
+                                            <ItemsPresenter />
+                                        </Expander>
+                                    </ControlTemplate>
+                                </Setter.Value>
+                            </Setter>
+                        </Style>
+                    </GroupStyle.ContainerStyle>
+                </GroupStyle>
+            </ListBox.GroupStyle>
+            <!--  右键菜单  -->
+            <ListBox.ContextMenu>
+                <ContextMenu>
+                    <!--<MenuItem Click="MenuItem_Click" Header="Show" />-->
+                </ContextMenu>
+            </ListBox.ContextMenu>
+            <!--  “没有”绑定ListBox.ItemTemplate，是因为在Employee类重写了ToString()方法  -->
+        </ListBox>
+    </Grid>
+</UserControl>

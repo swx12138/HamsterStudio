@@ -1,0 +1,112 @@
+﻿<Window x:Class="ImageProcessTool.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:hc="https://handyorg.github.io/handycontrol"
+        xmlns:hsc="clr-namespace:HamsterStudio.Converters;assembly=HamsterStudio.Core"
+        xmlns:hsm="clr-namespace:HamsterStudio.Models;assembly=HamsterStudio.Core"
+        xmlns:local="clr-namespace:ImageProcessTool"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        Title="渋㐋"
+        Width="1920"
+        Height="960"
+        AllowDrop="True"
+        Drop="Window_Drop"
+        Topmost="{Binding Topmost}"
+        WindowStartupLocation="CenterScreen"
+        mc:Ignorable="d">
+    <Window.DataContext>
+        <local:MainWindowModel />
+    </Window.DataContext>
+    <Window.Resources>
+        <hsc:PathToImageSource x:Key="PathToImageSourceCvtr" />
+    </Window.Resources>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+        <Menu Grid.ColumnSpan="2">
+            <MenuItem Header="File">
+                <MenuItem Command="{Binding Commands.OpenFilesCommand}" Header="Open Files" />
+                <MenuItem Command="{Binding Commands.CloseFilesCommand}" Header="Close Files" />
+            </MenuItem>
+            <MenuItem Header="Edit" />
+            <MenuItem Header="View">
+                <MenuItem Header="Topmost" IsCheckable="True" IsChecked="{Binding Topmost}" />
+            </MenuItem>
+            <MenuItem Header="Help" />
+            <MenuItem Header="About" />
+        </Menu>
+        <ScrollViewer Grid.Row="1">
+            <ItemsControl ItemsSource="{Binding ImagePaths}">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Border Margin="2" BorderBrush="Black" BorderThickness="1" CornerRadius="5">
+                            <Grid Background="LightGreen">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <Grid>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="*" />
+                                        <RowDefinition Height="Auto" />
+                                    </Grid.RowDefinitions>
+                                    <Image Height="500" Source="{Binding Filename, Converter={StaticResource PathToImageSourceCvtr}}" />
+                                    <TextBox Grid.Row="1"
+                                             Padding="5,0"
+                                             Background="Transparent"
+                                             BorderThickness="0"
+                                             IsReadOnly="True"
+                                             Text="{Binding Filename}" />
+                                </Grid>
+                                <Border Grid.Column="1"
+                                        Margin="2"
+                                        Padding="5"
+                                        BorderBrush="Black"
+                                        BorderThickness="1"
+                                        CornerRadius="2">
+                                    <StackPanel Orientation="Vertical">
+                                        <CheckBox Content="选择" IsChecked="{Binding IsSelected}" />
+                                        <CheckBox Content="上下翻转" IsChecked="{Binding UpDownFlip}" />
+                                        <CheckBox Content="左右翻转" IsChecked="{Binding LeftRightFlip}" />
+                                        <hc:NumericUpDown Value="{Binding RepeatCount}" />
+                                        <ComboBox ItemsSource="{Binding ImageRotateTypes}" SelectedItem="{Binding RotateType}" />
+                                        <Button Command="{Binding RepeatCommand}" CommandParameter="{Binding}" Content="Repeat" />
+                                        <Button Command="{Binding DestroyCommand}" CommandParameter="{Binding}" Content="Remove" />
+                                    </StackPanel>
+                                </Border>
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <StackPanel Orientation="Vertical" />
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+            </ItemsControl>
+        </ScrollViewer>
+        <Grid Grid.Row="1" Grid.Column="1" Background="LightSeaGreen">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+            <Grid.ContextMenu>
+                <ContextMenu>
+                    <MenuItem Command="{Binding Commands.RefreshPreviewCommand}" Header="Refresh" />
+                </ContextMenu>
+            </Grid.ContextMenu>
+            <Image Margin="2" Source="{Binding PreviewImage}" />
+            <hc:PropertyGrid Grid.Row="1" Description="111" SelectedObject="{Binding PreviewImageProps}" />
+
+            <Button Grid.Row="2" Command="{Binding Commands.SaveCommand}" Content="保存" />
+        </Grid>
+    </Grid>
+</Window>
