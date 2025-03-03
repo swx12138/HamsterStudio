@@ -28,6 +28,32 @@ namespace HamsterStudio.Toolkits.SysCall
             });
         }
 
+        public static void System(string cmd)
+        {
+            // 创建一个进程对象
+            Process process = new Process();
+
+            // 设置要执行的命令和参数
+            ProcessStartInfo startInfo = new ProcessStartInfo();
+            startInfo.FileName = "cmd.exe";
+            startInfo.Arguments = $"/C {cmd}"; // 示例命令：列出当前目录下的文件和文件夹
+            //startInfo.RedirectStandardOutput = true;
+            //startInfo.RedirectStandardError = true;
+
+            // 设置进程对象的启动信息
+            process.StartInfo = startInfo;
+            //process.OutputDataReceived += (s, e) => { };
+            //process.ErrorDataReceived += (s, e) => { };
+
+            // 启动进程并等待执行完成
+            process.Start();
+            process.WaitForExit();
+
+            // 关闭进程
+            process.Close();
+        }
+
+        public static long MilisecondTimestamp => DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
 
     }
 

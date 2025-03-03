@@ -106,6 +106,28 @@ namespace HamsterStudio.Toolkits
             }
         }
 
+        public static ImageSource? CreateImageSource(Stream stream)
+        {
+            if (stream == null) { return null; }
+            var bitmap = new BitmapImage();
+            try
+            {
+                bitmap.BeginInit();
+                bitmap.CreateOptions = BitmapCreateOptions.IgnoreColorProfile;
+                bitmap.CacheOption = BitmapCacheOption.OnLoad; // 关键：强制在初始化时加载                
+                bitmap.StreamSource = stream;
+                bitmap.EndInit();
+                bitmap.Freeze(); // 可选：冻结对象避免跨线程问题
+                return bitmap;
+            }
+            catch (Exception ex)
+            {
+                Trace.TraceError(ex.Message);
+                Trace.TraceError(ex.StackTrace);
+                throw;
+            }
+        }
+
         public static bool IsImageFile(string path)
         {
             return KnownImageExts.Any(ext => path.EndsWith(ext, StringComparison.OrdinalIgnoreCase));

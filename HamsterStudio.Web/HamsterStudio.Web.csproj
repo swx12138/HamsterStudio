@@ -8,14 +8,12 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="Magius\**" />
-    <EmbeddedResource Remove="Magius\**" />
-    <None Remove="Magius\**" />
-    <Page Remove="Magius\**" />
+    <PackageReference Include="Refit" Version="8.0.0" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\HamsterStudio.Barefeet\HamsterStudio.Barefeet.csproj" />
+    <ProjectReference Include="..\HamsterStudio.Toolkits\HamsterStudio.Toolkits.csproj" />
   </ItemGroup>
 
 </Project>
