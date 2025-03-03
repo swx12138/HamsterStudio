@@ -114,6 +114,7 @@
                 </ItemsControl.ItemsPanel>
             </ItemsControl>
         </ScrollViewer>
+        <GridSplitter Grid.Row="1" Width="2" VerticalAlignment="Stretch" Background="LightBlue" />
         <Grid Grid.Row="1" Grid.Column="1" Background="LightSeaGreen">
             <Grid.RowDefinitions>
                 <RowDefinition Height="*" />
@@ -128,7 +129,13 @@
             <Image Margin="2" Source="{Binding PreviewImage}" />
             <hc:PropertyGrid Grid.Row="1" Description="111" SelectedObject="{Binding PreviewImageProps}" />
 
-            <Button Grid.Row="2" Command="{Binding Commands.SaveCommand}" Content="保存" />
+            <Button Grid.Row="2" Command="{Binding Commands.SaveCommand}">
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="Save(" />
+                    <TextBlock Text="{Binding SavingCount}" />
+                    <TextBlock Text=")" />
+                </StackPanel>
+            </Button>
         </Grid>
     </Grid>
 </Window>

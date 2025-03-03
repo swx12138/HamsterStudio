@@ -42,6 +42,7 @@ namespace ImageProcessTool
                     }
                 }
                 mainWindowModel!.PreviewImage?.SaveImageSource(mainWindowModel.PreviewImageProps.SavingFilename);
+                mainWindowModel.SavingCount++;
                 Trace.TraceInformation($"File saved @ {mainWindowModel.PreviewImageProps.SavingFilename}");
             });
             RepeatItemCommand = new RelayCommand<ImageInfo>(item =>
@@ -68,6 +69,7 @@ namespace ImageProcessTool
             CloseFilesCommand = new RelayCommand(() =>
             {
                 mainWindowModel.ImagePaths.Clear();
+                mainWindowModel.SavingCount = 0;
                 mainWindowModel.PreviewImageProps.SavingFilename = string.Empty;
             });
             ReselectFilesCommand = new RelayCommand(() =>
@@ -177,6 +179,9 @@ namespace ImageProcessTool
 
         [ObservableProperty]
         private int _imageWidthLimit = 3840;
+
+        [ObservableProperty]
+        private int savingCount = 0;
 
         public MainWindowModel()
         {

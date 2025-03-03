@@ -1,4 +1,5 @@
-﻿using HamsterStudio.Models;
+﻿using HamsterStudio.Constants;
+using HamsterStudio.Models;
 using OpenCvSharp;
 using OpenCvSharp.WpfExtensions;
 using System.Diagnostics;
@@ -98,152 +99,73 @@ namespace HamsterStudio.Toolkits
                 return new BitmapImage();
 
             // 步骤1：预处理所有图像（旋转/翻转/重复）
-            var processedMats = new List<Mat>();
+            List<Mat> resizedMats = [.. ImageHelper.ProcessAndResizeMats(validImages, uniform)];
             try
             {
-                foreach (var imgInfo in validImages)
-                {
-                    using var srcMat = new Mat(imgInfo.Filename, ImreadModes.Unchanged);
+                // 步骤3：计算画布尺寸
+                int totalCount = resizedMats.Count;
+                int rows = (totalCount + columns - 1) / columns;
+                int cellWidth = resizedMats.Max(x => x.Width);
+                int cellHeight = resizedMats.Max(x => x.Height);
 
-                    // 应用旋转
-                    using var rotatedMat = ApplyRotation(srcMat, imgInfo.RotateType);
+                // 步骤4：绘制组合图像
+                DrawingVisual drawingVisual = drawing(columns, resizedMats, cellHeight, out List<int> widths);
 
-                    // 应用翻转
-                    ApplyFlip(rotatedMat, imgInfo.UpDownFlip, imgInfo.LeftRightFlip);
-
-                    // 添加重复次数
-                    for (int i = 0; i < imgInfo.RepeatCount; i++)
-                    {
-                        processedMats.Add(rotatedMat.Clone());
-                    }
-                }
-
-                if (processedMats.Count == 0)
-                    return new BitmapImage();
-
-
-                // 步骤2：计算目标尺寸和缩放图片
-                List<Mat> resizedMats = [];
-                try
-                {
-                    if (uniform)
-                    {
-                        // 计算所有图片的平均高度
-                        double avgHeight = processedMats.Average(m => m.Height);
-
-                        // 统一缩放到平均高度
-                        foreach (var mat in processedMats)
-                        {
-                            using (mat)
-                            {
-                                double scale = avgHeight / mat.Height;
-                                var resizedMat = mat.Resize(new Size(mat.Width * scale, avgHeight));
-                                resizedMats.Add(resizedMat);
-                            }
-                        }
-                    }
-                    else
-                    {
-                        resizedMats = processedMats;
-                    }
-
-                    // 步骤3：计算画布尺寸
-                    int totalCount = resizedMats.Count;
-                    int rows = (totalCount + columns - 1) / columns;
-                    int cellWidth = resizedMats.Max(x => x.Width);
-                    int cellHeight = resizedMats.Max(x => x.Height);
-                    List<int> widths = [];
-
-                    // 步骤4：绘制组合图像
-                    var drawingVisual = new DrawingVisual();
-                    using (DrawingContext dc = drawingVisual.RenderOpen())
-                    {
-                        int left = 0;
-                        for (int i = 0; i < resizedMats.Count; i++)
-                        {
-                            int row = i / columns;
-                            int col = i % columns;
-
-                            // 转换为 WPF 图像源
-                            var bitmapSource = BitmapSourceConverter.ToBitmapSource(resizedMats[i]);
-
-                            // 绘制逻辑（保持宽高比）
-                            var imageSize = new Size(bitmapSource.Width, bitmapSource.Height);
-                            var renderRect = new System.Windows.Rect(left, row * cellHeight, imageSize.Width, imageSize.Height);
-                            dc.DrawImage(bitmapSource, renderRect);
-
-                            if (col == columns - 1)
-                            {
-                                widths.Add(left + imageSize.Width);
-                                left = 0;
-                            }
-                            else
-                            {
-                                left += imageSize.Width;
-                            }
-
-                        }
-                    }
-
-                    // 步骤5：渲染并清理资源
-                    double totalWidth = widths.Max();
-                    double totalHeight = rows * cellHeight;
-                    var renderBitmap = new RenderTargetBitmap(
-                        (int)totalWidth, (int)totalHeight, 96, 96, PixelFormats.Pbgra32);
-                    renderBitmap.Render(drawingVisual);
-                    return renderBitmap;
-                }
-                finally
-                {
-                    foreach (var mat in resizedMats)
-                    {
-                        mat.Dispose();
-                    }
-                }
+                // 步骤5：渲染
+                return render(rows * cellHeight, widths, drawingVisual);
             }
             finally
             {
-                foreach (var mat in processedMats)
+                foreach (var mat in resizedMats)
                 {
                     mat.Dispose();
                 }
             }
-        }
 
-        // 旋转处理辅助方法
-        private static Mat ApplyRotation(Mat src, ImageRotateType rotateType)
-        {
-            if (rotateType == ImageRotateType.R0)
-                return src.Clone();
-
-            RotateFlags flag = rotateType switch
+            static ImageSource render(int totalHeight, List<int> widths, DrawingVisual drawingVisual)
             {
-                ImageRotateType.R90 => RotateFlags.Rotate90Clockwise,
-                ImageRotateType.R180 => RotateFlags.Rotate180,
-                ImageRotateType.R270 => RotateFlags.Rotate90Counterclockwise,
-                _ => RotateFlags.Rotate90Clockwise
-            };
-
-            Mat dst = new Mat();
-            Cv2.Rotate(src, dst, flag);
-            return dst;
-        }
-
-        // 翻转处理辅助方法
-        private static void ApplyFlip(Mat mat, bool upDown, bool leftRight)
-        {
-            if (upDown && leftRight)
-            {
-                Cv2.Flip(mat, mat, FlipMode.XY);
+                double totalWidth = widths.Max();
+                var renderBitmap = new RenderTargetBitmap(
+                    (int)totalWidth, (int)totalHeight, 96, 96, PixelFormats.Pbgra32);
+                renderBitmap.Render(drawingVisual);
+                return renderBitmap;
             }
-            else if (upDown)
+
+            static DrawingVisual drawing(int columns, List<Mat> resizedMats, int cellHeight, out List<int> widths)
             {
-                Cv2.Flip(mat, mat, FlipMode.X);
+                widths = [];
+                var drawingVisual = new DrawingVisual();
+                using (DrawingContext dc = drawingVisual.RenderOpen())
+                {
+                    int left = 0;
+                    for (int i = 0; i < resizedMats.Count; i++)
+                    {
+                        int row = i / columns;
+                        int col = i % columns;
+
+                        // 转换为 WPF 图像源
+                        var bitmapSource = BitmapSourceConverter.ToBitmapSource(resizedMats[i]);
+
+                        // 绘制逻辑（保持宽高比）
+                        var imageSize = new Size(bitmapSource.Width, bitmapSource.Height);
+                        var renderRect = new System.Windows.Rect(left, row * cellHeight, imageSize.Width, imageSize.Height);
+                        dc.DrawImage(bitmapSource, renderRect);
+
+                        if (col == columns - 1)
+                        {
+                            widths.Add(left + imageSize.Width);
+                            left = 0;
+                        }
+                        else
+                        {
+                            left += imageSize.Width;
+                        }
+
+                    }
+                }
+                return drawingVisual;
             }
-            else if (leftRight)
-            {
-                Cv2.Flip(mat, mat, FlipMode.Y);
-            }
+
         }
 
         public static void SaveImageSource(this ImageSource source, string filePath, ImageFormat format = ImageFormat.Png)
@@ -272,10 +194,9 @@ namespace HamsterStudio.Toolkits
 
             // 编码并保存
             encoder.Frames.Add(frame);
-            using (FileStream fs = new FileStream(filePath, FileMode.Create))
-            {
-                encoder.Save(fs);
-            }
+
+            using FileStream fs = new(filePath, FileMode.Create);
+            encoder.Save(fs);
         }
 
         public enum ImageFormat
@@ -286,6 +207,93 @@ namespace HamsterStudio.Toolkits
             Gif
         }
 
+        public static class ImageHelper
+        {
+            public static IEnumerable<Mat> ProcessAndResizeMats(List<ImageInfo> validImages, bool uniform)
+            {
+                // 如果不需要统一缩放，则直接处理图像
+                if (!uniform)
+                {
+                    return ProcessMats(validImages);
+                }
+
+                // 如果需要统一缩放，则先处理图像，然后并行调整大小
+                var processedMats = ProcessMats(validImages).ToList();
+
+                double avgHeight = processedMats.Average(m => m.Height);
+                var result = new Mat[processedMats.Count];
+
+                Parallel.For(0, processedMats.Count, i =>
+                {
+                    using (var mat = processedMats[i])
+                    {
+                        double scale = avgHeight / mat.Height;
+                        var resizedMat = mat.Resize(new Size(mat.Width * scale, avgHeight));
+                        result[i] = resizedMat.Clone(); // Clone to ensure the image is not disposed
+                    }
+                });
+
+                return result;
+            }
+
+            private static IEnumerable<Mat> ProcessMats(List<ImageInfo> validImages)
+            {
+                foreach (var imgInfo in validImages)
+                {
+                    using var srcMat = new Mat(imgInfo.Filename, ImreadModes.Unchanged);
+
+                    // 应用旋转
+                    var rotatedMat = ApplyRotation(srcMat, imgInfo.RotateType);
+
+                    // 应用翻转
+                    ApplyFlip(rotatedMat, imgInfo.UpDownFlip, imgInfo.LeftRightFlip);
+
+                    // 添加重复次数
+                    for (int i = 0; i < imgInfo.RepeatCount; i++)
+                    {
+                        yield return rotatedMat.Clone();
+                    }
+                }
+            }
+
+            // 旋转处理辅助方法
+            private static Mat ApplyRotation(Mat src, ImageRotateType rotateType)
+            {
+                if (rotateType == ImageRotateType.R0)
+                    return src.Clone();
+
+                RotateFlags flag = rotateType switch
+                {
+                    ImageRotateType.R90 => RotateFlags.Rotate90Clockwise,
+                    ImageRotateType.R180 => RotateFlags.Rotate180,
+                    ImageRotateType.R270 => RotateFlags.Rotate90Counterclockwise,
+                    _ => RotateFlags.Rotate90Clockwise
+                };
+
+                Mat dst = new Mat();
+                Cv2.Rotate(src, dst, flag);
+                return dst;
+            }
+
+            // 翻转处理辅助方法
+            private static void ApplyFlip(Mat mat, bool upDown, bool leftRight)
+            {
+                if (upDown && leftRight)
+                {
+                    Cv2.Flip(mat, mat, FlipMode.XY);
+                }
+                else if (upDown)
+                {
+                    Cv2.Flip(mat, mat, FlipMode.X);
+                }
+                else if (leftRight)
+                {
+                    Cv2.Flip(mat, mat, FlipMode.Y);
+                }
+            }
+
+        }
+    
     }
 
 }
