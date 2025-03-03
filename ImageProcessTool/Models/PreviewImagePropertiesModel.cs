@@ -1,5 +1,7 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using System.ComponentModel;
+using HamsterStudio.HandyUtil.PropertyEditors;
+using HandyControl.Controls;
 
 namespace ImageProcessTool
 {
@@ -12,6 +14,7 @@ namespace ImageProcessTool
         private bool _uniform = true;
 
         [ObservableProperty]
+        [property: Editor(typeof(FilenameEditor), typeof(PropertyEditorBase))]
         private string _savingFilename = string.Empty;
 
         public event EventHandler? NotifyRedraw;

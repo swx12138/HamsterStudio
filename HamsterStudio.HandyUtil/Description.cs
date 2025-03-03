@@ -1,5 +1,5 @@
 
-namespace HamsterStudio.Barefoot
+namespace HamsterStudio.HandyUtil
 {
     public class Description
     {

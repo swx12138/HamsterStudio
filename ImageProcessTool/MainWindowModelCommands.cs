@@ -1,5 +1,5 @@
 ﻿using CommunityToolkit.Mvvm.Input;
-using HamsterStudio.Barefoot.Models;
+using HamsterStudio.Barefeet.Models;
 using HamsterStudio.Toolkits;
 using Microsoft.Win32;
 using System.Diagnostics;

@@ -1,4 +1,4 @@
-﻿using HamsterStudio.Barefoot.Models;
+﻿using HamsterStudio.Barefeet.Models;
 using OpenCvSharp;
 using OpenCvSharp.WpfExtensions;
 using System.Diagnostics;

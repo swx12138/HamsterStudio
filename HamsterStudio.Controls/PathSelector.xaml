@@ -12,7 +12,7 @@
             <ColumnDefinition Width="*" />
             <ColumnDefinition Width="Auto" />
         </Grid.ColumnDefinitions>
-        <TextBox Grid.Column="0" Text="{Binding Path, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+        <TextBox x:Name="tbPath" Grid.Column="0" TextChanged="tbPath_TextChanged" />
         <Button Grid.Column="1" Click="Button_Click" Content="..." />
     </Grid>
 </UserControl>

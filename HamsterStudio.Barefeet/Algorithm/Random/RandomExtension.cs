@@ -1,5 +1,5 @@
 ﻿
-namespace HamsterStudio.Barefoot.Algorithm.Random;
+namespace HamsterStudio.Barefeet.Algorithm.Random;
 
 static class RandomExtension
 {

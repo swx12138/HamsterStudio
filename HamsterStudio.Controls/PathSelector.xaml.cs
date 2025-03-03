@@ -49,7 +49,13 @@ namespace HamsterStudio.Controls
 
         private static void PropertyChangedCallback(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
-
+            if (d is PathSelector selector)
+            {
+                if (e.Property == PathProperty)
+                {
+                    selector.tbPath.Text = e.NewValue as string;
+                }
+            }
         }
 
         public PathSelector()
@@ -64,7 +70,7 @@ namespace HamsterStudio.Controls
                 OpenFolderDialog dialog = new();
                 dialog.InitialDirectory = Path;
                 dialog.Multiselect = false;
-                if (dialog.ShowDialog()??false)
+                if (dialog.ShowDialog() ?? false)
                 {
                     Path = dialog.FolderName;
                 }
@@ -79,6 +85,11 @@ namespace HamsterStudio.Controls
                     Path = dialog.FileName;
                 }
             }
+        }
+
+        private void tbPath_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            Path = tbPath.Text;
         }
     }
 }

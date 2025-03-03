@@ -1,5 +1,5 @@
 ﻿
-namespace HamsterStudio.Barefoot.Constants;
+namespace HamsterStudio.Barefeet.Constants;
 
 public static class Widths
 {

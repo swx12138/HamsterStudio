@@ -1,5 +1,5 @@
 ﻿
-namespace HamsterStudio.Barefoot.Models.Coordinate;
+namespace HamsterStudio.Barefeet.Models.Coordinate;
 
 public class PolarCoor
 {

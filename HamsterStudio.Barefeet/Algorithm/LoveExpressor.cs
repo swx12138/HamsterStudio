@@ -1,6 +1,6 @@
-﻿using HamsterStudio.Barefoot.Algorithm.Random;
+﻿using HamsterStudio.Barefeet.Algorithm.Random;
 
-namespace HamsterStudio.Barefoot.Algorithm
+namespace HamsterStudio.Barefeet.Algorithm
 {
     public static class Love
     {

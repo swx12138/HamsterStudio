@@ -24,8 +24,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\HamsterStudio.Barefoot\HamsterStudio.Barefoot.csproj" />
     <ProjectReference Include="..\HamsterStudio.Controls\HamsterStudio.Controls.csproj" />
+    <ProjectReference Include="..\HamsterStudio.HandyUtil\HamsterStudio.HandyUtil.csproj" />
     <ProjectReference Include="..\HamsterStudio.Toolkits\HamsterStudio.Toolkits.csproj" />
   </ItemGroup>
 

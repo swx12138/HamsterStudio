@@ -1,11 +1,10 @@
-﻿using HandyControl.Controls;
+﻿using HamsterStudio.Controls;
+using HandyControl.Controls;
 using System.Windows;
-using HamsterStudio.Controls;
-using System.Windows.Controls;
 
-namespace ImageProcessTool.PropertyEditors
+namespace HamsterStudio.HandyUtil.PropertyEditors
 {
-    class FilenameEditor : PropertyEditorBase
+    public class FilenameEditor : PropertyEditorBase
     {
         public override FrameworkElement CreateElement(PropertyItem propertyItem)
         {

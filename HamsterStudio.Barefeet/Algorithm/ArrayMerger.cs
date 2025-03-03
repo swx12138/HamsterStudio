@@ -1,5 +1,5 @@
 ﻿
-namespace HamsterStudio.Barefoot.Algorithm;
+namespace HamsterStudio.Barefeet.Algorithm;
 
 public class ArrayMerger
 {

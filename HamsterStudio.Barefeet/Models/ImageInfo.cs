@@ -1,7 +1,7 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using System.Windows.Input;
 
-namespace HamsterStudio.Barefoot.Models;
+namespace HamsterStudio.Barefeet.Models;
 
 public enum ImageRotateType
 {
