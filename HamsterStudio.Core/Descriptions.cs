@@ -1,5 +1,5 @@
 
-namespace HamsterStudio.Core
+namespace HamsterStudio
 {
     public class Descriptions
     {

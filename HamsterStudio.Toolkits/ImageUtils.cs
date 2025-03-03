@@ -1,10 +1,8 @@
-﻿using HamsterStudio.Constants;
-using HamsterStudio.Models;
+﻿using HamsterStudio.Barefoot.Models;
 using OpenCvSharp;
 using OpenCvSharp.WpfExtensions;
 using System.Diagnostics;
 using System.IO;
-using System.Runtime.CompilerServices;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 
@@ -51,6 +49,32 @@ namespace HamsterStudio.Toolkits
         }
 
         private static readonly string[] KnownImageExts = { ".jpg", ".jpeg", ".png", ".bmp", ".gif", ".tiff" };
+
+        public static BitmapImage LoadThumbnail(string? filePath, int maxWidth = 200)
+        {
+            if (filePath == null)
+            {
+                return new BitmapImage(new Uri("pack://application:,,,/placeholder.png"));
+            }
+
+            try
+            {
+                var bitmap = new BitmapImage();
+                bitmap.BeginInit();
+                bitmap.UriSource = new Uri(filePath);
+                bitmap.DecodePixelWidth = maxWidth;
+                bitmap.CacheOption = BitmapCacheOption.OnLoad;
+                bitmap.CreateOptions = BitmapCreateOptions.IgnoreColorProfile;
+                bitmap.EndInit();
+                bitmap.Freeze();
+                return bitmap;
+            }
+            catch (Exception ex)
+            {
+                Trace.TraceError($"加载缩略图失败: {ex.Message}\n{ex.StackTrace}");
+                return new BitmapImage(new Uri("pack://application:,,,/placeholder.png"));
+            }
+        }
 
         public static ImageSource? LoadImageSource(string? path)
         {

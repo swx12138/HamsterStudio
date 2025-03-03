@@ -1,147 +1,14 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Input;
-using HamsterStudio.Models;
-using HamsterStudio.Toolkits;
-using Microsoft.Win32;
+using HamsterStudio.Barefoot.Models;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
-using System.Windows;
-using System.Windows.Input;
 using System.Windows.Media;
 
 namespace ImageProcessTool
 {
-    class MainWindowModelCommands
-    {
-        public ICommand SaveCommand { get; }
-
-        public ICommand RepeatItemCommand { get; }
-        public ICommand DestroyItemCommand { get; }
-
-        public ICommand OpenFilesCommand { get; }
-        public ICommand CloseFilesCommand { get; }
-        public ICommand ReselectFilesCommand { get; }
-
-        public ICommand RefreshPreviewCommand { get; }
-
-        public ICommand ScaleImagesCommand { get; }
-        public ICommand SetImageWidthLimitCommand { get; }
-
-        public MainWindowModelCommands(MainWindowModel mainWindowModel)
-        {
-            SaveCommand = new RelayCommand(() =>
-            {
-                if (File.Exists(mainWindowModel.PreviewImageProps.SavingFilename))
-                {
-                    if (MessageBox.Show("File already exists. overwrite it?", "Warning", MessageBoxButton.YesNo) == MessageBoxResult.No)
-                    {
-                        return;
-                    }
-                }
-                mainWindowModel!.PreviewImage?.SaveImageSource(mainWindowModel.PreviewImageProps.SavingFilename);
-                mainWindowModel.SavingCount++;
-                Trace.TraceInformation($"File saved @ {mainWindowModel.PreviewImageProps.SavingFilename}");
-            });
-            RepeatItemCommand = new RelayCommand<ImageInfo>(item =>
-            {
-                ImageInfo imageInfo = new(item!.Filename) { RepeatCommand = RepeatItemCommand!, DestroyCommand = DestroyItemCommand! };
-                mainWindowModel.ImagePaths.Add(imageInfo);
-                RefreshPreviewCommand?.Execute(null);
-            });
-            DestroyItemCommand = new RelayCommand<ImageInfo>(item =>
-            {
-                mainWindowModel.ImagePaths.Remove(item!);
-                RefreshPreviewCommand?.Execute(null);
-            });
-            
-            OpenFilesCommand = new RelayCommand(() =>
-            {
-                var diag = new OpenFileDialog();
-                diag.Multiselect = true;
-                if (diag.ShowDialog() ?? false)
-                {
-                    mainWindowModel.LoadFiles(diag.FileNames);
-                }
-            });
-            CloseFilesCommand = new RelayCommand(() =>
-            {
-                mainWindowModel.ImagePaths.Clear();
-                mainWindowModel.SavingCount = 0;
-                mainWindowModel.PreviewImageProps.SavingFilename = string.Empty;
-            });
-            ReselectFilesCommand = new RelayCommand(() =>
-            {
-                CloseFilesCommand.Execute(null);
-                OpenFilesCommand.Execute(null);
-            });
-
-            RefreshPreviewCommand = new RelayCommand(() =>
-            {
-                try
-                {
-                    mainWindowModel.PreviewImage = mainWindowModel.ImagePaths.CreateImageSource(mainWindowModel.PreviewImageProps.Colums, mainWindowModel.PreviewImageProps.Uniform);
-                }
-                catch (Exception ex)
-                {
-                    mainWindowModel.ShowException(ex);
-                }
-            });
-            ScaleImagesCommand = new RelayCommand(() =>
-            {
-                try
-                {
-                    int n = 0;
-                    if (!Directory.Exists(@"D:\Publish\bizhi\Abandoned"))
-                    {
-                        Directory.CreateDirectory(@"D:\Publish\bizhi\Abandoned");
-                    }
-
-                    var filenames = Directory.GetFiles(@"D:\Publish\bizhi");
-                    filenames.AsParallel().ForAll(filename =>
-                    {
-                        ImageUtils.ScaleImage(filename, x => Math.Floor(38400.0 / x.Width) / 10);
-                        Trace.TraceInformation($"[{n++}/{filenames.Length}] {filename}");
-                    });
-                }
-                catch (Exception ex)
-                {
-                    mainWindowModel.ShowException(ex);
-                }
-            });
-            SetImageWidthLimitCommand = new RelayCommand<int>(newWidth =>
-            {
-                Trace.TraceInformation($"Set image width limit {mainWindowModel.ImageWidthLimit} => {newWidth}");
-                mainWindowModel.ImageWidthLimit = newWidth;
-            });
-        }
-    }
-
-    partial class PreviewImageProperties : ObservableObject
-    {
-        [ObservableProperty]
-        private int _colums = 3;
-
-        [ObservableProperty]
-        private bool _uniform = true;
-
-        [ObservableProperty]
-        private string _savingFilename = string.Empty;
-
-        public event EventHandler? NotifyRedraw;
-
-        protected override void OnPropertyChanged(PropertyChangedEventArgs e)
-        {
-            if (e.PropertyName == nameof(Colums) || e.PropertyName == nameof(Uniform))
-            {
-                NotifyRedraw?.Invoke(this, EventArgs.Empty);
-            }
-            base.OnPropertyChanged(e);
-        }
-    }
-
     partial class MainWindowModel : ObservableObject
     {
         [ObservableProperty]
@@ -171,7 +38,7 @@ namespace ImageProcessTool
         private ImageSource? _previewImage;
 
         [ObservableProperty]
-        private PreviewImageProperties _previewImageProps = new();
+        private PreviewImagePropertiesModel _previewImageProps = new();
 
         public MainWindowModelCommands Commands { get; }
 
@@ -196,6 +63,11 @@ namespace ImageProcessTool
         {
             if (e.Action == NotifyCollectionChangedAction.Add)
             {
+                if(e.NewItems == null)
+                {
+                    return;
+                }
+
                 foreach (ImageInfo newItem in e.NewItems)
                 {
                     newItem.PropertyChanged += ImageInfo_PropertyChanged;
@@ -210,6 +82,11 @@ namespace ImageProcessTool
             }
             else if (e.Action == NotifyCollectionChangedAction.Remove)
             {
+                if (e.OldItems == null)
+                {
+                    return;
+                }
+
                 foreach (ImageInfo newItem in e.OldItems)
                 {
                     newItem.PropertyChanged -= ImageInfo_PropertyChanged;

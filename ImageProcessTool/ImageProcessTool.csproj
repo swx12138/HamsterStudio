@@ -8,7 +8,7 @@
     <UseWPF>true</UseWPF>
     <PlatformTarget>x64</PlatformTarget>
     <PackageIcon></PackageIcon>
-    <ApplicationIcon>Assets\102587234_p1_uid_32678331_256.ico</ApplicationIcon>
+    <ApplicationIcon>Assets\chuhua.ico</ApplicationIcon>
   </PropertyGroup>
 
   <ItemGroup>
@@ -16,7 +16,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="Assets\102587234_p1_uid_32678331_256.ico" />
+    <Content Include="Assets\chuhua.ico" />
   </ItemGroup>
 
   <ItemGroup>
@@ -24,8 +24,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\HamsterStudio.Barefoot\HamsterStudio.Barefoot.csproj" />
     <ProjectReference Include="..\HamsterStudio.Controls\HamsterStudio.Controls.csproj" />
-    <ProjectReference Include="..\HamsterStudio.Core\HamsterStudio.Core.csproj" />
+    <ProjectReference Include="..\HamsterStudio.Toolkits\HamsterStudio.Toolkits.csproj" />
   </ItemGroup>
 
   <ItemGroup>
