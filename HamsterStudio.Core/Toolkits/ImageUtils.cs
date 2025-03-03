@@ -11,30 +11,71 @@ namespace HamsterStudio.Toolkits
 {
     public static class ImageUtils
     {
+        public static bool ScaleImage(string inputPath, double scale)
+        {
+            if (string.IsNullOrWhiteSpace(inputPath) || scale <= 0)
+                return false;
+
+            if (!IsImageFile(inputPath))
+            {
+                return false;
+            }
+
+            using var src = new Mat(inputPath, ImreadModes.Unchanged);
+            using var dst = src.Resize(new Size(src.Width * scale, src.Height * scale));
+            dst.SaveImage(inputPath);
+            return true;
+        }
+
+        public delegate double ScaleFunc(Mat mat);
+
+        public static bool ScaleImage(string inputPath, ScaleFunc scaleFunc)
+        {
+            if (string.IsNullOrWhiteSpace(inputPath) || scaleFunc == null)
+                return false;
+
+            if (!IsImageFile(inputPath))
+            {
+                return false;
+            }
+
+            using var src = new Mat(inputPath, ImreadModes.Unchanged);
+            double scale = scaleFunc(src);
+            if (scale <= 0)
+                return false;
+
+            using var dst = src.Resize(new Size(src.Width * scale, src.Height * scale));
+            dst.SaveImage(inputPath);
+            return true;
+        }
+
         private static readonly string[] KnownImageExts = { ".jpg", ".jpeg", ".png", ".bmp", ".gif", ".tiff" };
 
         public static ImageSource? LoadImageSource(string? path)
         {
+            if (path == null) { return null; }
+            if (string.IsNullOrWhiteSpace(path)) { return null; }
+
+            if (!IsImageFile(path))
+            {
+                return null;
+            }
+
+            var bitmap = new BitmapImage();
             try
             {
-                if (path == null) { return null; }
-                if (string.IsNullOrWhiteSpace(path)) { return null; }
-
-                if (!IsImageFile(path))
-                {
-                    return null;
-                }
-
-                BitmapImage bitmap = new();
                 bitmap.BeginInit();
+                bitmap.CreateOptions = BitmapCreateOptions.IgnoreColorProfile;
+                bitmap.CacheOption = BitmapCacheOption.OnLoad; // 关键：强制在初始化时加载                
                 bitmap.UriSource = new Uri(path);
                 bitmap.EndInit();
+                bitmap.Freeze(); // 可选：冻结对象避免跨线程问题
                 return bitmap;
             }
             catch (Exception ex)
             {
+                Trace.TraceError($"file @ {path}，。");
                 Trace.TraceError(ex.Message);
-                Trace.TraceError(@"file @ {path}");
                 Trace.TraceError(ex.StackTrace);
                 throw;
             }
@@ -58,12 +99,14 @@ namespace HamsterStudio.Toolkits
 
             // 步骤1：预处理所有图像（旋转/翻转/重复）
             var processedMats = new List<Mat>();
-            foreach (var imgInfo in validImages)
+            try
             {
-                using (var srcMat = new Mat(imgInfo.Filename, ImreadModes.Color))
+                foreach (var imgInfo in validImages)
                 {
+                    using var srcMat = new Mat(imgInfo.Filename, ImreadModes.Unchanged);
+
                     // 应用旋转
-                    var rotatedMat = ApplyRotation(srcMat, imgInfo.RotateType);
+                    using var rotatedMat = ApplyRotation(srcMat, imgInfo.RotateType);
 
                     // 应用翻转
                     ApplyFlip(rotatedMat, imgInfo.UpDownFlip, imgInfo.LeftRightFlip);
@@ -74,85 +117,97 @@ namespace HamsterStudio.Toolkits
                         processedMats.Add(rotatedMat.Clone());
                     }
                 }
-            }
 
-            if (processedMats.Count == 0)
-                return new BitmapImage();
+                if (processedMats.Count == 0)
+                    return new BitmapImage();
 
-            // 步骤2：计算目标尺寸和缩放图片
-            List<Mat> resizedMats = [];
-            if (uniform)
-            {
-                // 计算所有图片的平均高度
-                double avgHeight = processedMats.Average(m => m.Height);
 
-                // 统一缩放到平均高度
-                foreach (var mat in processedMats)
+                // 步骤2：计算目标尺寸和缩放图片
+                List<Mat> resizedMats = [];
+                try
                 {
-                    using (mat)
+                    if (uniform)
                     {
-                        double scale = avgHeight / mat.Height;
-                        var resizedMat = mat.Resize(new Size(mat.Width * scale, avgHeight));
-                        resizedMats.Add(resizedMat);
-                    }
-                }
-            }
-            else
-            {
-                resizedMats = processedMats;
-            }
+                        // 计算所有图片的平均高度
+                        double avgHeight = processedMats.Average(m => m.Height);
 
-            // 步骤3：计算画布尺寸
-            int totalCount = resizedMats.Count;
-            int rows = (totalCount + columns - 1) / columns;
-            int cellWidth = resizedMats.Max(x => x.Width);
-            int cellHeight = resizedMats.Max(x => x.Height);
-            List<int> widths = [];
-
-            // 步骤4：绘制组合图像
-            var drawingVisual = new DrawingVisual();
-            using (DrawingContext dc = drawingVisual.RenderOpen())
-            {
-                int left = 0;
-                for (int i = 0; i < resizedMats.Count; i++)
-                {
-                    int row = i / columns;
-                    int col = i % columns;
-
-                    // 转换为 WPF 图像源
-                    var bitmapSource = BitmapSourceConverter.ToBitmapSource(resizedMats[i]);
-
-                    // 绘制逻辑（保持宽高比）
-                    var imageSize = new Size(bitmapSource.Width, bitmapSource.Height);
-                    var renderRect = new System.Windows.Rect(left, row * cellHeight, imageSize.Width, imageSize.Height);
-                    dc.DrawImage(bitmapSource, renderRect);
-
-                    if (col == columns - 1)
-                    {
-                        widths.Add(left + imageSize.Width);
-                        left = 0;
+                        // 统一缩放到平均高度
+                        foreach (var mat in processedMats)
+                        {
+                            using (mat)
+                            {
+                                double scale = avgHeight / mat.Height;
+                                var resizedMat = mat.Resize(new Size(mat.Width * scale, avgHeight));
+                                resizedMats.Add(resizedMat);
+                            }
+                        }
                     }
                     else
                     {
-                        left += imageSize.Width;
+                        resizedMats = processedMats;
                     }
 
+                    // 步骤3：计算画布尺寸
+                    int totalCount = resizedMats.Count;
+                    int rows = (totalCount + columns - 1) / columns;
+                    int cellWidth = resizedMats.Max(x => x.Width);
+                    int cellHeight = resizedMats.Max(x => x.Height);
+                    List<int> widths = [];
+
+                    // 步骤4：绘制组合图像
+                    var drawingVisual = new DrawingVisual();
+                    using (DrawingContext dc = drawingVisual.RenderOpen())
+                    {
+                        int left = 0;
+                        for (int i = 0; i < resizedMats.Count; i++)
+                        {
+                            int row = i / columns;
+                            int col = i % columns;
+
+                            // 转换为 WPF 图像源
+                            var bitmapSource = BitmapSourceConverter.ToBitmapSource(resizedMats[i]);
+
+                            // 绘制逻辑（保持宽高比）
+                            var imageSize = new Size(bitmapSource.Width, bitmapSource.Height);
+                            var renderRect = new System.Windows.Rect(left, row * cellHeight, imageSize.Width, imageSize.Height);
+                            dc.DrawImage(bitmapSource, renderRect);
+
+                            if (col == columns - 1)
+                            {
+                                widths.Add(left + imageSize.Width);
+                                left = 0;
+                            }
+                            else
+                            {
+                                left += imageSize.Width;
+                            }
+
+                        }
+                    }
+
+                    // 步骤5：渲染并清理资源
+                    double totalWidth = widths.Max();
+                    double totalHeight = rows * cellHeight;
+                    var renderBitmap = new RenderTargetBitmap(
+                        (int)totalWidth, (int)totalHeight, 96, 96, PixelFormats.Pbgra32);
+                    renderBitmap.Render(drawingVisual);
+                    return renderBitmap;
+                }
+                finally
+                {
+                    foreach (var mat in resizedMats)
+                    {
+                        mat.Dispose();
+                    }
                 }
             }
-
-            // 步骤5：渲染并清理资源
-            double totalWidth = widths.Max();
-            double totalHeight = rows * cellHeight;
-            var renderBitmap = new RenderTargetBitmap(
-                (int)totalWidth, (int)totalHeight, 96, 96, PixelFormats.Pbgra32);
-            renderBitmap.Render(drawingVisual);
-
-            foreach (var mat in resizedMats)
+            finally
             {
-                mat.Dispose();
+                foreach (var mat in processedMats)
+                {
+                    mat.Dispose();
+                }
             }
-
-            return renderBitmap;
         }
 
         // 旋转处理辅助方法

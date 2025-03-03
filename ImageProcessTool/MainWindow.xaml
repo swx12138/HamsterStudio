@@ -4,6 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:hc="https://handyorg.github.io/handycontrol"
         xmlns:hsc="clr-namespace:HamsterStudio.Converters;assembly=HamsterStudio.Core"
+        xmlns:hscc="clr-namespace:HamsterStudio.Constants;assembly=HamsterStudio.Core"
         xmlns:hsm="clr-namespace:HamsterStudio.Models;assembly=HamsterStudio.Core"
         xmlns:local="clr-namespace:ImageProcessTool"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -21,6 +22,11 @@
     <Window.Resources>
         <hsc:PathToImageSource x:Key="PathToImageSourceCvtr" />
     </Window.Resources>
+    <Window.InputBindings>
+        <KeyBinding Command="{Binding Commands.OpenFilesCommand}" Gesture="Ctrl+O" />
+        <KeyBinding Command="{Binding Commands.CloseFilesCommand}" Gesture="Ctrl+W" />
+        <KeyBinding Command="{Binding Commands.ReselectFilesCommand}" Gesture="Ctrl+R" />
+    </Window.InputBindings>
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
@@ -31,11 +37,27 @@
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
         <Menu Grid.ColumnSpan="2">
-            <MenuItem Header="File">
-                <MenuItem Command="{Binding Commands.OpenFilesCommand}" Header="Open Files" />
-                <MenuItem Command="{Binding Commands.CloseFilesCommand}" Header="Close Files" />
+            <MenuItem Header="File" InputGestureText="F">
+                <MenuItem Command="{Binding Commands.OpenFilesCommand}" Header="Open Files" InputGestureText="O" />
+                <MenuItem Command="{Binding Commands.CloseFilesCommand}" Header="Close Files" InputGestureText="C" />
+                <Separator />
+                <MenuItem Command="{Binding Commands.ReselectFilesCommand}" Header="Reselect Files" InputGestureText="R" />
             </MenuItem>
-            <MenuItem Header="Edit" />
+            <MenuItem Header="Edit">
+                <MenuItem Command="{Binding Commands.ScaleImagesCommand}" Header="ScaleImages" />
+                <MenuItem>
+                    <MenuItem.Header>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="图像输出宽度限制:" />
+                            <TextBlock Text="{Binding ImageWidthLimit}" />
+                        </StackPanel>
+                    </MenuItem.Header>
+                    <MenuItem Command="{Binding Commands.SetImageWidthLimitCommand}" CommandParameter="{x:Static hscc:Widths.ImageWidth_8K}" Header="8k" />
+                    <MenuItem Command="{Binding Commands.SetImageWidthLimitCommand}" CommandParameter="{x:Static hscc:Widths.ImageWidth_4K}" Header="4k" />
+                    <MenuItem Command="{Binding Commands.SetImageWidthLimitCommand}" CommandParameter="{x:Static hscc:Widths.ImageWidth_2K}" Header="2k" />
+                    <MenuItem Command="{Binding Commands.SetImageWidthLimitCommand}" CommandParameter="{x:Static hscc:Widths.ImageWidth_FullHD}" Header="full_hd" />
+                </MenuItem>
+            </MenuItem>
             <MenuItem Header="View">
                 <MenuItem Header="Topmost" IsCheckable="True" IsChecked="{Binding Topmost}" />
             </MenuItem>

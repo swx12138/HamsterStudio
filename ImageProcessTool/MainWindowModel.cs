@@ -3,11 +3,9 @@ using CommunityToolkit.Mvvm.Input;
 using HamsterStudio.Models;
 using HamsterStudio.Toolkits;
 using Microsoft.Win32;
-using OpenCvSharp;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
-using System.ComponentModel.Design;
 using System.Diagnostics;
 using System.IO;
 using System.Windows;
@@ -25,16 +23,20 @@ namespace ImageProcessTool
 
         public ICommand OpenFilesCommand { get; }
         public ICommand CloseFilesCommand { get; }
+        public ICommand ReselectFilesCommand { get; }
 
         public ICommand RefreshPreviewCommand { get; }
+
+        public ICommand ScaleImagesCommand { get; }
+        public ICommand SetImageWidthLimitCommand { get; }
 
         public MainWindowModelCommands(MainWindowModel mainWindowModel)
         {
             SaveCommand = new RelayCommand(() =>
             {
-                if(File.Exists(mainWindowModel.PreviewImageProps.SavingFilename))
+                if (File.Exists(mainWindowModel.PreviewImageProps.SavingFilename))
                 {
-                    if(MessageBox.Show("File already exists. overwrite it?" , "Warning", MessageBoxButton.YesNo) == MessageBoxResult.No)
+                    if (MessageBox.Show("File already exists. overwrite it?", "Warning", MessageBoxButton.YesNo) == MessageBoxResult.No)
                     {
                         return;
                     }
@@ -53,6 +55,7 @@ namespace ImageProcessTool
                 mainWindowModel.ImagePaths.Remove(item!);
                 RefreshPreviewCommand?.Execute(null);
             });
+            
             OpenFilesCommand = new RelayCommand(() =>
             {
                 var diag = new OpenFileDialog();
@@ -67,6 +70,12 @@ namespace ImageProcessTool
                 mainWindowModel.ImagePaths.Clear();
                 mainWindowModel.PreviewImageProps.SavingFilename = string.Empty;
             });
+            ReselectFilesCommand = new RelayCommand(() =>
+            {
+                CloseFilesCommand.Execute(null);
+                OpenFilesCommand.Execute(null);
+            });
+
             RefreshPreviewCommand = new RelayCommand(() =>
             {
                 try
@@ -77,6 +86,33 @@ namespace ImageProcessTool
                 {
                     mainWindowModel.ShowException(ex);
                 }
+            });
+            ScaleImagesCommand = new RelayCommand(() =>
+            {
+                try
+                {
+                    int n = 0;
+                    if (!Directory.Exists(@"D:\Publish\bizhi\Abandoned"))
+                    {
+                        Directory.CreateDirectory(@"D:\Publish\bizhi\Abandoned");
+                    }
+
+                    var filenames = Directory.GetFiles(@"D:\Publish\bizhi");
+                    filenames.AsParallel().ForAll(filename =>
+                    {
+                        ImageUtils.ScaleImage(filename, x => Math.Floor(38400.0 / x.Width) / 10);
+                        Trace.TraceInformation($"[{n++}/{filenames.Length}] {filename}");
+                    });
+                }
+                catch (Exception ex)
+                {
+                    mainWindowModel.ShowException(ex);
+                }
+            });
+            SetImageWidthLimitCommand = new RelayCommand<int>(newWidth =>
+            {
+                Trace.TraceInformation($"Set image width limit {mainWindowModel.ImageWidthLimit} => {newWidth}");
+                mainWindowModel.ImageWidthLimit = newWidth;
             });
         }
     }
@@ -137,7 +173,10 @@ namespace ImageProcessTool
 
         public MainWindowModelCommands Commands { get; }
 
-        private const string SavingPath = @"C:\Users\nv\Pictures\bizhi\";
+        private const string SavingPath = @"D:\Publish\bizhi";
+
+        [ObservableProperty]
+        private int _imageWidthLimit = 3840;
 
         public MainWindowModel()
         {
