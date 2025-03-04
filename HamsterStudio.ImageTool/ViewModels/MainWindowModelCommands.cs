@@ -7,7 +7,7 @@ using System.IO;
 using System.Windows;
 using System.Windows.Input;
 
-namespace ImageProcessTool
+namespace HamsterStudio.ImageTool.ViewModels
 {
     class MainWindowModelCommands
     {

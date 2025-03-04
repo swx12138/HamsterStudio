@@ -3,7 +3,7 @@ using System.ComponentModel;
 using HamsterStudio.HandyUtil.PropertyEditors;
 using HandyControl.Controls;
 
-namespace ImageProcessTool
+namespace HamsterStudio.ImageTool
 {
     partial class PreviewImagePropertiesModel : ObservableObject
     {

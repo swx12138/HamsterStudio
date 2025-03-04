@@ -1,8 +1,9 @@
-﻿using HamsterStudio.Toolkits.SysCall;
+﻿using HamsterStudio.ImageTool.ViewModels;
+using HamsterStudio.Toolkits.SysCall;
 using System.Windows;
 using System.Windows.Navigation;
 
-namespace ImageProcessTool;
+namespace HamsterStudio.ImageTool;
 
 /// <summary>
 /// Interaction logic for MainWindow.xaml

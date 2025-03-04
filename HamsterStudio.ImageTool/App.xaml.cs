@@ -2,7 +2,7 @@
 using System.Data;
 using System.Windows;
 
-namespace ImageProcessTool;
+namespace HamsterStudio.ImageTool;
 
 /// <summary>
 /// Interaction logic for App.xaml

@@ -7,8 +7,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HamsterStudioGUI", "Hamster
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HamsterStudio.Controls", "HamsterStudio.Controls\HamsterStudio.Controls.csproj", "{9A23A428-8AE2-408B-9719-3A2EB2DD48CF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ImageProcessTool", "ImageProcessTool\ImageProcessTool.csproj", "{96C5A47D-4D99-4E3E-BE1F-02316AE93BE6}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Common", "Common", "{02EA681E-C7D8-13C7-8484-4AC65E1B71E8}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HamsterStudio.Toolkits", "HamsterStudio.Toolkits\HamsterStudio.Toolkits.csproj", "{580F8119-3D48-491A-A268-EAE7243B7E32}"
@@ -20,6 +18,10 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HamsterStudio.Web", "HamsterStudio.Web\HamsterStudio.Web.csproj", "{CD16D444-8CEE-433C-89FD-203C3A830F0E}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConsoleApp", "ConsoleApp\ConsoleApp.csproj", "{217F6391-AB15-40AD-A442-5497518CC5D7}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Apps", "Apps", "{85879EA5-7D16-4A63-B0E8-76A6308EDA32}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HamsterStudio.ImageTool", "HamsterStudio.ImageTool\HamsterStudio.ImageTool.csproj", "{4D06F1E1-23FC-4F26-8067-5483A9F58082}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -35,10 +37,6 @@ Global
 		{9A23A428-8AE2-408B-9719-3A2EB2DD48CF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9A23A428-8AE2-408B-9719-3A2EB2DD48CF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9A23A428-8AE2-408B-9719-3A2EB2DD48CF}.Release|Any CPU.Build.0 = Release|Any CPU
-		{96C5A47D-4D99-4E3E-BE1F-02316AE93BE6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{96C5A47D-4D99-4E3E-BE1F-02316AE93BE6}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{96C5A47D-4D99-4E3E-BE1F-02316AE93BE6}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{96C5A47D-4D99-4E3E-BE1F-02316AE93BE6}.Release|Any CPU.Build.0 = Release|Any CPU
 		{580F8119-3D48-491A-A268-EAE7243B7E32}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{580F8119-3D48-491A-A268-EAE7243B7E32}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{580F8119-3D48-491A-A268-EAE7243B7E32}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -59,6 +57,10 @@ Global
 		{217F6391-AB15-40AD-A442-5497518CC5D7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{217F6391-AB15-40AD-A442-5497518CC5D7}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{217F6391-AB15-40AD-A442-5497518CC5D7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4D06F1E1-23FC-4F26-8067-5483A9F58082}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4D06F1E1-23FC-4F26-8067-5483A9F58082}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4D06F1E1-23FC-4F26-8067-5483A9F58082}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4D06F1E1-23FC-4F26-8067-5483A9F58082}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -69,6 +71,7 @@ Global
 		{546405DA-3154-4F27-BBB6-133616A5B890} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
 		{6BC521F1-E1F8-419E-BBFD-67058481DA22} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
 		{CD16D444-8CEE-433C-89FD-203C3A830F0E} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
+		{4D06F1E1-23FC-4F26-8067-5483A9F58082} = {85879EA5-7D16-4A63-B0E8-76A6308EDA32}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {2BEFE676-D503-4D35-A413-E099891E452B}

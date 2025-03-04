@@ -7,7 +7,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Windows.Media;
 
-namespace ImageProcessTool
+namespace HamsterStudio.ImageTool.ViewModels
 {
     partial class MainWindowModel : ObservableObject
     {
