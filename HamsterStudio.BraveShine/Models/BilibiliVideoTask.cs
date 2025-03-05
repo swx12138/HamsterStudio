@@ -1,6 +1,7 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using HamsterStudio.BraveShine.Models.Bilibili;
 using HamsterStudio.BraveShine.Services;
+using HamsterStudio.Toolkits.Logging;
 using HamsterStudio.Web.Interfaces;
 using System.IO;
 
@@ -11,8 +12,7 @@ namespace HamsterStudio.BraveShine.Models
         BilibiliVideoPage page,
         VideoStreamInfo? vsi,
         VideoInfo videoInfo,
-        BiliApiClient client,
-        IMyLogger? logger) : ObservableObject, IHamsterTask
+        BiliApiClient client) : ObservableObject, IHamsterTask
     {
         public string Name => page.PartTitle;
 
@@ -36,11 +36,11 @@ namespace HamsterStudio.BraveShine.Models
             {
                 State = HamsterTaskState.Running;
 
-                string vBaseUrl = getVideoBaseUrl(page, vsi, logger);
-                logger?.Information(vBaseUrl);
+                string vBaseUrl = getVideoBaseUrl(page, vsi);
+                Logger.Shared.Information("Video:" + vBaseUrl);
 
                 string aBaseUrl = getAudioBaseUrl(vsi);
-                logger?.Information(aBaseUrl);
+                Logger.Shared.Information("Audio:" + aBaseUrl);
 
                 AvDownloader downloader = new(client);
                 AvMeta meta = new()
@@ -52,12 +52,12 @@ namespace HamsterStudio.BraveShine.Models
                 };
                 string output = downloader.Download(meta, aBaseUrl, vBaseUrl,
                      $"{videoInfo.Cid!}-{vps}_{videoInfo.Bvid}.mp4",
-                     finished: (se, msg) => logger?.Information($"{msg}")).Result;
-                logger?.Information($"{Path.GetFullPath(output)} Succeed.");
+                     finished: (se, msg) => Logger.Shared.Information($"{msg}")).Result;
+                Logger.Shared.Information($"{Path.GetFullPath(output)} Succeed.");
 
                 State = HamsterTaskState.Succeed;
 
-                static string getVideoBaseUrl(BilibiliVideoPage page, VideoStreamInfo? vsi, IMyLogger? logger)
+                static string getVideoBaseUrl(BilibiliVideoPage page, VideoStreamInfo? vsi)
                 {
                     var lst = vsi?.Dash.Video.Where(x => x.Id == page.AcceptQuality)
                         .OrderBy(x => x.Bandwidth);
@@ -66,7 +66,7 @@ namespace HamsterStudio.BraveShine.Models
                         lst = vsi?.Dash.Video.OrderBy(x => x.Bandwidth);
                     }
 
-                    logger?.Information($"Video dash info : {lst?.Last()!.Width}*{lst?.Last()!.Height} bandw:{lst?.Last()!.Bandwidth}");
+                    Logger.Shared.Information($"Video dash info : {lst?.Last()!.Width}*{lst?.Last()!.Height} bandw:{lst?.Last()!.Bandwidth}");
                     return lst?.Last().BaseUrl ?? string.Empty;
                 }
 
@@ -79,7 +79,7 @@ namespace HamsterStudio.BraveShine.Models
             catch (Exception ex)
             {
                 State = HamsterTaskState.Failed;
-                logger?.Error($"{nameof(BilibiliVideoTask)} exception : {ex.Message}");
+                Logger.Shared.Error($"{nameof(BilibiliVideoTask)} exception : {ex.Message}");
             }
             finally
             {

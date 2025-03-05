@@ -1,8 +1,10 @@
 ﻿using HamsterStudio.BraveShine.Models.Bilibili;
 using HamsterStudio.BraveShine.Models.Bilibili.SubStruct;
+using HamsterStudio.Toolkits.Logging;
 using HamsterStudio.Web.Interfaces;
 using HamsterStudio.Web.Request;
 using HamsterStudio.Web.Services;
+using System.Collections.Concurrent;
 using System.IO;
 using System.Net;
 using System.Text.Json;
@@ -21,18 +23,23 @@ namespace HamsterStudio.BraveShine.Services
             AllowTrailingCommas = true,
         };
 
-        private IMyLogger Logger { get; }
+        private ConcurrentDictionary<string, VideoInfo> VideoInfoCache { get; } = [];
 
-        public BiliApiClient(string _cookies,IMyLogger logger)
+        public BiliApiClient(string? _cookies)
         {
-            Logger = logger;
-            Cookies = _cookies;
+            Cookies = _cookies ?? LoadCookies();
             Browser = new()
             {
                 Cookies = Cookies,
                 Referer = Referer
             };
             ServicePointManager.ServerCertificateValidationCallback += (sender, certificate, chain, sslPolicyErrors) => true;
+        }
+
+        private static string LoadCookies()
+        {
+            string cookiesFilename = Path.Combine(AvDownloader.BVDHome, "cookies.txt");
+            return File.ReadAllText(cookiesFilename);
         }
 
         public async Task<T?> GetApiAsync<T>(string api)
@@ -48,30 +55,34 @@ namespace HamsterStudio.BraveShine.Services
                 var respp = await JsonSerializer.DeserializeAsync<Response<T>>(resp, JsonSerializerOptions);
                 if (respp.Code != 0)
                 {
-                    Logger.Error($"Request {api} failed, {respp.Message}({respp.Code}).");
+                    Logger.Shared.Error($"Request {api} failed, {respp.Message}({respp.Code}).");
                 }
                 return respp.Data;
             }
             catch (JsonException e)
             {
-                Logger.Critical(e);
+                Logger.Shared.Critical(e);
 
                 resp.Seek(0, SeekOrigin.Begin);
                 using StreamReader streamReader = new(resp);
-                Logger.Information("resp: " + streamReader.ReadToEnd());
+                Logger.Shared.Information("resp: " + streamReader.ReadToEnd());
             }
             return default;
         }
 
         public async Task<VideoInfo?> GetVideoInfo(string bvid)
         {
-            //#if DEBUG
-            //            string json_data = File.ReadAllText(@"G:\Code\HamsterStudio\BV1ax4y1x7ua_view.json");
-            //            return await Task.FromResult(JsonSerializer.Deserialize<Response<VideoInfo>>(json_data).Data);
-            //#else
-            string api = $"https://api.bilibili.com/x/web-interface/view?bvid={bvid}";
-            return await GetApiAsync<VideoInfo>(api);
-            //#endif
+            if (VideoInfoCache.TryGetValue(bvid, out VideoInfo? value))
+            {
+                return value;
+            }
+            else
+            {
+                string api = $"https://api.bilibili.com/x/web-interface/view?bvid={bvid}";
+                value =  await GetApiAsync<VideoInfo>(api);
+                VideoInfoCache[bvid] = value;
+                return value;
+            }
         }
 
         public bool TryGetVideoInfo(string bvid, out VideoInfo? videoInfo)
@@ -83,7 +94,7 @@ namespace HamsterStudio.BraveShine.Services
             }
             catch (Exception e)
             {
-                Logger.Error(e.Message + "\n" + e.StackTrace);
+                Logger.Shared.Error(e.Message + "\n" + e.StackTrace);
             }
             return videoInfo != null;
         }

@@ -1,5 +1,9 @@
 ﻿using HamsterStudio.BraveShine.Models.Bilibili;
+using HamsterStudio.BraveShine.Models.Bilibili.SubStruct;
+using HamsterStudio.BraveShine.Modelss.Bilibili.SubStruct;
+using HamsterStudio.Toolkits.Logging;
 using HamsterStudio.Toolkits.SysCall;
+using HamsterStudio.Web.Services;
 using System.Diagnostics;
 using System.IO;
 
@@ -8,6 +12,7 @@ namespace HamsterStudio.BraveShine.Services;
 public class AvDownloader(BiliApiClient bClient)
 {
     public const string BVDHome = @"D:\BVDownload";
+    public const string BVCoverHome = @"D:\BVDownload\Covers";
 
     public async Task<string> Download(AvMeta meta,
         string aurl, string vurl,
@@ -19,6 +24,7 @@ public class AvDownloader(BiliApiClient bClient)
         {
             string saving_path = @$"{BVDHome}\\dash";
             output = Path.Combine(saving_path, output);
+            Logger.Shared.Information($"Output Dir:{output}");
 
             if (File.Exists(output))
             {
@@ -45,6 +51,30 @@ public class AvDownloader(BiliApiClient bClient)
         return output;
     }
 
+    public async Task<string> SaveCover(VideoInfo videoInfo)
+    {
+        return await SaveCover(videoInfo.Bvid, videoInfo.Pic);
+    }
+    
+    public async Task<string> SaveCover(WatchLaterDat watchLater)
+    {
+        return await SaveCover(watchLater.Bvid, watchLater.Pic);
+    }
+
+    public async Task<string> SaveCover(string bvid, PagesItem pagesItem)
+    {
+        return await SaveCover(bvid, pagesItem.FirstFrame);
+    }
+    
+    public async Task<string> SaveCover(string bvid, string url)
+    {
+        string filename = url.Split("?")[0].Split("@")[0].Split("/").Last();
+        filename = $"{bvid}_bili_{filename}";
+        string result = await FileSaver.SaveFileFromUrl(url, BVCoverHome, filename);
+        Logger.Shared.Information($"Saved {bvid} cover to {result}");
+        return result;
+    }
+
     public void MergeAv(string vname, string aname, AvMeta meta, string outp)
     {
         string cmd = $"chcp 65001 & ffmpeg -i \"{vname}\" -i \"{aname}\" -c:v copy -c:a copy " +
@@ -54,5 +84,6 @@ public class AvDownloader(BiliApiClient bClient)
             $"-metadata copyright=\"{meta.copyright}\" " +
             $"\"{outp}\"";
         ExplorerShell.System(cmd);
+        Logger.Shared.Information($"Av merge succeed.");
     }
 }

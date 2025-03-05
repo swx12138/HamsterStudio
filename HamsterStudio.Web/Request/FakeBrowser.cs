@@ -29,7 +29,7 @@ namespace HamsterStudio.Web.Request
             {
                 //Timeout = Timeout.InfiniteTimeSpan
             };
-            _Client.DefaultRequestHeaders.UserAgent.ParseAdd(Constants.USER_AGENT_Edge);
+            _Client.DefaultRequestHeaders.UserAgent.ParseAdd(Constants.USER_AGENT_Chrome);
         }
 
         public HttpRequestMessage CreateRequest(HttpMethod method, string api, HttpContent? content = null, RangeHeaderValue? range = null)
@@ -39,7 +39,7 @@ namespace HamsterStudio.Web.Request
             HttpRequestMessage request = new(method, api);
 
             // 设置User-Agent
-            request.Headers.Add("User-Agent", Constants.USER_AGENT_Edge);
+            request.Headers.Add("User-Agent", Constants.USER_AGENT_Chrome);
 
             if (Cookies != null) { request.Headers.Add("Cookie", Cookies); }
             if (Referer != null) { request.Headers.Add("Referer", Referer); }
