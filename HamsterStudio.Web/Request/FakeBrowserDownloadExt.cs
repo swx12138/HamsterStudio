@@ -1,5 +1,5 @@
-﻿using System.ComponentModel;
-using System.Diagnostics;
+﻿using HamsterStudio.Toolkits.Logging;
+using System.ComponentModel;
 using System.IO;
 
 namespace HamsterStudio.Web.Request
@@ -49,7 +49,7 @@ namespace HamsterStudio.Web.Request
                     parts.AsParallel().WithDegreeOfParallelism(Math.Clamp(maxDegreeOfParallelism ?? Environment.ProcessorCount, 1, Environment.ProcessorCount / 2))
                     .ForAll(part =>
                     {
-                        Trace.TraceInformation($"part {part.Id} start.");
+                        Logger.Shared.Information($"part {part.Id} start.");
                         Stream stream = browser.GetStreamAsync(url, part.Start, part.Length).Result;
                         lock (downloaded)
                         {
@@ -58,12 +58,12 @@ namespace HamsterStudio.Web.Request
                         }
                     });
                     while (downloaded.Count > 0) { streamReady.Set(); }
-                    Trace.TraceInformation($"downloading done.");
+                    Logger.Shared.Information($"downloading done.");
                 };
                 downloading.RunWorkerCompleted += (s, e) =>
                 {
-                    if (e.Error != null) { Trace.TraceError(e.Error.Message); }
-                    Trace.TraceInformation($"downloading down.");
+                    if (e.Error != null) { Logger.Shared.Error(e.Error.Message); }
+                    Logger.Shared.Information($"downloading down.");
                 };
                 downloading.RunWorkerAsync();
 
@@ -81,7 +81,7 @@ namespace HamsterStudio.Web.Request
                             nWrittenPart++;
                             downloaded.Remove(first.Key);
 
-                            Trace.TraceInformation($"{output} part {nWrittenPart}");
+                            Logger.Shared.Information($"{output} part {nWrittenPart}");
                         }
                     }
                 }
@@ -134,7 +134,7 @@ namespace HamsterStudio.Web.Request
                 // 将读取的数据写入文件流
                 await fileStream.WriteAsync(buffer, 0, bytesRead);
 
-                Trace.TraceInformation($"pid:{Process.GetCurrentProcess().Id} tid:{Thread.CurrentThread.ManagedThreadId} read {bytesRead} bytes.");
+                Logger.Shared.Information($"pid:{Environment.ProcessId} tid:{Thread.CurrentThread.ManagedThreadId} read {bytesRead} bytes.");
             }
         }
     }

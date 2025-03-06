@@ -1,4 +1,4 @@
-﻿using HamsterStudio.BraveShine.PropertyEditors;
+﻿using HamsterStudio.HandyUtil.PropertyEditors;
 using HandyControl.Controls;
 using System.ComponentModel;
 using System.Text.Json.Serialization;

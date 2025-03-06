@@ -1,4 +1,4 @@
-﻿using System.Diagnostics;
+﻿using HamsterStudio.Toolkits.Logging;
 using System.IO;
 using System.Net;
 using System.Net.Http;
@@ -51,14 +51,14 @@ namespace HamsterStudio.Web.Request
 
         private HttpContent HandleResponse(HttpResponseMessage resp)
         {
-            Debug.WriteLine($"[StatusCode] {resp.StatusCode}");
+            Logger.Shared.Debug($"[StatusCode] {resp.StatusCode}");
             resp.EnsureSuccessStatusCode();
             return resp.Content;
         }
 
         public async Task<HttpContent> FetchAsync(HttpMethod method, string api, HttpContent? content = null, RangeHeaderValue? range = null)
         {
-            Debug.WriteLine($"async [{method}] {api}");
+            Logger.Shared.Debug($"async [{method}] {api}");
             HttpRequestMessage httpRequest = CreateRequest(method, api, content, range);
             HttpResponseMessage response = await _Client.SendAsync(httpRequest, HttpCompletionOption.ResponseHeadersRead);
             return HandleResponse(response);
@@ -96,7 +96,7 @@ namespace HamsterStudio.Web.Request
 
         public HttpResponseMessage Fetch(HttpMethod method, string api)
         {
-            Debug.WriteLine($"[{method}] {api}");
+            Logger.Shared.Debug($"[{method}] {api}");
             HttpRequestMessage httpRequest = CreateRequest(method, api);
             HttpResponseMessage response = _Client.SendAsync(httpRequest).Result;
             return response;
