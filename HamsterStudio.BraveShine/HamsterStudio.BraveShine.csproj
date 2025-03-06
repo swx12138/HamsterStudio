@@ -6,10 +6,15 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <UseWPF>true</UseWPF>
+    <ApplicationIcon>Assets\41f15582eda2d1332bef0730b29d3633f56bded6.ico</ApplicationIcon>
   </PropertyGroup>
 
   <ItemGroup>
     <None Remove="BV1Mb9tYKEHF_VideoInfo.json" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="Assets\41f15582eda2d1332bef0730b29d3633f56bded6.ico" />
   </ItemGroup>
 
   <ItemGroup>

@@ -30,7 +30,7 @@ namespace HamsterStudio.BraveShine.Models
         [ObservableProperty]
         private HamsterTaskState _State;
 
-        public void Run()
+        public async void Run()
         {
             try
             {
@@ -50,9 +50,13 @@ namespace HamsterStudio.BraveShine.Models
                     album = videoInfo.Title!,
                     copyright = videoInfo.Bvid!
                 };
-                string output = downloader.Download(meta, aBaseUrl, vBaseUrl,
-                     $"{videoInfo.Cid!}-{vps}_{videoInfo.Bvid}.mp4",
-                     finished: (se, msg) => Logger.Shared.Information($"{msg}")).Result;
+                string output = await downloader.Download(meta, aBaseUrl, vBaseUrl,
+                     $"{videoInfo.Cid!}-{vps}_{videoInfo.Bvid}.mp4");
+
+                if(output == "")
+                {
+                    return;
+                }
                 Logger.Shared.Information($"{Path.GetFullPath(output)} Succeed.");
 
                 State = HamsterTaskState.Succeed;
@@ -79,7 +83,7 @@ namespace HamsterStudio.BraveShine.Models
             catch (Exception ex)
             {
                 State = HamsterTaskState.Failed;
-                Logger.Shared.Error($"{nameof(BilibiliVideoTask)} exception : {ex.Message}");
+                Logger.Shared.Critical(ex);
             }
             finally
             {

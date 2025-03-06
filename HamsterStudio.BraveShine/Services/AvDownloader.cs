@@ -4,7 +4,6 @@ using HamsterStudio.BraveShine.Modelss.Bilibili.SubStruct;
 using HamsterStudio.Toolkits.Logging;
 using HamsterStudio.Toolkits.SysCall;
 using HamsterStudio.Web.Services;
-using System.Diagnostics;
 using System.IO;
 
 namespace HamsterStudio.BraveShine.Services;
@@ -17,18 +16,17 @@ public class AvDownloader(BiliApiClient bClient)
     public async Task<string> Download(AvMeta meta,
         string aurl, string vurl,
         string output,
-        bool? DeleteAvCache = true,
-        EventHandler<string>? finished = null)
+        bool? DeleteAvCache = true)
     {
         try
         {
-            string saving_path = @$"{BVDHome}\\dash";
+            string saving_path = @$"{BVDHome}\dash";
             output = Path.Combine(saving_path, output);
             Logger.Shared.Information($"Output Dir:{output}");
 
             if (File.Exists(output))
             {
-                finished?.Invoke(this, $"{output} Exists.");
+                Logger.Shared.Information($"{output} Exists.");
                 return "";
             }
 
@@ -39,13 +37,13 @@ public class AvDownloader(BiliApiClient bClient)
 
             if (DeleteAvCache ?? true)
             {
-                try { File.Delete(aname ?? ""); } catch (Exception ex) { Trace.TraceError(ex.Message); }
-                try { File.Delete(vname ?? ""); } catch (Exception ex) { Trace.TraceError(ex.Message); }
+                try { File.Delete(aname ?? ""); } catch (Exception ex) { Logger.Shared.Critical(ex); }
+                try { File.Delete(vname ?? ""); } catch (Exception ex) { Logger.Shared.Critical(ex); }
             }
         }
         catch (Exception ex)
         {
-            Trace.TraceError($"[GG] {ex.Message}");
+            Logger.Shared.Critical(ex);
         }
 
         return output;

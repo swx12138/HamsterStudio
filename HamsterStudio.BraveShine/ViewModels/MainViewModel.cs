@@ -6,6 +6,7 @@ using HamsterStudio.BraveShine.Models.Bilibili.SubStruct;
 using HamsterStudio.BraveShine.Services;
 using HamsterStudio.Toolkits.Logging;
 using HamsterStudio.Web.Services;
+using System.Collections.ObjectModel;
 using System.IO;
 using System.Text.Json;
 using System.Windows.Input;
@@ -15,15 +16,15 @@ namespace HamsterStudio.BraveShine.ViewModels
     partial class MainViewModel : ObservableObject
     {
         [ObservableProperty]
-        private string _location = string.Empty;
+        private VideoLocatorModel _location = new();
 
         [ObservableProperty]
         private VideoInfo _videoInfo = new();
 
         [ObservableProperty]
-        private WatchLaterData _watchLaters;
+        private ObservableCollection<VideoLocatorModel> _quickList = [];
 
-        private string BvId => Location.Split("?")[0].Split("/").First(x => x.StartsWith("BV", StringComparison.CurrentCultureIgnoreCase));
+        private string BvId => Location.Bvid.Split("?")[0].Split("/").First(x => x.StartsWith("BV", StringComparison.CurrentCultureIgnoreCase));
 
         public ICommand SaveCoverCommand { get; }
         public ICommand SaveOwnerFaceCommand { get; }
@@ -47,6 +48,7 @@ namespace HamsterStudio.BraveShine.ViewModels
 #if DEBUG
             string text = File.ReadAllText(@"D:\Code\HamsterStudio\HamsterStudio.BraveShine\BV1Mb9tYKEHF_VideoInfo.json");
             VideoInfo = JsonSerializer.Deserialize<Response<VideoInfo>>(text).Data!;
+            Location = new() { Bvid = VideoInfo.Bvid };
 #endif
 
             SaveCoverCommand = new AsyncRelayCommand(async () => await (new AvDownloader(client)).SaveCover(VideoInfo));
@@ -78,11 +80,12 @@ namespace HamsterStudio.BraveShine.ViewModels
                 if (client.TryGetVideoInfo(BvId, out VideoInfo? videoInfo)) 
                 {
                     VideoInfo = videoInfo!;
+                    Location.Title = VideoInfo.Title;
                 }
             });
             RedirectCommand = new RelayCommand<string>(loc =>
             {
-                Location = loc;
+                Location.Bvid = loc;
                 RedirectLocationCommand.Execute(null);
             });
 
@@ -90,7 +93,12 @@ namespace HamsterStudio.BraveShine.ViewModels
             {
                 try
                 {
-                    WatchLaters = await client.GetWatchLater();
+                    var watchLaters = await client.GetWatchLater();
+                    if(watchLaters == null)
+                    {
+                        return;
+                    }
+                    QuickList = [.. watchLaters.List.Select(x => new VideoLocatorModel(x))];
                 }
                 catch (Exception ex)
                 {

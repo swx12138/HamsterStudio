@@ -1,5 +1,7 @@
 ﻿using HamsterStudio.BraveShine.Modelss.Bilibili.SubStruct;
 using HamsterStudio.BraveShine.ViewModels;
+using NLog;
+using System.Collections.ObjectModel;
 using System.Text;
 using System.Windows;
 using System.Windows.Controls;
@@ -39,6 +41,14 @@ public partial class MainWindow : Window
         if (DataContext is MainViewModel viewModel)
         {
             viewModel.RedirectLocationCommand.Execute(null);
+        }
+    }
+
+    private void Border_SourceUpdated(object sender, DataTransferEventArgs e)
+    {
+        if(sender is DataGrid dg && dg.DataContext is ObservableCollection<LogEventInfo> data)
+        {
+            dg.ScrollIntoView(data.Last());
         }
     }
 

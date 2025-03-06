@@ -128,8 +128,21 @@
                             <ColumnDefinition Width="*" />
                             <ColumnDefinition Width="Auto" />
                         </Grid.ColumnDefinitions>
-                        <ComboBox Grid.Row="1" Grid.ColumnSpan="2" ItemsSource="{Binding WatchLaters, Converter={StaticResource WatchLaterSelector}}" SelectedItem="{Binding Location}" />
-                        <TextBox Text="{Binding Location}" />
+                        <ComboBox Grid.Row="1" Grid.ColumnSpan="2" ItemsSource="{Binding QuickList}" SelectedItem="{Binding Location}">
+                            <ComboBox.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto" />
+                                            <ColumnDefinition Width="*" />
+                                        </Grid.ColumnDefinitions>
+                                        <Image MaxHeight="64" Source="{Binding Cover}" />
+                                        <TextBlock Grid.Column="1" Text="{Binding Title}" ToolTip="{Binding Bvid}" />
+                                    </Grid>
+                                </DataTemplate>
+                            </ComboBox.ItemTemplate>
+                        </ComboBox>
+                        <TextBox Text="{Binding Location.Bvid}" />
                         <Button Grid.Column="1" Command="{Binding RedirectLocationCommand}" Content="Load" />
                     </Grid>
                     <hc:PropertyGrid Margin="0,-5,0,0" Background="Transparent" SelectedObject="{Binding VideoInfo.Owner}" />
@@ -137,7 +150,7 @@
             </Border>
 
             <!--  日志  -->
-            <Border Grid.Row="1" Grid.Column="2" Background="LightGoldenrodYellow">
+            <Border Grid.Row="1" Grid.Column="2" Background="LightGoldenrodYellow" SourceUpdated="Border_SourceUpdated">
                 <DataGrid AutoGenerateColumns="False"
                           Background="Transparent"
                           GridLinesVisibility="All"

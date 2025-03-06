@@ -118,7 +118,9 @@ namespace HamsterStudio.BraveShine.Services
         public async Task<WatchLaterData?> GetWatchLater()
         {
             const string WatchLaterApi = "https://api.bilibili.com/x/v2/history/toview";
-            return await GetApiAsync<WatchLaterData>(WatchLaterApi);
+            var resp = await GetApiAsync<WatchLaterData>(WatchLaterApi);
+            Logger.Shared.Debug($"[WatchLater] Got {resp.Count} video.");
+            return resp;
         }
 
     }
