@@ -25,6 +25,8 @@ namespace HamsterStudio.ImageTool.ViewModels
         public ICommand ScaleImagesCommand { get; }
         public ICommand SetImageWidthLimitCommand { get; }
 
+        public ICommand LoadCurrentWallpaperCommand { get; }
+
         public MainWindowModelCommands(MainWindowModel mainWindowModel)
         {
             SaveCommand = new RelayCommand(() =>
@@ -110,6 +112,16 @@ namespace HamsterStudio.ImageTool.ViewModels
             {
                 Trace.TraceInformation($"Set image width limit {mainWindowModel.ImageWidthLimit} => {newWidth}");
                 mainWindowModel.ImageWidthLimit = newWidth;
+            });
+
+            LoadCurrentWallpaperCommand = new RelayCommand(() =>
+            {
+                if (Registry.CurrentUser.OpenSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Wallpapers")?.GetValue("BackgroundHistoryPath0") is not string path)
+                {
+                    return;
+                }
+                CloseFilesCommand.Execute(null);
+                mainWindowModel.LoadFiles([path]);
             });
         }
     }

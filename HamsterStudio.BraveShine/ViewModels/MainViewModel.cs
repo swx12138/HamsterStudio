@@ -4,6 +4,7 @@ using HamsterStudio.BraveShine.Models;
 using HamsterStudio.BraveShine.Models.Bilibili;
 using HamsterStudio.BraveShine.Models.Bilibili.SubStruct;
 using HamsterStudio.BraveShine.Services;
+using HamsterStudio.BraveShine.Views;
 using HamsterStudio.Toolkits.Logging;
 using HamsterStudio.Web.Services;
 using System.Collections.ObjectModel;
@@ -33,6 +34,7 @@ namespace HamsterStudio.BraveShine.ViewModels
         public ICommand RedirectCommand { get; }
         public ICommand RedirectLocationCommand { get; }
         public ICommand LoadWatchLaterCommand { get; }
+        public ICommand SelectVideoCommad { get; }
 
         private BiliApiClient client = new(null);
 
@@ -49,6 +51,11 @@ namespace HamsterStudio.BraveShine.ViewModels
             string text = File.ReadAllText(@"D:\Code\HamsterStudio\HamsterStudio.BraveShine\BV1Mb9tYKEHF_VideoInfo.json");
             VideoInfo = JsonSerializer.Deserialize<Response<VideoInfo>>(text).Data!;
             Location = new() { Bvid = VideoInfo.Bvid };
+#else
+            VideoInfo = new()
+            {
+                Pic = "https://i1.hdslb.com/bfs/archive/07854a9b2e4de91abbd482216ba5ff35d8b772ef.jpg", // "https://i1.hdslb.com/bfs/archive/8f3a0a264f46bb681655676764e0bc0d37ff7650.jpg"
+            };
 #endif
 
             SaveCoverCommand = new AsyncRelayCommand(async () => await (new AvDownloader(client)).SaveCover(VideoInfo));
@@ -106,6 +113,17 @@ namespace HamsterStudio.BraveShine.ViewModels
                 }
             });
 
+            SelectVideoCommad = new RelayCommand(() =>
+            {
+                VideoSelectorWindow instance = new();
+                instance.DataContext = QuickList;
+                instance.ShowDialog();
+                if (instance.Selected is not null and VideoLocatorModel vlm)
+                {
+                    Location = vlm;
+                    RedirectLocationCommand.Execute(null);
+                }
+            });
 
         }
 

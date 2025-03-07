@@ -43,6 +43,8 @@
                 <MenuItem Command="{Binding Commands.CloseFilesCommand}" Header="Close Files" InputGestureText="C" />
                 <Separator />
                 <MenuItem Command="{Binding Commands.ReselectFilesCommand}" Header="Reselect Files" InputGestureText="R" />
+                <Separator />
+                <MenuItem Command="{Binding Commands.LoadCurrentWallpaperCommand}" Header="Load Current Wallpaper" InputGestureText="Ctrl+Alt+W" />
             </MenuItem>
             <MenuItem Header="Edit">
                 <MenuItem Command="{Binding Commands.ScaleImagesCommand}" Header="ScaleImages" />

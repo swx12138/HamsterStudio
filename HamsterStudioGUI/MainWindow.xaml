@@ -9,33 +9,6 @@
         Height="450"
         mc:Ignorable="d">
     <StackPanel>
-        <ListView>
-            <ListViewItem>
-                <TextBlock Text="1111111111111111111" />
-            </ListViewItem>
-            <ListViewItem>
-                <TextBlock Text="1111111111111111111" />
-            </ListViewItem>
-            <ListViewItem>
-                <TextBlock Text="1111111111111111111" />
-            </ListViewItem>
-            <ListViewItem>
-                <TextBlock Text="1111111111111111111" />
-            </ListViewItem>
-        </ListView>
-        <ListBox>
-            <ListBoxItem>
-                <TextBlock Text="111111111111111111111" />
-            </ListBoxItem>
-            <ListBoxItem>
-                <TextBlock Text="111111111111111111111" />
-            </ListBoxItem>
-            <ListBoxItem>
-                <TextBlock Text="111111111111111111111" />
-            </ListBoxItem>
-            <ListBoxItem>
-                <TextBlock Text="111111111111111111111" />
-            </ListBoxItem>
-        </ListBox>
+        <TextBlock Text="TBD" />
     </StackPanel>
 </Window>

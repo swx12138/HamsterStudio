@@ -29,7 +29,6 @@ namespace HamsterStudio.Web.Request
             {
                 //Timeout = Timeout.InfiniteTimeSpan
             };
-            _Client.DefaultRequestHeaders.UserAgent.ParseAdd(Constants.USER_AGENT_Chrome);
         }
 
         public HttpRequestMessage CreateRequest(HttpMethod method, string api, HttpContent? content = null, RangeHeaderValue? range = null)

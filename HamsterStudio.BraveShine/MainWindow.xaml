@@ -127,8 +127,9 @@
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*" />
                             <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
                         </Grid.ColumnDefinitions>
-                        <ComboBox Grid.Row="1" Grid.ColumnSpan="2" ItemsSource="{Binding QuickList}" SelectedItem="{Binding Location}">
+                        <ComboBox Grid.Row="1" Grid.ColumnSpan="3" ItemsSource="{Binding QuickList}" SelectedItem="{Binding Location}">
                             <ComboBox.ItemTemplate>
                                 <DataTemplate>
                                     <Grid>
@@ -144,6 +145,7 @@
                         </ComboBox>
                         <TextBox Text="{Binding Location.Bvid}" />
                         <Button Grid.Column="1" Command="{Binding RedirectLocationCommand}" Content="Load" />
+                        <Button Grid.Column="2" Command="{Binding SelectVideoCommad}" Content="Select" />
                     </Grid>
                     <hc:PropertyGrid Margin="0,-5,0,0" Background="Transparent" SelectedObject="{Binding VideoInfo.Owner}" />
                 </StackPanel>
