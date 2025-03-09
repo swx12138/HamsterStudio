@@ -3,7 +3,6 @@ using HamsterStudio.Web.Interfaces;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
-using System.Windows;
 
 namespace HamsterStudio.Web.Services
 {
@@ -25,11 +24,8 @@ namespace HamsterStudio.Web.Services
 
         public void EnqueueTask(IHamsterTask task)
         {
-            Application.Current.Dispatcher.Invoke(() =>
-            {
-                ++EnqueueTaskCount;
-                DownloadingTasks.Add(task);
-            });
+            ++EnqueueTaskCount;
+            DownloadingTasks.Add(task);
         }
 
         public HamsterTaskManager()
@@ -66,7 +62,7 @@ namespace HamsterStudio.Web.Services
                         if (task != null)
                         {
                             task.State = HamsterTaskState.Running;
-                            task.TaskComplete += (s, t) => Application.Current.Dispatcher.Invoke(() =>
+                            task.TaskComplete += (s, t) =>
                             {
                                 lock (DownloadingTasks)
                                     DownloadingTasks.Remove(task);
@@ -76,7 +72,7 @@ namespace HamsterStudio.Web.Services
                                     case HamsterTaskState.Failed: FailedTasks.Add(task); break;
                                     default: throw new NotImplementedException();
                                 }
-                            });
+                            };
                         }
                     }
 

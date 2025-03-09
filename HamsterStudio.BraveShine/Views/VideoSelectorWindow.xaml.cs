@@ -22,7 +22,7 @@ namespace HamsterStudio.BraveShine.Views
         private void Image_PreviewMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
             var now = DateTime.Now;
-            if (now - lastClickTime < TimeSpan.FromMilliseconds(200))
+            if (now - lastClickTime < TimeSpan.FromMilliseconds(300))
             {
                 Close();
             }

@@ -1,4 +1,5 @@
-﻿using System.Windows;
+﻿using System.Drawing;
+using System.Windows;
 
 namespace HamsterStudio.Barefeet.Models.Coordinate
 {
@@ -18,7 +19,7 @@ namespace HamsterStudio.Barefeet.Models.Coordinate
 
         public Point ToPoint()
         {
-            return new Point(X, Y);
+            return new Point((int)X, (int)Y);
         }
     }
 }

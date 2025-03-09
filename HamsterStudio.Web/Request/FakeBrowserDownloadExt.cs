@@ -1,4 +1,4 @@
-﻿using HamsterStudio.Toolkits.Logging;
+﻿using HamsterStudio.Barefeet.Logging;
 using System.ComponentModel;
 using System.IO;
 

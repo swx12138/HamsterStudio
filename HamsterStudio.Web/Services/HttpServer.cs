@@ -26,8 +26,7 @@ namespace HamsterStudio.Web.Services
             }
             catch (Exception ex)
             {
-                Trace.TraceError(ex.StackTrace);
-                MessageBox.Show(ex.Message);
+                Trace.TraceError(ex.Message + "\n" + ex.StackTrace);
             }
         }
 

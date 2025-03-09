@@ -1,7 +1,7 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
+using HamsterStudio.Barefeet.Logging;
 using HamsterStudio.BraveShine.Models.Bilibili;
 using HamsterStudio.BraveShine.Services;
-using HamsterStudio.Toolkits.Logging;
 using HamsterStudio.Web.Interfaces;
 using System.IO;
 

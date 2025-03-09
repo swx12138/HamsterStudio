@@ -1,0 +1,28 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage x:Class="HamsterStudioMaui.MainPage" xmlns="http://schemas.microsoft.com/dotnet/2021/maui" xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml" xmlns:localvm="clr-namespace:HamsterStudioMaui.ViewModels">
+    <ContentPage.BindingContext>
+        <localvm:MainPageModel />
+    </ContentPage.BindingContext>
+    <ScrollView>
+        <VerticalStackLayout Padding="30,0" Spacing="25">
+
+            <Entry Text="{Binding ShareInfo}" />
+
+            <Button Command="{Binding ExtractCommand}" Text="Don't Touch" />
+
+            <Label Text="{Binding Log}" />
+
+            <HorizontalStackLayout>
+                <Label Text="Host:" VerticalTextAlignment="Center" />
+                <Entry Text="{Binding HostName}" />
+            </HorizontalStackLayout>
+
+            <HorizontalStackLayout>
+                <Label Text="Port:" VerticalTextAlignment="Center" />
+                <Entry Text="{Binding Port}" />
+            </HorizontalStackLayout>
+
+        </VerticalStackLayout>
+    </ScrollView>
+
+</ContentPage>

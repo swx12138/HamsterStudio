@@ -1,5 +1,4 @@
-﻿using HamsterStudio.Models;
-using HamsterStudio.Web.Interfaces;
+﻿using HamsterStudio.Web.Interfaces;
 using HamsterStudio.Web.Request;
 using System.Net;
 

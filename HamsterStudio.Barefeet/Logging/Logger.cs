@@ -7,7 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace HamsterStudio.Toolkits.Logging
+namespace HamsterStudio.Barefeet.Logging
 {
     public class Logger
     {

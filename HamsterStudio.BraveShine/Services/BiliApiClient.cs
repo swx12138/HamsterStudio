@@ -1,6 +1,6 @@
-﻿using HamsterStudio.BraveShine.Models.Bilibili;
+﻿using HamsterStudio.Barefeet.Logging;
+using HamsterStudio.BraveShine.Models.Bilibili;
 using HamsterStudio.BraveShine.Models.Bilibili.SubStruct;
-using HamsterStudio.Toolkits.Logging;
 using HamsterStudio.Web.Request;
 using HamsterStudio.Web.Services;
 using System.Collections.Concurrent;
