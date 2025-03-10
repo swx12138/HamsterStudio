@@ -9,7 +9,7 @@ using System.Windows.Input;
 
 namespace HamsterStudio.ImageTool.ViewModels
 {
-    class MainWindowModelCommands
+    class MainViewModelCommands
     {
         public ICommand SaveCommand { get; }
 
@@ -27,30 +27,30 @@ namespace HamsterStudio.ImageTool.ViewModels
 
         public ICommand LoadCurrentWallpaperCommand { get; }
 
-        public MainWindowModelCommands(MainWindowModel mainWindowModel)
+        public MainViewModelCommands(MainViewModel mainViewModel)
         {
             SaveCommand = new RelayCommand(() =>
             {
-                if (File.Exists(mainWindowModel.PreviewImageProps.SavingFilename))
+                if (File.Exists(mainViewModel.PreviewImageProps.SavingFilename))
                 {
                     if (MessageBox.Show("File already exists. overwrite it?", "Warning", MessageBoxButton.YesNo) == MessageBoxResult.No)
                     {
                         return;
                     }
                 }
-                mainWindowModel!.PreviewImage?.SaveImageSource(mainWindowModel.PreviewImageProps.SavingFilename);
-                mainWindowModel.SavingCount++;
-                Trace.TraceInformation($"File saved @ {mainWindowModel.PreviewImageProps.SavingFilename}");
+                mainViewModel!.PreviewImage?.SaveImageSource(mainViewModel.PreviewImageProps.SavingFilename);
+                mainViewModel.SavingCount++;
+                Trace.TraceInformation($"File saved @ {mainViewModel.PreviewImageProps.SavingFilename}");
             });
             RepeatItemCommand = new RelayCommand<ImageInfo>(item =>
             {
                 ImageInfo imageInfo = new(item!.Filename) { RepeatCommand = RepeatItemCommand!, DestroyCommand = DestroyItemCommand! };
-                mainWindowModel.ImagePaths.Add(imageInfo);
+                mainViewModel.ImagePaths.Add(imageInfo);
                 RefreshPreviewCommand?.Execute(null);
             });
             DestroyItemCommand = new RelayCommand<ImageInfo>(item =>
             {
-                mainWindowModel.ImagePaths.Remove(item!);
+                mainViewModel.ImagePaths.Remove(item!);
                 RefreshPreviewCommand?.Execute(null);
             });
 
@@ -60,14 +60,14 @@ namespace HamsterStudio.ImageTool.ViewModels
                 diag.Multiselect = true;
                 if (diag.ShowDialog() ?? false)
                 {
-                    mainWindowModel.LoadFiles(diag.FileNames);
+                    mainViewModel.LoadFiles(diag.FileNames);
                 }
             });
             CloseFilesCommand = new RelayCommand(() =>
             {
-                mainWindowModel.ImagePaths.Clear();
-                mainWindowModel.SavingCount = 0;
-                mainWindowModel.PreviewImageProps.SavingFilename = string.Empty;
+                mainViewModel.ImagePaths.Clear();
+                mainViewModel.SavingCount = 0;
+                mainViewModel.PreviewImageProps.SavingFilename = string.Empty;
             });
             ReselectFilesCommand = new RelayCommand(() =>
             {
@@ -79,11 +79,11 @@ namespace HamsterStudio.ImageTool.ViewModels
             {
                 try
                 {
-                    mainWindowModel.PreviewImage = mainWindowModel.ImagePaths.CreateImageSource(mainWindowModel.PreviewImageProps.Colums, mainWindowModel.PreviewImageProps.Uniform);
+                    mainViewModel.PreviewImage = mainViewModel.ImagePaths.CreateImageSource(mainViewModel.PreviewImageProps.Colums, mainViewModel.PreviewImageProps.Uniform);
                 }
                 catch (Exception ex)
                 {
-                    mainWindowModel.ShowException(ex);
+                    mainViewModel.ShowException(ex);
                 }
             });
             ScaleImagesCommand = new RelayCommand(() =>
@@ -105,13 +105,13 @@ namespace HamsterStudio.ImageTool.ViewModels
                 }
                 catch (Exception ex)
                 {
-                    mainWindowModel.ShowException(ex);
+                    mainViewModel.ShowException(ex);
                 }
             });
             SetImageWidthLimitCommand = new RelayCommand<int>(newWidth =>
             {
-                Trace.TraceInformation($"Set image width limit {mainWindowModel.ImageWidthLimit} => {newWidth}");
-                mainWindowModel.ImageWidthLimit = newWidth;
+                Trace.TraceInformation($"Set image width limit {mainViewModel.ImageWidthLimit} => {newWidth}");
+                mainViewModel.ImageWidthLimit = newWidth;
             });
 
             LoadCurrentWallpaperCommand = new RelayCommand(() =>
@@ -121,7 +121,7 @@ namespace HamsterStudio.ImageTool.ViewModels
                     return;
                 }
                 CloseFilesCommand.Execute(null);
-                mainWindowModel.LoadFiles([path]);
+                mainViewModel.LoadFiles([path]);
             });
         }
     }

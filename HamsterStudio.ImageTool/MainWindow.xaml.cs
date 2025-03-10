@@ -15,20 +15,4 @@ public partial class MainWindow : Window
         InitializeComponent();
     }
 
-    private void Window_Drop(object sender, DragEventArgs e)
-    {
-        if (DataContext is MainWindowModel viewModel)
-        {
-            if (e.Data.GetData(DataFormats.FileDrop) is string[] files)
-            {
-                viewModel.LoadFiles(files);
-            }
-        }
-
-    }
-
-    private void Hyperlink_RequestNavigate(object sender, RequestNavigateEventArgs e)
-    {
-        ExplorerShell.SelectFile(e.Uri.AbsolutePath);
-    }
 }
