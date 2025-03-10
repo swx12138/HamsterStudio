@@ -10,6 +10,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\HamsterStudio.BraveShine\HamsterStudio.BraveShine.csproj" />
+    <ProjectReference Include="..\HamsterStudio.HttpServer\HamsterStudio.HttpServer.csproj" />
     <ProjectReference Include="..\HamsterStudio.ImageTool\HamsterStudio.ImageTool.csproj" />
   </ItemGroup>
 

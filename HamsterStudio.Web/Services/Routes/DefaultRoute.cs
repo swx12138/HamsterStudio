@@ -4,7 +4,7 @@ using System.Net;
 
 namespace HamsterStudio.Web.Services.Routes
 {
-    internal class Default : IRoute
+    internal class DefaultRoute : IRoute
     {
         /*
             文本类型：

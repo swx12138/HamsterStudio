@@ -7,19 +7,20 @@ using System.Text.Json.Nodes;
 
 namespace HamsterStudio.Web.Services.Routes
 {
-    internal class Bilibili : IRoute
+    public class BilibiliRoute : IRoute
     {
         public bool IsMyCake(string url)
         {
             return url == "/bilib";
         }
 
+        public event EventHandler<HttpListenerRequest>? Crush;
+
         public void Response(HttpListenerRequest request, ref HttpListenerResponse response)
         {
             using StreamReader sr = new(request.InputStream);
-            var obj = JsonSerializer.Deserialize<JsonNode>(sr.ReadToEnd())!;
 
-
+            Crush?.Invoke(this, request);
 
             response.FromJson(JsonSerializer.Serialize(new
             {

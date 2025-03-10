@@ -8,7 +8,7 @@ namespace HamsterStudio.Web.Services
     public class RouteService : IRouteService
     {
         private readonly List<IRoute> routes = [];
-        private readonly Default defaultRoute = new();
+        private readonly DefaultRoute defaultRoute = new();
 
         public bool Response(HttpListenerRequest request, ref HttpListenerResponse response)
         {
@@ -27,7 +27,10 @@ namespace HamsterStudio.Web.Services
 
         public void RegisterRoute(IRoute route)
         {
-            routes.Add(route);
+            if (!routes.Contains(route))
+            {
+                routes.Add(route);
+            }
         }
 
     }

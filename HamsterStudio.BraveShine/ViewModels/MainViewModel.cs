@@ -15,7 +15,7 @@ using System.Windows.Input;
 
 namespace HamsterStudio.BraveShine.ViewModels
 {
-    partial class MainViewModel : ObservableObject
+    public partial class MainViewModel : ObservableObject
     {
         [ObservableProperty]
         private VideoLocatorModel _location = new();
@@ -83,26 +83,15 @@ namespace HamsterStudio.BraveShine.ViewModels
                 });
             });
 
-            RedirectLocationCommand = new RelayCommand(() =>
-            {           
-                if (client.TryGetVideoInfo(BvId, out VideoInfo? videoInfo)) 
-                {
-                    VideoInfo = videoInfo!;
-                    Location.Title = VideoInfo.Title;
-                }
-            });
-            RedirectCommand = new RelayCommand<string>(loc =>
-            {
-                Location.Bvid = loc;
-                RedirectLocationCommand.Execute(null);
-            });
+            RedirectLocationCommand = new RelayCommand(() => RedirectLocation());
+            RedirectCommand = new RelayCommand<string>(loc => RedirectLocation(loc));
 
             LoadWatchLaterCommand = new AsyncRelayCommand(async () =>
             {
                 try
                 {
                     var watchLaters = await client.GetWatchLater();
-                    if(watchLaters == null)
+                    if (watchLaters == null)
                     {
                         return;
                     }
@@ -126,6 +115,35 @@ namespace HamsterStudio.BraveShine.ViewModels
                 }
             });
 
+        }
+
+        private bool RedirectLocation(string bvid)
+        {
+            Location.Bvid = bvid;
+            if (!client.TryGetVideoInfo(bvid, out VideoInfo? videoInfo))
+            {
+                return false;
+            }
+
+            VideoInfo = videoInfo!;
+            Location.Title = VideoInfo.Title;
+            return true;
+        }
+
+        private bool RedirectLocation()
+        {
+            return RedirectLocation(BvId);
+        }
+
+        public void DownloadVideoByBvid(string bvid)
+        {
+            if (!RedirectLocation(bvid))
+            {
+                Logger.Shared.Error($"Can't load info from {bvid}.");
+                return;
+            }
+            SaveCoverCommand?.Execute(null);
+            SaveVideoCommand?.Execute(0);
         }
 
     }

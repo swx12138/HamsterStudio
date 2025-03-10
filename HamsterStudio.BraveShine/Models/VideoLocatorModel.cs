@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace HamsterStudio.BraveShine.Models
 {
-    partial class VideoLocatorModel : ObservableObject
+    public partial class VideoLocatorModel : ObservableObject
     {
         [ObservableProperty]
         private string title;
