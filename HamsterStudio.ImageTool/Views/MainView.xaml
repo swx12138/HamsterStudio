@@ -10,8 +10,8 @@
     xmlns:local="clr-namespace:HamsterStudio.ImageTool"
     xmlns:localvm="clr-namespace:HamsterStudio.ImageTool.ViewModels"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    Width="1920"
-    Height="960"
+    d:Height="960"
+    d:Width="1920"
     AllowDrop="True"
     Drop="Window_Drop"
     mc:Ignorable="d">

@@ -8,8 +8,8 @@
     xmlns:local="clr-namespace:HamsterStudio.BraveShine"
     xmlns:localvm="clr-namespace:HamsterStudio.BraveShine.ViewModels"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    Width="1920"
-    Height="960"
+    d:Height="960"
+    d:Width="1920"
     mc:Ignorable="d">
     <UserControl.DataContext>
         <localvm:MainViewModel />
