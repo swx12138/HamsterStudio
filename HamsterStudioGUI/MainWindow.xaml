@@ -12,7 +12,7 @@
     <Window.DataContext>
         <local:MainWindowModel />
     </Window.DataContext>
-    <TabControl ItemsSource="{Binding TabPages}">
+    <TabControl ItemsSource="{Binding TabPages}" TabStripPlacement="Bottom">
         <TabControl.ItemTemplate>
             <DataTemplate>
                 <TextBlock Text="{Binding Title}" ToolTip="{Binding Desc}" />

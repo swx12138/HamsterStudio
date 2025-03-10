@@ -27,6 +27,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HamsterStudio.BraveShine", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HamsterStudioMaui", "HamsterStudioMaui\HamsterStudioMaui.csproj", "{8C61C3EF-4C45-4548-9D89-7185ADCB87C7}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HamsterStudio.FileTransferServer", "HamsterStudio.FileTransferServer\HamsterStudio.FileTransferServer.csproj", "{7C53FA31-4A93-41BD-BD24-BA97CA95B6FA}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -75,6 +77,10 @@ Global
 		{8C61C3EF-4C45-4548-9D89-7185ADCB87C7}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8C61C3EF-4C45-4548-9D89-7185ADCB87C7}.Release|Any CPU.Build.0 = Release|Any CPU
 		{8C61C3EF-4C45-4548-9D89-7185ADCB87C7}.Release|Any CPU.Deploy.0 = Release|Any CPU
+		{7C53FA31-4A93-41BD-BD24-BA97CA95B6FA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7C53FA31-4A93-41BD-BD24-BA97CA95B6FA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7C53FA31-4A93-41BD-BD24-BA97CA95B6FA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7C53FA31-4A93-41BD-BD24-BA97CA95B6FA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -87,6 +93,7 @@ Global
 		{CD16D444-8CEE-433C-89FD-203C3A830F0E} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
 		{4D06F1E1-23FC-4F26-8067-5483A9F58082} = {85879EA5-7D16-4A63-B0E8-76A6308EDA32}
 		{41B070C3-3C24-4883-9FE0-0E09C263C53F} = {85879EA5-7D16-4A63-B0E8-76A6308EDA32}
+		{7C53FA31-4A93-41BD-BD24-BA97CA95B6FA} = {85879EA5-7D16-4A63-B0E8-76A6308EDA32}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {2BEFE676-D503-4D35-A413-E099891E452B}
