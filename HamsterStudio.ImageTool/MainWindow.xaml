@@ -3,13 +3,7 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-    xmlns:hc="https://handyorg.github.io/handycontrol"
-    xmlns:hsc="clr-namespace:HamsterStudio.Toolkits.Converters;assembly=HamsterStudio.Toolkits"
-    xmlns:hscc="clr-namespace:HamsterStudio.Barefeet.Constants;assembly=HamsterStudio.Barefeet"
-    xmlns:hsm="clr-namespace:HamsterStudio.Barefeet.Models;assembly=HamsterStudio.Barefeet"
     xmlns:local="clr-namespace:HamsterStudio.ImageTool"
-    xmlns:localv="clr-namespace:HamsterStudio.ImageTool.Views"
-    xmlns:localvm="clr-namespace:HamsterStudio.ImageTool.ViewModels"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     Title="渋㐋"
     Width="1920"
@@ -19,7 +13,7 @@
     WindowStartupLocation="CenterScreen"
     mc:Ignorable="d">
     <Window.DataContext>
-        <localvm:MainWindowModel />
+        <local:MainWindowModel />
     </Window.DataContext>
     <Window.InputBindings>
         <KeyBinding Command="{Binding MainViewModel.Commands.OpenFilesCommand}" Gesture="Ctrl+O" />
