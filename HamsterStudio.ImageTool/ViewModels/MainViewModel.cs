@@ -9,7 +9,7 @@ using System.Windows.Media;
 
 namespace HamsterStudio.ImageTool.ViewModels
 {
-    partial class MainWindowModel : ObservableObject
+    partial class MainViewModel : ObservableObject
     {
         [ObservableProperty]
         private bool _topmost;
@@ -40,7 +40,7 @@ namespace HamsterStudio.ImageTool.ViewModels
         [ObservableProperty]
         private PreviewImagePropertiesModel _previewImageProps = new();
 
-        public MainWindowModelCommands Commands { get; }
+        public MainViewModelCommands Commands { get; }
 
         private const string SavingPath = @"D:\Publish\bizhi";
 
@@ -50,7 +50,7 @@ namespace HamsterStudio.ImageTool.ViewModels
         [ObservableProperty]
         private int savingCount = 0;
 
-        public MainWindowModel()
+        public MainViewModel()
         {
             Commands = new(this);
 
@@ -63,7 +63,7 @@ namespace HamsterStudio.ImageTool.ViewModels
         {
             if (e.Action == NotifyCollectionChangedAction.Add)
             {
-                if(e.NewItems == null)
+                if (e.NewItems == null)
                 {
                     return;
                 }
@@ -128,6 +128,5 @@ namespace HamsterStudio.ImageTool.ViewModels
             Trace.TraceError(ex.Message);
             Trace.TraceError(ex.StackTrace);
         }
-
     }
 }

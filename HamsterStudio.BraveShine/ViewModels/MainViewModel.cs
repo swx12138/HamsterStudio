@@ -49,8 +49,8 @@ namespace HamsterStudio.BraveShine.ViewModels
             Logger.Shared.AddTarget(NlogTarget);
 
 #if DEBUG
-            string text = File.ReadAllText(@"D:\Code\HamsterStudio\HamsterStudio.BraveShine\BV1Mb9tYKEHF_VideoInfo.json");
-            VideoInfo = JsonSerializer.Deserialize<Response<VideoInfo>>(text).Data!;
+            //string text = File.ReadAllText(@"D:\Code\HamsterStudio\HamsterStudio.BraveShine\BV1Mb9tYKEHF_VideoInfo.json");
+            //VideoInfo = JsonSerializer.Deserialize<Response<VideoInfo>>(text).Data!;
             Location = new() { Bvid = VideoInfo.Bvid };
 #else
             VideoInfo = new()

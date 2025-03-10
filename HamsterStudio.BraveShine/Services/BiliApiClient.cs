@@ -37,8 +37,20 @@ namespace HamsterStudio.BraveShine.Services
 
         private static string LoadCookies()
         {
-            string cookiesFilename = Path.Combine(AvDownloader.BVDHome, "cookies.txt");
-            return File.ReadAllText(cookiesFilename);
+            try
+            {
+                string cookiesFilename = Path.Combine(AvDownloader.BVDHome, "cookies.txt");
+                return File.ReadAllText(cookiesFilename);
+            }
+            catch (Exception ex)
+            {
+                if (ex is DirectoryNotFoundException or FileNotFoundException)
+                {
+                    Logger.Shared.Warning("Load cookies failed.");
+                    return string.Empty;
+                }
+                throw;
+            }
         }
 
         public async Task<T?> GetApiAsync<T>(string api)
