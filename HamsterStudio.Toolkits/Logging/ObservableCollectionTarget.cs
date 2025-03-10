@@ -2,6 +2,7 @@
 using NLog;
 using NLog.Targets;
 using System.Collections.ObjectModel;
+using System.Windows;
 
 namespace HamsterStudio.Toolkits.Logging;
 
@@ -18,9 +19,12 @@ public partial class ObservableCollectionTarget : Target
 
     protected override void Write(LogEventInfo logEvent)
     {
-        LogEntries.Add(logEvent);
-        // 可选：限制日志条目数量（例如保留最后100条）
-        if (LogEntries.Count > 1000)
-            LogEntries.RemoveAt(0);
+        Application.Current.Dispatcher.Invoke(() =>
+        {
+            LogEntries.Add(logEvent);
+            // 可选：限制日志条目数量（例如保留最后100条）
+            if (LogEntries.Count > 1000)
+                LogEntries.RemoveAt(0);
+        });
     }
 }

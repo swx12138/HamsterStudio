@@ -36,6 +36,9 @@ namespace HamsterStudio.BraveShine.Models
             {
                 State = HamsterTaskState.Running;
 
+                var accept = vsi.Value.AcceptQuality.Zip(vsi.Value.AcceptFormat.Split(','), vsi.Value.AcceptDescription).First(x => x.First == page.AcceptQuality);
+                Logger.Shared.Information($"Selected quality {accept.Second}({accept.Third}, {accept.First})");
+
                 string vBaseUrl = getVideoBaseUrl(page, vsi);
                 Logger.Shared.Information("Video:" + vBaseUrl);
 
