@@ -3,7 +3,7 @@ using System.Text;
 
 namespace HamsterStudio.Web.Request
 {
-    internal static class ResponseExtension
+    public static class ResponseExtension
     {
         public static void FromPlain(this HttpListenerResponse response, string plain)
         {

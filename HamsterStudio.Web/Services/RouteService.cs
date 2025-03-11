@@ -10,6 +10,8 @@ namespace HamsterStudio.Web.Services
         private readonly List<IRoute> routes = [];
         private readonly DefaultRoute defaultRoute = new();
 
+        public IReadOnlyCollection<string> Routes => [];
+
         public bool Response(HttpListenerRequest request, ref HttpListenerResponse response)
         {
             foreach (var route in routes)

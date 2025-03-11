@@ -1,4 +1,5 @@
 ﻿using HamsterStudio.Barefeet.Logging;
+using HamsterStudio.Web.Request;
 using HamsterStudio.Web.Services.Routes;
 using System;
 using System.Collections.Generic;
@@ -36,37 +37,41 @@ namespace HamsterStudioGUI
 
             var httpServer = TabPageModel.Incubator<HamsterStudio.HttpServer.Views.MainView>("HttpServer", "HttpServer");
             {
-                if (httpServer.Element.DataContext is HamsterStudio.HttpServer.ViewModels.MainViewModel viewModel) {
+                if (httpServer.Element.DataContext is HamsterStudio.HttpServer.ViewModels.MainViewModel viewModel)
+                {
 
                     var bRoute = new BilibiliRoute();
                     bRoute.Crush += BiliRoute_Crush;
-                    viewModel.RouteService.RegisterRoute(bRoute);                
+                    viewModel.RouteService.RegisterRoute(bRoute);
 
                     var xhsRoute = new RedBookRoute();
                     viewModel.RouteService.RegisterRoute(xhsRoute);
 
-                    viewModel.StartServe();}
+                    viewModel.StartServe();
+                }
             }
             TabPages.Add(httpServer);
 
         }
 
-        private void BiliRoute_Crush(object? sender, HttpListenerRequest request)
+        private void BiliRoute_Crush(object? sender, (HttpListenerRequest, HttpListenerResponse) rr)
         {
-            StreamReader stream = new(request.InputStream);
+            var (requ, resp) = rr;
+            StreamReader stream = new(requ.InputStream);
             string raw = stream.ReadToEnd();
 
             var braveShine = TabPages.First(x => x.Element is HamsterStudio.BraveShine.Views.MainView);
-            if (braveShine != null )
+            if (braveShine != null)
             {
-                Application.Current.Dispatcher.Invoke(() =>
+                Application.Current.Dispatcher.InvokeAsync(async () =>
                 {
                     if (braveShine.Element.DataContext is not HamsterStudio.BraveShine.ViewModels.MainViewModel viewModel)
                     {
                         Logger.Shared.Error($"braveShine.Element.DataContext is not HamsterStudio.BraveShine.ViewModels.MainViewModel");
                         return;
                     }
-                    viewModel.DownloadVideoByBvid(raw);
+                    string result = await viewModel.DownloadVideoByBvid(raw);
+                    resp.FromPlain(result);
                 });
             }
         }

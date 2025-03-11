@@ -1,4 +1,5 @@
-﻿using HamsterStudio.Web.Interfaces;
+﻿using HamsterStudio.Barefeet.Logging;
+using HamsterStudio.Web.Interfaces;
 using HamsterStudio.Web.Request;
 using System.IO;
 using System.Net;
@@ -11,23 +12,18 @@ namespace HamsterStudio.Web.Services.Routes
     {
         public bool IsMyCake(string url)
         {
-            return url == "/bilib";
+            return url.StartsWith("/bilib");
         }
 
-        public event EventHandler<HttpListenerRequest>? Crush;
+        public event EventHandler<(HttpListenerRequest, HttpListenerResponse)>? Crush;
 
         public void Response(HttpListenerRequest request, ref HttpListenerResponse response)
         {
-            using StreamReader sr = new(request.InputStream);
+            //using StreamReader streamReader = new(request.InputStream);
+            //Logger.Shared.Information(streamReader.ReadToEnd());
 
-            Crush?.Invoke(this, request);
+            Crush?.Invoke(this, (request, response));
 
-            response.FromJson(JsonSerializer.Serialize(new
-            {
-                code = 0,
-                message = "succeed",
-                total = -1,
-            }));
         }
     }
 }

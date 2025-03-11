@@ -30,6 +30,7 @@
             <Button Margin="5" Command="{Binding StartServeCommand}" Content="Start" />
             <Button Margin="5" Command="{Binding StopServeCommand}" Content="Stop" IsEnabled="{Binding IsServerAlive}" />
             <TextBlock Margin="5" Text="{Binding TotalRequest}" />
+            <ItemsControl ItemsSource="{Binding RouteService.Prefixes}" />
         </StackPanel>
     </Grid>
 </UserControl>

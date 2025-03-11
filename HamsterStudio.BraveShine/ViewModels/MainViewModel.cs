@@ -11,6 +11,7 @@ using HamsterStudio.Web.Services;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Text.Json;
+using System.Threading.Tasks;
 using System.Windows.Input;
 
 namespace HamsterStudio.BraveShine.ViewModels
@@ -25,6 +26,9 @@ namespace HamsterStudio.BraveShine.ViewModels
 
         [ObservableProperty]
         private ObservableCollection<VideoLocatorModel> _quickList = [];
+
+        [ObservableProperty]
+        private string lastInfomation = "No message.";
 
         private string BvId => Location.Bvid.Split("?")[0].Split("/").First(x => x.StartsWith("BV", StringComparison.CurrentCultureIgnoreCase));
 
@@ -63,25 +67,7 @@ namespace HamsterStudio.BraveShine.ViewModels
             SaveOwnerFaceCommand = new AsyncRelayCommand(async () => await FileSaver.SaveFileFromUrl((VideoInfo)?.Owner.Face, AvDownloader.BVCoverHome));
 
             SaveFirstFrameCommand = new AsyncRelayCommand<PagesItem>(async page => await (new AvDownloader(client)).SaveCover(BvId, page));
-            SaveVideoCommand = new AsyncRelayCommand<int>(async idx =>
-            {
-                idx = Math.Max(idx, 0);
-                await Task.Run(async () =>
-                {
-                    var resp = await client.GetVideoStream(BvId, VideoInfo!.Pages[idx]);
-                    if (resp == null)
-                    {
-                        Logger.Shared.Warning($"GetVideoStream Failed.");
-                        return;
-                    }
-
-                    //foreach()
-                    BilibiliVideoPage vpage = new(VideoInfo!.Pages[idx], resp!);
-                    BilibiliVideoTask bilibiliVideoTask = new(idx, vpage, resp!, (VideoInfo), client);
-                    bilibiliVideoTask.Run();
-                    Logger.Shared.Information("SaveVideoCommand Finish.");
-                });
-            });
+            SaveVideoCommand = new AsyncRelayCommand<int>(DownloadVideo);
 
             RedirectLocationCommand = new RelayCommand(() => RedirectLocation());
             RedirectCommand = new RelayCommand<string>(loc => RedirectLocation(loc));
@@ -117,6 +103,24 @@ namespace HamsterStudio.BraveShine.ViewModels
 
         }
 
+        private async Task DownloadVideo(int idx = -1)
+        {
+            idx = Math.Max(idx, 0);
+
+            var resp = await client.GetVideoStream(BvId, VideoInfo!.Pages[idx]);
+            if (resp == null)
+            {
+                Logger.Shared.Warning($"GetVideoStream Failed.");
+                return;
+            }
+
+            //foreach()
+            BilibiliVideoPage vpage = new(VideoInfo!.Pages[idx], resp!);
+            BilibiliVideoTask bilibiliVideoTask = new(idx, vpage, resp!, (VideoInfo), client);
+            LastInfomation = await bilibiliVideoTask.Run2();
+            Logger.Shared.Information("SaveVideoCommand Finish.");
+        }
+
         private bool RedirectLocation(string bvid)
         {
             Location.Bvid = bvid;
@@ -135,15 +139,16 @@ namespace HamsterStudio.BraveShine.ViewModels
             return RedirectLocation(BvId);
         }
 
-        public void DownloadVideoByBvid(string bvid)
+        public async Task<string> DownloadVideoByBvid(string bvid)
         {
             if (!RedirectLocation(bvid))
             {
                 Logger.Shared.Error($"Can't load info from {bvid}.");
-                return;
+                return "无效的BVID";
             }
             SaveCoverCommand?.Execute(null);
-            SaveVideoCommand?.Execute(0);
+            await DownloadVideo();
+            return LastInfomation;
         }
 
     }

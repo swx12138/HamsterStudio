@@ -12,5 +12,7 @@ namespace HamsterStudio.Web.Interfaces
         void RegisterRoute(IRoute route);
 
         bool Response(HttpListenerRequest request, ref HttpListenerResponse response);
+
+        IReadOnlyCollection<string> Routes { get; }
     }
 }

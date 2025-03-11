@@ -4,6 +4,7 @@ using HamsterStudio.BraveShine.Models.Bilibili;
 using HamsterStudio.BraveShine.Services;
 using HamsterStudio.Web.Interfaces;
 using System.IO;
+using System.Windows.Documents;
 
 namespace HamsterStudio.BraveShine.Models
 {
@@ -32,6 +33,11 @@ namespace HamsterStudio.BraveShine.Models
 
         public async void Run()
         {
+            _ = await Run2();
+        }
+
+        public async Task<string> Run2()
+        {
             try
             {
                 State = HamsterTaskState.Running;
@@ -53,16 +59,19 @@ namespace HamsterStudio.BraveShine.Models
                     album = videoInfo.Title!,
                     copyright = videoInfo.Bvid!
                 };
-                string output = await downloader.Download(meta, aBaseUrl, vBaseUrl,
-                     $"{videoInfo.Cid!}-{vps}_{videoInfo.Bvid}.mp4");
 
-                if(output == "")
-                {
-                    return;
-                }
-                Logger.Shared.Information($"{Path.GetFullPath(output)} Succeed.");
-
+                string wish_filename = $"{videoInfo.Cid!}-{vps}_{videoInfo.Bvid}.mp4";
+                string output = await downloader.Download(meta, aBaseUrl, vBaseUrl,wish_filename                     );
+                
                 State = HamsterTaskState.Succeed;
+                if (output == "")
+                {
+                    return $"File {wish_filename} already exists.";
+                }
+                else
+                {
+                    return $"{Path.GetFullPath(output)} Succeed.";
+                }
 
                 static string getVideoBaseUrl(BilibiliVideoPage page, VideoStreamInfo? vsi)
                 {
@@ -87,6 +96,7 @@ namespace HamsterStudio.BraveShine.Models
             {
                 State = HamsterTaskState.Failed;
                 Logger.Shared.Critical(ex);
+                return ex.Message;
             }
             finally
             {
