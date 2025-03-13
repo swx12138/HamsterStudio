@@ -37,8 +37,6 @@ namespace HamsterStudio.HttpServer.ViewModels
 
         public MainViewModel() 
         {
-            Logger.Shared.AddTarget(new ObservableCollectionTarget("Trace"));
-
             RouteService = new RouteService();
 
             string url = $"http://{HostName}:{PortNumber}/";

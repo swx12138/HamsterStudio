@@ -1,5 +1,6 @@
 ﻿using HamsterStudio.Web.Interfaces;
 using HamsterStudio.Web.Request;
+using NetCoreServer;
 using System.Net;
 
 namespace HamsterStudio.Web.Services.Routes
@@ -17,5 +18,9 @@ namespace HamsterStudio.Web.Services.Routes
             response.FromPlain("welcome to index.");
         }
 
+        public HttpResponse GetHttpResponse(HttpRequest request)
+        {
+            return new HttpResponse().MakeOkResponse();
+        }
     }
 }

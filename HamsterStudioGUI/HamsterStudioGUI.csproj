@@ -7,6 +7,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <UseWPF>true</UseWPF>
     <ApplicationIcon>chuhua.ico</ApplicationIcon>
+    <ApplicationManifest>Properties\app.manifest</ApplicationManifest>
   </PropertyGroup>
 
   <ItemGroup>
@@ -15,8 +16,23 @@
 
   <ItemGroup>
     <ProjectReference Include="..\HamsterStudio.BraveShine\HamsterStudio.BraveShine.csproj" />
-    <ProjectReference Include="..\HamsterStudio.HttpServer\HamsterStudio.HttpServer.csproj" />
     <ProjectReference Include="..\HamsterStudio.ImageTool\HamsterStudio.ImageTool.csproj" />
+    <ProjectReference Include="..\HamsterStudio.Web\HamsterStudio.Web.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="Properties\Settings.Designer.cs">
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Settings.settings</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
   </ItemGroup>
 
 </Project>

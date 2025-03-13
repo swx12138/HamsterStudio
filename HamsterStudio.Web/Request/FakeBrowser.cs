@@ -23,10 +23,15 @@ namespace HamsterStudio.Web.Request
 
         public FakeBrowser(bool includeCredentials = false)
         {
-            _Client = new HttpClient
+            var httpClientHandler = new SocketsHttpHandler()
+            {
+                AllowAutoRedirect = true,
+            };
+            _Client = new HttpClient(httpClientHandler)
             {
                 //Timeout = Timeout.InfiniteTimeSpan
             };
+
         }
 
         public HttpRequestMessage CreateRequest(HttpMethod method, string api, HttpContent? content = null, RangeHeaderValue? range = null)
@@ -55,10 +60,18 @@ namespace HamsterStudio.Web.Request
 
         public async Task<HttpContent> FetchAsync(HttpMethod method, string api, HttpContent? content = null, RangeHeaderValue? range = null)
         {
-            Logger.Shared.Debug($"async [{method}] {api}");
-            HttpRequestMessage httpRequest = CreateRequest(method, api, content, range);
-            HttpResponseMessage response = await _Client.SendAsync(httpRequest, HttpCompletionOption.ResponseHeadersRead);
-            return HandleResponse(response);
+            try
+            {
+                Logger.Shared.Debug($"async [{method}] {api}");
+                HttpRequestMessage httpRequest = CreateRequest(method, api, content, range);
+                HttpResponseMessage response = await _Client.SendAsync(httpRequest, HttpCompletionOption.ResponseHeadersRead);
+                return HandleResponse(response);
+            }
+            catch (Exception ex)
+            {
+                Logger.Shared.Critical(ex);
+                throw;
+            }
         }
 
         /// <summary>
@@ -141,7 +154,11 @@ namespace HamsterStudio.Web.Request
         /// <returns></returns>
         public async Task<string> PostAsync(string api, object data)
         {
-            var resp = await FetchAsync(HttpMethod.Post, api, JsonContent.Create(data));
+            var resp = data switch
+            {
+                string str => await FetchAsync(HttpMethod.Post, api, new StringContent(str)),
+                _ => await FetchAsync(HttpMethod.Post, api, JsonContent.Create(data))
+            };
             return await resp.ReadAsStringAsync();
         }
     }

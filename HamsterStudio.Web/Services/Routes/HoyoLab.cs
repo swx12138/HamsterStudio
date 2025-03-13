@@ -1,4 +1,5 @@
 ﻿using HamsterStudio.Web.Interfaces;
+using NetCoreServer;
 using System.Net;
 
 namespace HamsterStudio.Web.Services.Routes
@@ -45,6 +46,11 @@ namespace HamsterStudio.Web.Services.Routes
         static void Log<T>(T msg)
         {
             Console.WriteLine(msg);
+        }
+
+        public HttpResponse GetHttpResponse(HttpRequest request)
+        {
+            return new HttpResponse().MakeOkResponse();
         }
     }
 

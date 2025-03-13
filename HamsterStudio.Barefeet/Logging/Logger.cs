@@ -19,12 +19,12 @@ namespace HamsterStudio.Barefeet.Logging
 
         }
 
-        public bool AddTarget(Target target)
+        public bool AddTarget(Target target, LogLevel min, LogLevel max)
         {
             var asyncTarget = new NLog.Targets.Wrappers.AsyncTargetWrapper(target);
             var config = new LoggingConfiguration();
             config.AddTarget(target.Name, asyncTarget);
-            config.AddRule(LogLevel.Info, LogLevel.Fatal, asyncTarget);
+            config.AddRule(min, max, asyncTarget);
             LogManager.Configuration = config;
             return true;
         }

@@ -1,4 +1,5 @@
 ﻿using HamsterStudio.Web.Interfaces;
+using NetCoreServer;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -20,6 +21,11 @@ namespace HamsterStudio.Web.Services.Routes
         public void Response(HttpListenerRequest request, ref HttpListenerResponse response)
         {
             response.Redirect("http://127.0.0.1:8899");
+        }
+
+        public HttpResponse GetHttpResponse(HttpRequest request)
+        {
+            return new HttpResponse().MakeOkResponse();
         }
     }
 }

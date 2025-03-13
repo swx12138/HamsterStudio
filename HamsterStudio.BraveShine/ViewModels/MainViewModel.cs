@@ -9,9 +9,6 @@ using HamsterStudio.BraveShine.Views;
 using HamsterStudio.Toolkits.Logging;
 using HamsterStudio.Web.Services;
 using System.Collections.ObjectModel;
-using System.IO;
-using System.Text.Json;
-using System.Threading.Tasks;
 using System.Windows.Input;
 
 namespace HamsterStudio.BraveShine.ViewModels
@@ -50,7 +47,7 @@ namespace HamsterStudio.BraveShine.ViewModels
 
         public MainViewModel()
         {
-            Logger.Shared.AddTarget(NlogTarget);
+            Logger.Shared.AddTarget(NlogTarget, NLog.LogLevel.Info, NLog.LogLevel.Fatal);
 
 #if DEBUG
             //string text = File.ReadAllText(@"D:\Code\HamsterStudio\HamsterStudio.BraveShine\BV1Mb9tYKEHF_VideoInfo.json");

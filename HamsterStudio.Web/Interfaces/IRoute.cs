@@ -12,5 +12,8 @@ namespace HamsterStudio.Web.Interfaces
         bool IsMyCake(string url);
 
         public void Response(HttpListenerRequest request, ref HttpListenerResponse response);
+
+        public NetCoreServer.HttpResponse GetHttpResponse(NetCoreServer.HttpRequest request);
+
     }
 }

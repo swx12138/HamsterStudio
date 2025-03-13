@@ -19,7 +19,7 @@ namespace HamsterStudioMaui.ViewModels
         private string _hostName = "192.168.0.101";
 
         [ObservableProperty]
-        private string _port = "8899";
+        private string _port = "2206";
 
         private string _log = string.Empty;
         public string Log
@@ -42,19 +42,22 @@ namespace HamsterStudioMaui.ViewModels
                 FakeBrowser browser = new();
                 try
                 {
-                    var url = shareInfo.Split().FirstOrDefault(x => x.StartsWith("http"))?.Split("，").First();
-                    if (url == null || url == string.Empty) { Trace.WriteLine("解析Url失败！"); return; }
-                    else { Trace.TraceInformation($"Loading url {url}"); }
-
-                    var resp_text = await browser.PostAsync($"http://{HostName}:{Port}/xhs", new
+                    if (shareInfo.StartsWith("BV"))
                     {
-                        download = true,
-                        url
-                    });
+                        var resp_text = await browser.PostAsync($"http://{HostName}:{Port}/bilib", shareInfo);
+                    }
+                    else
+                    {
+                        var url = shareInfo.Split().FirstOrDefault(x => x.StartsWith("http"))?.Split("，").First();
+                        if (url == null || url == string.Empty) { Trace.WriteLine("解析Url失败！"); return; }
+                        else { Trace.TraceInformation($"Loading url {url}"); }
 
-                    var resp = JsonSerializer.Deserialize<ServerResp>(resp_text);
-                    Log = $"Process {url} finished.\nAuthor:{resp.Data.AuthorNickName}\nTitle:{resp.Data.Title}\nDesc:{resp.Data.Description}";
-                    ShareInfo = string.Empty;
+                        var resp_text = await browser.PostAsync($"http://{HostName}:{Port}/xhs", new { download = true, url });
+
+                        var resp = JsonSerializer.Deserialize<ServerResp>(resp_text);
+                        Log = $"Process {url} finished.\nAuthor:{resp.Data.AuthorNickName}\nTitle:{resp.Data.Title}\nDesc:{resp.Data.Description}";
+                        ShareInfo = string.Empty;
+                    }
                 }
                 catch (Exception ex)
                 {
