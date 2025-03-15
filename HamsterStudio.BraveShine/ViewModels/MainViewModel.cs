@@ -76,8 +76,10 @@ namespace HamsterStudio.BraveShine.ViewModels
                     var watchLaters = await client.GetWatchLater();
                     if (watchLaters == null)
                     {
+                        LastInfomation = "Get watch laters falied";
                         return;
                     }
+                    Logger.Shared.Debug($"[WatchLater] Got {watchLaters.Count} video.");
                     QuickList = [.. watchLaters.List.Select(x => new VideoLocatorModel(x))];
                 }
                 catch (Exception ex)

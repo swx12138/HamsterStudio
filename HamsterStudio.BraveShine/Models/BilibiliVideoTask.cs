@@ -46,11 +46,7 @@ namespace HamsterStudio.BraveShine.Models
                 Logger.Shared.Information($"Selected quality {accept.Second}({accept.Third}, {accept.First})");
 
                 string vBaseUrl = getVideoBaseUrl(page, vsi);
-                Logger.Shared.Information("Video:" + vBaseUrl);
-
                 string aBaseUrl = getAudioBaseUrl(vsi);
-                Logger.Shared.Information("Audio:" + aBaseUrl);
-
                 AvDownloader downloader = new(client);
                 AvMeta meta = new()
                 {
