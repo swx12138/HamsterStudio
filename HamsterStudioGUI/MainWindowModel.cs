@@ -34,39 +34,21 @@ namespace HamsterStudioGUI
             TabPages.Add(TabPageModel.Incubator<HamsterStudio.BraveShine.Views.MainView>("BraveShine", "BraveShine"));
             TabPages.Add(TabPageModel.Incubator<HamsterStudio.ImageTool.Views.MainView>("ImageTool", "ImageTool"));
 
-            //var httpServer = TabPageModel.Incubator<HamsterStudio.HttpServer.Views.MainView>("HttpServer", "HttpServer");
-            //{
-            //    if (httpServer.Element.DataContext is HamsterStudio.HttpServer.ViewModels.MainViewModel viewModel)
-            //    {
-
-            //        var bRoute = new BilibiliRoute();
-            //        bRoute.Crush += BiliRoute_Crush;
-            //        viewModel.RouteService.RegisterRoute(bRoute);
-
-            //        var xhsRoute = new RedBookRoute();
-            //        viewModel.RouteService.RegisterRoute(xhsRoute);
-
-            //        viewModel.StartServe();
-            //    }
-            //}
-            //TabPages.Add(httpServer);
-
             server = new(8898);
+            {
+                var bRoute = new BilibiliRoute();
+                bRoute.Crush += BiliRoute_Crush;
+                server.Routes.Add(bRoute);
 
-            var bRoute = new BilibiliRoute();
-            bRoute.Crush += BiliRoute_Crush;
-            server.Routes.Add(bRoute);
-
-            var xhsRoute = new RedBookRoute();
-            server.Routes.Add(xhsRoute);
-
+                var xhsRoute = new RedBookRoute();
+                server.Routes.Add(xhsRoute);
+            }
             server.Start();
         }
 
         private void BiliRoute_Crush(object? sender, (HttpRequest, HttpResponse) rr)
         {
             var (requ, resp) = rr;
-            //StreamReader stream = new(requ.InputStream);
             string raw = requ.Body;
 
             var braveShine = TabPages.First(x => x.Element is HamsterStudio.BraveShine.Views.MainView);
