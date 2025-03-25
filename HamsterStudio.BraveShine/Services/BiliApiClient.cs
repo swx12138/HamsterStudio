@@ -1,8 +1,8 @@
 ﻿using HamsterStudio.Barefeet.Logging;
 using HamsterStudio.BraveShine.Models.Bilibili;
 using HamsterStudio.BraveShine.Models.Bilibili.SubStruct;
-using HamsterStudio.Web.Request;
-using HamsterStudio.Web.Services;
+using HamsterStudio.Web;
+using HamsterStudio.Web.Utilities;
 using System.Collections.Concurrent;
 using System.IO;
 using System.Net;
@@ -13,7 +13,6 @@ namespace HamsterStudio.BraveShine.Services
     public class BiliApiClient
     {
         public const string Referer = "https://www.bilibili.com/";
-        public FakeBrowser Browser { get; private set; }
         public string Cookies { get; private set; }
 
         public static readonly JsonSerializerOptions JsonSerializerOptions = new JsonSerializerOptions
@@ -27,11 +26,6 @@ namespace HamsterStudio.BraveShine.Services
         public BiliApiClient(string? _cookies)
         {
             Cookies = _cookies ?? LoadCookies();
-            Browser = new()
-            {
-                Cookies = Cookies,
-                Referer = Referer
-            };
             ServicePointManager.ServerCertificateValidationCallback += (sender, certificate, chain, sslPolicyErrors) => true;
         }
 
@@ -90,8 +84,11 @@ namespace HamsterStudio.BraveShine.Services
             else
             {
                 string api = $"https://api.bilibili.com/x/web-interface/view?bvid={bvid}";
-                value =  await GetApiAsync<VideoInfo>(api);
-                VideoInfoCache[bvid] = value;
+                value = await GetApiAsync<VideoInfo>(api);
+                if (value != null)
+                {
+                    VideoInfoCache[bvid] = value;
+                }
                 return value;
             }
         }
@@ -112,19 +109,8 @@ namespace HamsterStudio.BraveShine.Services
 
         public async Task<VideoStreamInfo?> GetVideoStream(string bvid, PagesItem page)
         {
-            //#if DEBUG
-            //            string json_data = File.ReadAllText(@"G:\Code\HamsterStudio\BV1ax4y1x7ua_playurl.json");
-            //            var json_resp = JsonSerializer.Deserialize<Response<VideoStreamInfo>>(json_data);
-            //            return await Task.FromResult(json_resp.Data);
-            //#else
             string api = "https://api.bilibili.com/x/player/wbi/playurl?" + $"fnval=144&cid={page.Cid}&qn=120&bvid={bvid}&fourk=1";
             return await GetApiAsync<VideoStreamInfo>(api);
-            //#endif
-        }
-
-        public Task<string> DownloadFile(string url, string path, string? filename = null)
-        {
-            return FileSaver.SaveFileFromUrl(url, path, filename, Browser);
         }
 
         public async Task<WatchLaterData?> GetWatchLater()

@@ -18,6 +18,9 @@ namespace HamsterStudio.Web.DataModels.XiaoHs
         [JsonPropertyName("作者昵称")]
         public string AuthorNickName { get; set; }
 
+        [JsonPropertyName("static_files")]
+        public string[] StaticFiles { get; set; }
+
     }
 
     public class ServerResp

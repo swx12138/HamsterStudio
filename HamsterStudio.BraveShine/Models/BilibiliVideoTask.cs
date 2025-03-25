@@ -1,19 +1,17 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using HamsterStudio.Barefeet.Logging;
+using HamsterStudio.Barefeet.Task;
 using HamsterStudio.BraveShine.Models.Bilibili;
 using HamsterStudio.BraveShine.Services;
-using HamsterStudio.Web.Interfaces;
 using System.IO;
-using System.Windows.Documents;
 
 namespace HamsterStudio.BraveShine.Models
 {
     public partial class BilibiliVideoTask(
         int vps,
         BilibiliVideoPage page,
-        VideoStreamInfo? vsi,
-        VideoInfo videoInfo,
-        BiliApiClient client) : ObservableObject, IHamsterTask
+        VideoStreamInfo vsi,
+        VideoInfo videoInfo, BiliApiClient biliApiClient) : ObservableObject, IHamsterTask
     {
         public string Name => page.PartTitle;
 
@@ -42,12 +40,12 @@ namespace HamsterStudio.BraveShine.Models
             {
                 State = HamsterTaskState.Running;
 
-                var accept = vsi.Value.AcceptQuality.Zip(vsi.Value.AcceptFormat.Split(','), vsi.Value.AcceptDescription).First(x => x.First == page.AcceptQuality);
+                var accept = vsi.AcceptQuality.Zip(vsi.AcceptFormat.Split(','), vsi.AcceptDescription).First(x => x.First == page.AcceptQuality);
                 Logger.Shared.Information($"Selected quality {accept.Second}({accept.Third}, {accept.First})");
 
                 string vBaseUrl = getVideoBaseUrl(page, vsi);
                 string aBaseUrl = getAudioBaseUrl(vsi);
-                AvDownloader downloader = new(client);
+                AvDownloader downloader = new();
                 AvMeta meta = new()
                 {
                     title = page.PartTitle,

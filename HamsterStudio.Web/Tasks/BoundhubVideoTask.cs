@@ -1,11 +1,12 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
+using HamsterStudio.Barefeet.Task;
 using HamsterStudio.Web.DataModels.Boundhub;
 using HamsterStudio.Web.Interfaces;
 using System.Diagnostics;
 
 namespace HamsterStudio.Web.Tasks
 {
-    internal partial class BoundhubVideoTask(VideoDescriptor descriptor,ProgressReport? progressReport = null) :ObservableObject, IDownloadingTask
+    internal partial class BoundhubVideoTask(VideoDescriptor descriptor) :ObservableObject, IHamsterTask
     {
         //private readonly ObservableDownloader _ObservableDownloader = new();
         private readonly AutoResetEvent _NotifySuccess = new(false);
@@ -39,8 +40,8 @@ namespace HamsterStudio.Web.Tasks
             try
             {
                 State = HamsterTaskState.Running;
-                long start = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
-                long bytes = 0;
+                //long start = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+                //long bytes = 0;
                 //_ObservableDownloader.ProgressChanged += delegate (object? sender, MyDownloadProgressChangedEventArgs e)
                 //{
                 //    ProgressValue = e.BytesReceived;

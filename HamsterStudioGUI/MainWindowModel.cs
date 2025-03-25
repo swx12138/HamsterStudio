@@ -1,9 +1,10 @@
 ﻿using HamsterStudio.Barefeet.Logging;
-using HamsterStudio.Toolkits.Logging;
-using HamsterStudio.Web.Services.Routes;
-using HamsterStudio.Web.Sessions;
+using HamsterStudio.Web.Routing;
+using HamsterStudio.Web.Routing.Routes;
 using NetCoreServer;
 using System.Collections.ObjectModel;
+using System.Security.Authentication;
+using System.Security.Cryptography.X509Certificates;
 using System.Windows;
 using System.Windows.Controls;
 
@@ -29,19 +30,20 @@ namespace HamsterStudioGUI
 
         public MainWindowModel()
         {
-            Logger.Shared.AddTarget(new DiagnosticsTraceTarget("Trace"), NLog.LogLevel.Trace, NLog.LogLevel.Fatal);
+            //Logger.Shared.AddTarget(new DiagnosticsTraceTarget("Trace"), NLog.LogLevel.Trace, NLog.LogLevel.Fatal);
 
             TabPages.Add(TabPageModel.Incubator<HamsterStudio.BraveShine.Views.MainView>("BraveShine", "BraveShine"));
             TabPages.Add(TabPageModel.Incubator<HamsterStudio.ImageTool.Views.MainView>("ImageTool", "ImageTool"));
 
-            server = new(8898);
+            var context = new SslContext(SslProtocols.Tls12, new X509Certificate2("https/server.pfx", "qwerty"));
+            server = new(context, 8898);
             {
                 var bRoute = new BilibiliRoute();
                 bRoute.Crush += BiliRoute_Crush;
-                server.Routes.Add(bRoute);
+                server.RouteMap.Routes.Add(bRoute);
 
                 var xhsRoute = new RedBookRoute();
-                server.Routes.Add(xhsRoute);
+                server.RouteMap.Routes.Add(xhsRoute);
             }
             server.Start();
         }

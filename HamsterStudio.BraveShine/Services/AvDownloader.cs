@@ -3,12 +3,13 @@ using HamsterStudio.BraveShine.Models.Bilibili;
 using HamsterStudio.BraveShine.Models.Bilibili.SubStruct;
 using HamsterStudio.BraveShine.Modelss.Bilibili.SubStruct;
 using HamsterStudio.Toolkits.SysCall;
-using HamsterStudio.Web.Services;
+using HamsterStudio.Web;
+using HamsterStudio.Web.Utilities;
 using System.IO;
 
 namespace HamsterStudio.BraveShine.Services;
 
-public class AvDownloader(BiliApiClient bClient)
+public class AvDownloader
 {
     public const string BVDHome = @"D:\BVDownload";
     public const string BVCoverHome = @"D:\BVDownload\Covers";
@@ -30,9 +31,10 @@ public class AvDownloader(BiliApiClient bClient)
                 return "";
             }
 
-            bClient.Browser.Referer = $"https://www.bilibili.com/video/{meta.copyright}/";
-            string aname = await bClient.DownloadFile(aurl, Environment.CurrentDirectory);
-            string vname = await bClient.DownloadFile(vurl, Environment.CurrentDirectory);
+            var browser = new FakeBrowser();
+            browser.Referer = $"https://www.bilibili.com/video/{meta.copyright}/";
+            string aname = await FileSaver.SaveFileFromUrl(aurl, Environment.CurrentDirectory, fakeBrowser: browser);
+            string vname = await FileSaver.SaveFileFromUrl(vurl, Environment.CurrentDirectory, fakeBrowser: browser);
             MergeAv(vname, aname, meta, output);
 
             if (DeleteAvCache ?? true)
@@ -49,31 +51,39 @@ public class AvDownloader(BiliApiClient bClient)
         return output;
     }
 
-    public async Task<string> SaveCover(VideoInfo videoInfo)
+    public static async Task<string> SaveCover(VideoInfo videoInfo)
     {
         return await SaveCover(videoInfo.Bvid, videoInfo.Pic);
     }
-    
-    public async Task<string> SaveCover(WatchLaterDat watchLater)
+
+    public static async Task<string> SaveCover(WatchLaterDat watchLater)
     {
         return await SaveCover(watchLater.Bvid, watchLater.Pic);
     }
 
-    public async Task<string> SaveCover(string bvid, PagesItem pagesItem)
+    public static async Task<string> SaveCover(string bvid, PagesItem pagesItem)
     {
         return await SaveCover(bvid, pagesItem.FirstFrame);
     }
-    
-    public async Task<string> SaveCover(string bvid, string url)
+
+    public static async Task<string> SaveCover(string bvid, string url)
     {
-        string filename = url.Split("?")[0].Split("@")[0].Split("/").Last();
-        filename = $"{bvid}_bili_{filename}";
-        string result = await FileSaver.SaveFileFromUrl(url, BVCoverHome, filename);
-        Logger.Shared.Information($"Saved {bvid} cover to {result}");
-        return result;
+        try
+        {
+            string filename = url.Split("?")[0].Split("@")[0].Split("/").Last();
+            filename = $"{bvid}_bili_{filename}";
+            string result = await FileSaver.SaveFileFromUrl(url, BVCoverHome, filename);
+            Logger.Shared.Information($"Saved {bvid} cover to {result}");
+            return result;
+        }
+        catch (Exception ex)
+        {
+            Logger.Shared.Debug(ex);
+            return string.Empty;
+        }
     }
 
-    public void MergeAv(string vname, string aname, AvMeta meta, string outp)
+    public static void MergeAv(string vname, string aname, AvMeta meta, string outp)
     {
         string cmd = $"chcp 65001 & ffmpeg -i \"{vname}\" -i \"{aname}\" -c:v copy -c:a copy " +
             $"-metadata title=\"{meta.title}\" " +
@@ -84,4 +94,5 @@ public class AvDownloader(BiliApiClient bClient)
         ExplorerShell.System(cmd);
         Logger.Shared.Information($"Av merge succeed.");
     }
+
 }

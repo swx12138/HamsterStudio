@@ -1,7 +1,7 @@
 ﻿using System.Net;
 using System.Text;
 
-namespace HamsterStudio.Web.Request
+namespace HamsterStudio.Web
 {
     public static class ResponseExtension
     {

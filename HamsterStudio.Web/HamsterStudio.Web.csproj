@@ -1,18 +1,18 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
-    <Nullable>enable</Nullable>
-    <ImplicitUsings>enable</ImplicitUsings>
-  </PropertyGroup>
+	<PropertyGroup>
+		<TargetFramework>net8.0</TargetFramework>
+		<Nullable>enable</Nullable>
+		<ImplicitUsings>enable</ImplicitUsings>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <PackageReference Include="NetCoreServer" Version="8.0.7" />
-    <PackageReference Include="Refit" Version="8.0.0" />
-  </ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="Refit" Version="8.0.0" />
+		<PackageReference Include="NetCoreServer" Version="8.0.7" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\HamsterStudio.Barefeet\HamsterStudio.Barefeet.csproj" />
-  </ItemGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\HamsterStudio.Barefeet\HamsterStudio.Barefeet.csproj" />
+	</ItemGroup>
 
 </Project>

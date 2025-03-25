@@ -7,9 +7,10 @@ using HamsterStudio.BraveShine.Models.Bilibili.SubStruct;
 using HamsterStudio.BraveShine.Services;
 using HamsterStudio.BraveShine.Views;
 using HamsterStudio.Toolkits.Logging;
-using HamsterStudio.Web.Services;
 using System.Collections.ObjectModel;
 using System.Windows.Input;
+using HamsterStudio.Barefeet.Extensions;
+using HamsterStudio.Web.Utilities;
 
 namespace HamsterStudio.BraveShine.ViewModels
 {
@@ -26,8 +27,6 @@ namespace HamsterStudio.BraveShine.ViewModels
 
         [ObservableProperty]
         private string lastInfomation = "No message.";
-
-        private string BvId => Location.Bvid.Split("?")[0].Split("/").First(x => x.StartsWith("BV", StringComparison.CurrentCultureIgnoreCase));
 
         public ICommand SaveCoverCommand { get; }
         public ICommand SaveOwnerFaceCommand { get; }
@@ -60,10 +59,10 @@ namespace HamsterStudio.BraveShine.ViewModels
             };
 #endif
 
-            SaveCoverCommand = new AsyncRelayCommand(async () => await (new AvDownloader(client)).SaveCover(VideoInfo));
-            SaveOwnerFaceCommand = new AsyncRelayCommand(async () => await FileSaver.SaveFileFromUrl((VideoInfo)?.Owner.Face, AvDownloader.BVCoverHome));
+            SaveCoverCommand = new AsyncRelayCommand(async () => await AvDownloader.SaveCover(VideoInfo));
+            SaveOwnerFaceCommand = new AsyncRelayCommand(async () => await FileSaver.SaveFileFromUrl(VideoInfo?.Owner.Face ?? throw new NotImplementedException(), AvDownloader.BVCoverHome));
 
-            SaveFirstFrameCommand = new AsyncRelayCommand<PagesItem>(async page => await (new AvDownloader(client)).SaveCover(BvId, page));
+            SaveFirstFrameCommand = new AsyncRelayCommand<PagesItem>(async page => await AvDownloader.SaveCover(GetBvid(), page));
             SaveVideoCommand = new AsyncRelayCommand<int>(DownloadVideo);
 
             RedirectLocationCommand = new RelayCommand(() => RedirectLocation());
@@ -84,7 +83,7 @@ namespace HamsterStudio.BraveShine.ViewModels
                 }
                 catch (Exception ex)
                 {
-                    Logger.Shared.Critical(ex);
+                    Logger.Shared.Debug(ex);
                 }
             });
 
@@ -102,20 +101,41 @@ namespace HamsterStudio.BraveShine.ViewModels
 
         }
 
+        private string GetBvid()
+        {
+            try
+            {
+                return Location.Bvid
+                    .Split("?")[0]
+                    .Split("/")
+                    .First(x => x.StartsWith("BV", StringComparison.CurrentCultureIgnoreCase));
+            }
+            catch (Exception ex)
+            {
+                Logger.Shared.Debug(ex);
+                return string.Empty;
+            }
+        }
+
         private async Task DownloadVideo(int idx = -1)
         {
-            idx = Math.Max(idx, 0);
+            string bvid = GetBvid();
+            if (bvid.IsNullOrEmpty())
+            {
+                LastInfomation = "Empty bvid!";
+                return;
+            }
 
-            var resp = await client.GetVideoStream(BvId, VideoInfo!.Pages[idx]);
+            idx = Math.Max(idx, 0);
+            var resp = await client.GetVideoStream(bvid, VideoInfo!.Pages[idx]);
             if (resp == null)
             {
                 Logger.Shared.Warning($"GetVideoStream Failed.");
                 return;
             }
 
-            //foreach()
             BilibiliVideoPage vpage = new(VideoInfo!.Pages[idx], resp!);
-            BilibiliVideoTask bilibiliVideoTask = new(idx, vpage, resp!, (VideoInfo), client);
+            BilibiliVideoTask bilibiliVideoTask = new(idx, vpage, resp ?? throw new NotImplementedException(), (VideoInfo), client);
             LastInfomation = await bilibiliVideoTask.Run2();
             Logger.Shared.Information("SaveVideoCommand Finish.");
         }
@@ -135,7 +155,7 @@ namespace HamsterStudio.BraveShine.ViewModels
 
         private bool RedirectLocation()
         {
-            return RedirectLocation(BvId);
+            return RedirectLocation(GetBvid());
         }
 
         public async Task<string> DownloadVideoByBvid(string bvid)

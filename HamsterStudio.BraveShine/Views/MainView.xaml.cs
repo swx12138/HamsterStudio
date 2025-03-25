@@ -29,15 +29,8 @@ namespace HamsterStudio.BraveShine.Views
             }
         }
 
-        private void locat_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            if (DataContext is MainViewModel viewModel)
-            {
-                viewModel.RedirectLocationCommand.Execute(null);
-            }
-        }
 
-        private void Border_SourceUpdated(object sender, DataTransferEventArgs e)
+        private void DataGrid_DataContextChanged(object sender, DependencyPropertyChangedEventArgs e)
         {
             if (sender is DataGrid dg && dg.DataContext is ObservableCollection<LogEventInfo> data)
             {

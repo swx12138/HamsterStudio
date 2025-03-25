@@ -1,12 +1,10 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using System.Windows.Input;
-using HamsterStudio.Web.Request;
-using System.Diagnostics;
-using System.Net.Http;
-using System.Text.Json;
-using System.Text;
+using HamsterStudio.Web;
 using HamsterStudio.Web.DataModels.XiaoHs;
+using System.Diagnostics;
+using System.Text.Json;
+using System.Windows.Input;
 
 namespace HamsterStudioMaui.ViewModels
 {
@@ -19,7 +17,7 @@ namespace HamsterStudioMaui.ViewModels
         private string _hostName = "192.168.0.101";
 
         [ObservableProperty]
-        private string _port = "2206";
+        private string _port = "8899";
 
         private string _log = string.Empty;
         public string Log
@@ -32,6 +30,8 @@ namespace HamsterStudioMaui.ViewModels
             }
         }
 
+        [ObservableProperty]
+        private bool saveToPhone = false;
 
         public ICommand ExtractCommand { get; }
 
@@ -57,6 +57,23 @@ namespace HamsterStudioMaui.ViewModels
                         var resp = JsonSerializer.Deserialize<ServerResp>(resp_text);
                         Log = $"Process {url} finished.\nAuthor:{resp.Data.AuthorNickName}\nTitle:{resp.Data.Title}\nDesc:{resp.Data.Description}";
                         ShareInfo = string.Empty;
+
+#if ANDROID
+                        if (saveToPhone)
+                        {
+                            var results = new List<string>();
+                            Log += "\n -*- Downloading static files...";
+                            foreach (var file in resp.Data.StaticFiles)
+                            {
+                                string static_file_url = $"http://{HostName}:{Port}{file}";
+                                //string result = await FileSaver.SaveFileFromUrl(static_file_url, "/sdacrd/dcim/xhsd", Path.GetFileName(file));
+                                string result = Platforms.Android.Utils.FileUtils.WriteFileToDCIM(Path.GetFileName(file), await browser.GetStreamAsync(static_file_url));
+                                Log += "\n" + result;
+                                results.Add(result);
+                            }
+                            Platforms.Android.Utils.FileUtils.NotifyGalleryOfNewImage([.. results]);
+                        }
+#endif
                     }
                 }
                 catch (Exception ex)

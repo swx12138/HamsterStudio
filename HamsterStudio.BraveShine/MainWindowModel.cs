@@ -13,7 +13,7 @@ namespace HamsterStudio.BraveShine
     {
         public MainView MainView { get;  } = new();
 
-        public MainViewModel MainViewModel => MainView.DataContext as MainViewModel;
+        public MainViewModel MainViewModel => (MainView.DataContext as MainViewModel)!;
 
     }
 }

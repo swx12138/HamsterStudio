@@ -15,16 +15,19 @@ namespace HamsterStudio.Barefeet.Logging
 
         private readonly NLog.Logger logger = LogManager.GetCurrentClassLogger();
 
-        private Logger() {
-
+        private Logger()
+        {
+            var debuggerTarget = new DebuggerTarget();
+            debuggerTarget.Name = "Debugger";
+            AddTarget(debuggerTarget, LogLevel.Trace);
         }
 
-        public bool AddTarget(Target target, LogLevel min, LogLevel max)
+        public bool AddTarget(Target target, LogLevel min, LogLevel? max = null)
         {
             var asyncTarget = new NLog.Targets.Wrappers.AsyncTargetWrapper(target);
             var config = LogManager.Configuration ?? new();
             config.AddTarget(target.Name, asyncTarget);
-            config.AddRule(min, max, asyncTarget);
+            config.AddRule(min, max?? LogLevel.Fatal, asyncTarget);
             LogManager.Configuration = config;
             return true;
         }
@@ -40,6 +43,7 @@ namespace HamsterStudio.Barefeet.Logging
         public void Warning(string message) => logger.Warn(message);
 
         public void Debug(string message) => logger.Debug(message);
+        public void Debug(Exception ex) => logger.Debug(ex.Message + "\n" + ex.StackTrace);
 
     }
 

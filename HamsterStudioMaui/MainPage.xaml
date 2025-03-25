@@ -10,6 +10,11 @@
 
             <Button Command="{Binding ExtractCommand}" Text="Don't Touch" />
 
+            <HorizontalStackLayout>
+                <Label Text="保存到手机" />
+                <CheckBox IsChecked="{Binding SaveToPhone}" />
+            </HorizontalStackLayout>
+
             <Label Text="{Binding Log}" />
 
             <HorizontalStackLayout>

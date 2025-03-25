@@ -1,7 +1,7 @@
-﻿using HamsterStudio.Web.Request;
+﻿using HamsterStudio.Barefeet.Logging;
 using System.IO;
 
-namespace HamsterStudio.Web.Services
+namespace HamsterStudio.Web.Utilities
 {
     public static class FileSaver
     {
@@ -19,6 +19,7 @@ namespace HamsterStudio.Web.Services
             dir = Path.Combine(Directory.GetCurrentDirectory(), dir);
             if (!Directory.Exists(dir))
             {
+                Logger.Shared.Debug($"{dir} not exists,create it.");
                 Directory.CreateDirectory(dir);
             }
 
@@ -26,7 +27,7 @@ namespace HamsterStudio.Web.Services
             if (!Path.Exists(path))
             {
                 fakeBrowser ??= FakeBrowser.CommonClient;
-                var contentStream = fakeBrowser.GetStream(url);
+                var contentStream = await fakeBrowser.GetStreamAsync(url);
 
                 SaveFileResult result = await SaveFileToDisk(contentStream, path);
                 if (result != SaveFileResult.Succeed)
@@ -51,10 +52,10 @@ namespace HamsterStudio.Web.Services
         /// <param name="data"></param>
         /// <param name="filename"></param>
         /// <returns></returns>
-        public static async Task<SaveFileResult> SaveFileToDisk(Task<Stream> data, string filename)
+        public static async Task<SaveFileResult> SaveFileToDisk(Stream data, string filename)
         {
             using var fs = File.OpenWrite(filename);
-            await data.Result.CopyToAsync(fs);
+            await data.CopyToAsync(fs);
             return SaveFileResult.Succeed;
         }
 

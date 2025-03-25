@@ -150,9 +150,10 @@
             </Border>
 
             <!--  日志  -->
-            <Border Grid.Row="1" Grid.Column="2" Background="LightGoldenrodYellow" SourceUpdated="Border_SourceUpdated">
+            <Border Grid.Row="1" Grid.Column="2" Background="LightGoldenrodYellow">
                 <DataGrid AutoGenerateColumns="False"
                           Background="Transparent"
+                          DataContextChanged="DataGrid_DataContextChanged"
                           GridLinesVisibility="All"
                           IsReadOnly="True"
                           ItemsSource="{Binding NlogTarget.LogEntries}">

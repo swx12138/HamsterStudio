@@ -1,13 +1,13 @@
-﻿using HamsterStudio.Web.Interfaces;
-using HamsterStudio.Web.Services.Routes;
+﻿using HamsterStudio.Barefeet.Task;
+using HamsterStudio.Web.Interfaces;
+using HamsterStudio.Web.Routing.Routes;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Net;
-using System.Windows;
 
-namespace HamsterStudio.Web.Services
+namespace HamsterStudio.Web
 {
-    public class HttpServer : IHttpServer
+    public class EasyHttpServer 
     {
         public int TotalRequest { get; private set; }
 
@@ -36,9 +36,9 @@ namespace HamsterStudio.Web.Services
         private readonly ushort _Port;
         private readonly BackgroundWorker _worker = new() { WorkerSupportsCancellation = true };
         private readonly IRouteService _RouteService;
-        private readonly IHamsterTaskManager _HamsterTaskManager;
+        private readonly HamsterTaskManager _HamsterTaskManager;
 
-        public HttpServer(string host, ushort port,IRouteService routeService, IHamsterTaskManager hamsterTaskManager)
+        public EasyHttpServer(string host, ushort port,IRouteService routeService, HamsterTaskManager hamsterTaskManager)
         {
             _Host = host;
             _Port = port;
@@ -69,7 +69,7 @@ namespace HamsterStudio.Web.Services
                 // 设置允许跨域请求
                 response.Headers.Add("Access-Control-Allow-Origin", "*");
 
-                Trace.TraceInformation($"[{nameof(HttpServer)}] <= [{request.HttpMethod}] {request.Url}");
+                Trace.TraceInformation($"[{nameof(EasyHttpServer)}] <= [{request.HttpMethod}] {request.Url}");
                 if (request.HttpMethod == "OPTIONS")
                 {
                     // 处理OPTIONS请求

@@ -3,7 +3,7 @@ using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 
-namespace HamsterStudio.Web.Request
+namespace HamsterStudio.Web
 {
     public class FakeBrowser
     {
@@ -36,8 +36,6 @@ namespace HamsterStudio.Web.Request
 
         public HttpRequestMessage CreateRequest(HttpMethod method, string api, HttpContent? content = null, RangeHeaderValue? range = null)
         {
-            //Logger.Inst.Info($"[{method}] {api}");
-
             HttpRequestMessage request = new(method, api);
 
             // 设置User-Agent
@@ -74,11 +72,6 @@ namespace HamsterStudio.Web.Request
             }
         }
 
-        /// <summary>
-        /// 单独获取响应头
-        /// </summary>
-        /// <param name="url"></param>
-        /// <returns></returns>
         public async Task<HttpContentHeaders> GetHeadersAsync(string url)
         {
             var request = CreateRequest(HttpMethod.Head, url);
@@ -86,18 +79,13 @@ namespace HamsterStudio.Web.Request
             return response.Content.Headers;
         }
 
-        public async Task<bool> DoServerSupportContentRange(string url)
+        public async Task<bool> IsServerSupportContentRange(string url)
         {
             var request = CreateRequest(HttpMethod.Head, url, range: new(0, 0));
             HttpResponseMessage response = await _Client.SendAsync(request);
             return response.StatusCode == HttpStatusCode.PartialContent;
         }
 
-        /// <summary>
-        /// GET一个字符串
-        /// </summary>
-        /// <param name="api"></param>
-        /// <returns></returns>
         public async Task<string> GetStringAsync(string api)
         {
             var resp = await FetchAsync(HttpMethod.Get, api);
@@ -118,11 +106,6 @@ namespace HamsterStudio.Web.Request
             return await HandleResponse(resp).ReadAsStringAsync();
         }
 
-        /// <summary>
-        /// Get一个Stream
-        /// </summary>
-        /// <param name="api"></param>
-        /// <returns></returns>
         public async Task<Stream> GetStreamAsync(string api)
         {
             var resp = await FetchAsync(HttpMethod.Get, api);
@@ -135,23 +118,12 @@ namespace HamsterStudio.Web.Request
             return await HandleResponse(resp).ReadAsStreamAsync();
         }
 
-        /// <summary>
-        /// 获取某个段
-        /// </summary>
-        /// <param name="api"></param>
-        /// <returns></returns>
         public async Task<Stream> GetStreamAsync(string api, int start, int length)
         {
             var resp = await FetchAsync(HttpMethod.Get, api, range: new(start, start + length - 1));
             return await resp.ReadAsStreamAsync();
         }
 
-        /// <summary>
-        /// Post
-        /// </summary>
-        /// <param name="api"></param>
-        /// <param name="data"></param>
-        /// <returns></returns>
         public async Task<string> PostAsync(string api, object data)
         {
             var resp = data switch
@@ -161,5 +133,12 @@ namespace HamsterStudio.Web.Request
             };
             return await resp.ReadAsStringAsync();
         }
+
+        public async Task<long> GetRemoteFileSize(string url)
+        {
+            HttpContentHeaders headers = await GetHeadersAsync(url);
+            return headers.ContentLength ?? 0;
+        }
+    
     }
 }
