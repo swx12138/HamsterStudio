@@ -1,0 +1,38 @@
+﻿<Window x:Class="HamsterStudio.Gallery.Views.FileGroupWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:local="clr-namespace:HamsterStudio.Gallery.Views"
+        xmlns:localm="clr-namespace:HamsterStudio.Gallery.Models"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        Title="FileGroupWindow"
+        Width="1366"
+        Height="960"
+        mc:Ignorable="d">
+    <ScrollViewer IsDeferredScrollingEnabled="True">
+        <ItemsControl ItemsSource="{Binding Files}">
+            <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <WrapPanel />
+                </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+            <ItemsControl.ItemTemplate>
+                <DataTemplate DataType="localm:FileModel">
+                    <Border Margin="2"
+                            Padding="2"
+                            BorderBrush="Red"
+                            BorderThickness="1"
+                            CornerRadius="5">
+                        <Image Width="200" MaxHeight="200" Source="{Binding Filename}">
+                            <Image.ContextMenu>
+                                <ContextMenu>
+                                    <MenuItem Command="{Binding ShowImageCommand}" Header="View" />
+                                </ContextMenu>
+                            </Image.ContextMenu>
+                        </Image>
+                    </Border>
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+        </ItemsControl>
+    </ScrollViewer>
+</Window>

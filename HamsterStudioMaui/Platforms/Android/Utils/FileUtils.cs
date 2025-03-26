@@ -15,11 +15,12 @@ public static class FileUtils
 
         // 创建文件
         var file = new File(hamsterDir, fileName);
-
-        using var fos = new FileOutputStream(file);
-        using var bis = new BufferedInputStream(stream);
-        fos.Write(bis.ReadAllBytes());
-
+        if (!file.Exists())
+        {
+            using var fos = new FileOutputStream(file);
+            using var bis = new BufferedInputStream(stream);
+            fos.Write(bis.ReadAllBytes());
+        }
         return file.CanonicalPath;
     }
 

@@ -1,7 +1,7 @@
 ﻿
 namespace HamsterStudio.Barefeet.Algorithm.Random;
 
-static class RandomExtension
+public static class RandomExtension
 {
     public static T Choice<T>(this IEnumerable<T> values)
     {
