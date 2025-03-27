@@ -34,6 +34,7 @@ namespace HamsterStudioGUI
 
             TabPages.Add(TabPageModel.Incubator<HamsterStudio.BraveShine.Views.MainView>("BraveShine", "BraveShine"));
             TabPages.Add(TabPageModel.Incubator<HamsterStudio.ImageTool.Views.MainView>("ImageTool", "ImageTool"));
+            TabPages.Add(TabPageModel.Incubator<HamsterStudio.Gallery.Views.GalleryView>("Gallery", "Gallery"));
 
             var context = new SslContext(SslProtocols.Tls12, new X509Certificate2("https/server.pfx", "qwerty"));
             server = new(context, 8898);

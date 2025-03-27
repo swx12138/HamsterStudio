@@ -4,6 +4,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:local="clr-namespace:HamsterStudio.Gallery.Views"
              xmlns:localm="clr-namespace:HamsterStudio.Gallery.Models"
+             xmlns:localp="clr-namespace:HamsterStudio.Gallery"
              xmlns:localvm="clr-namespace:HamsterStudio.Gallery.ViewModels"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              d:DesignHeight="450"
@@ -16,6 +17,7 @@
         <Grid Background="AliceBlue">
             <Grid.ContextMenu>
                 <ContextMenu>
+                    <MenuItem Command="{Binding FileManager.OpenCommand}" Header="Open" />
                     <MenuItem Command="{Binding FileManager.PlayCommand}" Header="Play" />
                 </ContextMenu>
             </Grid.ContextMenu>
@@ -37,7 +39,10 @@
                                     <MenuItem Command="{Binding ViewCommand}" Header="查看" />
                                 </ContextMenu>
                             </Grid.ContextMenu>
-                            <Image Grid.Row="0" Width="200" Source="{Binding Files[0].Filename}" />
+                            <Grid.InputBindings>
+                                <MouseBinding Command="{Binding ViewCommand}" MouseAction="LeftDoubleClick" />
+                            </Grid.InputBindings>
+                            <Image Grid.Row="0" Width="{x:Static localp:Constants.ThumbnailSize}" Source="{Binding Files[0].Thumbnail.Value}" />
                             <TextBlock Grid.Row="1" Text="{Binding DisplayName}" />
                         </Grid>
                     </Border>

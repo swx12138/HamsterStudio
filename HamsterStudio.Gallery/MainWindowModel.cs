@@ -17,27 +17,9 @@ partial class MainWindowModel :ViewModel
     [ObservableProperty]
     private bool _topmost = false;
 
-    public ICommand OpenCommand { get; }
-
     public MainWindowModel()
     {
-#if DEBUG
-        Topmost = true;
-#endif
-        OpenCommand = new RelayCommand(() =>
-        {
-            OpenFolderDialog dialog = new();
-            dialog.Title = "选择文件夹";
-            dialog.Multiselect = false;
-            if (!(dialog.ShowDialog() ?? false))
-            {
-                return;
-            }
 
-            ViewModel.FileManager.ReadFolder(dialog.FolderName);
-            Logger.Shared.Trace($"现在一共有{ViewModel.FileManager.FileGroups.Count}个分组，。");
-
-        });
     }
 
 }

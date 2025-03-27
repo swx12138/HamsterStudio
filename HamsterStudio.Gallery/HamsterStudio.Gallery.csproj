@@ -10,6 +10,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\HamsterStudio.HandyUtil\HamsterStudio.HandyUtil.csproj" />
+    <ProjectReference Include="..\HamsterStudio.Toolkits\HamsterStudio.Toolkits.csproj" />
   </ItemGroup>
 
 </Project>
