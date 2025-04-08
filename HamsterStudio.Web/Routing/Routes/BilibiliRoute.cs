@@ -13,9 +13,9 @@ namespace HamsterStudio.Web.Routing.Routes
 
         public HttpResponse GetHttpResponse(HttpRequest request)
         {
-            var resp = new HttpResponse();
+            var resp = new HttpResponse().MakeOkResponse();
             Crush?.Invoke(this, (request, resp));
-            return resp.MakeOkResponse();
+            return resp;
         }
     }
 }

@@ -367,3 +367,5 @@ ConsoleApp/
 *.pfx
 *.crt
 *.key
+/HamsterStudioGUI/https/make_root_ca.bat
+/HamsterStudioGUI/https/make_root_ca_pfx.bat

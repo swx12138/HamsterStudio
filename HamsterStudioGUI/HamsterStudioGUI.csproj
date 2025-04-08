@@ -10,6 +10,8 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="https\make_root_ca.bat" />
+    <None Remove="https\make_root_ca_pfx.bat" />
     <None Remove="https\server.crt" />
     <None Remove="https\server.key" />
   </ItemGroup>
@@ -34,6 +36,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Update="https\localhost.pfx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Update="https\server.pfx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

@@ -1,4 +1,5 @@
-﻿using HamsterStudio.Barefeet.Logging;
+﻿using HamsterStudio.Barefeet.Interfaces;
+using HamsterStudio.Barefeet.Logging;
 using HamsterStudio.Web.Routing;
 using HamsterStudio.Web.Routing.Routes;
 using NetCoreServer;
@@ -36,8 +37,49 @@ namespace HamsterStudioGUI
             TabPages.Add(TabPageModel.Incubator<HamsterStudio.ImageTool.Views.MainView>("ImageTool", "ImageTool"));
             TabPages.Add(TabPageModel.Incubator<HamsterStudio.Gallery.Views.GalleryView>("Gallery", "Gallery"));
 
-            var context = new SslContext(SslProtocols.Tls12, new X509Certificate2("https/server.pfx", "qwerty"));
+            InitServer();
+
+            //AppDomain.CurrentDomain.FirstChanceException += (sender, e) =>
+            //{
+            //    // 按异常类型筛选
+            //    if (e.Exception is Exception)
+            //    {
+            //        Debug.WriteLine($"异常捕获: {e.Exception}");
+            //        Debugger.Break(); // 强制中断调试器
+            //    }
+            //};
+        }
+
+        private void InitServer()
+        {
+            var cert = new X509Certificate2("https/localhost.pfx", "qwerty");
+            if (cert.NotAfter < DateTime.Now)
+            {
+                Logger.Shared.Error("证书已过期！");
+                return;
+            }
+
+            if (cert.NotBefore > DateTime.Now)
+            {
+                Logger.Shared.Error("证书尚未生效！");
+                return;
+            }
+
+            var chain = new X509Chain();
+            chain.Build(cert); // 检查链是否完整
+            if (chain.ChainStatus.Length > 0)
+            {
+                foreach (var status in chain.ChainStatus)
+                {
+                    Logger.Shared.Error($"证书链错误: {status.StatusInformation}");
+                }
+                return;
+            }
+
+            var context = new SslContext(SslProtocols.Tls12, cert);
             server = new(context, 8898);
+            server.OptionKeepAlive = true;
+
             {
                 var bRoute = new BilibiliRoute();
                 bRoute.Crush += BiliRoute_Crush;
@@ -45,8 +87,13 @@ namespace HamsterStudioGUI
 
                 var xhsRoute = new RedBookRoute();
                 server.RouteMap.Routes.Add(xhsRoute);
+
+                var hyl = new HoyoLabRoute((Application.Current as IHamsterApp)!.FileStorageHome);
+                server.RouteMap.Routes.Add(hyl);
             }
+
             server.Start();
+
         }
 
         private void BiliRoute_Crush(object? sender, (HttpRequest, HttpResponse) rr)

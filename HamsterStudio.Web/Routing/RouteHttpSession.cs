@@ -8,8 +8,22 @@ namespace HamsterStudio.Web.Routing
     {
         protected override void OnReceivedRequest(HttpRequest request)
         {
-            var resp = server.RouteMap.Response(request);
-            SendResponse(resp);
+            Logger.Shared.Trace($"method:{request.Method}\tbody:{request.Body}");
+
+            if (request.Method == "HEAD")
+            {
+                SendResponseAsync(Response.MakeHeadResponse());
+            }
+            else if (request.Method == "OPTIONS")
+            {
+                var resp = Response.MakeOptionsResponse();
+                SendResponseAsync(resp);
+            }
+            else
+            {
+                var resp = server.RouteMap.Response(request);
+                SendResponse(resp);
+            }
         }
 
         protected override void OnReceivedRequestError(HttpRequest request, string error)
