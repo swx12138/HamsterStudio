@@ -4,6 +4,7 @@
              xmlns:converters="clr-namespace:HamsterStudio.BraveShine.Converters"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:hc="https://handyorg.github.io/handycontrol"
+             xmlns:i="https://handyorg.github.io/handycontrol"
              xmlns:local="clr-namespace:HamsterStudio.BraveShine"
              xmlns:localvm="clr-namespace:HamsterStudio.BraveShine.ViewModels"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -151,12 +152,15 @@
 
             <!--  日志  -->
             <Border Grid.Row="1" Grid.Column="2" Background="LightGoldenrodYellow">
-                <DataGrid AutoGenerateColumns="False"
+                <DataGrid xmlns:localbh="clr-namespace:HamsterStudio.BraveShine.Behaviors"
+                          AutoGenerateColumns="False"
                           Background="Transparent"
-                          DataContextChanged="DataGrid_DataContextChanged"
                           GridLinesVisibility="All"
                           IsReadOnly="True"
                           ItemsSource="{Binding NlogTarget.LogEntries}">
+                    <i:Interaction.Behaviors>
+                        <localbh:AutoScrollBehavior />
+                    </i:Interaction.Behaviors>
                     <DataGrid.Columns>
                         <DataGridTextColumn Binding="{Binding TimeStamp}" Header="TimeStamp" />
                         <DataGridTextColumn Binding="{Binding Level}" Header="Level" />

@@ -44,6 +44,6 @@ namespace HamsterStudio.BraveShine.Models.Bilibili.SubStruct
         /// 
         /// </summary>
         [JsonPropertyName("flac")]
-        public FlacData? Flac { get; set; }
+        public FlacData Flac { get; set; }
     }
 }

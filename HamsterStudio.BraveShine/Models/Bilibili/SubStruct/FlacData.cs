@@ -2,7 +2,7 @@
 
 namespace HamsterStudio.BraveShine.Models.Bilibili.SubStruct
 {
-    public struct FlacData
+    public class FlacData
     {
         [JsonPropertyName("display")]
         public bool Display { get; set; }

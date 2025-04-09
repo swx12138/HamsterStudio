@@ -29,13 +29,5 @@ namespace HamsterStudio.BraveShine.Views
             }
         }
 
-
-        private void DataGrid_DataContextChanged(object sender, DependencyPropertyChangedEventArgs e)
-        {
-            if (sender is DataGrid dg && dg.DataContext is ObservableCollection<LogEventInfo> data)
-            {
-                dg.ScrollIntoView(data.Last());
-            }
-        }
     }
 }
