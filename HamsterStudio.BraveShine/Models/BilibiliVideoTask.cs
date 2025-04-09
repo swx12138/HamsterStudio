@@ -44,7 +44,11 @@ namespace HamsterStudio.BraveShine.Models
                 Logger.Shared.Information($"Selected quality {accept.Second}({accept.Third}, {accept.First})");
 
                 string vBaseUrl = getVideoBaseUrl(page, vsi);
+                ArgumentException.ThrowIfNullOrEmpty(vBaseUrl, nameof(vBaseUrl));
+
                 string aBaseUrl = getAudioBaseUrl(vsi);
+                ArgumentException.ThrowIfNullOrEmpty(aBaseUrl, nameof(aBaseUrl));
+
                 AvDownloader downloader = new();
                 AvMeta meta = new()
                 {
@@ -55,7 +59,7 @@ namespace HamsterStudio.BraveShine.Models
                 };
 
                 string wish_filename = $"{videoInfo.Cid!}-{vps}_{videoInfo.Bvid}.mp4";
-                string output = await downloader.Download(meta, aBaseUrl, vBaseUrl,wish_filename                     );
+                string output = await downloader.Download(meta, aBaseUrl, vBaseUrl, wish_filename);
                 
                 State = HamsterTaskState.Succeed;
                 if (output == "")
@@ -82,8 +86,11 @@ namespace HamsterStudio.BraveShine.Models
 
                 static string getAudioBaseUrl(VideoStreamInfo? vsi)
                 {
-                    return vsi?.Dash.Audio.OrderBy(x => x.Bandwidth)
-                         .Last().BaseUrl ?? string.Empty;
+                    if(vsi == null ) return string.Empty;
+
+                    var dash = (vsi?.Dash.Flac?.Audio ?? vsi?.Dash.Audio.OrderBy(x => x.Bandwidth).Last())!.Value;
+                    Logger.Shared.Information($"Audio dash info : {dash.Bandwidth}");
+                    return dash.BaseUrl ?? string.Empty;
                 }
             }
             catch (Exception ex)
