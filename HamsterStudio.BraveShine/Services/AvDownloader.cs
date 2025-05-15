@@ -1,4 +1,5 @@
 ﻿using HamsterStudio.Barefeet.Logging;
+using HamsterStudio.BraveShine.Constants;
 using HamsterStudio.BraveShine.Models.Bilibili;
 using HamsterStudio.BraveShine.Models.Bilibili.SubStruct;
 using HamsterStudio.BraveShine.Modelss.Bilibili.SubStruct;
@@ -11,9 +12,6 @@ namespace HamsterStudio.BraveShine.Services;
 
 public class AvDownloader
 {
-    public const string BVDHome = @"D:\BVDownload";
-    public const string BVCoverHome = @"D:\BVDownload\Covers";
-
     public async Task<string> Download(AvMeta meta,
         string aurl, string vurl,
         string output,
@@ -21,7 +19,7 @@ public class AvDownloader
     {
         try
         {
-            string saving_path = @$"{BVDHome}\dash";
+            string saving_path = @$"{SystemConsts.BVDHome}\dash";
             output = Path.Combine(saving_path, output);
             Logger.Shared.Information($"Output Dir:{output}");
 
@@ -72,7 +70,7 @@ public class AvDownloader
         {
             string filename = url.Split("?")[0].Split("@")[0].Split("/").Last();
             filename = $"{bvid}_bili_{filename}";
-            string result = await FileSaver.SaveFileFromUrl(url, BVCoverHome, filename);
+            string result = await FileSaver.SaveFileFromUrl(url, SystemConsts.BVCoverHome, filename);
             Logger.Shared.Information($"Saved {bvid} cover to {result}");
             return result;
         }

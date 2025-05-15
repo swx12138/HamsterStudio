@@ -1,4 +1,5 @@
 ﻿using HamsterStudio.Barefeet.Logging;
+using HamsterStudio.BraveShine.Constants;
 using HamsterStudio.BraveShine.Models.Bilibili;
 using HamsterStudio.BraveShine.Models.Bilibili.SubStruct;
 using HamsterStudio.Web;
@@ -33,7 +34,7 @@ namespace HamsterStudio.BraveShine.Services
         {
             try
             {
-                string cookiesFilename = Path.Combine(AvDownloader.BVDHome, "cookies.txt");
+                string cookiesFilename = Path.Combine(SystemConsts.BVDHome, "cookies.txt");
                 return File.ReadAllText(cookiesFilename);
             }
             catch (Exception ex)

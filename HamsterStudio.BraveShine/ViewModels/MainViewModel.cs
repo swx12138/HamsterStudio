@@ -11,6 +11,7 @@ using System.Collections.ObjectModel;
 using System.Windows.Input;
 using HamsterStudio.Barefeet.Extensions;
 using HamsterStudio.Web.Utilities;
+using HamsterStudio.BraveShine.Constants;
 
 namespace HamsterStudio.BraveShine.ViewModels
 {
@@ -60,7 +61,7 @@ namespace HamsterStudio.BraveShine.ViewModels
 #endif
 
             SaveCoverCommand = new AsyncRelayCommand(async () => await AvDownloader.SaveCover(VideoInfo));
-            SaveOwnerFaceCommand = new AsyncRelayCommand(async () => await FileSaver.SaveFileFromUrl(VideoInfo?.Owner.Face ?? throw new NotImplementedException(), AvDownloader.BVCoverHome));
+            SaveOwnerFaceCommand = new AsyncRelayCommand(async () => await FileSaver.SaveFileFromUrl(VideoInfo?.Owner.Face ?? throw new NotImplementedException(), SystemConsts.BVCoverHome));
 
             SaveFirstFrameCommand = new AsyncRelayCommand<PagesItem>(async page => await AvDownloader.SaveCover(GetBvid(), page));
             SaveVideoCommand = new AsyncRelayCommand<int>(DownloadVideo);
