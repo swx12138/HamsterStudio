@@ -16,7 +16,7 @@ public partial class FileModel : KnownViewModel
 {
     public string Filename { get; }
 
-    public Lazy<ImageSource?> Thumbnail { get; }
+    //public Lazy<ImageSource?> Thumbnail { get; }
 
     public ICommand ShowImageCommand { get; }
 
@@ -64,24 +64,24 @@ public partial class FileModel : KnownViewModel
                 }
             });
         });
-        Thumbnail = new Lazy<ImageSource?>(() =>
-        {
-            try
-            {
-                BitmapImage bitmap = new();
-                bitmap.BeginInit();
-                bitmap.UriSource = new Uri(Filename);
-                bitmap.DecodePixelWidth = (int)Constants.ThumbnailSize;
-                bitmap.EndInit();
-                bitmap.Freeze();
-                return bitmap;
-            }
-            catch (Exception ex)
-            {
-                Logger.Shared.Critical(ex);
-                return null;
-            }
-        });
+        //Thumbnail = new Lazy<ImageSource?>(() =>
+        //{
+        //    try
+        //    {
+        //        BitmapImage bitmap = new();
+        //        bitmap.BeginInit();
+        //        bitmap.UriSource = new Uri(Filename);
+        //        bitmap.DecodePixelWidth = (int)Constants.ThumbnailSize;
+        //        bitmap.EndInit();
+        //        bitmap.Freeze();
+        //        return bitmap;
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        Logger.Shared.Critical(ex);
+        //        return null;
+        //    }
+        //});
     }
 
 }
@@ -92,7 +92,7 @@ public partial class FileGroupModel : KnownViewModel
 
     public ObservableCollection<FileModel> Files { get; } = [];
 
-    public Lazy<ImageSource?> Thumbnail { get; }
+    //public Lazy<ImageSource?> Thumbnail { get; }
 
     public ICommand ViewCommand { get; }
 
@@ -106,14 +106,14 @@ public partial class FileGroupModel : KnownViewModel
             window.DataContext = this;
             _ = window.ShowDialog();
         });
-        Thumbnail = new Lazy<ImageSource?>(() =>
-        {
-            if (Files.Count == 0)
-            {
-                return null;
-            }
-            return Files.First().Thumbnail.Value;
-        });
+        //Thumbnail = new Lazy<ImageSource?>(() =>
+        //{
+        //    if (Files.Count == 0)
+        //    {
+        //        return null;
+        //    }
+        //    return Files.First().Thumbnail.Value;
+        //});
     }
 
 }

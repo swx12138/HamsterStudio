@@ -116,14 +116,9 @@ public class FileManagerModel : ViewModel
         if (group == null)
         {
             group = new FileGroupModel(groupName);
-            group.Files.Add(new(filename));
             FileGroups.Add(group);
         }
-        else
-        {
-            group.Files.Add(new(filename));
-        }
-
+        group.Files.Add(new(filename));
     }
 
     public void ReadFolder(string folder)

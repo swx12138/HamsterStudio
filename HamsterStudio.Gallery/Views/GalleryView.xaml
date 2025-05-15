@@ -42,7 +42,11 @@
                             <Grid.InputBindings>
                                 <MouseBinding Command="{Binding ViewCommand}" MouseAction="LeftDoubleClick" />
                             </Grid.InputBindings>
-                            <Image Grid.Row="0" Width="{x:Static localp:Constants.ThumbnailSize}" Source="{Binding Files[0].Thumbnail.Value}" />
+                            <Image Grid.Row="0" Width="{x:Static localp:Constants.ThumbnailSize}">
+                                <Image.Source>
+                                    <BitmapImage DecodePixelWidth="{x:Static localp:Constants.ThumbnailSize}" UriSource="Binding Files[0]}" />
+                                </Image.Source>
+                            </Image>
                             <TextBlock Grid.Row="1" Text="{Binding DisplayName}" />
                         </Grid>
                     </Border>

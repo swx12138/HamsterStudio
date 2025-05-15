@@ -8,6 +8,6 @@ namespace HamsterStudio.Gallery;
 
 public static class Constants
 {
-    public const double ThumbnailSize = 328;
+    public const int ThumbnailSize = 328;
 
 }
