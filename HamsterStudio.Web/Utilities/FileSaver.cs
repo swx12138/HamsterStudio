@@ -12,7 +12,7 @@ namespace HamsterStudio.Web.Utilities
         /// <param name="dir"></param>
         /// <param name="filename"></param>
         /// <returns></returns>
-        public static async Task<string> SaveFileFromUrl(string url, string dir, string? filename = null, FakeBrowser? fakeBrowser = null)
+        public static async Task<string> SaveFileFromUrl(string url, string dir, string? filename = null, FakeBrowser? fakeBrowser = null, HttpRequestMessage? httpRequest = null)
         {
             filename ??= url.Split("?")[0].Split("@")[0].Split('/').Where(x => x != "").Last();
 
@@ -27,7 +27,7 @@ namespace HamsterStudio.Web.Utilities
             if (!Path.Exists(path))
             {
                 fakeBrowser ??= FakeBrowser.CommonClient;
-                var contentStream = await fakeBrowser.GetStreamAsync(url);
+                var contentStream = await fakeBrowser.GetStreamAsync(url, httpRequest);
 
                 SaveFileResult result = await SaveFileToDisk(contentStream, path);
                 if (result != SaveFileResult.Succeed)

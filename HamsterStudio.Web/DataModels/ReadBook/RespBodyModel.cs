@@ -5,7 +5,7 @@ using System.Text;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
-namespace HamsterStudio.Web.DataModels.XiaoHs
+namespace HamsterStudio.Web.DataModels.ReadBook
 {
     public class ServerRespData
     {
@@ -33,5 +33,4 @@ namespace HamsterStudio.Web.DataModels.XiaoHs
 
 
     }
-
 }

@@ -1,7 +1,7 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using HamsterStudio.Web;
-using HamsterStudio.Web.DataModels.XiaoHs;
+using HamsterStudio.Web.DataModels.ReadBook;
 using System.Diagnostics;
 using System.Text.Json;
 using System.Windows.Input;

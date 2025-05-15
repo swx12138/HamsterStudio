@@ -28,6 +28,7 @@ namespace HamsterStudioGUI
         public ObservableCollection<TabPageModel> TabPages { get; } = [];
 
         private RouteHttpsServer server;
+        private RouteHttpServer server_http;
 
         public MainWindowModel()
         {
@@ -52,13 +53,23 @@ namespace HamsterStudioGUI
 
         private void InitServer()
         {
+            // 初始化http服务器
+            server_http = new RouteHttpServer(8899);
+            server_http.OptionKeepAlive = true;
+
+            // 配置http服务器路由
+            {
+                var xhsRoute = new RedBookRoute((Application.Current as IHamsterApp)!.FileStorageHome);
+                server_http.RouteMap.Routes.Add(xhsRoute);
+            }
+
+            // 初始化HTTPS服务器
             var cert = new X509Certificate2("https/localhost.pfx", "qwerty");
             if (cert.NotAfter < DateTime.Now)
             {
                 Logger.Shared.Error("证书已过期！");
                 return;
             }
-
             if (cert.NotBefore > DateTime.Now)
             {
                 Logger.Shared.Error("证书尚未生效！");
@@ -80,20 +91,18 @@ namespace HamsterStudioGUI
             server = new(context, 8898);
             server.OptionKeepAlive = true;
 
+            // 配置HTTPS服务器路由
             {
                 var bRoute = new BilibiliRoute();
                 bRoute.Crush += BiliRoute_Crush;
                 server.RouteMap.Routes.Add(bRoute);
 
-                var xhsRoute = new RedBookRoute();
-                server.RouteMap.Routes.Add(xhsRoute);
-
                 var hyl = new HoyoLabRoute((Application.Current as IHamsterApp)!.FileStorageHome);
                 server.RouteMap.Routes.Add(hyl);
             }
 
+            server_http.Start();
             server.Start();
-
         }
 
         private void BiliRoute_Crush(object? sender, (HttpRequest, HttpResponse) rr)

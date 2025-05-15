@@ -7,6 +7,7 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+		<PackageReference Include="HtmlAgilityPack" Version="1.12.1" />
 		<PackageReference Include="Refit" Version="8.0.0" />
 		<PackageReference Include="NetCoreServer" Version="8.0.7" />
 	</ItemGroup>

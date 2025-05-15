@@ -56,12 +56,12 @@ namespace HamsterStudio.Web
             return resp.Content;
         }
 
-        public async Task<HttpContent> FetchAsync(HttpMethod method, string api, HttpContent? content = null, RangeHeaderValue? range = null)
+        public async Task<HttpContent> FetchAsync(HttpMethod method, string api, HttpRequestMessage? httpRequest = null)
         {
             try
             {
                 Logger.Shared.Debug($"async [{method}] {api}");
-                HttpRequestMessage httpRequest = CreateRequest(method, api, content, range);
+                httpRequest ??= CreateRequest(method, api);
                 HttpResponseMessage response = await _Client.SendAsync(httpRequest, HttpCompletionOption.ResponseHeadersRead);
                 return HandleResponse(response);
             }
@@ -77,6 +77,13 @@ namespace HamsterStudio.Web
             var request = CreateRequest(HttpMethod.Head, url);
             HttpResponseMessage response = await _Client.SendAsync(request);
             return response.Content.Headers;
+        }
+        
+        public async Task<string> GetRedirectedUrlAsync(string url)
+        {
+            var request = CreateRequest(HttpMethod.Head, url);
+            HttpResponseMessage response = await _Client.SendAsync(request);
+            return response.RequestMessage!.RequestUri!.AbsoluteUri;
         }
 
         public async Task<bool> IsServerSupportContentRange(string url)
@@ -106,9 +113,9 @@ namespace HamsterStudio.Web
             return await HandleResponse(resp).ReadAsStringAsync();
         }
 
-        public async Task<Stream> GetStreamAsync(string api)
+        public async Task<Stream> GetStreamAsync(string api, HttpRequestMessage? httpRequest = null)
         {
-            var resp = await FetchAsync(HttpMethod.Get, api);
+            var resp = await FetchAsync(HttpMethod.Get, api, httpRequest);
             return await resp.ReadAsStreamAsync();
         }
 
@@ -120,17 +127,20 @@ namespace HamsterStudio.Web
 
         public async Task<Stream> GetStreamAsync(string api, int start, int length)
         {
-            var resp = await FetchAsync(HttpMethod.Get, api, range: new(start, start + length - 1));
+            HttpRequestMessage httpRequest = CreateRequest(HttpMethod.Get, api, range: new(start, start + length - 1));
+            var resp = await FetchAsync(HttpMethod.Get, api, httpRequest);
             return await resp.ReadAsStreamAsync();
         }
 
         public async Task<string> PostAsync(string api, object data)
         {
-            var resp = data switch
+
+            var httpRequest = data switch
             {
-                string str => await FetchAsync(HttpMethod.Post, api, new StringContent(str)),
-                _ => await FetchAsync(HttpMethod.Post, api, JsonContent.Create(data))
+                string str => CreateRequest(HttpMethod.Post, api, new StringContent(str)),
+                _ => CreateRequest(HttpMethod.Post, api, JsonContent.Create(data))
             };
+            var resp = await FetchAsync(HttpMethod.Post, api, httpRequest);
             return await resp.ReadAsStringAsync();
         }
 
