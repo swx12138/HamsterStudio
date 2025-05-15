@@ -4,7 +4,7 @@ using System.Net.Sockets;
 
 namespace HamsterStudio.Web.Routing
 {
-    public class RouteHttpSession(RouteHttpServer server) : HttpsSession(server)
+    public class RouteHttpsSession(RouteHttpsServer server) : HttpsSession(server)
     {
         protected override void OnReceivedRequest(HttpRequest request)
         {

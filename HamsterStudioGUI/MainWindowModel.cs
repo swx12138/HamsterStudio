@@ -27,7 +27,7 @@ namespace HamsterStudioGUI
     {
         public ObservableCollection<TabPageModel> TabPages { get; } = [];
 
-        private RouteHttpServer server;
+        private RouteHttpsServer server;
 
         public MainWindowModel()
         {
