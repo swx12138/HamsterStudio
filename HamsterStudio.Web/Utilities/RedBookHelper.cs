@@ -1,4 +1,5 @@
-﻿using HamsterStudio.Barefeet.Logging;
+﻿using HamsterStudio.Barefeet.Extensions;
+using HamsterStudio.Barefeet.Logging;
 using HamsterStudio.Web.DataModels.ReadBook;
 using HtmlAgilityPack;
 using System.Text.Json;
@@ -8,21 +9,21 @@ namespace HamsterStudio.Web.Utilities;
 public static class RedBookHelper
 {
     public delegate bool CheckOldDirFunc(string filename);
-    
+
     private static string SelectTitle(NoteDetailModel noteDetail)
     {
-        if(noteDetail.Title != string.Empty)
+        if (noteDetail.Title != string.Empty)
         {
             return noteDetail.Title;
         }
-        return "";
+        return noteDetail.Time.ToString();
     }
 
-    public static ServerResp Download(NoteDataModel noteData, string storageDir, CheckOldDirFunc checkOldDirFunc)
+    public static async Task<ServerResp> Download(NoteDataModel noteData, string storageDir, CheckOldDirFunc? checkOldDirFunc = null)
     {
         var currentNote = noteData.NoteDetailMap[noteData.CurrentNoteId];
         Logger.Shared.Information($"开始处理<{GetTypeName(currentNote.NoteDetail)}>作品：{noteData.CurrentNoteId}");
-        Logger.Shared.Information($"标题：{currentNote.NoteDetail.Title}");
+        Logger.Shared.Information($"标题：{currentNote.NoteDetail.Title}【{currentNote.NoteDetail.ImageList.Count}】");
 
         foreach (var imgInfo in currentNote.NoteDetail.ImageList)
         {
@@ -33,29 +34,32 @@ public static class RedBookHelper
             }
 
             string token = imgInfo.DefaultUrl.Split("!").First().Split("/").Where(x => x != null && x.Length > 0).Last();
+            int index = currentNote.NoteDetail.ImageList.IndexOf(imgInfo) + 1;
             string filename = GenerateFilename(
                 imgInfo,
                 SelectTitle(currentNote.NoteDetail),
-                currentNote.NoteDetail.ImageList.IndexOf(imgInfo),
+                index,
                 currentNote.NoteDetail.UserInfo,
                 token);
-            if (checkOldDirFunc(filename))
+            if (checkOldDirFunc != null && checkOldDirFunc(filename))
             {
-                Logger.Shared.Information($"{filename} 早已存在.");
+                Logger.Shared.Information($"[{index}/{currentNote.NoteDetail.ImageList.Count}]{filename} 早已存在.");
                 continue;
             }
 
             try
             {
-                string url = GeneratePngLink(token);
-                DownloadFile(url, storageDir, filename);
+                string url = GeneratePngLink(imgInfo.DefaultUrl);
+                await DownloadFile(url, storageDir, filename, (imgInfo.Width, imgInfo.Height));
+                await Task.Delay(50 * Random.Shared.Next(5));
             }
-            catch(Exception ex)
+            catch (Exception exx)
             {
-                string url = GenerateBackupPngLink(token);
-                DownloadFile(url, storageDir, filename);
+                Logger.Shared.Warning($"[{index}/{currentNote.NoteDetail.ImageList.Count}]下载失败：{exx.Message}");
             }
         }
+
+        Logger.Shared.Information("Done.");
 
         // TBD:static file server
         return new ServerResp
@@ -71,14 +75,22 @@ public static class RedBookHelper
         };
     }
 
-    public static void DownloadFile(string url, string storageDir, string filename)
+    public static async Task DownloadFile(string url, string storageDir, string filename, (int w, int h)? size = null)
     {
+        // Faile @ Ciallo～(∠・ω< )⌒★_0_xhs_咖鱼鱼_1040g3k031h27q5dk382048nlebhc4r1dk1iipeg.png
         var reqMsg = FakeBrowser.CommonClient.CreateRequest(HttpMethod.Get, url);
         reqMsg.Headers.Add("accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7");
         reqMsg.Headers.Add("Range", "bytes=0-");
 
         string result = FileSaver.SaveFileFromUrl(url, storageDir, filename, httpRequest: reqMsg).Result;
-        Logger.Shared.Information($"{result} 下载成功。");
+        if (size != null)
+        {
+            Logger.Shared.Information($"{result}【{size?.w}, {size?.h}】下载成功。");
+        }
+        else
+        {
+            Logger.Shared.Information($"{result} 下载成功。");
+        }
     }
 
     public static string GetTypeName(NoteDetailModel noteDetail)
@@ -110,13 +122,10 @@ public static class RedBookHelper
         }
     }
 
-    public static string GeneratePngLink(string token)
+    public static string GeneratePngLink(string baseUrl)
     {
-        return $"https://ci.xiaohongshu.com/notes_pre_post/{token}?imageView2/format/png";
-    }
-    
-    public static string GenerateBackupPngLink(string token)
-    {
+        string token = baseUrl.Split("!").First();
+        token = token.Substring(token.IndexOf5th('/') + 1);
         return $"https://ci.xiaohongshu.com/{token}?imageView2/format/png";
     }
 
@@ -125,13 +134,19 @@ public static class RedBookHelper
         return $"https://sns-img-bd.xhscdn.com/{token}";
     }
 
-    public static NoteDataModel? GetNoteData(in PostBodyModel postBody)
+    public static NoteDataModel? GetNoteData(in string url)
     {
         FakeBrowser.CommonClient.Referer = "https://www.xiaohongshu.com/explore";
-        var redirectedUrl = FakeBrowser.CommonClient.GetRedirectedUrlAsync(postBody.Url).Result;
+        var redirectedUrl = FakeBrowser.CommonClient.GetRedirectedUrlAsync(url).Result;
 
         var htmlDoc = new HtmlWeb().Load(redirectedUrl);
-        return GetNote(htmlDoc);
+        var ndata = GetNote(htmlDoc);
+        if (ndata.CurrentNoteId == null)
+        {
+            htmlDoc.Save("lastest.html");
+            return null;
+        }
+        return ndata;
     }
 
     private static NoteDataModel? GetNote(HtmlDocument html)

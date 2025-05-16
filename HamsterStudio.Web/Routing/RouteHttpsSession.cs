@@ -21,7 +21,7 @@ namespace HamsterStudio.Web.Routing
             }
             else
             {
-                var resp = server.RouteMap.Response(request);
+                var resp = server.RouteMap.Response(request).Result;
                 SendResponse(resp);
             }
         }

@@ -42,7 +42,7 @@ internal class DefaultRoute : IRoute
         return true;
     }
 
-    public HttpResponse GetHttpResponse(HttpRequest request)
+    public async Task<HttpResponse> GetHttpResponse(HttpRequest request)
     {
         var resp = new HttpResponse();
         resp.MakeErrorResponse(404);

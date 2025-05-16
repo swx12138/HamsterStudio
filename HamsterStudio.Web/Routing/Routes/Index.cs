@@ -9,7 +9,7 @@ namespace HamsterStudio.Web.Routing.Routes
             return url == "/index";
         }
 
-        public HttpResponse GetHttpResponse(HttpRequest request)
+        public async Task<HttpResponse> GetHttpResponse(HttpRequest request)
         {
             return new HttpResponse().MakeGetResponse("Hello world!");
         }

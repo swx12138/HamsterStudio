@@ -1,5 +1,6 @@
 ﻿using HamsterStudio.Barefeet.Logging;
 using NetCoreServer;
+using System.Threading.Tasks;
 
 namespace HamsterStudio.Web.Routing
 {
@@ -14,18 +15,18 @@ namespace HamsterStudio.Web.Routing
             Routes.Add(new Routes.Index());
         }
 
-        public HttpResponse Response(HttpRequest request)
+        public async Task<HttpResponse> Response(HttpRequest request)
         {
             Logger.Shared.Trace($"Received {request.Url}({request.Method})");
             foreach (var route in Routes)
             {
                 if (route.IsMyCake(request.Url))
                 {
-                    var resp = route.GetHttpResponse(request);
+                    var resp = await route.GetHttpResponse(request);
                     return resp;
                 }
             }
-            return defaultRoute.GetHttpResponse(request);
+            return await defaultRoute.GetHttpResponse(request);
         }
 
         public void RegisterRoute(IRoute route)

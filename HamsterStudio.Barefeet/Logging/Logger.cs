@@ -44,6 +44,7 @@ namespace HamsterStudio.Barefeet.Logging
 
         public void Debug(string message) => logger.Debug(message);
         public void Debug(Exception ex) => logger.Debug(ex.Message + "\n" + ex.StackTrace);
+        public void Debug(string source,Exception ex) => logger.Debug($"[{source}]"+ ex.Message + "\n" + ex.StackTrace);
 
     }
 

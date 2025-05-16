@@ -39,7 +39,7 @@ internal class BoundhubRoute(HamsterTaskManager taskManager) : IRoute
     //    }));
     //}
 
-    public HttpResponse GetHttpResponse(HttpRequest request)
+    public async Task<HttpResponse> GetHttpResponse(HttpRequest request)
     {
         return new HttpResponse().MakeOkResponse();
     }

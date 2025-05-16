@@ -51,9 +51,21 @@ public static class FileNameUtil
         return sanitized;
     }
 
-    public static string FormatFilename()
+    public static string Filename(this string str)
     {
-        throw new NotImplementedException();
+        string[] part = str.Split("?");
+        part = part[0].Split("/");
+        if (part.Length == 1)
+        {
+            part = part[0].Split("\\");
+        }
+        return part.Last();
+    }
+
+    public static string Stem(this string str)
+    {
+        string[] part = str.Filename().Split(".");
+        return part[0];
     }
 
 }

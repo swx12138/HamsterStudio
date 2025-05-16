@@ -36,7 +36,7 @@ public class HoyoLabRoute(string storageDir) : IRoute
         return url == "/miyoushe";
     }
 
-    public HttpResponse GetHttpResponse(HttpRequest request)
+    public async Task<HttpResponse> GetHttpResponse(HttpRequest request)
     {
         var data = JsonSerializer.Deserialize<HoyoLabData>(request.Body);
         Logger.Shared.Information($"HoyoLabRoute processing: {data.Title}");

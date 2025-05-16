@@ -1,4 +1,5 @@
-﻿using HamsterStudio.Barefeet.Logging;
+﻿using HamsterStudio.Barefeet.Extensions;
+using HamsterStudio.Barefeet.Logging;
 using System.IO;
 
 namespace HamsterStudio.Web.Utilities
@@ -15,6 +16,7 @@ namespace HamsterStudio.Web.Utilities
         public static async Task<string> SaveFileFromUrl(string url, string dir, string? filename = null, FakeBrowser? fakeBrowser = null, HttpRequestMessage? httpRequest = null)
         {
             filename ??= url.Split("?")[0].Split("@")[0].Split('/').Where(x => x != "").Last();
+            filename = FileNameUtil.SanitizeFileName(filename);
 
             dir = Path.Combine(Directory.GetCurrentDirectory(), dir);
             if (!Directory.Exists(dir))

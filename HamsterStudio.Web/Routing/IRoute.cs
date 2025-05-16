@@ -6,7 +6,7 @@ namespace HamsterStudio.Web.Routing
     {
         bool IsMyCake(string url);
 
-        public HttpResponse GetHttpResponse(HttpRequest request);
+        public Task<HttpResponse> GetHttpResponse(HttpRequest request);
 
     }
 }

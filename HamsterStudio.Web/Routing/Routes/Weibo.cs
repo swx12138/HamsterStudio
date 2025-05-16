@@ -39,7 +39,7 @@ internal class Weibo : IRoute
         Console.WriteLine(msg);
     }
 
-    public HttpResponse GetHttpResponse(HttpRequest request)
+    public async Task<HttpResponse> GetHttpResponse(HttpRequest request)
     {
         return new HttpResponse().MakeOkResponse();
     }

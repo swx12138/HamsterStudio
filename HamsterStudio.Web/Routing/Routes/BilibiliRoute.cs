@@ -11,7 +11,7 @@ namespace HamsterStudio.Web.Routing.Routes
 
         public event EventHandler<(HttpRequest, HttpResponse)>? Crush;
 
-        public HttpResponse GetHttpResponse(HttpRequest request)
+        public async Task<HttpResponse> GetHttpResponse(HttpRequest request)
         {
             var resp = new HttpResponse().MakeOkResponse();
             Crush?.Invoke(this, (request, resp));

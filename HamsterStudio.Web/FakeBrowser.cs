@@ -67,7 +67,7 @@ namespace HamsterStudio.Web
             }
             catch (Exception ex)
             {
-                Logger.Shared.Critical(ex);
+                Logger.Shared.Debug(nameof(HandleResponse), ex);
                 throw;
             }
         }

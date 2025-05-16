@@ -1,6 +1,7 @@
 ﻿using HamsterStudio.Barefeet.Logging;
 using NetCoreServer;
 using System.Net.Sockets;
+using System.Threading.Tasks;
 
 namespace HamsterStudio.Web.Routing
 {
@@ -21,7 +22,7 @@ namespace HamsterStudio.Web.Routing
             }
             else
             {
-                var resp = server.RouteMap.Response(request);
+                var resp = server.RouteMap.Response(request).Result;
                 SendResponse(resp);
             }
         }

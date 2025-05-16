@@ -54,26 +54,34 @@ namespace HamsterStudioMaui.ViewModels
 
                         var resp_text = await browser.PostAsync($"http://{HostName}:{Port}/xhs", new { download = true, url });
 
-                        var resp = JsonSerializer.Deserialize<ServerResp>(resp_text);
-                        Log = $"Process {url} finished.\nAuthor:{resp.Data.AuthorNickName}\nTitle:{resp.Data.Title}\nDesc:{resp.Data.Description}";
-                        ShareInfo = string.Empty;
+                        try
+                        {
+                            var resp = JsonSerializer.Deserialize<ServerResp>(resp_text);
+                            Log = $"Process {url} finished.\nAuthor:{resp.Data.AuthorNickName}\nTitle:{resp.Data.Title}\nDesc:{resp.Data.Description}";
 
 #if ANDROID
-                        if (saveToPhone)
-                        {
-                            var results = new List<string>();
-                            Log += "\n -*- Downloading static files...";
-                            foreach (var file in resp.Data.StaticFiles)
+                            if (saveToPhone)
                             {
-                                string static_file_url = $"http://{HostName}:{Port}{file}";
-                                //string result = await FileSaver.SaveFileFromUrl(static_file_url, "/sdacrd/dcim/xhsd", Path.GetFileName(file));
-                                string result = Platforms.Android.Utils.FileUtils.WriteFileToDCIM(Path.GetFileName(file), await browser.GetStreamAsync(static_file_url));
-                                Log += "\n" + result;
-                                results.Add(result);
+                                var results = new List<string>();
+                                Log += "\n -*- Downloading static files...";
+                                foreach (var file in resp.Data.StaticFiles)
+                                {
+                                    string static_file_url = $"http://{HostName}:{Port}{file}";
+                                    //string result = await FileSaver.SaveFileFromUrl(static_file_url, "/sdacrd/dcim/xhsd", Path.GetFileName(file));
+                                    string result = Platforms.Android.Utils.FileUtils.WriteFileToDCIM(Path.GetFileName(file), await browser.GetStreamAsync(static_file_url));
+                                    Log += "\n" + result;
+                                    results.Add(result);
+                                }
+                                Platforms.Android.Utils.FileUtils.NotifyGalleryOfNewImage([.. results]);
                             }
-                            Platforms.Android.Utils.FileUtils.NotifyGalleryOfNewImage([.. results]);
-                        }
 #endif
+                        }
+                        catch (Exception ex)
+                        {
+                            Log = ex.Message + "\n" + ex.StackTrace;
+                        }
+
+                        ShareInfo = string.Empty;
                     }
                 }
                 catch (Exception ex)
