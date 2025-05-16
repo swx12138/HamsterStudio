@@ -25,15 +25,15 @@ namespace HamsterStudio.Web.Routing.Routes
         public async Task<HttpResponse> GetHttpResponse(HttpRequest request)
         {
             var resp = new HttpResponse();
+            resp.SetBegin(200);
 
             var body = JsonSerializer.Deserialize<PostBodyModel>(request.Body.Split("\r\n").ElementAt(1))!;
-            //var body = JsonSerializer.Deserialize<PostBodyModel>(request.Body)!;
-            if (body.Url == null) { return resp.MakeOkResponse(); }
+            if (body.Url == null) { return resp.MakeErrorResponse(406); }
 
             var data = RedBookHelper.GetNoteData(body.Url);
             if (data == null)
             {
-                return resp.MakeOkResponse();
+                return resp.MakeErrorResponse(502);
             }
 
             RedBookHelper.DumpJson(Path.Combine(_storageDir + "/.hamster/", $"note_{data.CurrentNoteId}.json"), data);
@@ -44,7 +44,7 @@ namespace HamsterStudio.Web.Routing.Routes
             });
             resp.SetBody(JsonSerializer.Serialize(svrResp));
 
-            return resp.MakeOkResponse();
+            return resp;
         }
     }
 

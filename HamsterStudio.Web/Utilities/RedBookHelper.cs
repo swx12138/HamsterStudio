@@ -25,6 +25,7 @@ public static class RedBookHelper
         Logger.Shared.Information($"开始处理<{GetTypeName(currentNote.NoteDetail)}>作品：{noteData.CurrentNoteId}");
         Logger.Shared.Information($"标题：{currentNote.NoteDetail.Title}【{currentNote.NoteDetail.ImageList.Count}】");
 
+        List<string> contained_files = [];
         foreach (var imgInfo in currentNote.NoteDetail.ImageList)
         {
             if (imgInfo.LivePhoto)
@@ -47,21 +48,20 @@ public static class RedBookHelper
                 continue;
             }
 
-            try
+            string url = GeneratePngLink(imgInfo.DefaultUrl);
+            if (await DownloadFile(url, storageDir, filename, (imgInfo.Width, imgInfo.Height)))
             {
-                string url = GeneratePngLink(imgInfo.DefaultUrl);
-                await DownloadFile(url, storageDir, filename, (imgInfo.Width, imgInfo.Height));
+                contained_files.Add(filename);
                 await Task.Delay(50 * Random.Shared.Next(5));
             }
-            catch (Exception exx)
+            else
             {
-                Logger.Shared.Warning($"[{index}/{currentNote.NoteDetail.ImageList.Count}]下载失败：{exx.Message}");
+                Logger.Shared.Error($"[{index}/{currentNote.NoteDetail.ImageList.Count}]下载失败。");
             }
         }
 
         Logger.Shared.Information("Done.");
 
-        // TBD:static file server
         return new ServerResp
         {
             Message = "ok",
@@ -70,27 +70,36 @@ public static class RedBookHelper
                 Title = currentNote.NoteDetail.Title,
                 Description = currentNote.NoteDetail.Description,
                 AuthorNickName = currentNote.NoteDetail.UserInfo.Nickname,
-                StaticFiles = [],
+                StaticFiles = [.. contained_files.Select(x => "http://192.168.0.101:8899/static/xiaohongshu/" + x)],
             }
         };
     }
 
-    public static async Task DownloadFile(string url, string storageDir, string filename, (int w, int h)? size = null)
+    public static async Task<bool> DownloadFile(string url, string storageDir, string filename, (int w, int h)? size = null)
     {
         // Faile @ Ciallo～(∠・ω< )⌒★_0_xhs_咖鱼鱼_1040g3k031h27q5dk382048nlebhc4r1dk1iipeg.png
         var reqMsg = FakeBrowser.CommonClient.CreateRequest(HttpMethod.Get, url);
         reqMsg.Headers.Add("accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7");
         reqMsg.Headers.Add("Range", "bytes=0-");
 
-        string result = FileSaver.SaveFileFromUrl(url, storageDir, filename, httpRequest: reqMsg).Result;
-        if (size != null)
+        try
         {
-            Logger.Shared.Information($"{result}【{size?.w}, {size?.h}】下载成功。");
-        }
-        else
+            string result = FileSaver.SaveFileFromUrl(url, storageDir, filename, httpRequest: reqMsg).Result;
+            if (size != null)
+            {
+                Logger.Shared.Information($"{result}【{size?.w}, {size?.h}】下载成功。");
+            }
+            else
+            {
+                Logger.Shared.Information($"{result} 下载成功。");
+            }
+        } catch (Exception ex)
         {
-            Logger.Shared.Information($"{result} 下载成功。");
+            Logger.Shared.Error($"Download {filename} failed.{ex.Message}");
+            Logger.Shared.Debug(ex);
+            return false;
         }
+        return true;
     }
 
     public static string GetTypeName(NoteDetailModel noteDetail)

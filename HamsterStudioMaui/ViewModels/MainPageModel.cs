@@ -64,11 +64,12 @@ namespace HamsterStudioMaui.ViewModels
                             {
                                 var results = new List<string>();
                                 Log += "\n -*- Downloading static files...";
-                                foreach (var file in resp.Data.StaticFiles)
+                                foreach (var static_file_url in resp.Data.StaticFiles)
                                 {
-                                    string static_file_url = $"http://{HostName}:{Port}{file}";
+                                    //string static_file_url = $"http://{HostName}:{Port}{file}";
                                     //string result = await FileSaver.SaveFileFromUrl(static_file_url, "/sdacrd/dcim/xhsd", Path.GetFileName(file));
-                                    string result = Platforms.Android.Utils.FileUtils.WriteFileToDCIM(Path.GetFileName(file), await browser.GetStreamAsync(static_file_url));
+                                    string filename = Path.GetFileName(static_file_url);
+                                    string result = Platforms.Android.Utils.FileUtils.WriteFileToDCIM(filename, await browser.GetStreamAsync(static_file_url));
                                     Log += "\n" + result;
                                     results.Add(result);
                                 }

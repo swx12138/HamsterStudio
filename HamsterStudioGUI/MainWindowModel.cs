@@ -61,10 +61,8 @@ namespace HamsterStudioGUI
             server_http.OptionKeepAlive = true;
 
             // 配置http服务器路由
-            {
-                var xhsRoute = new RedBookRoute((Application.Current as IHamsterApp)!.FileStorageHome);
-                server_http.RouteMap.Routes.Add(xhsRoute);
-            }
+            server_http.RouteMap.Routes.Add(new RedBookRoute((Application.Current as IHamsterApp)!.FileStorageHome));
+            server_http.RouteMap.Routes.Add(new StaticFilesRoute((Application.Current as IHamsterApp)!.FileStorageHome, "/static"));
 
             // 初始化HTTPS服务器
             var cert = new X509Certificate2("https/localhost.pfx", "qwerty");
@@ -100,8 +98,7 @@ namespace HamsterStudioGUI
                 bRoute.Crush += BiliRoute_Crush;
                 server.RouteMap.Routes.Add(bRoute);
 
-                var hyl = new HoyoLabRoute((Application.Current as IHamsterApp)!.FileStorageHome);
-                server.RouteMap.Routes.Add(hyl);
+                server.RouteMap.Routes.Add(new HoyoLabRoute((Application.Current as IHamsterApp)!.FileStorageHome));
             }
 
             server_http.Start();
