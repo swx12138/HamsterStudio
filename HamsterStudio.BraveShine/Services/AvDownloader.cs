@@ -1,5 +1,6 @@
 ﻿using HamsterStudio.Barefeet.Logging;
 using HamsterStudio.BraveShine.Constants;
+using HamsterStudio.BraveShine.Models;
 using HamsterStudio.BraveShine.Models.Bilibili;
 using HamsterStudio.BraveShine.Models.Bilibili.SubStruct;
 using HamsterStudio.BraveShine.Modelss.Bilibili.SubStruct;
@@ -12,21 +13,26 @@ namespace HamsterStudio.BraveShine.Services;
 
 public class AvDownloader
 {
-    public async Task<string> Download(AvMeta meta,
+    public async Task<BilibiliVideoDownloadResult> Download(AvMeta meta,
         string aurl, string vurl,
-        string output,
+        string wish_filename,
         bool? DeleteAvCache = true)
     {
         try
         {
             string saving_path = @$"{SystemConsts.BVDHome}\dash";
-            output = Path.Combine(saving_path, output);
+            string output = Path.Combine(saving_path, wish_filename);
             Logger.Shared.Information($"Output Dir:{output}");
 
             if (File.Exists(output))
             {
                 Logger.Shared.Information($"{output} Exists.");
-                return "";
+                return new()
+                {
+                    VideoName = wish_filename,
+                    Path = saving_path,
+                    State = VideoDownlaodState.Existed,
+                };
             }
 
             var browser = new FakeBrowser();
@@ -40,13 +46,24 @@ public class AvDownloader
                 try { File.Delete(aname ?? ""); } catch (Exception ex) { Logger.Shared.Critical(ex); }
                 try { File.Delete(vname ?? ""); } catch (Exception ex) { Logger.Shared.Critical(ex); }
             }
+
+            return new()
+            {
+                VideoName = wish_filename,
+                Path = saving_path,
+                State = VideoDownlaodState.Succeed,
+            };
         }
         catch (Exception ex)
         {
             Logger.Shared.Critical(ex);
+            return new()
+            {
+                VideoName = wish_filename,
+                State = VideoDownlaodState.Failed,
+                Exception = ex
+            };
         }
-
-        return output;
     }
 
     public static async Task<string> SaveCover(VideoInfo videoInfo)

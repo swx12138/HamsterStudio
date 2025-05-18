@@ -1,4 +1,5 @@
 ﻿using NetCoreServer;
+using System.Text.Json;
 
 namespace HamsterStudio.Web.Routing.Routes
 {
@@ -24,9 +25,32 @@ namespace HamsterStudio.Web.Routing.Routes
 
         public async Task<HttpResponse> GetHttpResponse(HttpRequest request)
         {
-
             var resp = new HttpResponse();
             resp.SetBegin(200);
+            resp.SetHeader("Access-Control-Allow-Origin", "*");
+
+            if (request.Url == Prefix)
+
+            {
+                resp.SetHeader("Content-Type", "text/html");
+                resp.SetBody("<html><body>HamsterStudio Web Server</body></html>");
+                return resp;
+            }
+            else if (request.Url == Prefix + "image_file_list")
+            {
+                string resp_text = JsonSerializer.Serialize(new List<string> {
+                    "/static/xiaohongshu/怎么民生路渡口也有姬子啊_1_xhs_柒个吉他_1040g3k831gnn41d9j86g5nqdthc091epagsi2s8.png",
+                    "/static/xiaohongshu/怎么民生路渡口也有姬子啊_2_xhs_柒个吉他_1040g3k831gnn41d9j8605nqdthc091epsa8ohu0.png",
+                    "/static/xiaohongshu/怎么民生路渡口也有姬子啊_3_xhs_柒个吉他_1040g3k831gnn41d9j83g5nqdthc091epb1cqve0.png",
+                    "/static/xiaohongshu/怎么民生路渡口也有姬子啊_4_xhs_柒个吉他_1040g3k831gnn41d9j8405nqdthc091epn55f0ug.png",
+                    "/static/xiaohongshu/怎么民生路渡口也有姬子啊_5_xhs_柒个吉他_1040g3k831gnn41d9j84g5nqdthc091epr5evur0.png",
+                    "/static/xiaohongshu/怎么民生路渡口也有姬子啊_6_xhs_柒个吉他_1040g3k831gnn41d9j82g5nqdthc091ephc0uuu0.png",
+                    "/static/xiaohongshu/怎么民生路渡口也有姬子啊_7_xhs_柒个吉他_1040g3k831gnn41d9j85g5nqdthc091epoluso00.png"
+                });
+                resp.SetBody(resp_text);
+                return resp;
+            }
+
             resp.SetHeader("Content-Type", "application/octet-stream");
 
             string filePath = Path.Combine(StaticFilesLocation, Uri.UnescapeDataString(request.Url.Substring(Prefix.Length)));

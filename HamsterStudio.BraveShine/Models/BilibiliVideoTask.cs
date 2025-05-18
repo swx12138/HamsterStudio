@@ -34,12 +34,12 @@ namespace HamsterStudio.BraveShine.Models
             _ = await Run2();
         }
 
-        public async Task<string> Run2()
-        {
+        public async Task<BilibiliVideoDownloadResult> Run2()
+        {   
+            State = HamsterTaskState.Running;
+
             try
             {
-                State = HamsterTaskState.Running;
-
                 var accept = vsi.AcceptQuality.Zip(vsi.AcceptFormat.Split(','), vsi.AcceptDescription).First(x => x.First == page.AcceptQuality);
                 Logger.Shared.Information($"Selected quality {accept.Second}({accept.Third}, {accept.First})");
 
@@ -59,17 +59,10 @@ namespace HamsterStudio.BraveShine.Models
                 };
 
                 string wish_filename = $"{videoInfo.Cid!}-{vps}_{videoInfo.Bvid}.mp4";
-                string output = await downloader.Download(meta, aBaseUrl, vBaseUrl, wish_filename);
+                var result = await downloader.Download(meta, aBaseUrl, vBaseUrl, wish_filename);
                 
-                State = HamsterTaskState.Succeed;
-                if (output == "")
-                {
-                    return $"File {wish_filename} already exists.";
-                }
-                else
-                {
-                    return $"{Path.GetFullPath(output)} Succeed.";
-                }
+                State = result.State == VideoDownlaodState.Failed ? HamsterTaskState.Failed:  HamsterTaskState.Succeed;
+                return result;
 
                 static string getVideoBaseUrl(BilibiliVideoPage page, VideoStreamInfo? vsi)
                 {
@@ -97,7 +90,7 @@ namespace HamsterStudio.BraveShine.Models
             {
                 State = HamsterTaskState.Failed;
                 Logger.Shared.Critical(ex);
-                return ex.Message;
+                return new() { State = VideoDownlaodState.Failed, Exception = ex };
             }
             finally
             {

@@ -1,5 +1,6 @@
 ﻿using HamsterStudio.Barefeet.Interfaces;
 using HamsterStudio.Barefeet.Logging;
+using HamsterStudio.BraveShine.Models;
 using HamsterStudio.Web.DataModels.ReadBook;
 using HamsterStudio.Web.Routing;
 using HamsterStudio.Web.Routing.Routes;
@@ -56,13 +57,20 @@ namespace HamsterStudioGUI
 
         private void InitServer()
         {
+            // 需要HTTP和HTTPS同时运行
+            var bRoute = new BilibiliRoute();
+            bRoute.Crush += BiliRoute_Crush;
+
+            var staticFilesRoute = new StaticFilesRoute((Application.Current as IHamsterApp)!.FileStorageHome, "/static");
+
             // 初始化http服务器
             server_http = new RouteHttpServer(8899);
             server_http.OptionKeepAlive = true;
 
             // 配置http服务器路由
             server_http.RouteMap.Routes.Add(new RedBookRoute((Application.Current as IHamsterApp)!.FileStorageHome));
-            server_http.RouteMap.Routes.Add(new StaticFilesRoute((Application.Current as IHamsterApp)!.FileStorageHome, "/static"));
+            server_http.RouteMap.Routes.Add(bRoute);    // For Andriod
+            server_http.RouteMap.Routes.Add(staticFilesRoute);
 
             // 初始化HTTPS服务器
             var cert = new X509Certificate2("https/localhost.pfx", "qwerty");
@@ -93,13 +101,9 @@ namespace HamsterStudioGUI
             server.OptionKeepAlive = true;
 
             // 配置HTTPS服务器路由
-            {
-                var bRoute = new BilibiliRoute();
-                bRoute.Crush += BiliRoute_Crush;
-                server.RouteMap.Routes.Add(bRoute);
-
-                server.RouteMap.Routes.Add(new HoyoLabRoute((Application.Current as IHamsterApp)!.FileStorageHome));
-            }
+            server.RouteMap.Routes.Add(new HoyoLabRoute((Application.Current as IHamsterApp)!.FileStorageHome));
+            server.RouteMap.Routes.Add(bRoute);     // For web
+            server.RouteMap.Routes.Add(staticFilesRoute);
 
             server_http.Start();
             server.Start();
@@ -120,8 +124,17 @@ namespace HamsterStudioGUI
                         Logger.Shared.Error($"braveShine.Element.DataContext is not HamsterStudio.BraveShine.ViewModels.MainViewModel");
                         return;
                     }
-                    string result = await viewModel.DownloadVideoByBvid(raw);
-                    resp.SetBody(result);
+
+                    var result = await viewModel.DownloadVideoByBvid(raw);
+                    ServerRespenseModel serverResp = new()
+                    {
+                        Message = result.msg
+                    };
+                    //if(server.RouteMap.Routes. )
+                    //if(result.rslt.Path.StartsWith())
+
+                    string json_text = JsonSerializer.Serialize(serverResp);
+                    resp.SetBody(json_text);
                 });
             }
         }

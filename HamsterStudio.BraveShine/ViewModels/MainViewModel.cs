@@ -118,7 +118,7 @@ namespace HamsterStudio.BraveShine.ViewModels
             }
         }
 
-        private async Task DownloadVideo(int idx = -1)
+        private async Task<BilibiliVideoDownloadResult?> DownloadVideo(int idx = -1)
         {
             string bvid = GetBvid();
             if (bvid.IsNullOrEmpty())
@@ -132,13 +132,30 @@ namespace HamsterStudio.BraveShine.ViewModels
             if (resp == null)
             {
                 Logger.Shared.Warning($"GetVideoStream Failed.");
-                return;
+                LastInfomation = "获取视频流失败【resp is null】";
+                return null;
             }
 
             BilibiliVideoPage vpage = new(VideoInfo!.Pages[idx], resp!);
             BilibiliVideoTask bilibiliVideoTask = new(idx, vpage, resp ?? throw new NotImplementedException(), (VideoInfo), client);
-            LastInfomation = await bilibiliVideoTask.Run2();
-            Logger.Shared.Information("SaveVideoCommand Finish.");
+            var rslt = await bilibiliVideoTask.Run2();
+            if (rslt.State == VideoDownlaodState.Failed)
+            {
+                if (rslt.Exception != null)
+                {
+                    LastInfomation = rslt.Exception.Message;
+                }
+                else
+                {
+                    LastInfomation = "下载失败";
+                }
+            }
+            else
+            {
+                LastInfomation = $"{rslt.VideoName} 下载成功。";
+            }
+
+            return rslt;
         }
 
         private bool RedirectLocation(string bvid)
@@ -159,16 +176,16 @@ namespace HamsterStudio.BraveShine.ViewModels
             return RedirectLocation(GetBvid());
         }
 
-        public async Task<string> DownloadVideoByBvid(string bvid)
+        public async Task<(BilibiliVideoDownloadResult? rslt, string msg)> DownloadVideoByBvid(string bvid)
         {
             if (!RedirectLocation(bvid))
             {
                 Logger.Shared.Error($"Can't load info from {bvid}.");
-                return "无效的BVID";
+                return (null, LastInfomation);
             }
             SaveCoverCommand?.Execute(null);
-            await DownloadVideo();
-            return LastInfomation;
+            var rslt = await DownloadVideo();
+            return (rslt, LastInfomation);
         }
 
     }
