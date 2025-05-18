@@ -53,6 +53,18 @@ public class ImageListItemModel
 
     [JsonPropertyName("width")]
     public int Width { get; set; }
+}
+
+public class ConsumerModel
+{
+    [JsonPropertyName("originVideoKey")]
+    public string OriginVideoKey { get; set; } = string.Empty;
+}
+
+public class VideoInfoModel
+{
+    [JsonPropertyName("consumer")]
+    public ConsumerModel Consumer { get; set; } = new();
 
 }
 
@@ -105,6 +117,9 @@ public class NoteDetailModel
 
     [JsonPropertyName("tagList")]
     public List<TagModel> TagList { get; set; } = [];
+
+    [JsonPropertyName("video")]
+    public VideoInfoModel VideoInfo { get; set; } = new();
 }
 
 public class NoteDetailMapModel

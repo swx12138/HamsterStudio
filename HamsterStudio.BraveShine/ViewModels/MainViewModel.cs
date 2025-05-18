@@ -124,7 +124,7 @@ namespace HamsterStudio.BraveShine.ViewModels
             if (bvid.IsNullOrEmpty())
             {
                 LastInfomation = "Empty bvid!";
-                return;
+                return null;
             }
 
             idx = Math.Max(idx, 0);

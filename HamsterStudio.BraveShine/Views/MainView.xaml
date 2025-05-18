@@ -151,7 +151,7 @@
             </Border>
 
             <!--  日志  -->
-            <Border Grid.Row="1" Grid.Column="2" Background="LightGoldenrodYellow">
+            <Border Grid.Row="1" Grid.ColumnSpan="2" Background="LightGoldenrodYellow">
                 <DataGrid xmlns:localbh="clr-namespace:HamsterStudio.BraveShine.Behaviors"
                           AutoGenerateColumns="False"
                           Background="Transparent"

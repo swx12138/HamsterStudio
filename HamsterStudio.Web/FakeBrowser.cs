@@ -5,6 +5,7 @@ using System.Net.Http.Json;
 
 namespace HamsterStudio.Web
 {
+    // TBD:把Header从参数中优化掉
     public class FakeBrowser
     {
         private readonly HttpClient _Client;

@@ -1,6 +1,8 @@
 ﻿using HamsterStudio.Barefeet.Extensions;
 using HamsterStudio.Barefeet.Logging;
+using HamsterStudio.Barefeet.Models;
 using HamsterStudio.Web.DataModels.ReadBook;
+using HamsterStudio.Web.Interfaces;
 using HtmlAgilityPack;
 using System.Text.Json;
 
@@ -25,6 +27,7 @@ public static class RedBookHelper
         Logger.Shared.Information($"开始处理<{GetTypeName(currentNote.NoteDetail)}>作品：{noteData.CurrentNoteId}");
         Logger.Shared.Information($"标题：{currentNote.NoteDetail.Title}【{currentNote.NoteDetail.ImageList.Count}】");
 
+        CommonDownloader downloader = new();
         List<string> contained_files = [];
         foreach (var imgInfo in currentNote.NoteDetail.ImageList)
         {
@@ -37,7 +40,6 @@ public static class RedBookHelper
             string token = imgInfo.DefaultUrl.Split("!").First().Split("/").Where(x => x != null && x.Length > 0).Last();
             int index = currentNote.NoteDetail.ImageList.IndexOf(imgInfo) + 1;
             string filename = GenerateFilename(
-                imgInfo,
                 SelectTitle(currentNote.NoteDetail),
                 index,
                 currentNote.NoteDetail.UserInfo,
@@ -49,14 +51,43 @@ public static class RedBookHelper
             }
 
             string url = GeneratePngLink(imgInfo.DefaultUrl);
-            if (await DownloadFile(url, storageDir, filename, (imgInfo.Width, imgInfo.Height)))
+            try
             {
-                contained_files.Add(filename);
-                await Task.Delay(50 * Random.Shared.Next(5));
+                DownloadResukt result = await DownloadFile(url, storageDir, filename, downloader, (imgInfo.Width, imgInfo.Height));
+                if (result.Success)
+                {
+                    contained_files.Add(filename);
+                    await Task.Delay(50 * Random.Shared.Next(5));
+                }
+                else
+                {
+                    Logger.Shared.Error($"[{index}/{currentNote.NoteDetail.ImageList.Count}]下载失败。");
+                }
             }
-            else
+            catch (Exception ex)
             {
-                Logger.Shared.Error($"[{index}/{currentNote.NoteDetail.ImageList.Count}]下载失败。");
+                Logger.Shared.Error($"[{index}/{currentNote.NoteDetail.ImageList.Count}]下载异常。\n{ex.Message}");
+                Logger.Shared.Debug(ex);
+            }
+        }
+
+        if ("video" == currentNote.NoteDetail.Type)
+        {
+            string video_url = GenerateVideoLink(currentNote.NoteDetail.VideoInfo.Consumer.OriginVideoKey);
+            string filename = GenerateVideoFilename(SelectTitle(currentNote.NoteDetail), currentNote.NoteDetail.UserInfo, currentNote.NoteDetail.VideoInfo.Consumer.OriginVideoKey.Split('/').Last());
+            try
+            {
+                DownloadResukt result = await DownloadFile(video_url, storageDir, filename, downloader);
+                if (result.Success)
+                {
+                    contained_files.Add(filename);
+                    Logger.Shared.Information($"视频{filename}下载成功。");
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.Shared.Error($"视频{filename}下载失败。{ex.Message}");
+                Logger.Shared.Debug(ex);
             }
         }
 
@@ -75,31 +106,23 @@ public static class RedBookHelper
         };
     }
 
-    public static async Task<bool> DownloadFile(string url, string storageDir, string filename, (int w, int h)? size = null)
+    public static async Task<DownloadResukt> DownloadFile(string url, string storageDir, string filename, IDownloader downloader, (int w, int h)? size = null)
     {
         // Faile @ Ciallo～(∠・ω< )⌒★_0_xhs_咖鱼鱼_1040g3k031h27q5dk382048nlebhc4r1dk1iipeg.png
         var reqMsg = FakeBrowser.CommonClient.CreateRequest(HttpMethod.Get, url);
         reqMsg.Headers.Add("accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7");
         reqMsg.Headers.Add("Range", "bytes=0-");
 
-        try
+        DownloadResukt result = await downloader.DownloadAsync(url, storageDir, filename, httpRequest: reqMsg);
+        if (size != null)
         {
-            string result = FileSaver.SaveFileFromUrl(url, storageDir, filename, httpRequest: reqMsg).Result;
-            if (size != null)
-            {
-                Logger.Shared.Information($"{result}【{size?.w}, {size?.h}】下载成功。");
-            }
-            else
-            {
-                Logger.Shared.Information($"{result} 下载成功。");
-            }
-        } catch (Exception ex)
-        {
-            Logger.Shared.Error($"Download {filename} failed.{ex.Message}");
-            Logger.Shared.Debug(ex);
-            return false;
+            Logger.Shared.Information($"{result}【{size?.w}, {size?.h}】下载成功。");
         }
-        return true;
+        else
+        {
+            Logger.Shared.Information($"{result} 下载成功。");
+        }
+        return result;
     }
 
     public static string GetTypeName(NoteDetailModel noteDetail)
@@ -112,10 +135,15 @@ public static class RedBookHelper
         };
     }
 
-    public static string GenerateFilename(ImageListItemModel imageListItem, string tiltle, int index, UserInfoModel userInfo, string token)
+    public static string GenerateFilename(string tiltle, int? index, UserInfoModel userInfo, string token)
     {
-        // sanitize_windows_path(f'{name["作品标题"]}_{idxxx}_xhs_{name["作者昵称"]}_{____token}')
         return $"{tiltle}_{index}_xhs_{userInfo.Nickname}_{token}.png";
+    }
+
+    public static string GenerateVideoFilename(string tiltle, UserInfoModel userInfo, string token)
+    {
+        // TBD:自动判断类型
+        return $"{tiltle}_xhs_{userInfo.Nickname}_{token}.mp4";
     }
 
     public static void DumpJson(string path, NoteDataModel noteData)
@@ -140,7 +168,8 @@ public static class RedBookHelper
 
     public static string GenerateVideoLink(string token)
     {
-        return $"https://sns-img-bd.xhscdn.com/{token}";
+        //return $"https://sns-img-bd.xhscdn.com/{token}";
+        return $"https://sns-video-bd.xhscdn.com/{token}";
     }
 
     public static NoteDataModel? GetNoteData(in string url)
@@ -196,7 +225,11 @@ public static class RedBookHelper
                 if (jsonStart >= 0 && jsonEnd > jsonStart)
                 {
                     var jsonString = scriptContent.Substring(jsonStart, jsonEnd - jsonStart);
-                    jsonString = jsonString.Replace("undefined", "null");                    
+#if DEBUG
+                    File.WriteAllText("lastest_init_state.json", jsonString);
+#endif
+
+                    jsonString = jsonString.Replace("undefined", "null");
                     try
                     {
                         JsonDocument document = JsonDocument.Parse(jsonString);
