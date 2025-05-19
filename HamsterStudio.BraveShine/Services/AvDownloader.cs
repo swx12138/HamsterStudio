@@ -1,4 +1,5 @@
-﻿using HamsterStudio.Barefeet.Logging;
+﻿using HamsterStudio.Barefeet.Interfaces;
+using HamsterStudio.Barefeet.Logging;
 using HamsterStudio.BraveShine.Constants;
 using HamsterStudio.BraveShine.Models;
 using HamsterStudio.BraveShine.Models.Bilibili;
@@ -31,7 +32,7 @@ public class AvDownloader
                 {
                     VideoName = wish_filename,
                     Path = saving_path,
-                    State = VideoDownlaodState.Existed,
+                    State = FileDownlaodState.Existed,
                 };
             }
 
@@ -51,7 +52,7 @@ public class AvDownloader
             {
                 VideoName = wish_filename,
                 Path = saving_path,
-                State = VideoDownlaodState.Succeed,
+                State = FileDownlaodState.Succeed,
             };
         }
         catch (Exception ex)
@@ -60,7 +61,7 @@ public class AvDownloader
             return new()
             {
                 VideoName = wish_filename,
-                State = VideoDownlaodState.Failed,
+                State = FileDownlaodState.Failed,
                 Exception = ex
             };
         }

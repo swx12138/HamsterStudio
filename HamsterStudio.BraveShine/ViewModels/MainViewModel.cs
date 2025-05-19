@@ -12,6 +12,7 @@ using System.Windows.Input;
 using HamsterStudio.Barefeet.Extensions;
 using HamsterStudio.Web.Utilities;
 using HamsterStudio.BraveShine.Constants;
+using HamsterStudio.Barefeet.Interfaces;
 
 namespace HamsterStudio.BraveShine.ViewModels
 {
@@ -139,7 +140,7 @@ namespace HamsterStudio.BraveShine.ViewModels
             BilibiliVideoPage vpage = new(VideoInfo!.Pages[idx], resp!);
             BilibiliVideoTask bilibiliVideoTask = new(idx, vpage, resp ?? throw new NotImplementedException(), (VideoInfo), client);
             var rslt = await bilibiliVideoTask.Run2();
-            if (rslt.State == VideoDownlaodState.Failed)
+            if (rslt.State == FileDownlaodState.Failed)
             {
                 if (rslt.Exception != null)
                 {

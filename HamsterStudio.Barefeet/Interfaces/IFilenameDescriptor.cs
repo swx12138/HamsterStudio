@@ -4,10 +4,14 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace HamsterStudio.Barefeet.Interfaces
+namespace HamsterStudio.Barefeet.Interfaces;
+
+public enum FileDownlaodState
 {
-    interface IFilenameDescriptor
-    {
-        
-    }
+    Unknown, Succeed, Failed, Existed
+}
+
+interface IFilenameDescriptor
+{
+    
 }

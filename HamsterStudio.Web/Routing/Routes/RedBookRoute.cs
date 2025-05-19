@@ -1,9 +1,7 @@
-﻿using HamsterStudio.Barefeet.Logging;
-using HamsterStudio.Web.DataModels.ReadBook;
+﻿using HamsterStudio.Web.DataModels.ReadBook;
 using HamsterStudio.Web.Utilities;
 using NetCoreServer;
 using System.Text.Json;
-using System.Threading.Tasks;
 
 namespace HamsterStudio.Web.Routing.Routes
 {
@@ -30,7 +28,7 @@ namespace HamsterStudio.Web.Routing.Routes
             var body = JsonSerializer.Deserialize<PostBodyModel>(request.Body.Split("\r\n").ElementAt(1))!;
             if (body.Url == null) { return resp.MakeErrorResponse(406); }
 
-            var data = RedBookHelper.GetNoteData(body.Url);
+            var data = RedBookParser.GetNoteData(body.Url);
             if (data == null)
             {
                 return resp.MakeErrorResponse(502);
@@ -38,10 +36,8 @@ namespace HamsterStudio.Web.Routing.Routes
 
             RedBookHelper.DumpJson(Path.Combine(_storageDir + "/.hamster/", $"note_{data.CurrentNoteId}.json"), data);
 
-            var svrResp = await RedBookHelper.Download(data, _storageDir, filename =>
-            {
-                return _oldDir.Any(x => File.Exists(Path.Combine(x, filename)));
-            });
+            var downloader = new RedBookDownloader();
+            var svrResp = await downloader.Download(data, _storageDir);
             resp.SetBody(JsonSerializer.Serialize(svrResp));
 
             return resp;

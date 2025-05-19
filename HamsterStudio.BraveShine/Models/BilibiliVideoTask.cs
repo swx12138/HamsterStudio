@@ -1,9 +1,9 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
+using HamsterStudio.Barefeet.Interfaces;
 using HamsterStudio.Barefeet.Logging;
 using HamsterStudio.Barefeet.Task;
 using HamsterStudio.BraveShine.Models.Bilibili;
 using HamsterStudio.BraveShine.Services;
-using System.IO;
 
 namespace HamsterStudio.BraveShine.Models
 {
@@ -61,7 +61,7 @@ namespace HamsterStudio.BraveShine.Models
                 string wish_filename = $"{videoInfo.Cid!}-{vps}_{videoInfo.Bvid}.mp4";
                 var result = await downloader.Download(meta, aBaseUrl, vBaseUrl, wish_filename);
                 
-                State = result.State == VideoDownlaodState.Failed ? HamsterTaskState.Failed:  HamsterTaskState.Succeed;
+                State = result.State == FileDownlaodState.Failed ? HamsterTaskState.Failed:  HamsterTaskState.Succeed;
                 return result;
 
                 static string getVideoBaseUrl(BilibiliVideoPage page, VideoStreamInfo? vsi)
@@ -90,7 +90,7 @@ namespace HamsterStudio.BraveShine.Models
             {
                 State = HamsterTaskState.Failed;
                 Logger.Shared.Critical(ex);
-                return new() { State = VideoDownlaodState.Failed, Exception = ex };
+                return new() { State = FileDownlaodState.Failed, Exception = ex };
             }
             finally
             {
