@@ -9,6 +9,18 @@ namespace HamsterStudio.Web.Utilities;
 
 public static class RedBookHelper
 {
+    public static StreamInfoModel SelectStream(StreamModel stream)
+    {
+        ArgumentNullException.ThrowIfNull(stream);
+
+        if (stream.H266 != null && stream.H266.Length > 0) { return stream.H266[0]; }
+        else if (stream.H265 != null && stream.H265.Length > 0) { return stream.H265[0]; }
+        else if (stream.H264 != null && stream.H264.Length > 0) { return stream.H264[0]; }
+        else if (stream.Av1 != null && stream.Av1.Length > 0) { return stream.Av1[0]; }
+
+        throw new ArgumentException("No vaild stream", nameof(stream));
+    }
+
     public static string SelectTitle(NoteDetailModel noteDetail)
     {
         if (noteDetail.Title != string.Empty)
@@ -31,6 +43,12 @@ public static class RedBookHelper
     public static string GenerateFilename(string tiltle, int? index, UserInfoModel userInfo, string token)
     {
         return FileNameUtil.SanitizeFileName($"{tiltle}_{index}_xhs_{userInfo.Nickname}_{token}.png");
+    }
+
+    public static string GenerateLivePhotoFilename(string tiltle, int? index, UserInfoModel userInfo, string streamUrl)
+    {
+        var rawname = streamUrl.Split('?').First().Split('/').Last();
+        return FileNameUtil.SanitizeFileName($"{tiltle}_{index}_xhs_{userInfo.Nickname}_{rawname}");
     }
 
     public static string GenerateVideoFilename(string tiltle, UserInfoModel userInfo, string token)

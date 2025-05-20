@@ -53,6 +53,9 @@ public class ImageListItemModel
 
     [JsonPropertyName("width")]
     public int Width { get; set; }
+
+    [JsonPropertyName("stream")]
+    public StreamModel Stream { get; set; } = new();
 }
 
 public class ConsumerModel
@@ -66,6 +69,30 @@ public class VideoInfoModel
     [JsonPropertyName("consumer")]
     public ConsumerModel Consumer { get; set; } = new();
 
+}
+
+public class StreamInfoModel
+{
+    [JsonPropertyName("masterUrl")]
+    public string MasterUrl { get; set; } = string.Empty;
+
+    [JsonPropertyName("backupUrls")]
+    public List<string> BackupUrls { get; set; } = [];
+}
+
+public class StreamModel
+{
+    [JsonPropertyName("h264")]
+    public StreamInfoModel[] H264 { get; set; } = [];
+
+    [JsonPropertyName("h265")]
+    public StreamInfoModel[] H265 { get; set; } = [];
+
+    [JsonPropertyName("h266")]
+    public StreamInfoModel[] H266 { get; set; } = [];
+
+    [JsonPropertyName("av1")]
+    public StreamInfoModel[] Av1 { get; set; } = [];
 }
 
 public class UserInfoModel

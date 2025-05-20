@@ -16,66 +16,66 @@ public class RedBookDownloader
         Logger.Shared.Information($"开始处理<{RedBookHelper.GetTypeName(currentNote.NoteDetail)}>作品：{noteData.CurrentNoteId}");
         Logger.Shared.Information($"标题：{currentNote.NoteDetail.Title}【{currentNote.NoteDetail.ImageList.Count}】");
         List<string> contained_files = [];
+        string title = RedBookHelper.SelectTitle(currentNote.NoteDetail);
         foreach (var imgInfo in currentNote.NoteDetail.ImageList)
         {
-            if (imgInfo.LivePhoto)
-            {
-                Logger.Shared.Warning("暂时不支持LivePhoto！");
-                continue;
-            }
-
             string token = imgInfo.DefaultUrl.Split("!").First().Split("/").Where(x => x != null && x.Length > 0).Last();
             int index = currentNote.NoteDetail.ImageList.IndexOf(imgInfo) + 1;
-            string filename = RedBookHelper.GenerateFilename(
-               RedBookHelper.SelectTitle(currentNote.NoteDetail),
-                index,
-                currentNote.NoteDetail.UserInfo,
-                token);
-
+            string filename = RedBookHelper.GenerateFilename(title, index, currentNote.NoteDetail.UserInfo, token);
+            bool shouldDelay = false;
             string url = RedBookHelper.GeneratePngLink(imgInfo.DefaultUrl);
-            try
+            switch (await DownloadMedia(url, filename, storageDir))
             {
-                switch (await DownloadMedia(url, filename, storageDir))
+                case FileDownlaodState.Succeed:
+                    contained_files.Add(filename);
+                    shouldDelay = true;
+                    Logger.Shared.Information($"{filename}【{imgInfo.Width}, {imgInfo.Height}】下载成功。");
+                    break;
+                case FileDownlaodState.Existed:
+                    contained_files.Add(filename);
+                    break;
+                default:
+                    Logger.Shared.Error($"[{index}/{currentNote.NoteDetail.ImageList.Count}]下载失败。");
+                    break;
+            }
+
+
+            if (imgInfo.LivePhoto)
+            {
+                var streamInfo = RedBookHelper.SelectStream(imgInfo.Stream);
+                var streamUrl = streamInfo.MasterUrl;
+                var streamFilename = RedBookHelper.GenerateLivePhotoFilename(title, index, currentNote.NoteDetail.UserInfo, streamUrl);
+                var result = await DownloadMedia(streamUrl, streamFilename, storageDir, true);
+                if (result != FileDownlaodState.Failed)
                 {
-                    case FileDownlaodState.Succeed:
-                        contained_files.Add(filename);
-                        Logger.Shared.Information($"{filename}【{imgInfo.Width}, {imgInfo.Height}】下载成功。");
-                        await Task.Delay(50 * Random.Shared.Next(5));
-                        break;
-                    case FileDownlaodState.Existed:
-                        contained_files.Add(filename);
-                        break;
-                    default:
-                        Logger.Shared.Error($"[{index}/{currentNote.NoteDetail.ImageList.Count}]下载失败。");
-                        break;
+                    contained_files.Add(streamFilename);
+                    shouldDelay = true;
+                    Logger.Shared.Information($"LivePhoto{streamFilename}下载成功。");
+                }
+                else
+                {
+                    Logger.Shared.Error($"[{index}/{currentNote.NoteDetail.ImageList.Count}] LivePhoto下载失败。");
                 }
             }
-            catch (Exception ex)
+            if (shouldDelay)
             {
-                Logger.Shared.Error($"[{index}/{currentNote.NoteDetail.ImageList.Count}]下载异常。\n{ex.Message}");
-                Logger.Shared.Debug(ex);
+                await Task.Delay(500 * Random.Shared.Next(5));
             }
         }
 
         if ("video" == currentNote.NoteDetail.Type)
         {
             string video_url = RedBookHelper.GenerateVideoLink(currentNote.NoteDetail.VideoInfo.Consumer.OriginVideoKey);
-            string filename = RedBookHelper.GenerateVideoFilename(
-                RedBookHelper.SelectTitle(currentNote.NoteDetail),
-                currentNote.NoteDetail.UserInfo,
-                currentNote.NoteDetail.VideoInfo.Consumer.OriginVideoKey.Split('/').Last());
-            try
+            string filename = RedBookHelper.GenerateVideoFilename(title, currentNote.NoteDetail.UserInfo, currentNote.NoteDetail.VideoInfo.Consumer.OriginVideoKey.Split('/').Last());
+
+            if (await DownloadMedia(video_url, filename, storageDir, true) == FileDownlaodState.Succeed)
             {
-                if (await DownloadMedia(video_url, filename, storageDir, true) == FileDownlaodState.Succeed)
-                {
-                    contained_files.Add(filename);
-                    Logger.Shared.Information($"视频{filename}下载成功。");
-                }
+                contained_files.Add(filename);
+                Logger.Shared.Information($"视频{filename}下载成功。");
             }
-            catch (Exception ex)
+            else
             {
-                Logger.Shared.Error($"视频{filename}下载失败。{ex.Message}");
-                Logger.Shared.Debug(ex);
+                Logger.Shared.Error($"视频{filename}下载失败。");
             }
         }
 
@@ -109,16 +109,23 @@ public class RedBookDownloader
             MaxConnections: isVideo ? 4 : 1);
         var strategy = _strategyFactory.CreateStrategy(requ.MaxConnections);
 
-        var downloader = new Downloader(strategy);
-        var result = await downloader.ExecuteDownload(requ);
-
-        if (result.StatusCode == HttpStatusCode.OK)
+        try
         {
-            await File.WriteAllBytesAsync(fullPath, result.Data);
-            return FileDownlaodState.Succeed;
+            var downloader = new Downloader(strategy);
+            var result = await downloader.ExecuteDownload(requ);
+            if (result.StatusCode == HttpStatusCode.OK)
+            {
+                await File.WriteAllBytesAsync(fullPath, result.Data);
+                return FileDownlaodState.Succeed;
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger.Shared.Error($"下载异常：{url} | {ex.Message}");
+            Logger.Shared.Debug(ex);
         }
 
-        throw new HttpRequestException($"下载失败: {result.StatusCode}");
+        return FileDownlaodState.Failed;
     }
 
     private static Dictionary<string, string> GetImageHeaders() => new()
