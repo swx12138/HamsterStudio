@@ -36,8 +36,8 @@ namespace HamsterStudio.Web.Routing.Routes
 
             RedBookHelper.DumpJson(Path.Combine(_storageDir + "/.hamster/", $"note_{data.CurrentNoteId}.json"), data);
 
-            var downloader = new RedBookDownloader();
-            var svrResp = await downloader.Download(data, _storageDir);
+            var downloader = new RedBookDownloader(_storageDir);
+            var svrResp = await downloader.Download(data);
             resp.SetBody(JsonSerializer.Serialize(svrResp));
 
             return resp;

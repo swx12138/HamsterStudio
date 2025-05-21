@@ -77,6 +77,13 @@ public static class RedBookHelper
         return $"https://ci.xiaohongshu.com/{token}?imageView2/format/png";
     }
 
+    public static string GenerateWebpLink(string baseUrl)
+    {
+        string token = baseUrl.Split("!").First();
+        token = token.Substring(token.IndexOf5th('/') + 1);
+        return $"https://sns-img-bd.xhscdn.com/{token}";
+    }
+
     public static string GenerateVideoLink(string token)
     {
         //return $"https://sns-img-bd.xhscdn.com/{token}";
