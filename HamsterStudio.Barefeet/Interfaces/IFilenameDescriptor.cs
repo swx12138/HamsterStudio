@@ -1,14 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿namespace HamsterStudio.Barefeet.Interfaces;
 
-namespace HamsterStudio.Barefeet.Interfaces;
-
-public enum FileDownlaodState
+public enum FileDownloadState
 {
-    Unknown, Succeed, Failed, Existed
+    Unknown, Succeed, Failed, Existed, Fallback
 }
 
 interface IFilenameDescriptor

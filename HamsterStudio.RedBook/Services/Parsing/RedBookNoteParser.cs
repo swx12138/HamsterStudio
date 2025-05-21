@@ -1,19 +1,24 @@
-﻿using HamsterStudio.Web.DataModels.ReadBook;
+﻿using HamsterStudio.RedBook.DataModels;
+using HamsterStudio.RedBook.Interfaces;
+using HamsterStudio.Web;
 using HtmlAgilityPack;
+using System.IO;
 using System.Text.Json;
 
-namespace HamsterStudio.Web.Utilities;
+namespace HamsterStudio.RedBook.Services.Parsing;
 
-public static class RedBookParser
+public class RedBookNoteParser(FakeBrowser? browser = null) : IRedBookParser
 {
-    public static NoteDataModel? GetNoteData(in string url)
+    private readonly FakeBrowser Browser = browser ?? FakeBrowser.CommonClient;
+
+    public NoteDataModel? GetNoteData(string url)
     {
-        FakeBrowser.CommonClient.Referer = "https://www.xiaohongshu.com/explore";
+        Browser.Referer = "https://www.xiaohongshu.com/explore";
         var redirectedUrl = FakeBrowser.CommonClient.GetRedirectedUrlAsync(url).Result;
 
         var htmlDoc = new HtmlWeb().Load(redirectedUrl);
         var ndata = GetNote(htmlDoc);
-        if (ndata.CurrentNoteId == null)
+        if (ndata == null || ndata.CurrentNoteId == null)
         {
             htmlDoc.Save("lastest.html");
             return null;
@@ -21,7 +26,7 @@ public static class RedBookParser
         return ndata;
     }
 
-    private static NoteDataModel? GetNote(HtmlDocument html)
+    private NoteDataModel? GetNote(HtmlDocument html)
     {
         var initState = GetInitialState(html);
         JsonElement root = initState.RootElement;
@@ -35,7 +40,7 @@ public static class RedBookParser
         return noteElement.Deserialize<NoteDataModel>();
     }
 
-    private static JsonDocument GetInitialState(HtmlDocument html)
+    private JsonDocument GetInitialState(HtmlDocument html)
     {
         // 查找所有script标签
         var scriptNodes = html.DocumentNode.SelectNodes("//script");

@@ -61,7 +61,7 @@ namespace HamsterStudio.BraveShine.Models
                 string wish_filename = $"{videoInfo.Cid!}-{vps}_{videoInfo.Bvid}.mp4";
                 var result = await downloader.Download(meta, aBaseUrl, vBaseUrl, wish_filename);
                 
-                State = result.State == FileDownlaodState.Failed ? HamsterTaskState.Failed:  HamsterTaskState.Succeed;
+                State = result.State == FileDownloadState.Failed ? HamsterTaskState.Failed:  HamsterTaskState.Succeed;
                 return result;
 
                 static string getVideoBaseUrl(BilibiliVideoPage page, VideoStreamInfo? vsi)
@@ -90,7 +90,7 @@ namespace HamsterStudio.BraveShine.Models
             {
                 State = HamsterTaskState.Failed;
                 Logger.Shared.Critical(ex);
-                return new() { State = FileDownlaodState.Failed, Exception = ex };
+                return new() { State = FileDownloadState.Failed, Exception = ex };
             }
             finally
             {

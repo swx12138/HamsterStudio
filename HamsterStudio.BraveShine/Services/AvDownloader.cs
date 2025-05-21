@@ -32,7 +32,7 @@ public class AvDownloader
                 {
                     VideoName = wish_filename,
                     Path = saving_path,
-                    State = FileDownlaodState.Existed,
+                    State = FileDownloadState.Existed,
                 };
             }
 
@@ -52,7 +52,7 @@ public class AvDownloader
             {
                 VideoName = wish_filename,
                 Path = saving_path,
-                State = FileDownlaodState.Succeed,
+                State = FileDownloadState.Succeed,
             };
         }
         catch (Exception ex)
@@ -61,7 +61,7 @@ public class AvDownloader
             return new()
             {
                 VideoName = wish_filename,
-                State = FileDownlaodState.Failed,
+                State = FileDownloadState.Failed,
                 Exception = ex
             };
         }

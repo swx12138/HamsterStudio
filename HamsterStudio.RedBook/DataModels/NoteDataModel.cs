@@ -1,7 +1,7 @@
 ﻿using System.Collections.ObjectModel;
 using System.Text.Json.Serialization;
 
-namespace HamsterStudio.Web.DataModels.ReadBook;
+namespace HamsterStudio.RedBook.DataModels;
 
 public class InteractInfoModel
 {

@@ -1,10 +1,9 @@
 ﻿using HamsterStudio.Barefeet.Interfaces;
 using HamsterStudio.Barefeet.Logging;
 using HamsterStudio.BraveShine.Models;
-using HamsterStudio.Web.DataModels.ReadBook;
+using HamsterStudio.RedBook.Services;
 using HamsterStudio.Web.Routing;
 using HamsterStudio.Web.Routing.Routes;
-using HamsterStudio.Web.Utilities;
 using NetCoreServer;
 using System.Collections.ObjectModel;
 using System.Security.Authentication;

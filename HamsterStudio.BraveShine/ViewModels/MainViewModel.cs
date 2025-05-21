@@ -140,7 +140,7 @@ namespace HamsterStudio.BraveShine.ViewModels
             BilibiliVideoPage vpage = new(VideoInfo!.Pages[idx], resp!);
             BilibiliVideoTask bilibiliVideoTask = new(idx, vpage, resp ?? throw new NotImplementedException(), (VideoInfo), client);
             var rslt = await bilibiliVideoTask.Run2();
-            if (rslt.State == FileDownlaodState.Failed)
+            if (rslt.State == FileDownloadState.Failed)
             {
                 if (rslt.Exception != null)
                 {
