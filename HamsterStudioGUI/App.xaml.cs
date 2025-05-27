@@ -1,8 +1,9 @@
-﻿using System.Configuration;
-using System.Data;
-using System.Diagnostics;
+﻿using HamsterStudio.Barefeet.Interfaces;
+using HamsterStudio.WebApi;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.DependencyInjection;
 using System.Windows;
-using HamsterStudio.Barefeet.Interfaces;
 
 namespace HamsterStudioGUI;
 
@@ -19,6 +20,13 @@ public partial class App : Application, IHamsterApp
         //{
         //    Debug.WriteLine($"异常捕获: {e.Exception}");
         //};
+    }
+
+    protected override void OnStartup(StartupEventArgs e)
+    {
+        base.OnStartup(e);
+
+        Profile.Run();
     }
 
 }
