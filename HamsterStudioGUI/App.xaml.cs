@@ -48,7 +48,7 @@ public partial class App : Application, IHamsterApp
             $"https://0.0.0.0:{HttpsPortNumber}");   // 更改监听地址
 
         var app = builder.Build();
-        app.ConfigureWebApi();
+        app.ConfigureWebApi(new StaticFilePathParam() { PhyPath = FileStorageHome, ReqPath = "static" });
 
         app.RunAsync();
     }

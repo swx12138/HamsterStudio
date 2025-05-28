@@ -1,8 +1,16 @@
-﻿using HamsterStudio.RedBook;
+﻿using HamsterStudio.Barefeet.Logging;
+using HamsterStudio.RedBook;
 using HamsterStudio.WebApi.Controllers;
 using Microsoft.AspNetCore.Mvc.ApplicationParts;
+using Microsoft.Extensions.FileProviders;
 
 namespace HamsterStudio.WebApi;
+
+public record StaticFilePathParam
+{
+    public required string PhyPath { get; init; }
+    public required string ReqPath { get; init; }
+}
 
 public static class WebApiServiceExtensions
 {
@@ -26,7 +34,7 @@ public static class WebApiServiceExtensions
         return services;
     }
 
-    public static WebApplication ConfigureWebApi(this WebApplication app)
+    public static WebApplication ConfigureWebApi(this WebApplication app, params StaticFilePathParam[] static_file_paths)
     {
         // Configure the HTTP request pipeline.
         if (app.Environment.IsDevelopment())
@@ -36,13 +44,32 @@ public static class WebApiServiceExtensions
             app.UseSwaggerUI();
         }
 
-        //app.UseDefaultFiles();
-        //app.UseStaticFiles();
+        foreach (var static_file_path in static_file_paths)
+        {
+            if (!Directory.Exists(static_file_path.PhyPath))
+            {
+                Logger.Shared.Trace($"Path {static_file_path} not valid.");
+                continue;
+            }
+            var fileProvider = new PhysicalFileProvider(static_file_path.PhyPath);
+            app.UseStaticFiles(new StaticFileOptions
+            {
+                FileProvider = fileProvider,
+                RequestPath = $"/{static_file_path.ReqPath}"
+            });
+
+            app.UseDirectoryBrowser(new DirectoryBrowserOptions
+            {
+                FileProvider = fileProvider,
+                RequestPath = $"/{static_file_path.ReqPath}"
+            });
+        }
 
         //app.UseHttpsRedirection();
         app.UseCors("AllowAll"); // 启用 CORS
 
         app.UseAuthorization();
+
 
         app.MapControllers();
 
