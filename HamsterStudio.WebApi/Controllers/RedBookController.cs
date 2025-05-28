@@ -1,11 +1,11 @@
 ﻿using HamsterStudio.Barefeet.Logging;
-using HamsterStudio.BeautyLegs.RedBook;
 using HamsterStudio.RedBook.Interfaces;
+using HamsterStudio.RedBook.Models;
 using HamsterStudio.RedBook.Services;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
 
-namespace HamsterStudio.RedBook;
+namespace HamsterStudio.WebApi.Controllers;
 
 [ApiController]
 [Route("/xhs")]

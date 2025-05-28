@@ -1,4 +1,4 @@
-﻿using HamsterStudio.BeautyLegs.RedBook;
+﻿using HamsterStudio.RedBook.Models;
 
 namespace HamsterStudio.RedBook.Interfaces;
 

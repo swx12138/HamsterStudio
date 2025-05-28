@@ -1,9 +1,6 @@
-﻿using Android.Service.Autofill;
-using Android.Util;
-using CommunityToolkit.Mvvm.ComponentModel;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using HamsterStudio.Web.Services;
-using Java.Net;
+using HamsterStudio.RedBook.Services.XhsRestful;
 using Refit;
 using System.Diagnostics;
 using System.Windows.Input;

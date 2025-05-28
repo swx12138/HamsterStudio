@@ -1,5 +1,5 @@
 ﻿using HamsterStudio.Barefeet.Extensions;
-using HamsterStudio.BeautyLegs.RedBook.Sub;
+using HamsterStudio.RedBook.Models.Sub;
 
 namespace HamsterStudio.RedBook.Services;
 

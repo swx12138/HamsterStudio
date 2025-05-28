@@ -1,8 +1,8 @@
 ﻿using HamsterStudio.Barefeet.Extensions;
 using HamsterStudio.Barefeet.Interfaces;
 using HamsterStudio.Barefeet.Logging;
-using HamsterStudio.BeautyLegs.RedBook;
-using HamsterStudio.BeautyLegs.RedBook.Sub;
+using HamsterStudio.RedBook.Models;
+using HamsterStudio.RedBook.Models.Sub;
 using HamsterStudio.RedBook.Services.Download;
 using HamsterStudio.RedBook.Services.XhsRestful;
 

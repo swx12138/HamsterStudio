@@ -23,7 +23,6 @@ public static class WebApiServiceExtensions
             .ConfigureApplicationPartManager(apm =>
             {
                 apm.ApplicationParts.Add(new AssemblyPart(typeof(RedBookController).Assembly));
-                apm.ApplicationParts.Add(new AssemblyPart(typeof(TestController).Assembly));
             });// 添加特定的程序集
         // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
         services.AddEndpointsApiExplorer();

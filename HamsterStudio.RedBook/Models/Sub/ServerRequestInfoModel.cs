@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace HamsterStudio.BeautyLegs.RedBook.Sub;
+namespace HamsterStudio.RedBook.Models.Sub;
 
 public class ServerRequestInfoModel
 {

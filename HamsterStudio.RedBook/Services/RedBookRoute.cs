@@ -1,6 +1,6 @@
 ﻿using HamsterStudio.Barefeet.Logging;
-using HamsterStudio.BeautyLegs.RedBook;
 using HamsterStudio.RedBook.Interfaces;
+using HamsterStudio.RedBook.Models;
 using HamsterStudio.RedBook.Services.Parsing;
 using HamsterStudio.Web.Routing;
 using System.Text.Json;

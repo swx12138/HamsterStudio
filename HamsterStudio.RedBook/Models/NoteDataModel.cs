@@ -1,7 +1,7 @@
-﻿using HamsterStudio.BeautyLegs.RedBook.Sub;
+﻿using HamsterStudio.RedBook.Models.Sub;
 using System.Text.Json.Serialization;
 
-namespace HamsterStudio.BeautyLegs.RedBook;
+namespace HamsterStudio.RedBook.Models;
 
 public class NoteDataModel
 {

@@ -2,6 +2,7 @@
 using HamsterStudio.RedBook.Services;
 using HamsterStudio.RedBook.Services.Parsing;
 using HamsterStudio.RedBook.Services.XhsRestful;
+using Microsoft.Extensions.DependencyInjection;
 using Refit;
 
 namespace HamsterStudio.RedBook;
@@ -23,7 +24,9 @@ public static class RedBookWebApiExtensions
             .ConfigureHttpClient(c => c.BaseAddress = new Uri("https://sns-img-bd.xhscdn.com/"));
         services.AddRefitClient<IVideoService>()
             .ConfigureHttpClient(c => c.BaseAddress = new Uri("https://sns-video-bd.xhscdn.com/"));
+
         services.AddSingleton<RedBookDownloadService>();
+        
         return services;
     }
 }

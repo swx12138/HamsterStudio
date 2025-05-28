@@ -1,7 +1,7 @@
-﻿using HamsterStudio.BeautyLegs.RedBook;
+﻿using HamsterStudio.RedBook.Models;
 using Refit;
 
-namespace HamsterStudio.Web.Services;
+namespace HamsterStudio.RedBook.Services.XhsRestful;
 
 public interface IRedBookClient
 {
