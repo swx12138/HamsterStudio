@@ -1,10 +1,7 @@
-﻿using HamsterStudio.BraveShine.Modelss.Bilibili.SubStruct;
+﻿using HamsterStudio.Bilibili.Models.Sub;
 using HamsterStudio.BraveShine.ViewModels;
-using NLog;
-using System.Collections.ObjectModel;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
 
 namespace HamsterStudio.BraveShine.Views
 {

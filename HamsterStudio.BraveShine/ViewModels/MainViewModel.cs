@@ -1,18 +1,17 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using HamsterStudio.Barefeet.Extensions;
+using HamsterStudio.Barefeet.Interfaces;
 using HamsterStudio.Barefeet.Logging;
-using HamsterStudio.BraveShine.Models;
-using HamsterStudio.BraveShine.Models.Bilibili;
-using HamsterStudio.BraveShine.Models.Bilibili.SubStruct;
-using HamsterStudio.BraveShine.Services;
+using HamsterStudio.Bilibili.Constants;
+using HamsterStudio.Bilibili.Models;
+using HamsterStudio.Bilibili.Models.Sub;
+using HamsterStudio.Bilibili.Services;
 using HamsterStudio.BraveShine.Views;
 using HamsterStudio.Toolkits.Logging;
+using HamsterStudio.Web.Utilities;
 using System.Collections.ObjectModel;
 using System.Windows.Input;
-using HamsterStudio.Barefeet.Extensions;
-using HamsterStudio.Web.Utilities;
-using HamsterStudio.BraveShine.Constants;
-using HamsterStudio.Barefeet.Interfaces;
 
 namespace HamsterStudio.BraveShine.ViewModels
 {

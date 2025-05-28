@@ -4,7 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:hc="https://handyorg.github.io/handycontrol"
         xmlns:local="clr-namespace:HamsterStudio.BraveShine.Views"
-        xmlns:localpm="clr-namespace:HamsterStudio.BraveShine.Models"
+        xmlns:localpm="clr-namespace:HamsterStudio.Bilibili.Models;assembly=HamsterStudio.Bilibili"
         xmlns:localppcm="clr-namespace:HamsterStudio.Controls.Smarter;assembly=HamsterStudio.Controls"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         Title="VideoSelectorWindow"

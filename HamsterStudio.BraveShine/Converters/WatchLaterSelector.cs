@@ -1,4 +1,4 @@
-﻿using HamsterStudio.BraveShine.Models.Bilibili;
+﻿using HamsterStudio.Bilibili.Models;
 using System.Globalization;
 using System.Windows.Data;
 

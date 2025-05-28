@@ -35,6 +35,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HamsterStudio.RedBook", "Ha
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HamsterStudio.WebApi", "HamsterStudio.WebApi\HamsterStudio.WebApi.csproj", "{8696E5B4-06EE-417D-A80D-9854037F1E10}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HamsterStudio.Bilibili", "HamsterStudio.Bilibili\HamsterStudio.Bilibili.csproj", "{81872920-6B97-4FFB-A8C5-8D48B6892956}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HamsterStudioTests", "HamsterStudioTests\HamsterStudioTests.csproj", "{22637278-E219-49B3-8E51-94D15EA35E18}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -95,6 +99,14 @@ Global
 		{8696E5B4-06EE-417D-A80D-9854037F1E10}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8696E5B4-06EE-417D-A80D-9854037F1E10}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8696E5B4-06EE-417D-A80D-9854037F1E10}.Release|Any CPU.Build.0 = Release|Any CPU
+		{81872920-6B97-4FFB-A8C5-8D48B6892956}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{81872920-6B97-4FFB-A8C5-8D48B6892956}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{81872920-6B97-4FFB-A8C5-8D48B6892956}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{81872920-6B97-4FFB-A8C5-8D48B6892956}.Release|Any CPU.Build.0 = Release|Any CPU
+		{22637278-E219-49B3-8E51-94D15EA35E18}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{22637278-E219-49B3-8E51-94D15EA35E18}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{22637278-E219-49B3-8E51-94D15EA35E18}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{22637278-E219-49B3-8E51-94D15EA35E18}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -111,6 +123,7 @@ Global
 		{C4FE67E0-7C2B-8793-B184-87C67E92594B} = {52EB6711-5ACA-471D-896D-4146B4B91649}
 		{1717C195-164D-44EC-A351-E7477F0D7F09} = {85879EA5-7D16-4A63-B0E8-76A6308EDA32}
 		{8696E5B4-06EE-417D-A80D-9854037F1E10} = {85879EA5-7D16-4A63-B0E8-76A6308EDA32}
+		{81872920-6B97-4FFB-A8C5-8D48B6892956} = {85879EA5-7D16-4A63-B0E8-76A6308EDA32}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {2BEFE676-D503-4D35-A413-E099891E452B}
