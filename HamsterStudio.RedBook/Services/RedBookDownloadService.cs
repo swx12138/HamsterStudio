@@ -1,7 +1,8 @@
 ﻿using HamsterStudio.Barefeet.Extensions;
 using HamsterStudio.Barefeet.Interfaces;
 using HamsterStudio.Barefeet.Logging;
-using HamsterStudio.RedBook.DataModels;
+using HamsterStudio.BeautyLegs.RedBook;
+using HamsterStudio.BeautyLegs.RedBook.Sub;
 using HamsterStudio.RedBook.Services.Download;
 using HamsterStudio.RedBook.Services.XhsRestful;
 
@@ -48,17 +49,20 @@ public class RedBookDownloadService(IPngService pngService, IWebpService webpSer
             bool shouldDelay = false;
 
             // 生成文件名
-            string token = imgInfo.DefaultUrl.Split('!').First().Split('/').Last();
+            string token = ExtractToken(imgInfo.DefaultUrl);
             var filename = FileNameGenerator.GenerateImageFilename(title, index, noteDetail.UserInfo, token);
-            string png_filename = GetFullPath(filename + ".png");
-            string webp_filename = GetFullPath(filename + ".webp");
-            if (File.Exists(png_filename))
+            
+            string png_filename = filename + ".png";
+            string png_full_filename = GetFullPath(png_filename);
+            string webp_filename = filename + ".webp";
+            string webp_full_filename = GetFullPath(webp_filename);
+            if (File.Exists(png_full_filename))
             {
                 _logger.Information($"文件已存在：{filename}，跳过下载。");
                 containedFiles.Add(png_filename);
                 continue;
             }
-            else if (File.Exists(webp_filename))
+            else if (File.Exists(webp_full_filename))
             {
                 _logger.Information($"文件已存在：{filename}，跳过下载。");
                 containedFiles.Add(webp_filename);
@@ -69,8 +73,9 @@ public class RedBookDownloadService(IPngService pngService, IWebpService webpSer
             var stream = await pngService.GetImageAsync(token);
             if (stream != null)
             {
-                await stream.SaveToFile(png_filename);
-                _logger.Information($"{png_filename}【{imgInfo.Width}, {imgInfo.Height}】下载成功。");
+                await stream.SaveToFile(png_full_filename);
+                containedFiles.Add(png_filename);
+                _logger.Information($"{png_full_filename}【{imgInfo.Width}, {imgInfo.Height}】下载成功。");
                 shouldDelay = true;
             }
             else
@@ -78,8 +83,9 @@ public class RedBookDownloadService(IPngService pngService, IWebpService webpSer
                 stream = await webpService.GetImageAsync(token);
                 if (stream != null)
                 {
-                    await stream.SaveToFile(webp_filename);
-                    _logger.Information($"{webp_filename}【{imgInfo.Width}, {imgInfo.Height}】下载成功。");
+                    await stream.SaveToFile(webp_full_filename);
+                    containedFiles.Add(webp_filename);
+                    _logger.Information($"{webp_full_filename}【{imgInfo.Width}, {imgInfo.Height}】下载成功。");
                     shouldDelay = true;
                 }
                 else
@@ -153,7 +159,7 @@ public class RedBookDownloadService(IPngService pngService, IWebpService webpSer
                 Title = noteDetail.Title,
                 Description = noteDetail.Description,
                 AuthorNickName = noteDetail.UserInfo.Nickname,
-                StaticFiles = [.. files.Select(f => $"http://192.168.0.101:8899/static/xiaohongshu/{f}")]
+                StaticFiles = [.. files.Select(f => $"xiaohongshu/{f}")]
             }
         };
     }

@@ -1,13 +1,8 @@
-﻿using HamsterStudio.Barefeet.Extensions;
-using HamsterStudio.Barefeet.Logging;
-using HamsterStudio.RedBook.DataModels;
+﻿using HamsterStudio.Barefeet.Logging;
+using HamsterStudio.BeautyLegs.RedBook;
 using HamsterStudio.RedBook.Interfaces;
 using HamsterStudio.RedBook.Services;
-using HamsterStudio.RedBook.Services.Download;
-using HamsterStudio.RedBook.Services.Parsing;
-using HamsterStudio.RedBook.Services.XhsRestful;
 using Microsoft.AspNetCore.Mvc;
-using Refit;
 using System.Net;
 
 namespace HamsterStudio.RedBook;
@@ -39,7 +34,7 @@ public class RedBookController(IRedBookParser parser, RedBookDownloadService dow
     [HttpPost("share-link/download")]
     public async Task<ActionResult<ServerResp?>> DownloadNote(NoteDataModel noteData)
     {
-        return await downloadService.DownloadNoteAsync(noteData);
+        return Ok(await downloadService.DownloadNoteAsync(noteData));
     }
 
 }

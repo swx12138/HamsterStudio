@@ -5,7 +5,7 @@ namespace HamsterStudio.RedBook.Services.XhsRestful;
 [Headers("referer: https://www.xiaohongshu.com/", "accept:image/png")]
 public interface IPngService
 {
-    [Get("/{**token}?imageView2/format/png")]
+    [Get("/{**token}")]
     Task<Stream?> GetImageAsync(string token);
 }
 

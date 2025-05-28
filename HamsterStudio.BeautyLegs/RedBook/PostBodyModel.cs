@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace HamsterStudio.RedBook.DataModels;
+namespace HamsterStudio.BeautyLegs.RedBook;
 
 public class PostBodyModel
 {

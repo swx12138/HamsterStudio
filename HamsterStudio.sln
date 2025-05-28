@@ -37,6 +37,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "WebApiModules", "WebApiModu
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HamsterStudio.WebApi", "HamsterStudio.WebApi\HamsterStudio.WebApi.csproj", "{8696E5B4-06EE-417D-A80D-9854037F1E10}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HamsterStudio.WebApiClinets", "HamsterStudio.WebApiClinets\HamsterStudio.WebApiClinets.csproj", "{33E37DA5-E8CA-40E8-BDDF-6AF39A8B9C06}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HamsterStudio.BeautyLegs", "HamsterStudio.BeautyLegs\HamsterStudio.BeautyLegs.csproj", "{2D0D920B-5BC0-4A8D-8FA5-E861A7158306}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -97,6 +101,14 @@ Global
 		{8696E5B4-06EE-417D-A80D-9854037F1E10}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8696E5B4-06EE-417D-A80D-9854037F1E10}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8696E5B4-06EE-417D-A80D-9854037F1E10}.Release|Any CPU.Build.0 = Release|Any CPU
+		{33E37DA5-E8CA-40E8-BDDF-6AF39A8B9C06}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{33E37DA5-E8CA-40E8-BDDF-6AF39A8B9C06}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{33E37DA5-E8CA-40E8-BDDF-6AF39A8B9C06}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{33E37DA5-E8CA-40E8-BDDF-6AF39A8B9C06}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2D0D920B-5BC0-4A8D-8FA5-E861A7158306}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2D0D920B-5BC0-4A8D-8FA5-E861A7158306}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2D0D920B-5BC0-4A8D-8FA5-E861A7158306}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2D0D920B-5BC0-4A8D-8FA5-E861A7158306}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -113,6 +125,8 @@ Global
 		{C4FE67E0-7C2B-8793-B184-87C67E92594B} = {52EB6711-5ACA-471D-896D-4146B4B91649}
 		{1717C195-164D-44EC-A351-E7477F0D7F09} = {893483E0-0DDC-448D-BA29-901CA9C6221F}
 		{8696E5B4-06EE-417D-A80D-9854037F1E10} = {85879EA5-7D16-4A63-B0E8-76A6308EDA32}
+		{33E37DA5-E8CA-40E8-BDDF-6AF39A8B9C06} = {85879EA5-7D16-4A63-B0E8-76A6308EDA32}
+		{2D0D920B-5BC0-4A8D-8FA5-E861A7158306} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {2BEFE676-D503-4D35-A413-E099891E452B}

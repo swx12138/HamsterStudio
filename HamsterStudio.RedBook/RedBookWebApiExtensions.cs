@@ -1,4 +1,6 @@
-﻿using HamsterStudio.RedBook.Services;
+﻿using HamsterStudio.RedBook.Interfaces;
+using HamsterStudio.RedBook.Services;
+using HamsterStudio.RedBook.Services.Parsing;
 using HamsterStudio.RedBook.Services.XhsRestful;
 using Refit;
 
@@ -8,8 +10,15 @@ public static class RedBookWebApiExtensions
 {
     public static IServiceCollection AddRedBookWebApiServices(this IServiceCollection services)
     {
-        services.AddRefitClient<IPngService>()
-            .ConfigureHttpClient(c => c.BaseAddress = new Uri("https://ci.xiaohongshu.com/"));
+        services.AddSingleton<IRedBookParser, RedBookNoteParser>();
+
+        var handler = new LoggingHandler(new HttpClientHandler());
+        var client = new HttpClient(handler)
+        {
+            BaseAddress = new Uri("https://ci.xiaohongshu.com")
+        };
+        services.AddSingleton(RestService.For<IPngService>(client));
+
         services.AddRefitClient<IWebpService>()
             .ConfigureHttpClient(c => c.BaseAddress = new Uri("https://sns-img-bd.xhscdn.com/"));
         services.AddRefitClient<IVideoService>()

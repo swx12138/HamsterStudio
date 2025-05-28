@@ -1,5 +1,5 @@
 ﻿using HamsterStudio.Barefeet.Logging;
-using HamsterStudio.RedBook.DataModels;
+using HamsterStudio.BeautyLegs.RedBook;
 using HamsterStudio.RedBook.Interfaces;
 using HamsterStudio.RedBook.Services.Parsing;
 using HamsterStudio.Web.Routing;
