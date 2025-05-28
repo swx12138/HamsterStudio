@@ -24,9 +24,7 @@
     <ProjectReference Include="..\HamsterStudio.BraveShine\HamsterStudio.BraveShine.csproj" />
     <ProjectReference Include="..\HamsterStudio.Gallery\HamsterStudio.Gallery.csproj" />
     <ProjectReference Include="..\HamsterStudio.ImageTool\HamsterStudio.ImageTool.csproj" />
-    <ProjectReference Include="..\HamsterStudio.RedBook\HamsterStudio.RedBook.csproj" />
     <ProjectReference Include="..\HamsterStudio.WebApi\HamsterStudio.WebApi.csproj" />
-    <ProjectReference Include="..\HamsterStudio.Web\HamsterStudio.Web.csproj" />
   </ItemGroup>
 
   <ItemGroup>

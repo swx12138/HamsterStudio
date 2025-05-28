@@ -1,0 +1,45 @@
+﻿using HamsterStudio.Barefeet.Extensions;
+using HamsterStudio.Barefeet.Logging;
+using HamsterStudio.RedBook.DataModels;
+using HamsterStudio.RedBook.Interfaces;
+using HamsterStudio.RedBook.Services;
+using HamsterStudio.RedBook.Services.Download;
+using HamsterStudio.RedBook.Services.Parsing;
+using HamsterStudio.RedBook.Services.XhsRestful;
+using Microsoft.AspNetCore.Mvc;
+using Refit;
+using System.Net;
+
+namespace HamsterStudio.RedBook;
+
+[ApiController]
+[Route("/xhs")]
+public class RedBookController(IRedBookParser parser, RedBookDownloadService downloadService) : ControllerBase
+{
+    [HttpGet("images/list")]
+    public ActionResult<string[]> GetDownloadedImageList()
+    {
+        return Array.Empty<string>();
+    }
+
+    [HttpPost("share-link/info")]
+    public ActionResult<NoteDataModel> PostShareLink([FromBody] PostBodyModel postBody)
+    {
+        Logger.Shared.Information($"RedBookController: PostShareLink: {postBody.Url}");
+
+        var data = parser.GetNoteData(postBody.Url);
+        if (data == null)
+        {
+            return StatusCode((int)HttpStatusCode.BadGateway, "Failed to parse the note data from the provided URL.");
+        }
+
+        return Ok(data);
+    }
+
+    [HttpPost("share-link/download")]
+    public async Task<ActionResult<ServerResp?>> DownloadNote(NoteDataModel noteData)
+    {
+        return await downloadService.DownloadNoteAsync(noteData);
+    }
+
+}

@@ -1,0 +1,6 @@
+@HamsterStudio.WebApi_HostAddress = http://localhost:5191
+
+GET {{HamsterStudio.WebApi_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

@@ -3,9 +3,9 @@ using HamsterStudio.RedBook.DataModels;
 using HamsterStudio.RedBook.Interfaces;
 using HamsterStudio.RedBook.Services.Parsing;
 using HamsterStudio.Web.Routing;
-using NetCoreServer;
-using System.IO;
 using System.Text.Json;
+using HttpRequest = NetCoreServer.HttpRequest;
+using HttpResponse = NetCoreServer.HttpResponse;
 
 namespace HamsterStudio.RedBook.Services
 {
@@ -25,7 +25,7 @@ namespace HamsterStudio.RedBook.Services
         public RedBookRoute(string rootDir)
         {
             _storageDir = Path.Combine(rootDir, "xiaohongshu");
-            DownloadService = new(new Download.MediaDownloader(), _storageDir);
+            //DownloadService = new(new Download.MediaDownloader(), _storageDir);
         }
 
         public bool IsMyCake(string url)

@@ -2,7 +2,7 @@
 using HamsterStudio.WebApi;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using System.Windows;
 
 namespace HamsterStudioGUI;
@@ -13,6 +13,15 @@ namespace HamsterStudioGUI;
 public partial class App : Application, IHamsterApp
 {
     public string FileStorageHome { get; set; } = @"D:\HamsterStudioHome";
+
+#if DEBUG
+    private readonly int httpPortNumber = 5000;
+#else
+    private readonly int httpPortNumber = 8898;
+#endif
+
+    public int HttpPortNumber => httpPortNumber;
+    public int HttpsPortNumber => httpPortNumber + 1;
 
     public App()
     {
@@ -26,7 +35,28 @@ public partial class App : Application, IHamsterApp
     {
         base.OnStartup(e);
 
-        Profile.Run();
+        var builder = WebApplication
+#if DEBUG
+            .CreateBuilder(new WebApplicationOptions() { EnvironmentName = Environments.Development});
+#else
+            .CreateBuilder();
+#endif
+
+        builder.Services.AddWebApiServices();                  // 添加控制器
+        builder.WebHost.UseUrls(
+            $"http://0.0.0.0:{HttpPortNumber}",
+            $"https://0.0.0.0:{HttpsPortNumber}");   // 更改监听地址
+
+        var app = builder.Build();
+        app.ConfigureWebApi();
+
+        app.RunAsync();
+    }
+
+    protected override void OnExit(ExitEventArgs e)
+    {
+        base.OnExit(e);
+
     }
 
 }

@@ -10,7 +10,7 @@ public class TestController : Controller
     {
         return new
         {
-            Fuck = "You world000"
+            Fuck = "You world"
         };
     }
 }

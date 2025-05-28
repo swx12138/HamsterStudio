@@ -41,7 +41,7 @@ namespace HamsterStudioGUI
             TabPages.Add(TabPageModel.Incubator<HamsterStudio.ImageTool.Views.MainView>("ImageTool", "ImageTool"));
             TabPages.Add(TabPageModel.Incubator<HamsterStudio.Gallery.Views.GalleryView>("Gallery", "Gallery"));
 
-            InitServer();
+            //InitServer();
 
             //AppDomain.CurrentDomain.FirstChanceException += (sender, e) =>
             //{

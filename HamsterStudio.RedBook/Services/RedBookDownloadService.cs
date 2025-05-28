@@ -3,23 +3,17 @@ using HamsterStudio.Barefeet.Interfaces;
 using HamsterStudio.Barefeet.Logging;
 using HamsterStudio.RedBook.DataModels;
 using HamsterStudio.RedBook.Services.Download;
-using System.IO;
+using HamsterStudio.RedBook.Services.XhsRestful;
 
 namespace HamsterStudio.RedBook.Services;
 
-public class RedBookDownloadService
+public class RedBookDownloadService(IPngService pngService, IWebpService webpService, IVideoService videoService)
 {
-    private readonly MediaDownloader _mediaDownloader;
-    private readonly string _storageDir;
-    private readonly Logger _logger = Logger.Shared;
+    private readonly MediaDownloader _mediaDownloader = new();
 
-    public RedBookDownloadService(
-        MediaDownloader downloader,
-        string storageDirectory)
-    {
-        _mediaDownloader = downloader;
-        _storageDir = storageDirectory;
-    }
+    public string StorageDirectory { get; set; } = @"D:\HamsterStudioHome\xiaohongshu";
+
+    private readonly Logger _logger = Logger.Shared;
 
     public async Task<ServerResp> DownloadNoteAsync(NoteDataModel noteData)
     {
@@ -54,17 +48,44 @@ public class RedBookDownloadService
             bool shouldDelay = false;
 
             // 生成文件名
-            var (pngFile, webpFile) = FileNameGenerator.GenerateImageFilenames(title, index, noteDetail.UserInfo, imgInfo);
-
-            // 检查文件存在
-            if (CheckExistingFiles(pngFile, webpFile, containedFiles)) continue;
+            string token = imgInfo.DefaultUrl.Split('!').First().Split('/').Last();
+            var filename = FileNameGenerator.GenerateImageFilename(title, index, noteDetail.UserInfo, token);
+            string png_filename = GetFullPath(filename + ".png");
+            string webp_filename = GetFullPath(filename + ".webp");
+            if (File.Exists(png_filename))
+            {
+                _logger.Information($"文件已存在：{filename}，跳过下载。");
+                containedFiles.Add(png_filename);
+                continue;
+            }
+            else if (File.Exists(webp_filename))
+            {
+                _logger.Information($"文件已存在：{filename}，跳过下载。");
+                containedFiles.Add(webp_filename);
+                continue;
+            }
 
             // 下载流程
-            var downloadResult = await DownloadImageFiles(imgInfo, pngFile, webpFile);
-            if (downloadResult != FileDownloadState.Failed)
+            var stream = await pngService.GetImageAsync(token);
+            if (stream != null)
             {
-                containedFiles.Add(downloadResult == FileDownloadState.Succeed ? pngFile : webpFile);
+                await stream.SaveToFile(png_filename);
+                _logger.Information($"{png_filename}【{imgInfo.Width}, {imgInfo.Height}】下载成功。");
                 shouldDelay = true;
+            }
+            else
+            {
+                stream = await webpService.GetImageAsync(token);
+                if (stream != null)
+                {
+                    await stream.SaveToFile(webp_filename);
+                    _logger.Information($"{webp_filename}【{imgInfo.Width}, {imgInfo.Height}】下载成功。");
+                    shouldDelay = true;
+                }
+                else
+                {
+                    _logger.Error($"下载失败：{imgInfo.DefaultUrl}【{imgInfo.Width}, {imgInfo.Height}】");
+                }
             }
 
             // 处理LivePhoto
@@ -78,30 +99,6 @@ public class RedBookDownloadService
                 await ApplyRandomDelay();
             }
         }
-    }
-
-    private async Task<FileDownloadState> DownloadImageFiles(ImageListItemModel imgInfo, string pngName, string webpName)
-    {
-        string pngUrl = GeneratePngLink(imgInfo.DefaultUrl);
-        var state = await _mediaDownloader.DownloadMediaAsync(pngUrl, GetFullPath(pngName));
-
-        if (state == FileDownloadState.Succeed)
-        {
-            _logger.Information($"{pngName}【{imgInfo.Width}, {imgInfo.Height}】下载成功。");
-            return state;
-        }
-
-        string webpUrl = GenerateWebpLink(imgInfo.DefaultUrl);
-        state = await _mediaDownloader.DownloadMediaAsync(webpUrl, GetFullPath(webpName));
-
-        if (state == FileDownloadState.Succeed)
-        {
-            _logger.Information($"{webpName}【{imgInfo.Width}, {imgInfo.Height}】下载成功。");
-            return FileDownloadState.Fallback;
-        }
-
-        _logger.Error($"下载失败：{imgInfo.DefaultUrl}");
-        return FileDownloadState.Failed;
     }
 
     private async Task<bool> ProcessLivePhoto(string title, int index, UserInfoModel user, ImageListItemModel imgInfo, List<string> containedFiles)
@@ -162,26 +159,7 @@ public class RedBookDownloadService
     }
 
     #region Helper Methods
-    private string GetFullPath(string filename) => Path.Combine(_storageDir, filename);
-
-    private bool CheckExistingFiles(string pngFile, string webpFile, List<string> containedFiles)
-    {
-        if (File.Exists(GetFullPath(pngFile)))
-        {
-            containedFiles.Add(pngFile);
-            _logger.Warning($"{pngFile}已存在。");
-            return true;
-        }
-
-        if (File.Exists(GetFullPath(webpFile)))
-        {
-            containedFiles.Add(webpFile);
-            _logger.Warning($"{webpFile}已存在。");
-            return true;
-        }
-
-        return false;
-    }
+    private string GetFullPath(string filename) => Path.Combine(StorageDirectory, filename);
 
     private async Task ApplyRandomDelay() =>
         await Task.Delay(500 * Random.Shared.Next(5));
@@ -209,7 +187,6 @@ public class RedBookDownloadService
 
     public string GenerateVideoLink(string token)
     {
-        //return $"https://sns-img-bd.xhscdn.com/{token}";
         return $"https://sns-video-bd.xhscdn.com/{token}";
     }
 

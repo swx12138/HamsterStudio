@@ -1,4 +1,5 @@
-﻿using HamsterStudio.RedBook.DataModels;
+﻿using HamsterStudio.Barefeet.Logging;
+using HamsterStudio.RedBook.DataModels;
 using HamsterStudio.RedBook.Interfaces;
 using HamsterStudio.Web;
 using HtmlAgilityPack;
@@ -13,17 +14,25 @@ public class RedBookNoteParser(FakeBrowser? browser = null) : IRedBookParser
 
     public NoteDataModel? GetNoteData(string url)
     {
-        Browser.Referer = "https://www.xiaohongshu.com/explore";
-        var redirectedUrl = FakeBrowser.CommonClient.GetRedirectedUrlAsync(url).Result;
-
-        var htmlDoc = new HtmlWeb().Load(redirectedUrl);
-        var ndata = GetNote(htmlDoc);
-        if (ndata == null || ndata.CurrentNoteId == null)
+        try
         {
-            htmlDoc.Save("lastest.html");
+            Browser.Referer = "https://www.xiaohongshu.com/explore";
+            var redirectedUrl = FakeBrowser.CommonClient.GetRedirectedUrlAsync(url).Result;
+
+            var htmlDoc = new HtmlWeb().Load(redirectedUrl);
+            var ndata = GetNote(htmlDoc);
+            if (ndata == null || ndata.CurrentNoteId == null)
+            {
+                htmlDoc.Save("lastest.html");
+                return null;
+            }
+            return ndata;
+        }
+        catch (Exception ex)
+        {
+            Logger.Shared.Critical(ex);
             return null;
         }
-        return ndata;
     }
 
     private NoteDataModel? GetNote(HtmlDocument html)
