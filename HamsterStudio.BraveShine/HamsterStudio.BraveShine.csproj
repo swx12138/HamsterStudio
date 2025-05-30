@@ -14,10 +14,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="Assets\41f15582eda2d1332bef0730b29d3633f56bded6.ico" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\HamsterStudio.Bilibili\HamsterStudio.Bilibili.csproj" />
     <ProjectReference Include="..\HamsterStudio.HandyUtil\HamsterStudio.HandyUtil.csproj" />
     <ProjectReference Include="..\HamsterStudio.Toolkits\HamsterStudio.Toolkits.csproj" />

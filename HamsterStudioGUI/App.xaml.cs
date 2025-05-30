@@ -1,8 +1,10 @@
 ﻿using HamsterStudio.Barefeet.Interfaces;
+using HamsterStudio.Bilibili;
 using HamsterStudio.WebApi;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
+using System.IO;
 using System.Windows;
 
 namespace HamsterStudioGUI;
@@ -14,11 +16,7 @@ public partial class App : Application, IHamsterApp
 {
     public string FileStorageHome { get; set; } = @"D:\HamsterStudioHome";
 
-#if DEBUG
     private readonly int httpPortNumber = 5000;
-#else
-    private readonly int httpPortNumber = 8898;
-#endif
 
     public int HttpPortNumber => httpPortNumber;
     public int HttpsPortNumber => httpPortNumber + 1;
@@ -34,6 +32,8 @@ public partial class App : Application, IHamsterApp
     protected override void OnStartup(StartupEventArgs e)
     {
         base.OnStartup(e);
+
+        FilenameUtils.StorageHome = Path.Combine(FileStorageHome, "BVDownload");
 
         var builder = WebApplication
 #if DEBUG

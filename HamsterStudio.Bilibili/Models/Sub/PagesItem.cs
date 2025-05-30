@@ -1,7 +1,4 @@
-﻿//using HamsterStudio.HandyUtil.PropertyEditors;
-//using HandyControl.Controls;
-using System.ComponentModel;
-using System.Text.Json.Serialization;
+﻿using System.Text.Json.Serialization;
 
 namespace HamsterStudio.Bilibili.Models.Sub
 {
@@ -35,7 +32,6 @@ namespace HamsterStudio.Bilibili.Models.Sub
         public Dimension Dimension { get; set; }
 
         [JsonPropertyName("first_frame")]
-        //[Editor(typeof(ImageViewOnlyEditor), typeof(PropertyEditorBase))]
         public string FirstFrame { get; set; }
 
     }

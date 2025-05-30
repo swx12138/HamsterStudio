@@ -56,6 +56,11 @@ namespace HamsterStudio.Web.Utilities
         /// <returns></returns>
         public static async Task<SaveFileResult> SaveFileToDisk(Stream data, string filename)
         {
+            if (File.Exists(filename))
+            {
+                return SaveFileResult.Existed;
+            }
+
             using var fs = File.OpenWrite(filename);
             await data.CopyToAsync(fs);
             return SaveFileResult.Succeed;

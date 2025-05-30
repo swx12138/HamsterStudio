@@ -2,7 +2,7 @@
 using System.Globalization;
 using System.Windows.Data;
 
-namespace HamsterStudio.BraveShine.Converters
+namespace HamsterStudioGUI.Converters
 {
     class WatchLaterSelector : IValueConverter
     {

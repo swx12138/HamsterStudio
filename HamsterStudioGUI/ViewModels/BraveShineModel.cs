@@ -7,15 +7,15 @@ using HamsterStudio.Bilibili.Constants;
 using HamsterStudio.Bilibili.Models;
 using HamsterStudio.Bilibili.Models.Sub;
 using HamsterStudio.Bilibili.Services;
-using HamsterStudio.BraveShine.Views;
+using HamsterStudioGUI.Views;
 using HamsterStudio.Toolkits.Logging;
 using HamsterStudio.Web.Utilities;
 using System.Collections.ObjectModel;
 using System.Windows.Input;
 
-namespace HamsterStudio.BraveShine.ViewModels
+namespace HamsterStudioGUI.ViewModels
 {
-    public partial class MainViewModel : ObservableObject
+    public partial class BraveShineModel : ObservableObject
     {
         [ObservableProperty]
         private VideoLocatorModel _location = new();
@@ -45,7 +45,7 @@ namespace HamsterStudio.BraveShine.ViewModels
 
         public ObservableCollectionTarget NlogTarget { get; } = new("Brave Shine");
 
-        public MainViewModel()
+        public BraveShineModel()
         {
             Logger.Shared.AddTarget(NlogTarget, NLog.LogLevel.Info, NLog.LogLevel.Fatal);
 
@@ -137,7 +137,7 @@ namespace HamsterStudio.BraveShine.ViewModels
             }
 
             BilibiliVideoPage vpage = new(VideoInfo!.Pages[idx], resp!);
-            BilibiliVideoTask bilibiliVideoTask = new(idx, vpage, resp ?? throw new NotImplementedException(), (VideoInfo), client);
+            BilibiliVideoTask bilibiliVideoTask = new(idx, vpage, resp ?? throw new NotImplementedException(), VideoInfo, client);
             var rslt = await bilibiliVideoTask.Run2();
             if (rslt.State == FileDownloadState.Failed)
             {

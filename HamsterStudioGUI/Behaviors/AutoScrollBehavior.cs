@@ -5,7 +5,7 @@ using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Threading;
 
-namespace HamsterStudio.BraveShine.Behaviors;
+namespace HamsterStudioGUI.Behaviors;
 
 public class AutoScrollBehavior : Behavior<DataGrid>
 {

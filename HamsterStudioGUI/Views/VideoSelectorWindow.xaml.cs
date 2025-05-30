@@ -2,7 +2,7 @@
 using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 
-namespace HamsterStudio.BraveShine.Views
+namespace HamsterStudioGUI.Views
 {
     /// <summary>
     /// VideoSelectorWindow.xaml 的交互逻辑

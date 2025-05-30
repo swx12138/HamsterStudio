@@ -17,12 +17,15 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Content Include="Assets\41f15582eda2d1332bef0730b29d3633f56bded6.ico" />
     <Content Include="chuhua.ico" />
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\HamsterStudio.Bilibili\HamsterStudio.Bilibili.csproj" />
     <ProjectReference Include="..\HamsterStudio.BraveShine\HamsterStudio.BraveShine.csproj" />
     <ProjectReference Include="..\HamsterStudio.Gallery\HamsterStudio.Gallery.csproj" />
+    <ProjectReference Include="..\HamsterStudio.HandyUtil\HamsterStudio.HandyUtil.csproj" />
     <ProjectReference Include="..\HamsterStudio.ImageTool\HamsterStudio.ImageTool.csproj" />
     <ProjectReference Include="..\HamsterStudio.WebApi\HamsterStudio.WebApi.csproj" />
   </ItemGroup>

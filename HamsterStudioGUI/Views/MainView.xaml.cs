@@ -1,9 +1,9 @@
 ﻿using HamsterStudio.Bilibili.Models.Sub;
-using HamsterStudio.BraveShine.ViewModels;
+using HamsterStudioGUI.ViewModels;
 using System.Windows;
 using System.Windows.Controls;
 
-namespace HamsterStudio.BraveShine.Views
+namespace HamsterStudioGUI.Views
 {
     /// <summary>
     /// MainView.xaml 的交互逻辑
@@ -17,7 +17,7 @@ namespace HamsterStudio.BraveShine.Views
 
         private void Button_Click(object sender, RoutedEventArgs e)
         {
-            if (DataContext is MainViewModel viewModel)
+            if (DataContext is BraveShineModel viewModel)
             {
                 if (sender is Button button && button.DataContext is WatchLaterDat dat)
                 {
