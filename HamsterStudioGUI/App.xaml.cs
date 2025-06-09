@@ -1,6 +1,7 @@
 ﻿using HamsterStudio.Barefeet.Interfaces;
 using HamsterStudio.Bilibili;
 using HamsterStudio.WebApi;
+using HamsterStudioGUI.Extensions;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
@@ -52,10 +53,13 @@ public partial class App : Application, IHamsterApp
         {
             serverOptions.ConfigureHttpsDefaults(httpsOptions =>
             {
-                httpsOptions.ServerCertificate = new X509Certificate2("https/localhost.pfx", File.ReadAllText("https/password.txt"));
+                httpsOptions.ServerCertificate = new X509Certificate2(
+                    "https/localhost.pfx", 
+                    File.ReadAllText("https/password.txt"));
             });
         });
-        builder.Services.AddWebApiServices();                  // 添加控制器
+        builder.Services.AddWebApiServices();
+        builder.Services.ConfigureService(@"D:\HamsterStudioHome");
         builder.WebHost.UseUrls(
             $"http://0.0.0.0:{HttpPortNumber}",
             $"https://0.0.0.0:{HttpsPortNumber}");   // 更改监听地址

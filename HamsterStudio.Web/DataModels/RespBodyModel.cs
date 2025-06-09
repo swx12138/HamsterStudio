@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace HamsterStudio.RedBook.Models;
+namespace HamsterStudio.Web.DataModels;
 
 public class ServerRespData
 {
@@ -18,10 +18,13 @@ public class ServerRespData
 
 }
 
-public class ServerResp
+public class ServerRespModel
 {
     [JsonPropertyName("messge")]
     public string Message { get; set; }
+
+    [JsonPropertyName("status")]
+    public int Status { get; set; }
 
     [JsonPropertyName("data")]
     public ServerRespData Data { get; set; }

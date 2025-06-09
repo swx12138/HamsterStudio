@@ -17,7 +17,7 @@ namespace HamsterStudio.Bilibili.Models.Sub
         /// 谢谢你帮我捡鞋子(◜𖥦◝ ）
         /// </summary>
         [JsonPropertyName("part")]
-        public string Part { get; set; }
+        public string Title { get; set; }
 
         [JsonPropertyName("duration")]
         public long Duration { get; set; }

@@ -1,4 +1,5 @@
 ﻿using HamsterStudio.Barefeet.Logging;
+using HamsterStudio.Bilibili;
 using HamsterStudio.RedBook;
 using HamsterStudio.WebApi.Controllers;
 using Microsoft.AspNetCore.Mvc.ApplicationParts;
@@ -17,14 +18,15 @@ public static class WebApiServiceExtensions
     public static IServiceCollection AddWebApiServices(this IServiceCollection services)
     {
         // Add services to the container.
-        services.AddRedBookWebApiServices();
+        services.AddRedBookWebApiServices()
+            .AddBilibiliWebApiServices();
 
         services.AddControllers()
             .ConfigureApplicationPartManager(apm =>
             {
                 apm.ApplicationParts.Add(new AssemblyPart(typeof(RedBookController).Assembly));
             });// 添加特定的程序集
-        // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+
         services.AddEndpointsApiExplorer();
         services.AddSwaggerGen();
 
@@ -68,7 +70,6 @@ public static class WebApiServiceExtensions
         app.UseCors("AllowAll"); // 启用 CORS
 
         app.UseAuthorization();
-
 
         app.MapControllers();
 

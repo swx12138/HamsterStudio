@@ -35,6 +35,8 @@ namespace HamsterStudio.Bilibili.Models
 
         public async Task<BilibiliVideoDownloadResult> Run2()
         {   
+            throw new NotImplementedException("This method is not implemented yet. Please use the Run method instead.");
+
             State = HamsterTaskState.Running;
 
             try
@@ -48,20 +50,20 @@ namespace HamsterStudio.Bilibili.Models
                 string aBaseUrl = getAudioBaseUrl(vsi);
                 ArgumentException.ThrowIfNullOrEmpty(aBaseUrl, nameof(aBaseUrl));
 
-                AvDownloader downloader = new();
-                AvMeta meta = new()
-                {
-                    title = page.PartTitle,
-                    artist = videoInfo.Owner.Name!,
-                    album = videoInfo.Title!,
-                    copyright = videoInfo.Bvid!
-                };
+                //AvDownloader downloader = new();
+                //AvMeta meta = new()
+                //{
+                //    title = page.PartTitle,
+                //    artist = videoInfo.Owner.Name!,
+                //    album = videoInfo.Title!,
+                //    copyright = videoInfo.Bvid!
+                //};
 
-                string wish_filename = $"{videoInfo.Cid!}-{vps}_{videoInfo.Bvid}.mp4";
-                var result = await downloader.Download(meta, aBaseUrl, vBaseUrl, wish_filename);
+                //string wish_filename = $"{videoInfo.Cid!}-{vps}_{videoInfo.Bvid}.mp4";
+                //var result = await downloader.Download(meta, aBaseUrl, vBaseUrl, wish_filename);
                 
-                State = result.State == FileDownloadState.Failed ? HamsterTaskState.Failed:  HamsterTaskState.Succeed;
-                return result;
+                //State = result.State == FileDownloadState.Failed ? HamsterTaskState.Failed:  HamsterTaskState.Succeed;
+                //return result;
 
                 static string getVideoBaseUrl(BilibiliVideoPage page, VideoStreamInfo? vsi)
                 {

@@ -5,7 +5,7 @@ namespace HamsterStudio.Bilibili.Models
 {
     public class BilibiliVideoPage(PagesItem page, VideoStreamInfo? info) : ObservableObject
     {
-        public string PartTitle => page.Part;
+        public string PartTitle => page.Title;
 
         public string CoverImage => page.FirstFrame;
 

@@ -2,6 +2,7 @@
 using HamsterStudio.RedBook.Interfaces;
 using HamsterStudio.RedBook.Models;
 using HamsterStudio.RedBook.Services;
+using HamsterStudio.Web.DataModels;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
 
@@ -32,7 +33,7 @@ public class RedBookController(IRedBookParser parser, RedBookDownloadService dow
     }
 
     [HttpPost("share-link/download")]
-    public async Task<ActionResult<ServerResp?>> DownloadNote(NoteDataModel noteData)
+    public async Task<ActionResult<ServerRespModel?>> DownloadNote(NoteDataModel noteData)
     {
         return Ok(await downloadService.DownloadNoteAsync(noteData));
     }

@@ -5,7 +5,7 @@ using HamsterStudio.RedBook.Models;
 using HamsterStudio.RedBook.Models.Sub;
 using HamsterStudio.RedBook.Services.Download;
 using HamsterStudio.RedBook.Services.XhsRestful;
-using System.IO;
+using HamsterStudio.Web.DataModels;
 
 namespace HamsterStudio.RedBook.Services;
 
@@ -17,7 +17,7 @@ public class RedBookDownloadService(IPngService pngService, IWebpService webpSer
 
     private readonly Logger _logger = Logger.Shared;
 
-    public async Task<ServerResp> DownloadNoteAsync(NoteDataModel noteData)
+    public async Task<ServerRespModel> DownloadNoteAsync(NoteDataModel noteData)
     {
         var currentNote = noteData.NoteDetailMap[noteData.CurrentNoteId];
         var noteDetail = currentNote.NoteDetail;
@@ -169,9 +169,9 @@ public class RedBookDownloadService(IPngService pngService, IWebpService webpSer
         }
     }
 
-    private ServerResp BuildResponse(NoteDetailModel noteDetail, List<string> files)
+    private ServerRespModel BuildResponse(NoteDetailModel noteDetail, List<string> files)
     {
-        return new ServerResp
+        return new ServerRespModel
         {
             Message = "ok",
             Data = new ServerRespData

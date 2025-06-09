@@ -1,4 +1,5 @@
 ﻿using HamsterStudio.RedBook.Models;
+using HamsterStudio.Web.DataModels;
 using Refit;
 
 namespace HamsterStudio.RedBook.Services.XhsRestful;
@@ -9,7 +10,7 @@ public interface IRedBookClient
     Task<NoteDataModel> PostXhsShareLink(PostBodyModel postBody);
 
     [Post("/xhs/share-link/download")]
-    Task<ServerResp> DownloadXhsNote(NoteDataModel noteData);
+    Task<ServerRespModel> DownloadXhsNote(NoteDataModel noteData);
 
     [Get("/static/{**fileRelaPath}")]
     Task<Stream> GetStaticFile(string fileRelaPath);

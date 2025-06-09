@@ -7,9 +7,9 @@ using HamsterStudio.Bilibili.Constants;
 using HamsterStudio.Bilibili.Models;
 using HamsterStudio.Bilibili.Models.Sub;
 using HamsterStudio.Bilibili.Services;
-using HamsterStudioGUI.Views;
 using HamsterStudio.Toolkits.Logging;
 using HamsterStudio.Web.Utilities;
+using HamsterStudioGUI.Views;
 using System.Collections.ObjectModel;
 using System.Windows.Input;
 
@@ -60,10 +60,10 @@ namespace HamsterStudioGUI.ViewModels
             };
 #endif
 
-            SaveCoverCommand = new AsyncRelayCommand(async () => await AvDownloader.SaveCover(VideoInfo));
+            SaveCoverCommand = new AsyncRelayCommand(async () => await DownloadService.SaveCover(VideoInfo));
             SaveOwnerFaceCommand = new AsyncRelayCommand(async () => await FileSaver.SaveFileFromUrl(VideoInfo?.Owner.Face ?? throw new NotImplementedException(), SystemConsts.BVCoverHome));
 
-            SaveFirstFrameCommand = new AsyncRelayCommand<PagesItem>(async page => await AvDownloader.SaveCover(GetBvid(), page));
+            SaveFirstFrameCommand = new AsyncRelayCommand<PagesItem>(async page => await DownloadService.SaveCover(GetBvid(), page));
             SaveVideoCommand = new AsyncRelayCommand<int>(DownloadVideo);
 
             RedirectLocationCommand = new RelayCommand(() => RedirectLocation());
@@ -128,7 +128,7 @@ namespace HamsterStudioGUI.ViewModels
             }
 
             idx = Math.Max(idx, 0);
-            var resp = await client.GetVideoStream(bvid, VideoInfo!.Pages[idx]);
+            var resp = await client.GetVideoStream(bvid, VideoInfo!.Pages[idx].Cid);
             if (resp == null)
             {
                 Logger.Shared.Warning($"GetVideoStream Failed.");

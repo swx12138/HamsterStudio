@@ -31,6 +31,9 @@ namespace HamsterStudioGUI.ViewModels
         public MainViewModel()
         {
             SaveCoverCommand = new AsyncRelayCommand(async () => await FilenameUtils.Downlaod(CoverUrl, Title));
+
+            // TBD:实现WebApi接收到请求后，将有效的图文/视频信息同步到界面
+            // Messager
         }
     }
 }

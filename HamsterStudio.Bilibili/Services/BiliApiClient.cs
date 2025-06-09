@@ -106,9 +106,9 @@ public class BiliApiClient
         return videoInfo != null;
     }
 
-    public async Task<VideoStreamInfo?> GetVideoStream(string bvid, PagesItem page)
+    public async Task<VideoStreamInfo?> GetVideoStream(string bvid, long cid)
     {
-        string api = "https://api.bilibili.com/x/player/wbi/playurl?" + $"fnval=144&cid={page.Cid}&qn=120&bvid={bvid}&fourk=1";
+        string api = "https://api.bilibili.com/x/player/wbi/playurl?" + $"fnval=144&cid={cid}&qn=120&bvid={bvid}&fourk=1";
         return await GetApiAsync<VideoStreamInfo>(api);
     }
 

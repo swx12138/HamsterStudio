@@ -7,7 +7,7 @@ using Refit;
 
 namespace HamsterStudio.RedBook;
 
-public static class RedBookWebApiExtensions
+public static class WebApiExtensions
 {
     public static IServiceCollection AddRedBookWebApiServices(this IServiceCollection services)
     {
