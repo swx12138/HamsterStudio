@@ -8,7 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\Github\HandyControl\src\Net_GE45\HandyControl_Net_GE45\HandyControl_Net_GE45.csproj" />
+    <ProjectReference Include="..\..\HandyControl\src\Net_GE45\HandyControl_Net_GE45\HandyControl_Net_GE45.csproj" />
     <ProjectReference Include="..\HamsterStudio.Controls\HamsterStudio.Controls.csproj" />
   </ItemGroup>
 
