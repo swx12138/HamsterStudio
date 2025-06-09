@@ -5,6 +5,7 @@ using HamsterStudio.RedBook.Models;
 using HamsterStudio.RedBook.Models.Sub;
 using HamsterStudio.RedBook.Services.Download;
 using HamsterStudio.RedBook.Services.XhsRestful;
+using System.IO;
 
 namespace HamsterStudio.RedBook.Services;
 
@@ -70,17 +71,36 @@ public class RedBookDownloadService(IPngService pngService, IWebpService webpSer
             }
 
             // 下载流程
-            var stream = await pngService.GetImageAsync(token);
-            if (stream != null)
+            try
             {
-                await stream.SaveToFile(png_full_filename);
-                containedFiles.Add(png_filename);
-                _logger.Information($"{png_full_filename}【{imgInfo.Width}, {imgInfo.Height}】下载成功。");
-                shouldDelay = true;
+                var stream = await pngService.GetImageAsync(token);
+                if (stream != null)
+                {
+                    await stream.SaveToFile(png_full_filename);
+                    containedFiles.Add(png_filename);
+                    _logger.Information($"{png_full_filename}【{imgInfo.Width}, {imgInfo.Height}】下载成功。");
+                    shouldDelay = true;
+                }
+                else
+                {
+                    stream = await webpService.GetImageAsync(token);
+                    if (stream != null)
+                    {
+                        await stream.SaveToFile(webp_full_filename);
+                        containedFiles.Add(webp_filename);
+                        _logger.Information($"{webp_full_filename}【{imgInfo.Width}, {imgInfo.Height}】下载成功。");
+                        shouldDelay = true;
+                    }
+                    else
+                    {
+                        _logger.Error($"下载失败：{imgInfo.DefaultUrl}【{imgInfo.Width}, {imgInfo.Height}】");
+                    }
+                }
             }
-            else
+            catch (Exception ex)
             {
-                stream = await webpService.GetImageAsync(token);
+                _logger.Warning(ex.Message);
+                var stream = await webpService.GetImageAsync(token);
                 if (stream != null)
                 {
                     await stream.SaveToFile(webp_full_filename);
