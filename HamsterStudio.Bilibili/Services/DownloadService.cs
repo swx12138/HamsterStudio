@@ -11,10 +11,11 @@ using HamsterStudio.Web.Utilities;
 
 namespace HamsterStudio.Bilibili.Services;
 
-public class DownloadService(IBilibiliApiService bilibiliApi)
+public class DownloadService(IBilibiliApiService bilibiliApi, BiliApiClient blient)
 {
     public string Cookies { get; set; } = string.Empty;
-    private readonly BiliApiClient blient =new(null);
+    private string DashHome { get; } = Path.Combine(blient.Home, SystemConsts.DashSubName);
+    private string CoverHome { get; } = Path.Combine(blient.Home, SystemConsts.CoverSubName);
 
     public async Task<ServerRespModel> GetVideoByBvid(string bvid, int idx = -1)
     {
@@ -69,6 +70,7 @@ public class DownloadService(IBilibiliApiService bilibiliApi)
         };
         string wish_filename = $"{videoInfo.Cid!}-{idx}_{videoInfo.Bvid}.mp4";  // TBD：修改命名规则，增加视频质量和音频质量
         var result = await DownloadStream(videoStreamInfo, acceptQuality, meta, wish_filename);
+        await SaveCover(videoInfo);
         return new ServerRespModel()
         {
             Message = "Succeed",
@@ -83,7 +85,7 @@ public class DownloadService(IBilibiliApiService bilibiliApi)
         };
     }
 
-    public static async Task<BilibiliVideoDownloadResult> DownloadStream(VideoStreamInfo streamInfo, int acceptQuality, AvMeta meta, string filename)
+    public async Task<BilibiliVideoDownloadResult> DownloadStream(VideoStreamInfo streamInfo, int acceptQuality, AvMeta meta, string filename)
     {
         try
         {
@@ -123,12 +125,11 @@ public class DownloadService(IBilibiliApiService bilibiliApi)
         return dash.BaseUrl ?? string.Empty;
     }
 
-    public static async Task<BilibiliVideoDownloadResult> Download(AvMeta meta, string aurl, string vurl, string wish_filename, bool? DeleteAvCache = true)
+    public async Task<BilibiliVideoDownloadResult> Download(AvMeta meta, string aurl, string vurl, string wish_filename, bool? DeleteAvCache = true)
     {
         try
         {
-            string saving_path = @$"{SystemConsts.BVDHome}\dash";
-            string output = Path.Combine(saving_path, wish_filename);
+            string output = Path.Combine(DashHome, wish_filename);
             Logger.Shared.Information($"Output Dir:{output}");
 
             if (File.Exists(output))
@@ -137,7 +138,7 @@ public class DownloadService(IBilibiliApiService bilibiliApi)
                 return new()
                 {
                     VideoName = wish_filename,
-                    Path = saving_path,
+                    Path = DashHome,
                     State = FileDownloadState.Existed,
                 };
             }
@@ -157,7 +158,7 @@ public class DownloadService(IBilibiliApiService bilibiliApi)
             return new()
             {
                 VideoName = wish_filename,
-                Path = saving_path,
+                Path = DashHome,
                 State = FileDownloadState.Succeed,
             };
         }
@@ -173,28 +174,32 @@ public class DownloadService(IBilibiliApiService bilibiliApi)
         }
     }
 
-    public static async Task<string> SaveCover(VideoInfo videoInfo)
+    public async Task<string> SaveCover(VideoInfo videoInfo)
     {
-        return await SaveCover(videoInfo.Bvid, videoInfo.Pic);
+        return await SaveFile(videoInfo.Bvid, videoInfo.Pic);
     }
 
-    public static async Task<string> SaveCover(WatchLaterDat watchLater)
+    public async Task<string> SaveCover(WatchLaterDat watchLater)
     {
-        return await SaveCover(watchLater.Bvid, watchLater.Pic);
+        return await SaveFile(watchLater.Bvid, watchLater.Pic);
     }
 
-    public static async Task<string> SaveCover(string bvid, PagesItem pagesItem)
+    public async Task<string> SaveFirstFrame(string bvid, PagesItem pagesItem)
     {
-        return await SaveCover(bvid, pagesItem.FirstFrame);
+        return await SaveFile(bvid, pagesItem.FirstFrame);
     }
 
-    public static async Task<string> SaveCover(string bvid, string url)
+    public async Task<string> SaveOwnerFace(string bvid, Owner owner)
+    {
+        return await SaveFile(bvid, owner.Face);
+    }
+
+    public async Task<string> SaveFile(string bvid, string url)
     {
         try
         {
-            string filename = url.Split("?")[0].Split("@")[0].Split("/").Last();
-            filename = $"{bvid}_bili_{filename}";
-            string result = await FileSaver.SaveFileFromUrl(url, SystemConsts.BVCoverHome, filename);
+            string filename = FormatImageFilename(url, bvid);
+            string result = await FileSaver.SaveFileFromUrl(url, CoverHome, filename);
             Logger.Shared.Information($"Saved {bvid} cover to {result}");
             return result;
         }
@@ -203,6 +208,21 @@ public class DownloadService(IBilibiliApiService bilibiliApi)
             Logger.Shared.Debug(ex);
             return string.Empty;
         }
+    }
+
+    public static string GetFilenameFromUrl(string url) => url.Split("?")[0].Split("@")[0].Split('/').Where(x => !x.IsNullOrEmpty()).Last();
+
+    public static string FormatImageFilename(string url, string bvid)
+    {
+        string filename = GetFilenameFromUrl(url);
+        // tbd：将旧文件名重命名
+        return $"{bvid}_bili_{filename}";
+    }
+
+    public static string FormatImageFilename(string url, string dynamicId, int idx)
+    {
+        string filename = GetFilenameFromUrl(url);
+        return $"{dynamicId}_{idx}_bili_{filename}";
     }
 
     public static void MergeAv(string vname, string aname, AvMeta meta, string outp)

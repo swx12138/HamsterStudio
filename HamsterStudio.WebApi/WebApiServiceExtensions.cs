@@ -35,7 +35,7 @@ public static class WebApiServiceExtensions
         return services;
     }
 
-    public static WebApplication ConfigureWebApi(this WebApplication app, params StaticFilePathParam[] static_file_paths)
+    public static WebApplication ConfigureWebApi(this WebApplication app)
     {
         // Configure the HTTP request pipeline.
         if (app.Environment.IsDevelopment())
@@ -43,27 +43,6 @@ public static class WebApiServiceExtensions
             app.UseDeveloperExceptionPage();
             app.UseSwagger();
             app.UseSwaggerUI();
-        }
-
-        foreach (var static_file_path in static_file_paths)
-        {
-            if (!Directory.Exists(static_file_path.PhyPath))
-            {
-                Logger.Shared.Trace($"Path {static_file_path} not valid.");
-                continue;
-            }
-            var fileProvider = new PhysicalFileProvider(static_file_path.PhyPath);
-            app.UseStaticFiles(new StaticFileOptions
-            {
-                FileProvider = fileProvider,
-                RequestPath = $"/{static_file_path.ReqPath}"
-            });
-
-            app.UseDirectoryBrowser(new DirectoryBrowserOptions
-            {
-                FileProvider = fileProvider,
-                RequestPath = $"/{static_file_path.ReqPath}"
-            });
         }
 
         //app.UseHttpsRedirection();

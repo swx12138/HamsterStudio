@@ -1,6 +1,8 @@
 ﻿using HamsterStudio.Barefeet.Extensions;
 using HamsterStudio.Barefeet.Interfaces;
 using HamsterStudio.Barefeet.Logging;
+using HamsterStudio.Barefeet.Services;
+using HamsterStudio.RedBook.Constants;
 using HamsterStudio.RedBook.Models;
 using HamsterStudio.RedBook.Models.Sub;
 using HamsterStudio.RedBook.Services.Download;
@@ -9,11 +11,11 @@ using HamsterStudio.Web.DataModels;
 
 namespace HamsterStudio.RedBook.Services;
 
-public class RedBookDownloadService(IPngService pngService, IWebpService webpService, IVideoService videoService)
+public class RedBookDownloadService(IPngService pngService, IWebpService webpService, IVideoService videoService, DirectoryMgmt directoryMgmt)
 {
     private readonly MediaDownloader _mediaDownloader = new();
 
-    public string StorageDirectory { get; set; } = @"D:\HamsterStudioHome\xiaohongshu";
+    public string StorageDirectory { get; set; } = Path.Combine(directoryMgmt.StorageHome, SystemConsts.HomeName);
 
     private readonly Logger _logger = Logger.Shared;
 

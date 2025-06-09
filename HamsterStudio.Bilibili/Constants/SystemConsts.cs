@@ -1,7 +1,9 @@
 ﻿namespace HamsterStudio.Bilibili.Constants;
 
-public class SystemConsts
+internal static class SystemConsts
 {
-    public const string BVDHome = @"D:\HamsterStudioHome\BVDownload";
-    public const string BVCoverHome = BVDHome + @"\Covers";
+    public const string HomeName = "BVDownload";
+    public const string DashSubName = "Dash";
+    public const string CoverSubName = "Cover";
+
 }

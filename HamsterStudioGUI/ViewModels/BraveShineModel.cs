@@ -10,6 +10,7 @@ using HamsterStudio.Bilibili.Services;
 using HamsterStudio.Toolkits.Logging;
 using HamsterStudio.Web.Utilities;
 using HamsterStudioGUI.Views;
+using Microsoft.Extensions.DependencyInjection;
 using System.Collections.ObjectModel;
 using System.Windows.Input;
 
@@ -38,7 +39,8 @@ namespace HamsterStudioGUI.ViewModels
         public ICommand LoadWatchLaterCommand { get; }
         public ICommand SelectVideoCommad { get; }
 
-        private BiliApiClient client = new(null);
+        private BiliApiClient client = App.ServiceProvider.GetService<BiliApiClient>() ?? throw new NotSupportedException();
+        private DownloadService downloadService = App.ServiceProvider.GetService<DownloadService>() ?? throw new NotSupportedException();
 
         [ObservableProperty]
         private bool _topmost = false;
@@ -60,10 +62,10 @@ namespace HamsterStudioGUI.ViewModels
             };
 #endif
 
-            SaveCoverCommand = new AsyncRelayCommand(async () => await DownloadService.SaveCover(VideoInfo));
-            SaveOwnerFaceCommand = new AsyncRelayCommand(async () => await FileSaver.SaveFileFromUrl(VideoInfo?.Owner.Face ?? throw new NotImplementedException(), SystemConsts.BVCoverHome));
+            SaveCoverCommand = new AsyncRelayCommand(async () => await downloadService.SaveCover(VideoInfo));
+            SaveOwnerFaceCommand = new AsyncRelayCommand(async () => await downloadService.SaveOwnerFace(VideoInfo.Bvid, VideoInfo?.Owner ?? throw new NotImplementedException()));
 
-            SaveFirstFrameCommand = new AsyncRelayCommand<PagesItem>(async page => await DownloadService.SaveCover(GetBvid(), page));
+            SaveFirstFrameCommand = new AsyncRelayCommand<PagesItem>(async page => await downloadService.SaveFirstFrame(GetBvid(), page));
             SaveVideoCommand = new AsyncRelayCommand<int>(DownloadVideo);
 
             RedirectLocationCommand = new RelayCommand(() => RedirectLocation());

@@ -1,4 +1,5 @@
 ﻿using HamsterStudio.Barefeet.Logging;
+using HamsterStudio.RedBook.Constants;
 using HamsterStudio.RedBook.Interfaces;
 using HamsterStudio.RedBook.Models;
 using HamsterStudio.RedBook.Services.Parsing;
@@ -24,7 +25,7 @@ namespace HamsterStudio.RedBook.Services
 
         public RedBookRoute(string rootDir)
         {
-            _storageDir = Path.Combine(rootDir, "xiaohongshu");
+            _storageDir = Path.Combine(rootDir, SystemConsts.HomeName);
             //DownloadService = new(new Download.MediaDownloader(), _storageDir);
         }
 

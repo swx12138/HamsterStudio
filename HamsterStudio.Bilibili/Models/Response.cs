@@ -8,7 +8,7 @@ namespace HamsterStudio.Bilibili.Models
         public long Code { get; set; }
 
         [JsonPropertyName("message")]
-        public string Message { get; set; }
+        public string Message { get; set; } = string.Empty;
 
         [JsonPropertyName("ttl")]
         public long TTL { get; set; }

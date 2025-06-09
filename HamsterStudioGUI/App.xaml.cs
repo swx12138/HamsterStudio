@@ -4,6 +4,7 @@ using HamsterStudio.WebApi;
 using HamsterStudioGUI.Extensions;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using System.IO;
 using System.Security.Cryptography.X509Certificates;
@@ -14,10 +15,8 @@ namespace HamsterStudioGUI;
 /// <summary>
 /// Interaction logic for App.xaml
 /// </summary>
-public partial class App : Application, IHamsterApp
+public partial class App : Application
 {
-    public string FileStorageHome { get; set; } = @"D:\HamsterStudioHome";
-
     private readonly int httpPortNumber = 5000;
 
     public int HttpPortNumber => httpPortNumber;
@@ -34,11 +33,10 @@ public partial class App : Application, IHamsterApp
     protected override void OnStartup(StartupEventArgs e)
     {
         base.OnStartup(e);
-
-        FilenameUtils.StorageHome = Path.Combine(FileStorageHome, "BVDownload");
-
         InitializeWebApi();
     }
+
+    internal static IServiceProvider ServiceProvider { get; private set; }
 
     private void InitializeWebApi()
     {
@@ -65,7 +63,10 @@ public partial class App : Application, IHamsterApp
             $"https://0.0.0.0:{HttpsPortNumber}");   // 更改监听地址
 
         var app = builder.Build();
-        app.ConfigureWebApi(new StaticFilePathParam() { PhyPath = FileStorageHome, ReqPath = "static" });
+        app.ConfigureWebApi()
+            .ConfigureStaticFiles();
+        
+        ServiceProvider = app.Services;
 
         app.RunAsync();
     }

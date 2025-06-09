@@ -1,4 +1,5 @@
-﻿using HamsterStudio.Bilibili.Services;
+﻿using HamsterStudio.Barefeet.Services;
+using HamsterStudio.Bilibili.Services;
 using HamsterStudio.Bilibili.Services.Restful;
 using Microsoft.Extensions.DependencyInjection;
 using Refit;
@@ -15,6 +16,7 @@ public static class WebApiExtensions
     public static IServiceCollection AddBilibiliWebApiServices(this IServiceCollection services)
     {
         services.AddSingleton<DownloadService>();
+        services.AddSingleton<BiliApiClient>();
 
         services.AddSingleton(RestService.For<IBilibiliApiService>(new HttpClient()
         {
@@ -23,5 +25,4 @@ public static class WebApiExtensions
 
         return services;
     }
-
 }

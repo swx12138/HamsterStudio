@@ -2,9 +2,11 @@
 using CommunityToolkit.Mvvm.Input;
 using HamsterStudio.Barefeet.Logging;
 using HamsterStudio.Bilibili;
+using HamsterStudio.Bilibili.Services;
 using HamsterStudio.Web;
 using HamsterStudio.Web.Utilities;
 using HamsterStudioGUI.Models;
+using Microsoft.Extensions.DependencyInjection;
 using System.Windows.Input;
 
 namespace HamsterStudioGUI.ViewModels
@@ -28,9 +30,12 @@ namespace HamsterStudioGUI.ViewModels
 
         public ICommand SaveCoverCommand { get; }
 
+
+        private DownloadService downloadService = App.ServiceProvider.GetService<DownloadService>() ?? throw new NotSupportedException();
+
         public MainViewModel()
         {
-            SaveCoverCommand = new AsyncRelayCommand(async () => await FilenameUtils.Downlaod(CoverUrl, Title));
+            SaveCoverCommand = new AsyncRelayCommand(async () => await downloadService.SaveFile(Title, CoverUrl));
 
             // TBD:实现WebApi接收到请求后，将有效的图文/视频信息同步到界面
             // Messager

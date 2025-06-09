@@ -1,7 +1,7 @@
 ﻿using HamsterStudio.Barefeet.Logging;
+using HamsterStudio.Barefeet.Services;
 using HamsterStudio.Bilibili.Constants;
 using HamsterStudio.Bilibili.Models;
-using HamsterStudio.Bilibili.Models.Sub;
 using HamsterStudio.Web;
 using System.Collections.Concurrent;
 using System.Net;
@@ -12,27 +12,27 @@ namespace HamsterStudio.Bilibili.Services;
 public class BiliApiClient
 {
     public const string Referer = "https://www.bilibili.com/";
-    public string Cookies { get; private set; }
-
     public static readonly JsonSerializerOptions JsonSerializerOptions = new JsonSerializerOptions
     {
         PropertyNameCaseInsensitive = true,
         AllowTrailingCommas = true,
     };
-
+    public string Cookies { get; private set; }
     private ConcurrentDictionary<string, VideoInfo> VideoInfoCache { get; } = [];
+    public string Home { get; }
 
-    public BiliApiClient(string? _cookies)
+    public BiliApiClient(DirectoryMgmt directoryMgmt)
     {
-        Cookies = _cookies ?? LoadCookies();
+        Home = Path.Combine(directoryMgmt.StorageHome, SystemConsts.HomeName);
+        Cookies = LoadCookies();
         ServicePointManager.ServerCertificateValidationCallback += (sender, certificate, chain, sslPolicyErrors) => true;
     }
 
-    private static string LoadCookies()
+    private string LoadCookies()
     {
         try
         {
-            string cookiesFilename = Path.Combine(SystemConsts.BVDHome, "cookies.txt");
+            string cookiesFilename = Path.Combine(Home, "cookies.txt");
             return File.ReadAllText(cookiesFilename);
         }
         catch (Exception ex)
