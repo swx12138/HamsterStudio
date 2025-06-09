@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
 using System.IO;
+using System.Security.Cryptography.X509Certificates;
 using System.Windows;
 
 namespace HamsterStudioGUI;
@@ -35,13 +36,25 @@ public partial class App : Application, IHamsterApp
 
         FilenameUtils.StorageHome = Path.Combine(FileStorageHome, "BVDownload");
 
+        InitializeWebApi();
+    }
+
+    private void InitializeWebApi()
+    {
         var builder = WebApplication
 #if DEBUG
-            .CreateBuilder(new WebApplicationOptions() { EnvironmentName = Environments.Development});
+            .CreateBuilder(new WebApplicationOptions() { EnvironmentName = Environments.Development });
 #else
             .CreateBuilder();
 #endif
 
+        builder.WebHost.ConfigureKestrel(serverOptions =>
+        {
+            serverOptions.ConfigureHttpsDefaults(httpsOptions =>
+            {
+                httpsOptions.ServerCertificate = new X509Certificate2("https/localhost.pfx", File.ReadAllText("https/password.txt"));
+            });
+        });
         builder.Services.AddWebApiServices();                  // 添加控制器
         builder.WebHost.UseUrls(
             $"http://0.0.0.0:{HttpPortNumber}",
