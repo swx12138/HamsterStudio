@@ -23,7 +23,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\HamsterStudio.Bilibili\HamsterStudio.Bilibili.csproj" />
-    <ProjectReference Include="..\HamsterStudio.BraveShine\HamsterStudio.BraveShine.csproj" />
     <ProjectReference Include="..\HamsterStudio.Gallery\HamsterStudio.Gallery.csproj" />
     <ProjectReference Include="..\HamsterStudio.HandyUtil\HamsterStudio.HandyUtil.csproj" />
     <ProjectReference Include="..\HamsterStudio.ImageTool\HamsterStudio.ImageTool.csproj" />
