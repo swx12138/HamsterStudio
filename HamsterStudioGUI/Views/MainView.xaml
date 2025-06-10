@@ -14,6 +14,10 @@
         <localvm:MainViewModel />
     </UserControl.DataContext>
     <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*" />
             <ColumnDefinition Width="*" />
@@ -27,8 +31,12 @@
             </Style>
         </Grid.Resources>
 
+        <Border Grid.ColumnSpan="2">
+            <TextBlock FontSize="36" Text="{Binding Title}" TextAlignment="Center" />
+        </Border>
+
         <!--  封面  -->
-        <Border Background="#eeeeff">
+        <Border Grid.Row="1" Background="#eeeeff">
             <Image MaxWidth="2560"
                    MaxHeight="2560"
                    HorizontalAlignment="Center"
@@ -43,11 +51,10 @@
         </Border>
 
         <!--  导航及作者信息  -->
-        <Border Grid.Column="1" Background="#eeffee">
+        <Border Grid.Row="1" Grid.Column="1" Background="#eeffee">
             <DockPanel>
-                <localv:UserInfoView Height="200" DataContext="{Binding UserInfoModel}" DockPanel.Dock="Top" />
-                <TextBlock DockPanel.Dock="Top" FontSize="36" Text="{Binding Title}" TextAlignment="Center" />
-                <TextBlock FontSize="18" Text="{Binding Body}" />
+                <localv:UserInfoView DataContext="{Binding UserInfoModel}" DockPanel.Dock="Top" />
+                <TextBlock Margin="5" FontSize="18" Text="{Binding Body}" />
             </DockPanel>
         </Border>
 

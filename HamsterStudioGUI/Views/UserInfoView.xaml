@@ -19,7 +19,7 @@
     <StackPanel Orientation="Horizontal">
         <Image Width="256" Height="256" Margin="5" Source="{Binding AvatarUrl}" />
         <StackPanel>
-            <TextBlock Margin="5" VerticalAlignment="Center" FontSize="48" Text="{Binding Username}" />
+            <TextBlock Margin="5" VerticalAlignment="Center" FontSize="36" Text="{Binding Username}" />
             <TextBlock Text="{Binding TotalFollowers, StringFormat=粉丝数：{0}}" />
         </StackPanel>
     </StackPanel>

@@ -2,17 +2,12 @@
 
 namespace HamsterStudioGUI.Models;
 
-internal partial class PostSummary : ObservableObject
-{
-    [ObservableProperty]
-    private int _like = 0;  // 点赞数
-
-    [ObservableProperty]
-    private int _reply = 0; // 回复数
-
-    [ObservableProperty]
-    private int _favorite;  // 收藏数
-
-    [ObservableProperty]
-    private int _view = 0;  // 浏览数
-}
+internal record PostSummary(
+    string Like = "0",
+    string Reply = "0",
+    string Favorite = "0",
+    string View = "0",
+    string Share = "0",
+    string Coin = "0",
+    string Danmaku = "0")
+{ }

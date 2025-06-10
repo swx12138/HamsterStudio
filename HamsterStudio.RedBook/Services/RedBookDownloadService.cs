@@ -19,10 +19,14 @@ public class RedBookDownloadService(IPngService pngService, IWebpService webpSer
 
     private readonly Logger _logger = Logger.Shared;
 
+    public event Action<NoteDetailModel> OnNoteDetailUpdated = delegate { };
+
     public async Task<ServerRespModel> DownloadNoteAsync(NoteDataModel noteData)
     {
         var currentNote = noteData.NoteDetailMap[noteData.CurrentNoteId];
         var noteDetail = currentNote.NoteDetail;
+        OnNoteDetailUpdated?.Invoke(noteDetail);
+
         var containedFiles = new List<string>();
 
         _logger.Information($"开始处理<{GetTypeName(noteDetail)}>作品：{noteData.CurrentNoteId}");
@@ -190,7 +194,7 @@ public class RedBookDownloadService(IPngService pngService, IWebpService webpSer
     private string GetFullPath(string filename) => Path.Combine(StorageDirectory, filename);
 
     private async Task ApplyRandomDelay() =>
-        await Task.Delay(500 * Random.Shared.Next(5));
+        await Task.Delay(100 * Random.Shared.Next(5));
 
     private string SelectTitle(NoteDetailModel noteDetail) =>
         !string.IsNullOrEmpty(noteDetail.Title) ? noteDetail.Title : noteDetail.Time.ToString();

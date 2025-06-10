@@ -13,6 +13,9 @@ public class InteractInfoModel
     [JsonPropertyName("commentCount")]
     public string CommentCount { get; set; } = string.Empty;
 
+    [JsonPropertyName("shareCount")]
+    public string ShareCount { get; set; } = string.Empty;
+
     [JsonPropertyName("followed")]
     public bool Followed { get; set; }
 

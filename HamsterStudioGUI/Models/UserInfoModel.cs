@@ -17,7 +17,7 @@ internal partial class UserInfoModel : ObservableObject
     private string _avatarUrl = "https://i1.hdslb.com/bfs/face/a71d50b0fa790be9646f976c1c99ddacc76ca9e6.jpg";
 
     [ObservableProperty]
-    private int _totalFollowers = 114514;
+    private uint _totalFollowers = 114514;
 
     public ICommand SaveAvatarCommand { get; }
 

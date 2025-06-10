@@ -17,6 +17,8 @@ public class DownloadService(IBilibiliApiService bilibiliApi, BiliApiClient blie
     private string DashHome { get; } = Path.Combine(blient.Home, SystemConsts.DashSubName);
     private string CoverHome { get; } = Path.Combine(blient.Home, SystemConsts.CoverSubName);
 
+    public event Action<VideoInfo> OnVideoInfoUpdated = delegate { };
+
     public async Task<ServerRespModel> GetVideoByBvid(string bvid, int idx = -1)
     {
         if (bvid.IsNullOrEmpty())
@@ -40,6 +42,8 @@ public class DownloadService(IBilibiliApiService bilibiliApi, BiliApiClient blie
         }
 
         var videoInfo = videoInfoResp.Data;
+        OnVideoInfoUpdated?.Invoke(videoInfo!);
+
         idx = Math.Max(idx, 0);
         var page = videoInfo!.Pages[idx];
 
