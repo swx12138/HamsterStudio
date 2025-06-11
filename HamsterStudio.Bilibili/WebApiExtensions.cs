@@ -1,13 +1,7 @@
-﻿using HamsterStudio.Barefeet.Services;
-using HamsterStudio.Bilibili.Services;
+﻿using HamsterStudio.Bilibili.Services;
 using HamsterStudio.Bilibili.Services.Restful;
 using Microsoft.Extensions.DependencyInjection;
 using Refit;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace HamsterStudio.Bilibili;
 
@@ -18,11 +12,18 @@ public static class WebApiExtensions
         services.AddSingleton<DownloadService>();
         services.AddSingleton<BiliApiClient>();
 
-        services.AddSingleton(RestService.For<IBilibiliApiService>(new HttpClient()
-        {
-            BaseAddress = new Uri("https://api.bilibili.com")
-        }));
+        services.AddSingleton(CreateServ());
 
         return services;
+    }
+
+    public static IBilibiliApiService CreateServ()
+    {
+        var handler = new HttpClientHandler();
+        var bhandler = new BpiHandler(handler);
+        return RestService.For<IBilibiliApiService>(new HttpClient(bhandler)
+        {
+            BaseAddress = new Uri("https://api.bilibili.com")
+        });
     }
 }

@@ -1,4 +1,5 @@
-﻿using HamsterStudio.Bilibili.Models;
+﻿using HamsterStudio.Bilibili.Constants;
+using HamsterStudio.Bilibili.Models;
 using Refit;
 using System;
 using System.Collections.Generic;
@@ -25,6 +26,11 @@ public interface IBilibiliApiService
     [Get("/x/v2/history/toview")]
     Task<Response<WatchLaterData>> GetWatchLaterAsync([Header("Cookies")] string cookies,
                                                       [Header("Accept")] string accept = "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7");
+
+    [Get(SystemConsts.ConclusionPath)]
+    Task<Response<ConclusionModel>> GetConclusionView(string bvid,
+                                                      string cid,
+                                                      string up_mid);
 
 }
 
