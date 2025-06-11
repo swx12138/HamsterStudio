@@ -12,11 +12,13 @@ namespace HamsterStudio.Bilibili.Services;
 public class BiliApiClient
 {
     public const string Referer = "https://www.bilibili.com/";
+    
     public static readonly JsonSerializerOptions JsonSerializerOptions = new JsonSerializerOptions
     {
         PropertyNameCaseInsensitive = true,
         AllowTrailingCommas = true,
     };
+
     public string Cookies { get; private set; }
     private ConcurrentDictionary<string, VideoInfo> VideoInfoCache { get; } = [];
     public string Home { get; }
@@ -72,38 +74,6 @@ public class BiliApiClient
             Logger.Shared.Information("resp: " + streamReader.ReadToEnd());
         }
         return default;
-    }
-
-    public async Task<VideoInfo?> GetVideoInfo(string bvid)
-    {
-        if (VideoInfoCache.TryGetValue(bvid, out VideoInfo? value))
-        {
-            return value;
-        }
-        else
-        {
-            string api = $"https://api.bilibili.com/x/web-interface/view?bvid={bvid}";
-            value = await GetApiAsync<VideoInfo>(api);
-            if (value != null)
-            {
-                VideoInfoCache[bvid] = value;
-            }
-            return value;
-        }
-    }
-
-    public bool TryGetVideoInfo(string bvid, out VideoInfo? videoInfo)
-    {
-        videoInfo = null;
-        try
-        {
-            videoInfo = GetVideoInfo(bvid).Result;
-        }
-        catch (Exception e)
-        {
-            Logger.Shared.Error(e.Message + "\n" + e.StackTrace);
-        }
-        return videoInfo != null;
     }
 
     public async Task<VideoStreamInfo?> GetVideoStream(string bvid, long cid)

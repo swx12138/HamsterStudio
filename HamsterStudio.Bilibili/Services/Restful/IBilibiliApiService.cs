@@ -4,6 +4,7 @@ using Refit;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -19,7 +20,7 @@ public interface IBilibiliApiService
     [Get("/x/player/wbi/playurl")]
     Task<Response<VideoStreamInfo>> GetVideoStreamInfoAsync([AliasAs("cid")] long cid,
                                                             [AliasAs("bvid")] string bvid,
-                                                            [Header("Cookies")] string cookies,
+                                                            [Header("Cookie")] string cookies,
                                                             [AliasAs("fnval")] int fnval = 144,
                                                             [AliasAs("qn")] int qn = 120,
                                                             [AliasAs("fourk")] int fourk = 1);
@@ -30,7 +31,14 @@ public interface IBilibiliApiService
     [Get(SystemConsts.ConclusionPath)]
     Task<Response<ConclusionModel>> GetConclusionView(string bvid,
                                                       string cid,
-                                                      string up_mid);
+                                                      string up_mid, 
+                                                      [Header("Cookie")] string cookie);
+
+    [Post("/bapis/bilibili.api.ticket.v1.Ticket/GenWebTicket")]
+    Task<Response<BiliTicketModel>> GenWebTicket([AliasAs("hexsign")] string hexSign,
+                                                 [AliasAs("context[ts]")] string context_ts,
+                                                 [AliasAs("csrf")] string csrf = "",
+                                                 [AliasAs("key_id")] string keyId = "ec02");
 
 }
 

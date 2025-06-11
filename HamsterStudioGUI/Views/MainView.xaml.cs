@@ -1,7 +1,4 @@
-﻿using HamsterStudio.Bilibili.Models.Sub;
-using HamsterStudioGUI.ViewModels;
-using System.Windows;
-using System.Windows.Controls;
+﻿using System.Windows.Controls;
 
 namespace HamsterStudioGUI.Views
 {
@@ -13,17 +10,6 @@ namespace HamsterStudioGUI.Views
         public MainView()
         {
             InitializeComponent();
-        }
-
-        private void Button_Click(object sender, RoutedEventArgs e)
-        {
-            if (DataContext is BraveShineModel viewModel)
-            {
-                if (sender is Button button && button.DataContext is WatchLaterDat dat)
-                {
-                    viewModel.RedirectCommand.Execute(dat.Bvid);
-                }
-            }
         }
 
     }

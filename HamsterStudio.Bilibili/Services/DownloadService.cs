@@ -47,23 +47,23 @@ public class DownloadService(IBilibiliApiService bilibiliApi, BiliApiClient blie
         idx = Math.Max(idx, 0);
         var page = videoInfo!.Pages[idx];
 
-        // 获取视频流信息
-        //var videoStreamInfoResp = await blient.GetVideoStreamInfoAsync(page.Cid, bvid, Cookies);
-        //if (videoStreamInfoResp.Code != 0)
-        //{
-        //    return new ServerRespModel()
-        //    {
-        //        Message = videoStreamInfoResp.Message,
-        //        Status = (int)(0 - videoStreamInfoResp.Code),
-        //    };
-        //}
+        //获取视频流信息
+       var videoStreamInfoResp = await bilibiliApi.GetVideoStreamInfoAsync(page.Cid, bvid, Cookies);
+        if (videoStreamInfoResp.Code != 0)
+        {
+            return new ServerRespModel()
+            {
+                Message = videoStreamInfoResp.Message,
+                Status = (int)(0 - videoStreamInfoResp.Code),
+            };
+        }
 
-        var videoStreamInfo = await blient.GetVideoStream(bvid, page.Cid) ?? throw new NotSupportedException();
+        var videoStreamInfo = videoStreamInfoResp.Data;
         var acceptQuality = videoStreamInfo.AcceptQuality.Max();
-        var accept = videoStreamInfo.AcceptQuality
+        var (qua_num, qua, qua_str) = videoStreamInfo.AcceptQuality
             .Zip(videoStreamInfo.AcceptFormat.Split(','), videoStreamInfo.AcceptDescription)
             .First(x => x.First == acceptQuality);
-        Logger.Shared.Information($"Selected quality {accept.Second}({accept.Third}, {accept.First})");
+        Logger.Shared.Information($"Selected quality {qua}({qua_str}, {qua_num})");
 
         AvMeta meta = new()
         {

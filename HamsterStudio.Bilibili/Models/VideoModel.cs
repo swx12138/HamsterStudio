@@ -13,7 +13,7 @@ namespace HamsterStudio.Bilibili.Models
 
         public VideoModel(string bvid, BiliApiClient client)
         {
-            _info = new Lazy<VideoInfo?>(() => client.GetVideoInfo(bvid).Result);
+            //_info = new Lazy<VideoInfo?>(() => client.GetVideoInfo(bvid).Result);
             Bvid = bvid;
             Title = string.Empty;
         }
@@ -26,7 +26,7 @@ namespace HamsterStudio.Bilibili.Models
         }
 
         public VideoModel(WatchLaterDat dat, BiliApiClient client) {
-            _info = new Lazy<VideoInfo?>(() => client.GetVideoInfo(dat.Bvid).Result);
+            //_info = new Lazy<VideoInfo?>(() => client.GetVideoInfo(dat.Bvid).Result);
             Bvid = dat.Bvid;
             Title = dat.Title;
         }

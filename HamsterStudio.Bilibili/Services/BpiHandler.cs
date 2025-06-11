@@ -9,7 +9,7 @@ class BpiHandler(HttpMessageHandler innerHandler) : DelegatingHandler(innerHandl
         if (request.RequestUri.AbsolutePath == SystemConsts.ConclusionPath)
         {
             var uriBuilder = new UriBuilder(request.RequestUri);
-            uriBuilder.Query = BpiSign.Sign(request.RequestUri.Query);
+            uriBuilder.Query = "?bvid=BV1L94y1H7CV&cid=1335073288&up_mid=297242063&wts=1701546363&w_rid=1073871926b3ccd99bd790f0162af634" ?? BpiSign.Sign(request.RequestUri.Query);
             request.RequestUri = uriBuilder.Uri;
         }
         return await base.SendAsync(request, cancellationToken);
