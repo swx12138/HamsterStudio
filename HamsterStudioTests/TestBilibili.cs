@@ -41,12 +41,12 @@ namespace HamsterStudioTests
             }
             Console.WriteLine($"First Stream URL: {streamInfo.Dash.Video.First().BaseUrl}");
         }
-        
+
         [TestMethod]
         public async Task TestGetWatchLaterApi()
         {
             var watchLaterResp = await bapi.GetWatchLaterAsync(cookies);
-            Assert.AreEqual(0, watchLaterResp.Code, $"Error: {watchLaterResp.Message}");        
+            Assert.AreEqual(0, watchLaterResp.Code, $"Error: {watchLaterResp.Message}");
 
             var watchLaterData = watchLaterResp.Data;
             Assert.IsNotNull(watchLaterData, "Watch Later data should not be null.");
@@ -85,6 +85,17 @@ namespace HamsterStudioTests
 
             Assert.AreEqual("1073871926b3ccd99bd790f0162af634", w_rid);
         }
- 
+
+        [TestMethod]
+        public async Task TestDynamic()
+        {
+            var resp = await bapi.GetDynamicDetail("967717348014293017");
+            Assert.AreEqual(0, resp.Code);
+
+            var data = resp.Data;
+            Assert.IsNotNull(data);
+
+        }
+
     }
 }
