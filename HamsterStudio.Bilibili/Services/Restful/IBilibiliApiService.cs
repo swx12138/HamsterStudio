@@ -40,5 +40,14 @@ public interface IBilibiliApiService
                                                  [AliasAs("csrf")] string csrf = "",
                                                  [AliasAs("key_id")] string keyId = "ec02");
 
+    [Get("/x/polymer/web-dynamic/v1/detail")]
+    Task<Response<DynamicDetailDataModel>> GetDynamicDetail([AliasAs("id")] string dynamic_id);
 }
 
+// https://api.vc.bilibili.com
+public interface IVcBiliApiService
+{
+    [Get("/dynamic_repost/v1/dynamic_repost/repost_detail")]
+    Task<Response<DynamicDataModel>> GetDynamicRepostDetail(string dynamic_id);
+
+}
