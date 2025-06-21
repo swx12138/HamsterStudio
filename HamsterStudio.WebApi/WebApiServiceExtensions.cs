@@ -1,9 +1,8 @@
-﻿using HamsterStudio.Barefeet.Logging;
-using HamsterStudio.Bilibili;
+﻿using HamsterStudio.Bilibili;
 using HamsterStudio.RedBook;
+using HamsterStudio.SinaWeibo;
 using HamsterStudio.WebApi.Controllers;
 using Microsoft.AspNetCore.Mvc.ApplicationParts;
-using Microsoft.Extensions.FileProviders;
 
 namespace HamsterStudio.WebApi;
 
@@ -19,7 +18,8 @@ public static class WebApiServiceExtensions
     {
         // Add services to the container.
         services.AddRedBookWebApiServices()
-            .AddBilibiliWebApiServices();
+            .AddBilibiliWebApiServices()
+            .AddWeiboServices();
 
         services.AddControllers()
             .ConfigureApplicationPartManager(apm =>
