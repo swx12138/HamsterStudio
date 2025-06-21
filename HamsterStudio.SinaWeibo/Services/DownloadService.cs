@@ -31,7 +31,7 @@ public class DownloadService(IWeiboApi api, IWeiboMediaApi mediaApi)
         ArgumentNullException.ThrowIfNull(show, nameof(show));
 
         List<string> imageUrlList = [.. GetImageList(show)];
-        foreach(var imgUrl in imageUrlList)
+        foreach (var imgUrl in imageUrlList)
         {
             string imgName = imgUrl.Split('/').LastOrDefault() ?? "unknown.jpg";
             var filename = formatter.Format(show.MblogId, show.User.Idstr, imgName, imageUrlList.IndexOf(imgUrl));
@@ -40,7 +40,15 @@ public class DownloadService(IWeiboApi api, IWeiboMediaApi mediaApi)
 
         return new ServerRespModel()
         {
-
+            Status = 0,
+            Message = "Ok",
+            Data = new()
+            {
+                AuthorNickName = show.User.ScreenName,
+                Description = show.Text,
+                StaticFiles = [],
+                Title = show.TextRaw
+            }
         };
     }
 
