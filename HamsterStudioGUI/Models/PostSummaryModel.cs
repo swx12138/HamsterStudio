@@ -1,8 +1,6 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+﻿namespace HamsterStudioGUI.Models;
 
-namespace HamsterStudioGUI.Models;
-
-internal record PostSummary(
+internal record PostSummaryModel(
     string Like = "0",
     string Reply = "0",
     string Favorite = "0",

@@ -21,32 +21,28 @@ namespace HamsterStudioGUI.ViewModels
         private string _body = "Body";
 
         [ObservableProperty]
-        private UserInfoModel _userInfoModel = new UserInfoModel();
+        private UserInfoModel _userInfoModel = new();
 
         [ObservableProperty]
-        private PostSummary _postSummary = new PostSummary();
+        private PostSummaryModel _postSummary = new();
 
         public ICommand SaveCoverCommand { get; }
 
 
-        private DownloadService downloadService = App.ServiceProvider.GetService<DownloadService>() ?? throw new NotSupportedException();
-        private RedBookDownloadService redBookDownloadService = App.ServiceProvider.GetService<RedBookDownloadService>() ?? throw new NotSupportedException();
+        private DownloadService downloadService = App.ResloveService<DownloadService>() ?? throw new NotSupportedException();
+        private RedBookDownloadService redBookDownloadService = App.ResloveService<RedBookDownloadService>() ?? throw new NotSupportedException();
 
         public MainViewModel()
         {
             SaveCoverCommand = new AsyncRelayCommand(async () => await downloadService.SaveFile(Title, CoverUrl));
 
-            downloadService.OnVideoInfoUpdated += async (videoInfo) => await Application.Current.Dispatcher.InvokeAsync(() =>
+            downloadService.OnVideoInfoUpdated += async (videoInfo) => await Application.Current.Dispatcher.InvokeAsync((Action)(() =>
             {
                 Title = videoInfo.Title;
                 CoverUrl = videoInfo.Pic;
                 Body = videoInfo.Desc;
-                UserInfoModel = new UserInfoModel
-                {
-                    Username = videoInfo.Owner.Name,
-                    AvatarUrl = videoInfo.Owner.Face
-                };
-                PostSummary = new PostSummary
+                UserInfoModel.Copy(videoInfo.Owner);
+                PostSummary = PostSummary with
                 {
                     View = videoInfo.Stat.View.ToString(),
                     Danmaku = videoInfo.Stat.Danmaku.ToString(),
@@ -56,18 +52,17 @@ namespace HamsterStudioGUI.ViewModels
                     Share = videoInfo.Stat.Share.ToString(),
                     Like = videoInfo.Stat.Like.ToString()
                 };
-            });
+            }));
             redBookDownloadService.OnNoteDetailUpdated += async (noteDetail) => await Application.Current.Dispatcher.InvokeAsync(() =>
             {
                 Title = noteDetail.Title;
                 CoverUrl = noteDetail.ImageList.FirstOrDefault()?.DefaultUrl ?? string.Empty;
                 Body = noteDetail.Description;
-                UserInfoModel = new UserInfoModel
-                {
-                    Username = noteDetail.UserInfo.Nickname,
-                    AvatarUrl = noteDetail.UserInfo.Avatar
-                };
-                PostSummary = new PostSummary
+                
+                UserInfoModel.Username = noteDetail.UserInfo.Nickname;
+                UserInfoModel.AvatarUrl = noteDetail.UserInfo.Avatar;
+                
+                PostSummary = PostSummary with
                 {
                     Like = noteDetail.InteractInfo.LikedCount,
                     Favorite = noteDetail.InteractInfo.CollectedCount,

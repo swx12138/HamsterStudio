@@ -1,6 +1,4 @@
-﻿using HamsterStudio.Barefeet.Interfaces;
-using HamsterStudio.Bilibili;
-using HamsterStudio.WebApi;
+﻿using HamsterStudio.WebApi;
 using HamsterStudioGUI.Extensions;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -36,7 +34,7 @@ public partial class App : Application
         InitializeWebApi();
     }
 
-    internal static IServiceProvider ServiceProvider { get; private set; }
+    internal static WebApplication WebApiService { get; private set; }
 
     private void InitializeWebApi()
     {
@@ -52,7 +50,7 @@ public partial class App : Application
             serverOptions.ConfigureHttpsDefaults(httpsOptions =>
             {
                 httpsOptions.ServerCertificate = new X509Certificate2(
-                    "https/localhost.pfx", 
+                    "https/localhost.pfx",
                     File.ReadAllText("https/password.txt"));
             });
         });
@@ -62,19 +60,22 @@ public partial class App : Application
             $"http://0.0.0.0:{HttpPortNumber}",
             $"https://0.0.0.0:{HttpsPortNumber}");   // 更改监听地址
 
-        var app = builder.Build();
-        app.ConfigureWebApi()
+        WebApiService = builder.Build();
+        WebApiService.ConfigureWebApi()
             .ConfigureStaticFiles();
-        
-        ServiceProvider = app.Services;
 
-        app.RunAsync();
+        WebApiService.RunAsync();
     }
 
     protected override void OnExit(ExitEventArgs e)
     {
+        WebApiService.StopAsync();
         base.OnExit(e);
+    }
 
+    internal static T ResloveService<T>()
+    {
+        return WebApiService!.Services!.GetService<T>()!;
     }
 
 }
