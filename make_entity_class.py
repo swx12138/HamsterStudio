@@ -33,7 +33,10 @@ class_metas = []
 
 def parse_object(data: dict[str,], name: str):
     global class_metas
+
     class_meta = {"name": to_camel_case(name) + "Model", "members": []}
+    if any(m["name"] == class_meta["name"] for m in class_metas):
+        return class_meta
 
     if not isinstance(data, dict):
         return class_meta
@@ -92,10 +95,10 @@ def craete_csharp_class():
 
 
 if __name__ == "__main__":
-    json_data = read_json(r"D:\zhaol\git\bilibili-API-collect\docs\dynamic\detail.json.txt")
-    class_meta = parse_object(json_data, "DynamicDetailData")
+    json_data = read_json(r"D:\Code\HamsterStudio\Samples\weibo_show_Px74vs2RJ.json")
+    class_meta = parse_object(json_data, "ShowData")
     # print(json.dumps(class_metas, indent=2, ensure_ascii=False))
-    with open("123.txt", "w") as fp:
+    with open("DataModel.cs", "w") as fp:
         for cls in craete_csharp_class():
             print(cls, file=fp)
             print("", file=fp)

@@ -370,3 +370,5 @@ ConsoleApp/
 /HamsterStudioGUI/https/make_root_ca.bat
 /HamsterStudioGUI/https/make_root_ca_pfx.bat
 /HamsterStudioGUI/https/password.txt
+/DataModel.cs
+/Samples
