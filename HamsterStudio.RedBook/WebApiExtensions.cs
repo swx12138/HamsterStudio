@@ -13,7 +13,7 @@ public static class WebApiExtensions
     {
         services.AddSingleton<IRedBookParser, RedBookNoteParser>();
 
-        var handler = new LoggingHandler(new HttpClientHandler());
+        var handler = new RebuildUriHandler(new HttpClientHandler());
         var client = new HttpClient(handler)
         {
             BaseAddress = new Uri("https://ci.xiaohongshu.com")

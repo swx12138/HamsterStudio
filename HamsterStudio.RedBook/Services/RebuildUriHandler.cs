@@ -2,9 +2,9 @@
 
 namespace HamsterStudio.RedBook.Services;
 
-public class LoggingHandler : DelegatingHandler
+public class RebuildUriHandler : DelegatingHandler
 {
-    public LoggingHandler(HttpMessageHandler innerHandler)
+    public RebuildUriHandler(HttpMessageHandler innerHandler)
         : base(innerHandler)
     {
     }
