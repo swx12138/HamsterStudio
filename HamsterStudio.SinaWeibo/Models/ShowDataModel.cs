@@ -26,7 +26,7 @@ public class ShowDataModel
     public string Mid { get; set; } = string.Empty;
 
     [JsonPropertyName("mblogid")]
-    public string Mblogid { get; set; } = string.Empty;
+    public string MblogId { get; set; } = string.Empty;
 
     [JsonPropertyName("user")]
     public UserModel User { get; set; } = new();
@@ -53,10 +53,13 @@ public class ShowDataModel
     public string Cardid { get; set; } = string.Empty;
 
     [JsonPropertyName("pic_ids")]
-    public object[] PicIds { get; set; } = [];
+    public string[] PicIds { get; set; } = [];
 
     [JsonPropertyName("pic_num")]
     public int PicNum { get; set; }
+
+    [JsonPropertyName("pic_infos")]
+    public Dictionary<string, PicInfosValueModel> PicInfos { get; set; } = [];
 
     [JsonPropertyName("is_paid")]
     public bool IsPaid { get; set; }
@@ -166,6 +169,64 @@ public class ShowDataModel
     [JsonPropertyName("ok")]
     public int Ok { get; set; }
 }
+
+public class PicInfosValueModel
+{
+    [JsonPropertyName("thumbnail")]
+    public LargestModel Thumbnail { get; set; } = new();
+
+    [JsonPropertyName("bmiddle")]
+    public LargestModel Bmiddle { get; set; } = new();
+
+    [JsonPropertyName("large")]
+    public LargestModel Large { get; set; } = new();
+
+    [JsonPropertyName("original")]
+    public LargestModel Original { get; set; } = new();
+
+    [JsonPropertyName("largest")]
+    public LargestModel Largest { get; set; } = new();
+
+    [JsonPropertyName("mw2000")]
+    public LargestModel Mw2000 { get; set; } = new();
+
+    [JsonPropertyName("largecover")]
+    public LargestModel Largecover { get; set; } = new();
+
+    [JsonPropertyName("object_id")]
+    public string ObjectId { get; set; } = string.Empty;
+
+    [JsonPropertyName("pic_id")]
+    public string PicId { get; set; } = string.Empty;
+
+    [JsonPropertyName("photo_tag")]
+    public int PhotoTag { get; set; }
+
+    [JsonPropertyName("type")]
+    public string Type { get; set; } = string.Empty;
+
+    [JsonPropertyName("pic_status")]
+    public int PicStatus { get; set; }
+}
+
+public class LargestModel
+{
+    [JsonPropertyName("url")]
+    public string Url { get; set; } = string.Empty;
+
+    [JsonPropertyName("width")]
+    public int Width { get; set; }
+
+    [JsonPropertyName("height")]
+    public int Height { get; set; }
+
+    [JsonPropertyName("cut_type")]
+    public int CutType { get; set; }
+
+    [JsonPropertyName("type")]
+    public object? Type { get; set; }
+}
+
 
 public class PageInfoModel
 {
@@ -792,7 +853,8 @@ public class TagStructItemModel
     public string BdObjectType { get; set; } = string.Empty;
 
     [JsonPropertyName("w_h_ratio")]
-    public string WHRatio { get; set; } = string.Empty;
+    [JsonConverter(typeof(FlexibleDoubleConverter))]
+    public double WHRatio { get; set; }
 }
 
 public class UrlStructItemModel
@@ -816,6 +878,7 @@ public class UrlStructItemModel
     public string LongUrl { get; set; } = string.Empty;
 
     [JsonPropertyName("url_type")]
+    [JsonConverter(typeof(FlexibleIntConverter))]
     public int UrlType { get; set; }
 
     [JsonPropertyName("result")]

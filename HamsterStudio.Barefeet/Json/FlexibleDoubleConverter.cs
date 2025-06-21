@@ -4,9 +4,9 @@ using System.Text.Json.Serialization;
 
 namespace HamsterStudio.Barefeet.Json;
 
-public class FlexibleIntConverter : JsonConverter<int>
+public class FlexibleDoubleConverter : JsonConverter<double>
 {
-    public override int Read(
+    public override double Read(
         ref Utf8JsonReader reader,
         Type typeToConvert,
         JsonSerializerOptions options)
@@ -14,13 +14,19 @@ public class FlexibleIntConverter : JsonConverter<int>
         switch (reader.TokenType)
         {
             case JsonTokenType.Number:
-                return reader.GetInt32();
+                return reader.GetDouble();
 
             case JsonTokenType.String:
                 string? raw = reader.GetString();
-                if (raw?.IsNullOrEmpty() ?? false) return 0;
+                if (raw?.IsNullOrEmpty() ?? false) return 0.0;
                 if (int.TryParse(raw, out int result))
+                {
                     return result;
+                }
+                else
+                {
+
+                }
                 break;
         }
 
@@ -29,7 +35,7 @@ public class FlexibleIntConverter : JsonConverter<int>
 
     public override void Write(
         Utf8JsonWriter writer,
-        int value,
+        double value,
         JsonSerializerOptions options)
     {
         writer.WriteNumberValue(value);
