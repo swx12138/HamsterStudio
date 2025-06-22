@@ -1,21 +1,18 @@
 ﻿using HamsterStudio.Barefeet.Logging;
+using HamsterStudio.Barefeet.Services;
+using HamsterStudio.Barefeet.Task;
 using HamsterStudio.SinaWeibo.Models;
 using HamsterStudio.SinaWeibo.Services.Restful;
 using HamsterStudio.Web.DataModels;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using HamsterStudio.Web.Services;
 
 namespace HamsterStudio.SinaWeibo.Services;
 
-public class DownloadService(IWeiboApi api, IWeiboMediaApi mediaApi)
+public class DownloadService(IWeiboApi api, DirectoryMgmt directoryMgmt, CommonDownloader commonDownloader)
 {
-    public event Action<ShowDataModel> OnShowInfoUpdated;
+    public event Action<ShowDataModel>? OnShowInfoUpdated;
 
-    private FilenameFormatter formatter = new();
+    private FilenameFormatter formatter = new(directoryMgmt);
     private Logger logger = Logger.Shared;
 
     public async Task<ServerRespModel> Download(string show_id)
@@ -33,9 +30,10 @@ public class DownloadService(IWeiboApi api, IWeiboMediaApi mediaApi)
         List<string> imageUrlList = [.. GetImageList(show)];
         foreach (var imgUrl in imageUrlList)
         {
-            string imgName = imgUrl.Split('/').LastOrDefault() ?? "unknown.jpg";
+            string imgName = imgUrl.Split('?').First().Split('/').LastOrDefault() ?? $"unknown_{Timestamp.NowMs}.jpg";
             var filename = formatter.Format(show.MblogId, show.User.Idstr, imgName, imageUrlList.IndexOf(imgUrl));
-            await DownloadMedia(imgName, filename);
+            //await DownloadMedia(imgName, filename);
+            _ = await commonDownloader.DownloadFile(imgUrl, formatter.GetFullPath(filename));
         }
 
         return new ServerRespModel()
@@ -50,38 +48,6 @@ public class DownloadService(IWeiboApi api, IWeiboMediaApi mediaApi)
                 Title = show.TextRaw
             }
         };
-    }
-
-    public async Task DownloadMedia(string imgName, string formattedName)
-    {
-        ArgumentNullException.ThrowIfNull(imgName, nameof(imgName));
-        ArgumentNullException.ThrowIfNull(formattedName, nameof(formattedName));
-        try
-        {
-            using var stream = await mediaApi.GetFile(imgName);
-            if (stream is null)
-            {
-                logger.Error(imgName + " not found or error occurred."); // 可能是文件不存在或其他错误
-                return;
-            }
-
-            var filePath = formatter.GetFullPath(formattedName);
-            if (File.Exists(filePath))
-            {
-                logger.Information($"{imgName} exits @ {filePath}");
-                return;
-            }
-
-            using var outfile = File.Create(filePath);
-            await stream.CopyToAsync(outfile);
-
-            logger.Information($"Downloaded {imgName} to {filePath}");
-        }
-        catch (Exception ex)
-        {
-            logger.Error($"Error downloading media {imgName}: {ex.Message}");
-            return;
-        }
     }
 
     public static IEnumerable<string> GetImageList(ShowDataModel show)

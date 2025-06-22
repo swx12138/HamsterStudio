@@ -1,9 +1,21 @@
-﻿namespace HamsterStudio.SinaWeibo.Services;
+﻿using HamsterStudio.Barefeet.Services;
+
+namespace HamsterStudio.SinaWeibo.Services;
 
 internal class FilenameFormatter
 {
     private string indentifier = "weibo";
-    private string home = @"D:\Code\HamsterStudio\Samples\Imgs\";
+
+    private string Home { get; }
+
+    public FilenameFormatter(DirectoryMgmt directoryMgmt)
+    {
+        Home = Path.Combine(directoryMgmt.StorageHome, "weibo");
+        if(!Directory.Exists(Home))
+        {
+            Directory.CreateDirectory(Home);
+        }
+    }
 
     public string Format(string showId, string userId, string filename, int idx = -1)
     {
@@ -19,6 +31,6 @@ internal class FilenameFormatter
     public string GetFullPath(string filename)
     {
         ArgumentException.ThrowIfNullOrEmpty(filename);
-        return Path.Combine(home, filename);
+        return Path.Combine(Home, filename);
     }
 }

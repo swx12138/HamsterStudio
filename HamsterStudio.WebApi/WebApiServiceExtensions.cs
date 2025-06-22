@@ -1,6 +1,7 @@
 ﻿using HamsterStudio.Bilibili;
 using HamsterStudio.RedBook;
 using HamsterStudio.SinaWeibo;
+using HamsterStudio.Web.Services;
 using HamsterStudio.WebApi.Controllers;
 using Microsoft.AspNetCore.Mvc.ApplicationParts;
 
@@ -17,6 +18,9 @@ public static class WebApiServiceExtensions
     public static IServiceCollection AddWebApiServices(this IServiceCollection services)
     {
         // Add services to the container.
+
+        services.AddSingleton<CommonDownloader>();
+
         services.AddRedBookWebApiServices()
             .AddBilibiliWebApiServices()
             .AddWeiboServices();
