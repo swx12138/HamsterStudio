@@ -2,32 +2,31 @@
 
 namespace HamsterStudio.Web.DataModels;
 
-public class ServerRespData
+public record ServerRespData
 {
     [JsonPropertyName("作品标题")]
-    public string Title { get; set; }
+    public string Title { get; init; } = string.Empty;
 
     [JsonPropertyName("作品描述")]
-    public string Description { get; set; }
+    public string Description { get; init; } = string.Empty;
 
     [JsonPropertyName("作者昵称")]
-    public string AuthorNickName { get; set; }
+    public string AuthorNickName { get; init; } = string.Empty;
 
     [JsonPropertyName("static_files")]
-    public string[] StaticFiles { get; set; }
+    public string[] StaticFiles { get; init; } = [];
 
 }
 
 public class ServerRespModel
 {
     [JsonPropertyName("messge")]
-    public string Message { get; set; }
+    public string Message { get; set; } = string.Empty;
 
     [JsonPropertyName("status")]
-    public int Status { get; set; }
+    public int Status { get; set; } 
 
     [JsonPropertyName("data")]
-    public ServerRespData Data { get; set; }
-
+    public ServerRespData Data { get; init; } = new();
 
 }
