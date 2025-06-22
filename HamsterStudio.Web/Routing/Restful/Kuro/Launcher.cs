@@ -1,7 +1,7 @@
 ﻿using HamsterStudio.Web.DataModels.Kuro;
 using Refit;
 
-namespace HamsterStudio.Web.Requests.Kuro
+namespace HamsterStudio.Web.Routing.Restful.Kuro
 {
     internal interface ILauncher
     {

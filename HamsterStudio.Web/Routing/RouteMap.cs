@@ -1,6 +1,5 @@
 ﻿using HamsterStudio.Barefeet.Logging;
 using NetCoreServer;
-using System.Threading.Tasks;
 
 namespace HamsterStudio.Web.Routing
 {
@@ -9,11 +8,6 @@ namespace HamsterStudio.Web.Routing
         public List<IRoute> Routes { get; } = [];
 
         private readonly DefaultRoute defaultRoute = new();
-
-        public RouteMap()
-        {
-            Routes.Add(new Routes.Index());
-        }
 
         public async Task<HttpResponse> Response(HttpRequest request)
         {

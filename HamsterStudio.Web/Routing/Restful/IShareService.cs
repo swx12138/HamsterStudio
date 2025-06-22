@@ -1,6 +1,6 @@
 ﻿using Refit;
 
-namespace HamsterStudio.Web.Restful;
+namespace HamsterStudio.Web.Routing.Restful;
 
 public interface IShareService
 {

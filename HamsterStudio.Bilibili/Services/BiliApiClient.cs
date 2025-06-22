@@ -20,7 +20,6 @@ public class BiliApiClient
     };
 
     public string Cookies { get; private set; }
-    private ConcurrentDictionary<string, VideoInfo> VideoInfoCache { get; } = [];
     public string Home { get; }
 
     public BiliApiClient(DirectoryMgmt directoryMgmt)
