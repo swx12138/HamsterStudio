@@ -8,11 +8,14 @@ using HamsterStudio.Web.Services;
 
 namespace HamsterStudio.SinaWeibo.Services;
 
-public class DownloadService(IWeiboApi api, DirectoryMgmt directoryMgmt, CommonDownloader commonDownloader)
+public class DownloadService(IWeiboApi api,
+    DirectoryMgmt directoryMgmt,
+    CommonDownloader commonDownloader,
+    FileMgmt fileMgmt,
+    FilenameFormatter formatter)
 {
     public event Action<ShowDataModel>? OnShowInfoUpdated;
 
-    private FilenameFormatter formatter = new(directoryMgmt);
     private Logger logger = Logger.Shared;
 
     public async Task<ServerRespModel> Download(string show_id)
@@ -27,13 +30,15 @@ public class DownloadService(IWeiboApi api, DirectoryMgmt directoryMgmt, CommonD
 
         ArgumentNullException.ThrowIfNull(show, nameof(show));
 
+        fileMgmt.UserNameMap.UpdateCache(show.User);
+
         List<string> imageUrlList = [.. GetImageList(show)];
         foreach (var imgUrl in imageUrlList)
         {
             string imgName = imgUrl.Split('?').First().Split('/').LastOrDefault() ?? $"unknown_{Timestamp.NowMs}.jpg";
             var filename = formatter.Format(show.MblogId, show.User.Idstr, imgName, imageUrlList.IndexOf(imgUrl));
             //await DownloadMedia(imgName, filename);
-            _ = await commonDownloader.DownloadFile(imgUrl, formatter.GetFullPath(filename));
+            _ = await commonDownloader.DownloadFile(imgUrl, fileMgmt.GetFullPath(filename, show.User.Idstr));
         }
 
         return new ServerRespModel()
@@ -44,7 +49,7 @@ public class DownloadService(IWeiboApi api, DirectoryMgmt directoryMgmt, CommonD
             {
                 AuthorNickName = show.User.ScreenName,
                 Description = show.Text,
-                StaticFiles = [],
+                //StaticFiles = [.. files.Select(f => $"xiaohongshu/{f}")], // TBD: 加一个SatticFiles的管理器
                 Title = show.TextRaw
             }
         };

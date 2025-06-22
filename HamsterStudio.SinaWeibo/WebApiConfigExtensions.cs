@@ -26,6 +26,8 @@ public static class WebApiConfigExtensions
         }));
 
         services.AddSingleton<DownloadService>();
+        services.AddSingleton<FilenameFormatter>();
+        services.AddSingleton<FileMgmt>();
 
         return services;
     }
