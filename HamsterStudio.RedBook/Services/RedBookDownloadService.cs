@@ -49,16 +49,18 @@ public class RedBookDownloadService(IPngService pngService, IWebpService webpSer
     private async Task ProcessImageDownloads(NoteDetailModel noteDetail, List<string> containedFiles)
     {
         string title = SelectTitle(noteDetail);
-
-        foreach (var imgInfo in noteDetail.ImageList)
+        await Parallel.ForEachAsync(
+            noteDetail.ImageList,
+            new ParallelOptions { MaxDegreeOfParallelism = 6 },
+            async (x, ct) => await ProcessImage(x));
+        async Task ProcessImage(ImageListItemModel imgInfo)
         {
             int index = noteDetail.ImageList.IndexOf(imgInfo) + 1;
-            bool shouldDelay = false;
 
             // 生成文件名
             string token = ExtractToken(imgInfo.DefaultUrl);
             var filename = FileNameGenerator.GenerateImageFilename(title, index, noteDetail.UserInfo, token);
-            
+
             string png_filename = filename + ".png";
             string png_full_filename = GetFullPath(png_filename);
             string webp_filename = filename + ".webp";
@@ -67,13 +69,13 @@ public class RedBookDownloadService(IPngService pngService, IWebpService webpSer
             {
                 _logger.Information($"文件已存在：{filename}，跳过下载。");
                 containedFiles.Add(png_filename);
-                continue;
+                return;
             }
             else if (File.Exists(webp_full_filename))
             {
                 _logger.Information($"文件已存在：{filename}，跳过下载。");
                 containedFiles.Add(webp_filename);
-                continue;
+                return;
             }
 
             // 下载流程
@@ -85,7 +87,6 @@ public class RedBookDownloadService(IPngService pngService, IWebpService webpSer
                     await stream.SaveToFile(png_full_filename);
                     containedFiles.Add(png_filename);
                     _logger.Information($"{png_full_filename}【{imgInfo.Width}, {imgInfo.Height}】下载成功。");
-                    shouldDelay = true;
                 }
                 else
                 {
@@ -95,7 +96,6 @@ public class RedBookDownloadService(IPngService pngService, IWebpService webpSer
                         await stream.SaveToFile(webp_full_filename);
                         containedFiles.Add(webp_filename);
                         _logger.Information($"{webp_full_filename}【{imgInfo.Width}, {imgInfo.Height}】下载成功。");
-                        shouldDelay = true;
                     }
                     else
                     {
@@ -112,7 +112,6 @@ public class RedBookDownloadService(IPngService pngService, IWebpService webpSer
                     await stream.SaveToFile(webp_full_filename);
                     containedFiles.Add(webp_filename);
                     _logger.Information($"{webp_full_filename}【{imgInfo.Width}, {imgInfo.Height}】下载成功。");
-                    shouldDelay = true;
                 }
                 else
                 {
@@ -123,13 +122,9 @@ public class RedBookDownloadService(IPngService pngService, IWebpService webpSer
             // 处理LivePhoto
             if (imgInfo.LivePhoto)
             {
-                shouldDelay |= await ProcessLivePhoto(title, index, noteDetail.UserInfo, imgInfo, containedFiles);
+                await ProcessLivePhoto(title, index, noteDetail.UserInfo, imgInfo, containedFiles);
             }
 
-            if (shouldDelay)
-            {
-                await ApplyRandomDelay();
-            }
         }
     }
 
