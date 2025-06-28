@@ -55,7 +55,7 @@ public partial class App : Application
             });
         });
         builder.Services.AddWebApiServices();
-        builder.Services.ConfigureService(@"S:\HamsterStudioHome");
+        builder.Services.ConfigureService(@"E:\HamsterStudioHome");
         builder.WebHost.UseUrls(
             $"http://0.0.0.0:{HttpPortNumber}",
             $"https://0.0.0.0:{HttpsPortNumber}");   // 更改监听地址
