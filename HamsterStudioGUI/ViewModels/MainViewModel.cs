@@ -3,7 +3,6 @@ using CommunityToolkit.Mvvm.Input;
 using HamsterStudio.Bilibili.Services;
 using HamsterStudio.RedBook.Services;
 using HamsterStudioGUI.Models;
-using Microsoft.Extensions.DependencyInjection;
 using System.Windows;
 using System.Windows.Input;
 
@@ -31,12 +30,13 @@ namespace HamsterStudioGUI.ViewModels
 
         private DownloadService downloadService = App.ResloveService<DownloadService>() ?? throw new NotSupportedException();
         private RedBookDownloadService redBookDownloadService = App.ResloveService<RedBookDownloadService>() ?? throw new NotSupportedException();
+        private HamsterStudio.SinaWeibo.Services.DownloadService weiboDs = App.ResloveService<HamsterStudio.SinaWeibo.Services.DownloadService>() ?? throw new NotSupportedException();
 
         public MainViewModel()
         {
             SaveCoverCommand = new AsyncRelayCommand(async () => await downloadService.SaveFile(Title, CoverUrl));
 
-            downloadService.OnVideoInfoUpdated += async (videoInfo) => await Application.Current.Dispatcher.InvokeAsync((Action)(() =>
+            downloadService.OnVideoInfoUpdated += async (videoInfo) => await Application.Current.Dispatcher.InvokeAsync(() =>
             {
                 Title = videoInfo.Title;
                 CoverUrl = videoInfo.Pic;
@@ -52,16 +52,16 @@ namespace HamsterStudioGUI.ViewModels
                     Share = videoInfo.Stat.Share.ToString(),
                     Like = videoInfo.Stat.Like.ToString()
                 };
-            }));
+            });
             redBookDownloadService.OnNoteDetailUpdated += async (noteDetail) => await Application.Current.Dispatcher.InvokeAsync(() =>
             {
                 Title = noteDetail.Title;
                 CoverUrl = noteDetail.ImageList.FirstOrDefault()?.DefaultUrl ?? string.Empty;
                 Body = noteDetail.Description;
-                
+
                 UserInfoModel.Username = noteDetail.UserInfo.Nickname;
                 UserInfoModel.AvatarUrl = noteDetail.UserInfo.Avatar;
-                
+
                 PostSummary = PostSummary with
                 {
                     Like = noteDetail.InteractInfo.LikedCount,
@@ -70,7 +70,22 @@ namespace HamsterStudioGUI.ViewModels
                     Share = noteDetail.InteractInfo.ShareCount,
                 };
             });
+            weiboDs.OnShowInfoUpdated += async show => await Application.Current.Dispatcher.InvokeAsync(() =>
+            {
+                Title = show.Text;
+                CoverUrl = show.PicInfos.First().Value.Large.Url ?? string.Empty;
+                Body = show.TextRaw;
 
+                UserInfoModel.Username = show.User.ScreenName;
+                UserInfoModel.AvatarUrl = show.User.AvatarLarge;
+
+                PostSummary = PostSummary with
+                {
+                    Like = show.AttitudesCount.ToString(),
+                    Reply = show.CommentsCount.ToString(),
+                    Share = show.RepostsCount.ToString(),
+                };
+            });
         }
 
     }

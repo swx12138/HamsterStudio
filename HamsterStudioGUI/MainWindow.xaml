@@ -8,7 +8,8 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         Title="{Binding Title}"
         Width="1920"
-        Height="1080"
+        Height="1280"
+        WindowStartupLocation="CenterScreen"
         mc:Ignorable="d">
     <Window.DataContext>
         <local:MainWindowModel />
@@ -50,7 +51,7 @@
             </DataGrid>
         </Border>
         <Border Grid.Row="2" VerticalAlignment="Stretch" Background="Gray">
-            <StatusBar Height="36" />
+            <StatusBar Height="24" />
         </Border>
     </Grid>
 </Window>
