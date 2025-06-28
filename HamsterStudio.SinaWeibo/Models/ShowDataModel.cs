@@ -234,7 +234,7 @@ public class LargestModel
 public class PageInfoModel
 {
     [JsonPropertyName("type")]
-    public string Type { get; set; } = string.Empty;
+    public object? Type { get; set; }
 
     [JsonPropertyName("page_id")]
     public string PageId { get; set; } = string.Empty;
@@ -936,7 +936,7 @@ public class ActionlogModel
     public string Oid { get; set; } = string.Empty;
 
     [JsonPropertyName("uuid")]
-    public long Uuid { get; set; }
+    public object? Uuid { get; set; }
 
     [JsonPropertyName("cardid")]
     public string Cardid { get; set; } = string.Empty;

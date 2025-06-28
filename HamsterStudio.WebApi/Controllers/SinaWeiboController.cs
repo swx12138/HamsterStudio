@@ -7,7 +7,7 @@ namespace HamsterStudio.WebApi.Controllers;
 
 [ApiController]
 [Route("/weibo")]
-public class SinaWeiboController(DownloadService downloadService) : ControllerBase
+public class SinaWeiboController(WeiboDownloadService downloadService) : ControllerBase
 {
     [HttpPost("download")]
     public async Task<ActionResult<ServerRespModel?>> Download([FromBody] DownloadPostModel post)

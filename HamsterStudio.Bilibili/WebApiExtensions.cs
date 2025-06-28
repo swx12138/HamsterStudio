@@ -10,7 +10,7 @@ public static class WebApiExtensions
 {
     public static IServiceCollection AddBilibiliWebApiServices(this IServiceCollection services)
     {
-        services.AddSingleton<DownloadService>();
+        services.AddSingleton<BangumiDownloadService>();
         services.AddSingleton<BiliApiClient>();
 
         services.AddSingleton(CreateServ());

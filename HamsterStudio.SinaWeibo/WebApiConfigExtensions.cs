@@ -25,7 +25,7 @@ public static class WebApiConfigExtensions
             BaseAddress = new Uri("https://wx3.sinaimg.cn")
         }));
 
-        services.AddSingleton<DownloadService>();
+        services.AddSingleton<WeiboDownloadService>();
         services.AddSingleton<FilenameFormatter>();
         services.AddSingleton<FileMgmt>();
 

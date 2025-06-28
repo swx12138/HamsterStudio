@@ -11,7 +11,7 @@ using HamsterStudio.Web.Utilities;
 
 namespace HamsterStudio.Bilibili.Services;
 
-public class DownloadService(IBilibiliApiService bilibiliApi, BiliApiClient blient)
+public class BangumiDownloadService(IBilibiliApiService bilibiliApi, BiliApiClient blient)
 {
     public string Cookies { get; set; } = string.Empty;
     private string DashHome { get; } = Path.Combine(blient.Home, SystemConsts.DashSubName);

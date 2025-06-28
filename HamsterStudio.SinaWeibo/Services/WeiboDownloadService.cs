@@ -8,7 +8,7 @@ using HamsterStudio.Web.Services;
 
 namespace HamsterStudio.SinaWeibo.Services;
 
-public class DownloadService(IWeiboApi api,
+public class WeiboDownloadService(IWeiboApi api,
     DirectoryMgmt directoryMgmt,
     CommonDownloader commonDownloader,
     FileMgmt fileMgmt,

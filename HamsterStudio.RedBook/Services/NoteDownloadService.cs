@@ -11,7 +11,7 @@ using HamsterStudio.Web.DataModels;
 
 namespace HamsterStudio.RedBook.Services;
 
-public class RedBookDownloadService(IPngService pngService, IWebpService webpService, IVideoService videoService, DirectoryMgmt directoryMgmt)
+public class NoteDownloadService(IPngService pngService, IWebpService webpService, IVideoService videoService, DirectoryMgmt directoryMgmt)
 {
     private readonly MediaDownloader _mediaDownloader = new();
 

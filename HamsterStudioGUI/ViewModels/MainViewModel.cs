@@ -2,6 +2,7 @@
 using CommunityToolkit.Mvvm.Input;
 using HamsterStudio.Bilibili.Services;
 using HamsterStudio.RedBook.Services;
+using HamsterStudio.SinaWeibo.Services;
 using HamsterStudioGUI.Models;
 using System.Windows;
 using System.Windows.Input;
@@ -28,9 +29,9 @@ namespace HamsterStudioGUI.ViewModels
         public ICommand SaveCoverCommand { get; }
 
 
-        private DownloadService downloadService = App.ResloveService<DownloadService>() ?? throw new NotSupportedException();
-        private RedBookDownloadService redBookDownloadService = App.ResloveService<RedBookDownloadService>() ?? throw new NotSupportedException();
-        private HamsterStudio.SinaWeibo.Services.DownloadService weiboDs = App.ResloveService<HamsterStudio.SinaWeibo.Services.DownloadService>() ?? throw new NotSupportedException();
+        private BangumiDownloadService downloadService = App.ResloveService<BangumiDownloadService>() ?? throw new NotSupportedException();
+        private NoteDownloadService redBookDownloadService = App.ResloveService<NoteDownloadService>() ?? throw new NotSupportedException();
+        private WeiboDownloadService weiboDs = App.ResloveService<WeiboDownloadService>() ?? throw new NotSupportedException();
 
         public MainViewModel()
         {

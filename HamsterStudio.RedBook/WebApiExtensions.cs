@@ -25,7 +25,7 @@ public static class WebApiExtensions
         services.AddRefitClient<IVideoService>()
             .ConfigureHttpClient(c => c.BaseAddress = new Uri("https://sns-video-bd.xhscdn.com/"));
 
-        services.AddSingleton<RedBookDownloadService>();
+        services.AddSingleton<NoteDownloadService>();
         
         return services;
     }

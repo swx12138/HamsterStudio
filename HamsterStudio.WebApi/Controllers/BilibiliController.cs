@@ -8,7 +8,7 @@ namespace HamsterStudio.WebApi.Controllers;
 
 [ApiController]
 [Route("/bilib")]
-public class BilibiliController(DownloadService downloadService) : ControllerBase
+public class BilibiliController(BangumiDownloadService downloadService) : ControllerBase
 {
     [HttpPost("download-video")]
     public async Task<ActionResult<string>> Post([FromBody] DownloadVideoRequest request)

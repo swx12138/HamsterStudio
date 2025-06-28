@@ -10,7 +10,7 @@ namespace HamsterStudio.WebApi.Controllers;
 
 [ApiController]
 [Route("/xhs")]
-public class RedBookController(IRedBookParser parser, RedBookDownloadService downloadService) : ControllerBase
+public class RedBookController(IRedBookParser parser, NoteDownloadService downloadService) : ControllerBase
 {
     [HttpGet("images/list")]
     public ActionResult<string[]> GetDownloadedImageList()
