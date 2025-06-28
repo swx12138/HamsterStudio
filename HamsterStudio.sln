@@ -43,6 +43,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HamsterStudio.Blather", "Ha
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HamsterStudio.SinaWeibo", "HamsterStudio.SinaWeibo\HamsterStudio.SinaWeibo.csproj", "{78AB431A-0B7F-49D7-BAE9-57F7E9E383A7}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HamsterStudio.ArchiveMaster", "HamsterStudio.ArchiveMaster\HamsterStudio.ArchiveMaster.csproj", "{4850781E-DE0F-4820-9497-0340CBB5E14E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -119,6 +121,10 @@ Global
 		{78AB431A-0B7F-49D7-BAE9-57F7E9E383A7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{78AB431A-0B7F-49D7-BAE9-57F7E9E383A7}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{78AB431A-0B7F-49D7-BAE9-57F7E9E383A7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4850781E-DE0F-4820-9497-0340CBB5E14E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4850781E-DE0F-4820-9497-0340CBB5E14E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4850781E-DE0F-4820-9497-0340CBB5E14E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4850781E-DE0F-4820-9497-0340CBB5E14E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -138,6 +144,7 @@ Global
 		{9A90CB53-A5BB-DB75-3882-976B2A1425B5} = {85879EA5-7D16-4A63-B0E8-76A6308EDA32}
 		{E71585E0-F08B-4BF7-9A67-08EA823783BC} = {85879EA5-7D16-4A63-B0E8-76A6308EDA32}
 		{78AB431A-0B7F-49D7-BAE9-57F7E9E383A7} = {85879EA5-7D16-4A63-B0E8-76A6308EDA32}
+		{4850781E-DE0F-4820-9497-0340CBB5E14E} = {85879EA5-7D16-4A63-B0E8-76A6308EDA32}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {2BEFE676-D503-4D35-A413-E099891E452B}

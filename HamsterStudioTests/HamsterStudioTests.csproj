@@ -14,6 +14,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\HamsterStudio.ArchiveMaster\HamsterStudio.ArchiveMaster.csproj" />
     <ProjectReference Include="..\HamsterStudio.Bilibili\HamsterStudio.Bilibili.csproj" />
     <ProjectReference Include="..\HamsterStudio.DeepSeek\HamsterStudio.DeepSeek.csproj" />
     <ProjectReference Include="..\HamsterStudio.RedBook\HamsterStudio.RedBook.csproj" />

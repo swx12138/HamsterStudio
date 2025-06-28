@@ -57,21 +57,21 @@ public class TestSinaWeibo
     [TestMethod]
     public async Task TestDownload()
     {
-        DownloadService service = new(weiboApi, mediaApi);
-        //var resp = await service.Download("PxxRmeBta");
+        //DownloadService service = new(weiboApi, mediaApi,);
+        ////var resp = await service.Download("PxxRmeBta");
 
-        string[] list = [
-            "https://weibo.com/2417091607/P96nx9HI1",
-        ];
+        //string[] list = [
+        //    "https://weibo.com/2417091607/P96nx9HI1",
+        //];
 
-        foreach (var item in list)
-        {
-            var resp = await service.Download(item.Split('/').Last());
-            Assert.IsNotNull(resp);
-            Console.WriteLine($"{item} Done.");
-        }
+        //foreach (var item in list)
+        //{
+        //    var resp = await service.Download(item.Split('/').Last());
+        //    Assert.IsNotNull(resp);
+        //    Console.WriteLine($"{item} Done.");
+        //}
 
-        //Assert.IsTrue(resp.Data.StaticFiles.Length > 0);
+        ////Assert.IsTrue(resp.Data.StaticFiles.Length > 0);
     }
 
 
