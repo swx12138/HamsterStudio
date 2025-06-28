@@ -104,7 +104,7 @@ namespace HamsterStudio.Bilibili.Models
 
         [JsonPropertyName("premiere")]
         [Editable(false)]
-        public string Premiere { get; set; } = string.Empty;
+        public object Premiere { get; set; } = string.Empty;
 
         [JsonPropertyName("teenage_mode")]
         [Editable(false)]

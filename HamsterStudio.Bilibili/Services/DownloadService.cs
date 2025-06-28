@@ -48,17 +48,17 @@ public class DownloadService(IBilibiliApiService bilibiliApi, BiliApiClient blie
         var page = videoInfo!.Pages[idx];
 
         //获取视频流信息
-       var videoStreamInfoResp = await bilibiliApi.GetVideoStreamInfoAsync(page.Cid, bvid, Cookies);
-        if (videoStreamInfoResp.Code != 0)
-        {
-            return new ServerRespModel()
-            {
-                Message = videoStreamInfoResp.Message,
-                Status = (int)(0 - videoStreamInfoResp.Code),
-            };
-        }
+        //var videoStreamInfoResp = await bilibiliApi.GetVideoStreamInfoAsync(page.Cid, bvid, Cookies);
+        // if (videoStreamInfoResp.Code != 0)
+        // {
+        //     return new ServerRespModel()
+        //     {
+        //         Message = videoStreamInfoResp.Message,
+        //         Status = (int)(0 - videoStreamInfoResp.Code),
+        //     };
+        // }
 
-        var videoStreamInfo = videoStreamInfoResp.Data;
+        var videoStreamInfo = await blient.GetVideoStream(bvid, page.Cid) ?? throw new NotSupportedException(); // videoStreamInfoResp.Data;
         var acceptQuality = videoStreamInfo.AcceptQuality.Max();
         var (qua_num, qua, qua_str) = videoStreamInfo.AcceptQuality
             .Zip(videoStreamInfo.AcceptFormat.Split(','), videoStreamInfo.AcceptDescription)
@@ -88,6 +88,8 @@ public class DownloadService(IBilibiliApiService bilibiliApi, BiliApiClient blie
             }
         };
     }
+
+
 
     public async Task<BilibiliVideoDownloadResult> DownloadStream(VideoStreamInfo streamInfo, int acceptQuality, AvMeta meta, string filename)
     {

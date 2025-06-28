@@ -1,4 +1,5 @@
-﻿using HamsterStudio.Bilibili.Services;
+﻿using HamsterStudio.Barefeet.Logging;
+using HamsterStudio.Bilibili.Services;
 using HamsterStudio.Bilibili.Services.Restful;
 using Microsoft.Extensions.DependencyInjection;
 using Refit;
@@ -21,7 +22,7 @@ public static class WebApiExtensions
     {
         var handler = new HttpClientHandler();
         var bhandler = new BpiHandler(handler);
-        return RestService.For<IBilibiliApiService>(new HttpClient(bhandler)
+        return RestService.For<IBilibiliApiService>(new HttpClient(new LoggingHandler(bhandler))
         {
             BaseAddress = new Uri("https://api.bilibili.com")
         });
