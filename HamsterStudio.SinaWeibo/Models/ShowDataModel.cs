@@ -166,6 +166,9 @@ public class ShowDataModel
     [JsonPropertyName("page_info")]
     public PageInfoModel PageInfo { get; set; } = new();
 
+    [JsonPropertyName("retweeted_status")]
+    public ShowDataModel? RetweetedStatus { get; set; } = null;
+
     [JsonPropertyName("ok")]
     public int Ok { get; set; }
 }

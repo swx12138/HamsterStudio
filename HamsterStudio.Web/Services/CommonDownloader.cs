@@ -1,9 +1,4 @@
 ﻿using HamsterStudio.Barefeet.Logging;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace HamsterStudio.Web.Services;
 
@@ -22,7 +17,7 @@ public class CommonDownloader
         ArgumentException.ThrowIfNullOrEmpty(destinationPath, nameof(destinationPath));
         try
         {
-            if(File.Exists(destinationPath))
+            if (File.Exists(destinationPath))
             {
                 Logger.Shared.Warning($"File already exists at {destinationPath}. Skipped.");
                 return true;
@@ -34,6 +29,7 @@ public class CommonDownloader
             await using var fileStream = new FileStream(destinationPath, FileMode.Create, FileAccess.Write, FileShare.None);
             await response.Content.CopyToAsync(fileStream);
 
+            Logger.Shared.Information($"{Path.GetFileName(destinationPath)} 成功下载到 {destinationPath}.");
             return true;
         }
         catch (Exception ex)

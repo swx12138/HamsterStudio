@@ -21,7 +21,7 @@ public class DownloadService(IWeiboApi api,
     public async Task<ServerRespModel> Download(string show_id)
     {
         var model = await api.GetShowInfo(show_id);
-        return await Download(model);
+        return await Download(model.RetweetedStatus ?? model);
     }
 
     public async Task<ServerRespModel> Download(ShowDataModel show)
@@ -30,6 +30,7 @@ public class DownloadService(IWeiboApi api,
 
         ArgumentNullException.ThrowIfNull(show, nameof(show));
 
+        OnShowInfoUpdated?.Invoke(show);
         fileMgmt.UserNameMap.UpdateCache(show.User);
 
         List<string> imageUrlList = [.. GetImageList(show)];

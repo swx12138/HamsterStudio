@@ -11,13 +11,35 @@ internal class UserNameMap
     public Dictionary<string, string> BannedMap { get; } = [];
 
     private readonly JsonSerializerOptions DefaultSaveMapOpts = new() { WriteIndented = true };
+    
+    private FileMgmt FileMgmt { get; }
 
     public UserNameMap(FileMgmt fileMgmt)
     {
         Home = Path.Combine(fileMgmt.Home, ".doi");
+        FileMgmt = fileMgmt;
 
         BannedMap = LoadMap("banned.json");
-        CacheMap = LoadMap("cache.json");
+        CacheMap = LoadMapAndEnsurePaths("cache.json");
+    }
+
+    public Dictionary<string, string> LoadMapAndEnsurePaths(string name)
+    {
+        var map = LoadMap(name);
+        foreach (var userName in map.Values)
+        {
+            EnsurePath(userName);
+        }
+        return map;
+    }
+
+    private void EnsurePath(string userName)
+    {
+        string fullPath = Path.Combine(FileMgmt.Home, userName);
+        if (!Directory.Exists(fullPath))
+        {
+            Directory.CreateDirectory(fullPath);
+        }
     }
 
     public Dictionary<string, string> LoadMap(string name)
@@ -31,6 +53,7 @@ internal class UserNameMap
     {
         if (CacheMap.ContainsKey(user.Idstr)) { return; }
         CacheMap[user.Idstr] = user.ScreenName;
+        EnsurePath(user.ScreenName);
         SaveMap("cache.json", CacheMap);
     }
 
