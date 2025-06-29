@@ -3,7 +3,6 @@ using HamsterStudio.Barefeet.Services;
 using HamsterStudio.Bilibili.Constants;
 using HamsterStudio.Bilibili.Models;
 using HamsterStudio.Web;
-using System.Collections.Concurrent;
 using System.Net;
 using System.Text.Json;
 
@@ -26,7 +25,7 @@ public class BiliApiClient
     {
         Home = Path.Combine(directoryMgmt.StorageHome, SystemConsts.HomeName);
         Cookies = LoadCookies();
-        ServicePointManager.ServerCertificateValidationCallback += (sender, certificate, chain, sslPolicyErrors) => true;
+        //ServicePointManager.ServerCertificateValidationCallback += (sender, certificate, chain, sslPolicyErrors) => true;
     }
 
     private string LoadCookies()
@@ -77,7 +76,7 @@ public class BiliApiClient
 
     public async Task<VideoStreamInfo?> GetVideoStream(string bvid, long cid)
     {
-        string api = "https://api.bilibili.com/x/player/wbi/playurl?" + $"fnval=144&cid={cid}&qn=120&bvid={bvid}&fourk=1";
+        string api = "https://api.bilibili.com/x/player/wbi/playurl?" + $"fnval=144&cid={cid}&qn=127&bvid={bvid}&fourk=1";
         return await GetApiAsync<VideoStreamInfo>(api);
     }
 

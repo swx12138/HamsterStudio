@@ -59,7 +59,7 @@ public static class FileNameUtil
         {
             part = part[0].Split("\\");
         }
-        return part.Last();
+        return part.Where(x => !x.IsNullOrEmpty()).Last();
     }
 
     public static string Stem(this string str)

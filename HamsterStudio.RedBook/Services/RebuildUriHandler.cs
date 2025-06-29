@@ -21,7 +21,7 @@ public class RebuildUriHandler : DelegatingHandler
         }
 
         // 输出请求地址
-        //Logger.Shared.Debug($"[Request] {request}");
+        Logger.Shared.Debug($"[Request] {request}");
 
         var response = await base.SendAsync(request, cancellationToken);
         return response;

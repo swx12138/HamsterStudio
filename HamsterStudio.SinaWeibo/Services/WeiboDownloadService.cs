@@ -8,8 +8,8 @@ using HamsterStudio.Web.Services;
 
 namespace HamsterStudio.SinaWeibo.Services;
 
-public class WeiboDownloadService(IWeiboApi api,
-    DirectoryMgmt directoryMgmt,
+public class WeiboDownloadService(
+    IWeiboApi api,
     CommonDownloader commonDownloader,
     FileMgmt fileMgmt,
     FilenameFormatter formatter)
@@ -39,7 +39,8 @@ public class WeiboDownloadService(IWeiboApi api,
             string imgName = imgUrl.Split('?').First().Split('/').LastOrDefault() ?? $"unknown_{Timestamp.NowMs}.jpg";
             var filename = formatter.Format(show.MblogId, show.User.Idstr, imgName, imageUrlList.IndexOf(imgUrl));
             //await DownloadMedia(imgName, filename);
-            _ = await commonDownloader.DownloadFile(imgUrl, fileMgmt.GetFullPath(filename, show.User.Idstr));
+
+            _ = await commonDownloader.EasyDownloadFileAsync(new(imgUrl), fileMgmt.GetFullPath(filename, show.User.Idstr));
         }
 
         return new ServerRespModel()

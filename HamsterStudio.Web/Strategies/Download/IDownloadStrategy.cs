@@ -1,11 +1,10 @@
 ﻿using HamsterStudio.Web.Tools;
 using System.Net;
 
-namespace HamsterStudio.Web.Interfaces;
+namespace HamsterStudio.Web.Strategies.Download;
 
-// 在DownloadResult中改用Stream类型
 public record DownloadResult(
-    byte[] Data,  // 替换byte[]
+    byte[] Data,
     HttpStatusCode StatusCode,
     TimeSpan ?ElapsedTime = null,
     string? ErrorMessage = null

@@ -1,35 +1,35 @@
-﻿using HamsterStudio.Web.Interfaces;
-using System.Net.Http.Headers;
+﻿using System.Net.Http.Headers;
 using System.Net;
+using HamsterStudio.Web.Tools;
+using HamsterStudio.Web.Strategies.Request;
 
-namespace HamsterStudio.Web.Tools.Download;
+namespace HamsterStudio.Web.Strategies.Download;
 
 // 公共基础类（提取重复逻辑）
-public abstract class RangeBasedDownloadStrategy(HttpClientFactory httpClientFactory) : IDownloadStrategy
+public abstract class RangeBasedDownloadStrategy : IDownloadStrategy
 {
     protected record ChunkRange(long Start, long End);
 
-    protected async Task<long> GetContentLengthAsync(Uri url, Dictionary<string, string> headers)
+    protected async Task<long> GetContentLengthAsync(Uri url, IRequestStrategy requestStrategy)
     {
-        using var client = httpClientFactory.CreateHttpClient(headers);
-        using var response = await client.SendAsync(new HttpRequestMessage(HttpMethod.Head, url));
+        using var message = new HttpRequestMessage(HttpMethod.Head, url);
+        using var response = await requestStrategy.SendAsync(message);
         return response.Content.Headers.ContentLength ?? throw new NotSupportedException("Content-Length header missing");
     }
 
-    protected async Task<byte[]> DownloadChunkAsync(Uri url, Dictionary<string, string> headers, ChunkRange range)
+    protected async Task<byte[]> DownloadChunkAsync(Uri url, ChunkRange range, IRequestStrategy requestStrategy)
     {
-        using var client = httpClientFactory.CreateHttpClient(headers);
         var request = new HttpRequestMessage(HttpMethod.Get, url);
         request.Headers.Range = new RangeHeaderValue(range.Start, range.End);
 
-        using var response = await client.SendAsync(request);
+        using var response = await requestStrategy.SendAsync(request);
         if (response.StatusCode != HttpStatusCode.PartialContent)
             throw new HttpRequestException($"Unexpected status code: {response.StatusCode}");
 
         return await response.Content.ReadAsByteArrayAsync();
     }
 
-    protected byte[] MergeChunks(IEnumerable<byte[]> chunks)
+    public static byte[] MergeChunks(IEnumerable<byte[]> chunks)
     {
         var merged = new List<byte>();
         foreach (var chunk in chunks)

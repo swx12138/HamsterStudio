@@ -1,35 +1,39 @@
-﻿using HamsterStudio.Barefeet.Logging;
+﻿using HamsterStudio.Barefeet.Constants;
+using HamsterStudio.Barefeet.Logging;
+using HamsterStudio.Web.Strategies;
+using HamsterStudio.Web.Strategies.Request;
+using HamsterStudio.Web.Tools;
+using System.Net;
 
 namespace HamsterStudio.Web.Services;
 
-public class CommonDownloader
+public class CommonDownloader(HttpClientProvider httpClientProvider)
 {
-    private readonly HttpClient client;
-
-    public CommonDownloader()
+    public async Task<bool> DownloadFileAsync(DownloadRequest request, string destinationPath)
     {
-        client = new(new LoggingHandler(new HttpClientHandler()));
-    }
+        ArgumentNullException.ThrowIfNull(request, nameof(request));
 
-    public async Task<bool> DownloadFile(string url, string destinationPath)
-    {
-        ArgumentException.ThrowIfNullOrEmpty(url, nameof(url));
         ArgumentException.ThrowIfNullOrEmpty(destinationPath, nameof(destinationPath));
+        if (File.Exists(destinationPath))
+        {
+            Logger.Shared.Warning($"File already exists at {destinationPath}. Skipped.");
+            return true;
+        }
+
+        var requestStrategy = request.RequestStrategy ?? new AuthenticRequestStrategy(httpClientProvider.HttpClient);
+        var downloadStrategy = DownloadStrategyFactory.CreateStrategy(request.MaxConnections);
         try
         {
-            if (File.Exists(destinationPath))
+            var result = await downloadStrategy.DownloadAsync(request);
+            if (result.StatusCode != HttpStatusCode.OK)
             {
-                Logger.Shared.Warning($"File already exists at {destinationPath}. Skipped.");
-                return true;
+                Logger.Shared.Error($"Failed to download file: {result.StatusCode} - {result.ErrorMessage}");
+                return false;
             }
 
-            using var response = await client.GetAsync(url);
-            response.EnsureSuccessStatusCode();
+            await File.WriteAllBytesAsync(destinationPath, result.Data);
+            Logger.Shared.Trace($"{Path.GetFileName(destinationPath)} 成功下载到 {destinationPath}.");
 
-            await using var fileStream = new FileStream(destinationPath, FileMode.Create, FileAccess.Write, FileShare.None);
-            await response.Content.CopyToAsync(fileStream);
-
-            Logger.Shared.Information($"{Path.GetFileName(destinationPath)} 成功下载到 {destinationPath}.");
             return true;
         }
         catch (Exception ex)
@@ -38,5 +42,11 @@ public class CommonDownloader
             Logger.Shared.Debug(ex);
             return false;
         }
+    }
+
+    public async Task<bool> EasyDownloadFileAsync(Uri uri, string destinationPath, bool concurrent = false)
+    {
+        var downloadRequest = new DownloadRequest(uri, new AuthenticRequestStrategy(httpClientProvider.HttpClient), concurrent ? 4 : 1);
+        return await DownloadFileAsync(downloadRequest, destinationPath);
     }
 }

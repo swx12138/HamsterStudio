@@ -1,4 +1,5 @@
-﻿using System;
+﻿using HamsterStudio.Constants;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -6,9 +7,24 @@ using System.Threading.Tasks;
 
 namespace HamsterStudio.Barefeet.Services;
 
-public class DirectoryMgmt(string storageHome)
+public class DirectoryMgmt
 {
-    public string StorageHome { get; } = storageHome;
+    public string StorageHome { get; }
+    public string TemporaryHome { get; } = Path.Combine(
+        Environment.GetFolderPath(
+            Environment.SpecialFolder.LocalApplicationData), 
+        SystemConsts.ApplicationName);
 
-
+    public DirectoryMgmt(string storageHome)
+    {
+        StorageHome = storageHome;
+        if (!Directory.Exists(StorageHome))
+        {
+            Directory.CreateDirectory(StorageHome);
+        }
+        if (!Directory.Exists(TemporaryHome))
+        {
+            Directory.CreateDirectory(TemporaryHome);
+        }
+    }
 }

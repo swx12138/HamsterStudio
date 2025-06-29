@@ -1,15 +1,12 @@
 ﻿using HamsterStudio.Barefeet.Logging;
-using HamsterStudio.Web.Interfaces;
+using HamsterStudio.Web.Tools;
 using System.Diagnostics;
 using System.Net;
 
-namespace HamsterStudio.Web.Tools.Download;
+namespace HamsterStudio.Web.Strategies.Download;
 
 // 扩展点示例（符合OCP）
-public class RetryableDownloadStrategy(
-    IDownloadStrategy innerStrategy,
-    int maxRetries = 3,
-    TimeSpan? initialDelay = null) : IDownloadStrategy
+public class RetryableDownloadStrategy(IDownloadStrategy innerStrategy, int maxRetries = 3, TimeSpan? initialDelay = null) : IDownloadStrategy
 {
     private readonly TimeSpan _initialDelay = initialDelay ?? TimeSpan.FromSeconds(1);
     private readonly Logger _logger = Logger.Shared;

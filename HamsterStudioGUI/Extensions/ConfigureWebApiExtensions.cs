@@ -1,5 +1,6 @@
 ﻿using HamsterStudio.Barefeet.Logging;
 using HamsterStudio.Barefeet.Services;
+using HamsterStudio.Web.Services;
 using HamsterStudio.WebApi;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
@@ -13,6 +14,7 @@ internal static class ConfigureWebApiExtensions
     public static void ConfigureService(this IServiceCollection services, string home)
     {
         services.AddSingleton(new DirectoryMgmt(home));
+        services.AddSingleton<HttpClientProvider>();
     }
 
     public static void ConfigureStaticFiles(this WebApplication app, params StaticFilePathParam[] static_file_paths)

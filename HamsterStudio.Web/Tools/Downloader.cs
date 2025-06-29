@@ -1,5 +1,5 @@
 ﻿using HamsterStudio.Barefeet.Logging;
-using HamsterStudio.Web.Interfaces;
+using HamsterStudio.Web.Strategies.Download;
 
 namespace HamsterStudio.Web.Tools;
 
