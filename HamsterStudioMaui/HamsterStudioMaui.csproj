@@ -37,6 +37,19 @@
 		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'tizen'">6.5</SupportedOSPlatformVersion>
 	</PropertyGroup>
 
+	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net8.0-android34.0|AnyCPU'">
+	  <DebugType>none</DebugType>
+	  <EnableLLVM>True</EnableLLVM>
+	  <AndroidKeyStore>False</AndroidKeyStore>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net8.0-android34.0|AnyCPU'">
+	  <DebugType>none</DebugType>
+	  <AndroidPackageFormat>apk</AndroidPackageFormat>
+	  <EnableLLVM>True</EnableLLVM>
+	  <AndroidKeyStore>False</AndroidKeyStore>
+	</PropertyGroup>
+
 	<ItemGroup>
 		<!-- App Icon -->
 		<MauiIcon Include="Resources\AppIcon\caiyue.png" Color="#49CC90" />
@@ -66,7 +79,9 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <ProjectReference Include="..\HamsterStudio.Bilibili\HamsterStudio.Bilibili.csproj" />
 	  <ProjectReference Include="..\HamsterStudio.RedBook\HamsterStudio.RedBook.csproj" />
+	  <ProjectReference Include="..\HamsterStudio.SinaWeibo\HamsterStudio.SinaWeibo.csproj" />
 	</ItemGroup>
 
 </Project>

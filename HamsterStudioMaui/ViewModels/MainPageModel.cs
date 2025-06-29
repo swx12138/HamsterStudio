@@ -1,25 +1,16 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using HamsterStudio.Barefeet.Extensions;
+using HamsterStudio.Bilibili.Services.Restful;
 using HamsterStudio.RedBook.Services.XhsRestful;
+using HamsterStudio.Web.DataModels;
+using HamsterStudio.Web.Services.Restful;
+using HamsterStudioMaui.Services;
 using Refit;
 using System.Diagnostics;
 using System.Windows.Input;
 
 namespace HamsterStudioMaui.ViewModels;
-
-public class LoggingHandler(HttpMessageHandler innerHandler, Action<string> mouth) : DelegatingHandler(innerHandler)
-{
-    protected override async Task<HttpResponseMessage> SendAsync(
-        HttpRequestMessage request,
-        CancellationToken cancellationToken)
-    {
-        // 输出请求地址
-        mouth($"[Request] {request}");
-
-        var response = await base.SendAsync(request, cancellationToken);
-        return response;
-    }
-}
 
 partial class MainPageModel : ObservableObject
 {
@@ -46,69 +37,71 @@ partial class MainPageModel : ObservableObject
     [ObservableProperty]
     private bool saveToPhone = false;
 
+    [ObservableProperty]
+    private bool serverOffline = true;
+
     public ICommand ExtractCommand { get; }
 
-    private IRedBookClient hamsterClient;
+    private readonly ProcessChain ProcessChain;
+    private readonly IStaticFilesClient staticFilesClient;
 
     public MainPageModel()
     {
-        hamsterClient = RestService.For<IRedBookClient>($"http://{HostName}:{Port}");   // TBD:考虑移到AebApiClients里面
+        // TBD:考虑移到AebApiClients里面
+        string server = $"http://{HostName}:{Port}";
+        ProcessChain = new XiaohongshuProcess(RestService.For<IRedBookClient>(server),
+            new BilibiliProcess(RestService.For<IBilibiliClient>(server), null));
+        staticFilesClient = RestService.For<IStaticFilesClient>(server);
         ExtractCommand = new AsyncRelayCommand(ExtractShareLinkAsyncasync);
     }
 
     private async Task ExtractShareLinkAsyncasync()
     {
+        Log = string.Empty;
         try
         {
-            if (shareInfo.StartsWith("BV"))
+            var resp = await ProcessChain.Process(ShareInfo);
+            if (resp == null)
             {
-                //var resp_text = await browser.PostAsync($"/bilib", shareInfo);
+                Log += $"/n没有匹配的处理模块。";
+                return;
             }
-            else
-            {
-                var url = shareInfo.Split().FirstOrDefault(x => x.StartsWith("http"))?.Split("，").First();
-                if (url == null || url == string.Empty) { Trace.WriteLine("解析Url失败！"); return; }
-                else { Trace.TraceInformation($"Loading url {url}"); }
 
-                var noteData = await hamsterClient.PostXhsShareLink(new() { Download = true, Url = url });
-                var resp = await hamsterClient.DownloadXhsNote(noteData);
+            Log = $"Author:{resp.Data.AuthorNickName}\nTitle:{resp.Data.Title}\nDesc:{resp.Data.Description}";
 
-                try
-                {
-                    Log = $"Process {url} finished.\nAuthor:{resp.Data.AuthorNickName}\nTitle:{resp.Data.Title}\nDesc:{resp.Data.Description}";
-
-#if ANDROID
-                    if (saveToPhone)
-                    {
-                        await Task.Run(async () =>
-                        {
-                            var results = new List<string>();
-                            Log += "\n -*- Downloading static files...";
-                            foreach (var static_file_url in resp.Data.StaticFiles)
-                            {
-                                string filename = Path.GetFileName(static_file_url);
-                                var stream = await hamsterClient.GetStaticFile(static_file_url);
-                                string result = Platforms.Android.Utils.FileUtils.WriteFileToDCIM(filename, stream);
-                                Log += "\n" + result;
-                                results.Add(result);
-                            }
-                            Platforms.Android.Utils.FileUtils.NotifyGalleryOfNewImage([.. results]);
-                        }); // 让UI线程继续运行，不阻塞
-                    }
-#endif
-                }
-                catch (Exception ex)
-                {
-                    Log = ex.Message + "\n" + ex.StackTrace;
-                }
-
-                ShareInfo = string.Empty;
-            }
+            await SaveFiles(resp);
         }
         catch (Exception ex)
         {
             Log = ex.Message + "\n" + ex.StackTrace;
         }
+        finally
+        {
+            ShareInfo = string.Empty;
+        }
+    }
+
+    private async Task SaveFiles(ServerRespModel resp)
+    {
+#if ANDROID
+        if (SaveToPhone)
+        {
+            await Task.Run(async () =>
+            {
+                var results = new List<string>();
+                Log += "\n -*- Downloading static files...";
+                foreach (var static_file_url in resp.Data.StaticFiles)
+                {
+                    string filename = Path.GetFileName(static_file_url);
+                    var stream = await staticFilesClient.GetStaticFile(static_file_url);
+                    string result = Platforms.Android.Utils.FileUtils.WriteFileToDCIM(filename, stream);
+                    Log += "\n" + result;
+                    results.Add(result);
+                }
+                Platforms.Android.Utils.FileUtils.NotifyGalleryOfNewImage([.. results]);
+            }); // 让UI线程继续运行，不阻塞
+        }
+#endif
     }
 
 }

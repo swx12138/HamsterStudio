@@ -1,5 +1,4 @@
-﻿using HamsterStudio.Barefeet.Constants;
-using HamsterStudio.Barefeet.Extensions;
+﻿using HamsterStudio.Barefeet.Extensions;
 using HamsterStudio.Barefeet.Interfaces;
 using HamsterStudio.Barefeet.Logging;
 using HamsterStudio.Barefeet.Services;
@@ -16,7 +15,7 @@ namespace HamsterStudio.Bilibili.Services;
 
 public class BangumiDownloadService(IBilibiliApiService bilibiliApi, BiliApiClient blient, CommonDownloader downloader, DirectoryMgmt directoryMgmt, HttpClientProvider httpClientProvider)
 {
-    public string Cookies { get; set; } = string.Empty;
+    public string Cookies { get; set; } = string.Empty; // 暂时没有使用
     private string DashHome { get; } = Path.Combine(blient.Home, SystemConsts.DashSubName);
     private string CoverHome { get; } = Path.Combine(blient.Home, SystemConsts.CoverSubName);
 

@@ -11,7 +11,4 @@ public interface IRedBookClient
 
     [Post("/xhs/share-link/download")]
     Task<ServerRespModel> DownloadXhsNote(NoteDataModel noteData);
-
-    [Get("/static/{**fileRelaPath}")]
-    Task<Stream> GetStaticFile(string fileRelaPath);
 }
