@@ -1,8 +1,6 @@
 ﻿using HamsterStudio.Barefeet.Extensions;
 using HamsterStudio.Barefeet.Interfaces;
 using HamsterStudio.Barefeet.Logging;
-using HamsterStudio.Barefeet.Services;
-using HamsterStudio.Bilibili.Constants;
 using HamsterStudio.Bilibili.Models;
 using HamsterStudio.Bilibili.Models.Sub;
 using HamsterStudio.Bilibili.Services.Restful;
@@ -10,14 +8,18 @@ using HamsterStudio.Web.DataModels;
 using HamsterStudio.Web.Services;
 using HamsterStudio.Web.Strategies.Request;
 using HamsterStudio.Web.Tools;
+using FileInfo = HamsterStudio.Barefeet.FileSystem.FileInfo;
 
 namespace HamsterStudio.Bilibili.Services;
 
-public class BangumiDownloadService(IBilibiliApiService bilibiliApi, BiliApiClient blient, CommonDownloader downloader, DirectoryMgmt directoryMgmt, HttpClientProvider httpClientProvider)
+public class BangumiDownloadService(
+    IBilibiliApiService bilibiliApi,
+    BiliApiClient blient,
+    FileMgmt fileMgmt,
+    CommonDownloader downloader,
+    HttpClientProvider httpClientProvider)
 {
-    public string Cookies { get; set; } = string.Empty; // 暂时没有使用
-    private string DashHome { get; } = Path.Combine(blient.Home, SystemConsts.DashSubName);
-    private string CoverHome { get; } = Path.Combine(blient.Home, SystemConsts.CoverSubName);
+    public string Cookies { get; set; } = string.Empty;
 
     public event Action<VideoInfo> OnVideoInfoUpdated = delegate { };
 
@@ -45,44 +47,48 @@ public class BangumiDownloadService(IBilibiliApiService bilibiliApi, BiliApiClie
                 };
             }
 
-            var videoInfo = videoInfoResp.Data;
-            OnVideoInfoUpdated?.Invoke(videoInfo!);
+            var videoInfo = videoInfoResp.Data!;
+            OnVideoInfoUpdated?.Invoke(videoInfo);
 
             idx = Math.Max(idx, 0);
-            var page = videoInfo!.Pages[idx];
-
-            //获取视频流信息
-            //var videoStreamInfoResp = await bilibiliApi.GetVideoStreamInfoAsync(page.Cid, bvid, Cookies);
-            // if (videoStreamInfoResp.Code != 0)
-            // {
-            //     return new ServerRespModel()
-            //     {
-            //         Message = videoStreamInfoResp.Message,
-            //         Status = (int)(0 - videoStreamInfoResp.Code),
-            //     };
-            // }
-
-            var videoStreamInfo = await blient.GetVideoStream(bvid, page.Cid) ?? throw new NotSupportedException(); // videoStreamInfoResp.Data;
-            var acceptQuality = videoStreamInfo.AcceptQuality.Max();
-            var (qua_num, qua, qua_str) = videoStreamInfo.AcceptQuality
-                .Zip(videoStreamInfo.AcceptFormat.Split(','), videoStreamInfo.AcceptDescription)
-                .First(x => x.First == acceptQuality);
-            Logger.Shared.Information($"Selected quality {qua}({qua_str}, {qua_num})");
-
-            AvMeta meta = new()
+            var wish_filename = fileMgmt.GetVideoFilename(videoInfo, idx);
+            if (!File.Exists(wish_filename.FullName))
             {
-                title = page.Title,
-                artist = videoInfo.Owner.Name!,
-                album = videoInfo.Title!,
-                copyright = videoInfo.Bvid!
-            };
+                var page = videoInfo.Pages[idx];
 
-            var avPath = await DownloadStream(videoStreamInfo, acceptQuality, meta.copyright);
+                //获取视频流信息
+                //var videoStreamInfoResp = await bilibiliApi.GetVideoStreamInfoAsync(page.Cid, bvid, Cookies);
+                // if (videoStreamInfoResp.Code != 0)
+                // {
+                //     return new ServerRespModel()
+                //     {
+                //         Message = videoStreamInfoResp.Message,
+                //         Status = (int)(0 - videoStreamInfoResp.Code),
+                //     };
+                // }
 
-            string wish_filename = $"{videoInfo.Cid!}-{idx}_{videoInfo.Bvid}.mp4";  // TBD：修改命名规则，增加视频质量和音频质量
-            var result = MergeStreamToMp4(meta, avPath, wish_filename, DeleteAvCache: true);
+                var videoStreamInfo = await blient.GetVideoStream(bvid, page.Cid) ?? throw new NotSupportedException(); // videoStreamInfoResp.Data;
+                var acceptQuality = videoStreamInfo.AcceptQuality.Max();
+                var (qua_num, qua, qua_str) = videoStreamInfo.AcceptQuality
+                    .Zip(videoStreamInfo.AcceptFormat.Split(','), videoStreamInfo.AcceptDescription)
+                    .First(x => x.First == acceptQuality);
+                Logger.Shared.Information($"Selected quality {qua}({qua_str}, {qua_num})");
 
-            await SaveCover(videoInfo);
+
+
+                AvMeta meta = new()
+                {
+                    title = page.Title,
+                    artist = videoInfo.Owner.Name!,
+                    album = videoInfo.Title!,
+                    copyright = videoInfo.Bvid!
+                };
+
+                var avPath = await DownloadStream(videoStreamInfo, acceptQuality, meta.copyright);
+                var result = MergeStreamToMp4(meta, avPath, wish_filename, DeleteAvCache: true);
+
+                await SaveCover(videoInfo);
+            }
 
             return new ServerRespModel()
             {
@@ -117,7 +123,7 @@ public class BangumiDownloadService(IBilibiliApiService bilibiliApi, BiliApiClie
 
         string vBaseUrl = SelectVideoBaseUrl(acceptQuality, streamInfo);
         string vName = vBaseUrl.Filename();
-        string vPath = Path.Combine(directoryMgmt.TemporaryHome, vName);
+        string vPath = Path.Combine(fileMgmt.TemporaryHome, vName);
         var vrequ = new DownloadRequest(new Uri(vBaseUrl), strategy);
         if (!await downloader.DownloadFileAsync(vrequ, vPath))
         {
@@ -126,7 +132,7 @@ public class BangumiDownloadService(IBilibiliApiService bilibiliApi, BiliApiClie
 
         string aBaseUrl = SelectAudioBaseUrl(streamInfo);
         string aName = aBaseUrl.Filename();
-        string aPath = Path.Combine(directoryMgmt.TemporaryHome, aName);
+        string aPath = Path.Combine(fileMgmt.TemporaryHome, aName);
         var arequ = new DownloadRequest(new Uri(aBaseUrl), strategy);
         if (!await downloader.DownloadFileAsync(arequ, aPath))
         {
@@ -156,23 +162,21 @@ public class BangumiDownloadService(IBilibiliApiService bilibiliApi, BiliApiClie
         }
     }
 
-    public BilibiliVideoDownloadResult MergeStreamToMp4(AvMeta meta, (string aPath, string vPath) avPath, string wish_filename, bool? DeleteAvCache = true)
+    public static BilibiliVideoDownloadResult MergeStreamToMp4(AvMeta meta, (string aPath, string vPath) avPath, FileInfo target, bool? DeleteAvCache = true)
     {
-        string output = Path.Combine(DashHome, wish_filename);
-        Logger.Shared.Information($"Output Dir:{output}");
+        Logger.Shared.Information($"Output Dir:{target.FullName}");
 
-        if (File.Exists(output))
+        if (File.Exists(target.FullName))
         {
-            Logger.Shared.Information($"{output} Exists.");
+            Logger.Shared.Information($"{target.FullName} Exists.");
             return new()
             {
-                VideoName = wish_filename,
-                Path = DashHome,
+                VideoDest = target,
                 State = FileDownloadState.Existed,
             };
         }
 
-        MergeAv(avPath.vPath, avPath.aPath, meta, output);
+        MergeAv(avPath.vPath, avPath.aPath, meta, target.FullName);
         if (DeleteAvCache ?? true)
         {
             try { File.Delete(avPath.aPath); } catch (Exception ex) { Logger.Shared.Critical(ex); }
@@ -181,8 +185,7 @@ public class BangumiDownloadService(IBilibiliApiService bilibiliApi, BiliApiClie
 
         return new()
         {
-            VideoName = wish_filename,
-            Path = DashHome,
+            VideoDest = target,
             State = FileDownloadState.Succeed,
         };
     }
@@ -211,39 +214,23 @@ public class BangumiDownloadService(IBilibiliApiService bilibiliApi, BiliApiClie
     {
         try
         {
-            string filename = FormatImageFilename(url, bvid);
-            string fullPath = Path.Combine(CoverHome, filename);
-            var result = await downloader.EasyDownloadFileAsync(new(url), fullPath);
+            var dest = fileMgmt.GetCoverFilename(url, bvid);
+            var result = await downloader.EasyDownloadFileAsync(new(url), dest.FullName);
             if (result)
             {
-                Logger.Shared.Information($"Saved {bvid} cover to {fullPath}");
+                Logger.Shared.Information($"Saved {bvid} cover to {dest.FullName}");
             }
             else
             {
-                Logger.Shared.Warning($"Failed to save {bvid} cover \n\t from {url} \n\t to {fullPath}");
+                Logger.Shared.Warning($"Failed to save {bvid} cover \n\t from {url} \n\t to {dest.FullName}");
             }
-            return fullPath;
+            return dest.FullName;
         }
         catch (Exception ex)
         {
             Logger.Shared.Debug(ex);
             return null;
         }
-    }
-
-    public static string GetFilenameFromUrl(string url) => url.Split("?")[0].Split("@")[0].Split('/').Where(x => !x.IsNullOrEmpty()).Last();
-
-    public static string FormatImageFilename(string url, string bvid)
-    {
-        string filename = GetFilenameFromUrl(url);
-        // tbd：将旧文件名重命名
-        return $"{bvid}_bili_{filename}";
-    }
-
-    public static string FormatImageFilename(string url, string dynamicId, int idx)
-    {
-        string filename = GetFilenameFromUrl(url);
-        return $"{dynamicId}_{idx}_bili_{filename}";
     }
 
     public static void MergeAv(string vname, string aname, AvMeta meta, string outp)

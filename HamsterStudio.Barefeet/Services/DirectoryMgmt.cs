@@ -7,7 +7,13 @@ using System.Threading.Tasks;
 
 namespace HamsterStudio.Barefeet.Services;
 
-public class DirectoryMgmt
+public interface IDirectoryMgmt
+{
+    string StorageHome { get; }
+    string TemporaryHome { get; }
+}
+
+public class DirectoryMgmt : IDirectoryMgmt
 {
     public string StorageHome { get; }
     public string TemporaryHome { get; } = Path.Combine(

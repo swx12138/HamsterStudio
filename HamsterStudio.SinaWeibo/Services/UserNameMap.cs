@@ -1,4 +1,5 @@
-﻿using HamsterStudio.SinaWeibo.Models;
+﻿using HamsterStudio.Barefeet.FileSystem;
+using HamsterStudio.SinaWeibo.Models;
 using System.Text.Json;
 
 namespace HamsterStudio.SinaWeibo.Services;
@@ -64,4 +65,14 @@ internal class UserNameMap
         JsonSerializer.Serialize(outfile, map, DefaultSaveMapOpts);
     }
 
+}
+
+internal class WeiboGrouper(UserNameMap userNameMap) : IFileManagerGrouper
+{    
+    public string Group(string filename)
+    {
+        filename = Path.GetFileName(filename);
+        string uid = filename.Split('_')[4];
+        return userNameMap.CacheMap[uid];
+    }
 }

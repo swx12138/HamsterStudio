@@ -12,6 +12,7 @@ public static class WebApiExtensions
     {
         services.AddSingleton<BangumiDownloadService>();
         services.AddSingleton<BiliApiClient>();
+        services.AddSingleton<FileMgmt>();
 
         services.AddSingleton(CreateServ());
 
