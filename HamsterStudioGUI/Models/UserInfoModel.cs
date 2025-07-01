@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.Input;
 using HamsterStudio.Bilibili.Models;
 using HamsterStudio.Bilibili.Models.Sub;
 using HamsterStudio.HandyUtil.PropertyEditors;
+using HamsterStudioGUI.Constants;
 using HandyControl.Controls;
 using System.ComponentModel;
 using System.Windows.Input;
@@ -12,14 +13,14 @@ namespace HamsterStudioGUI.Models;
 internal partial class UserInfoModel : ObservableObject
 {
     [ObservableProperty]
-    private string _username = "Guest User";
+    private string _username = Defaults.UserName;
 
     [ObservableProperty]
     [property: Editor(typeof(ImageViewOnlyEditor), typeof(PropertyEditorBase))]
-    private string _avatarUrl = "https://i1.hdslb.com/bfs/face/a71d50b0fa790be9646f976c1c99ddacc76ca9e6.jpg";
+    private string _avatarUrl = Defaults.AvatarUrl;
 
     [ObservableProperty]
-    private uint _totalFollowers = 114514;
+    private uint _totalFollowers = Defaults.TotalFollowers;
 
     public ICommand SaveAvatarCommand { get; }
 
