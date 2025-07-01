@@ -16,7 +16,7 @@ public class BilibiliController(BangumiDownloadService downloadService) : Contro
         {
             downloadService.Cookies = "bmg_af_switch=1; bmg_src_def_domain=i0.hdslb.com; VIP_CONTENT_REMIND=1; " + request.Cookie;
         }
-        var resp = await downloadService.GetVideoByBvid(request.Bvid);
+        var resp = await downloadService.DownloadVideoByBvid(request.Bvid);
         return Ok(resp);
     }
 
