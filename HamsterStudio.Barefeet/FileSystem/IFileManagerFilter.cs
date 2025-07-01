@@ -1,4 +1,4 @@
-﻿namespace HamsterStudio.Gallery.Models;
+﻿namespace HamsterStudio.Barefeet.FileSystem;
 
 public interface IFileManagerFilter
 {

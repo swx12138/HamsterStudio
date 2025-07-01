@@ -1,14 +1,7 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
-using HamsterStudio.Gallery.Models;
-using HamsterStudio.Gallery.Models.Filters;
-using HamsterStudio.Gallery.Views;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using HamsterStudio.Barefeet.FileSystem;
+using HamsterStudio.Barefeet.FileSystem.Filters;
 using System.Windows;
-using System.Windows.Input;
 
 namespace HamsterStudio.Gallery.ViewModels;
 

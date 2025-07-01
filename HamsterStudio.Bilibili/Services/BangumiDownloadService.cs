@@ -210,18 +210,17 @@ public class BangumiDownloadService(
     {
         try
         {
-            string filename = FileMgmt.FormatImageFilename(url, bvid);
-            string fullPath = Path.Combine(fileMgmt.CoverHome, filename);
-            var result = await downloader.EasyDownloadFileAsync(new(url), fullPath);
+            var dest = fileMgmt.GetCoverFilename(url, bvid);
+            var result = await downloader.EasyDownloadFileAsync(new(url), dest.FullName);
             if (result)
             {
-                Logger.Shared.Information($"Saved {bvid} cover to {fullPath}");
+                Logger.Shared.Information($"Saved {bvid} cover to {dest.FullName}");
             }
             else
             {
-                Logger.Shared.Warning($"Failed to save {bvid} cover \n\t from {url} \n\t to {fullPath}");
+                Logger.Shared.Warning($"Failed to save {bvid} cover \n\t from {url} \n\t to {dest.FullName}");
             }
-            return fullPath;
+            return dest.FullName;
         }
         catch (Exception ex)
         {

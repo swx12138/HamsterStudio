@@ -1,6 +1,6 @@
-﻿namespace HamsterStudio.Gallery.Models.Filters;
+﻿namespace HamsterStudio.Barefeet.FileSystem.Filters;
 
-class ImageFileFilter : IFileManagerFilter
+public class ImageFileFilter : IFileManagerFilter
 {
     public static readonly List<string> Extensions =
     [

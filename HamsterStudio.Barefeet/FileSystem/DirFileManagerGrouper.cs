@@ -1,6 +1,4 @@
-﻿using System.IO;
-
-namespace HamsterStudio.Gallery.Models;
+﻿namespace HamsterStudio.Barefeet.FileSystem;
 
 public class DirFileManagerGrouper : IFileManagerGrouper
 {
