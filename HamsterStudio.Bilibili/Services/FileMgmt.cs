@@ -7,35 +7,10 @@ using FileInfo = HamsterStudio.Barefeet.FileSystem.FileInfo;
 
 namespace HamsterStudio.Bilibili.Services;
 
-public interface IFilenameFormatter
-{
-    string FormatFilename();
-}
-
-public abstract class SubFolder(string name, string dir)
-{
-    public string Name { get; } = name;
-    public string Directory { get; } = dir;
-    public FileInfo GetFilename(IFilenameFormatter formatter)
-    {
-        string filename = formatter.FormatFilename();
-        string fullName = Path.Combine(Directory, Name, filename);    // TBD：分文件夹
-        return new FileInfo(fullName);
-    }
-}
-
-internal class VidoeFilenameFormatter(VideoInfo videoInfo, int idx) : IFilenameFormatter
-{
-    public string FormatFilename()
-    {
-        throw new NotImplementedException();
-    }
-}
-
 public class FileMgmt : IDirectoryMgmt
 {
     private readonly DirectoryMgmt _innerDirMgmt;
-
+    private readonly HashSet<string> _subFolders;
     public string StorageHome { get; }
     public string TemporaryHome => _innerDirMgmt.TemporaryHome;
     public string DashHome { get; }
@@ -47,7 +22,12 @@ public class FileMgmt : IDirectoryMgmt
         _innerDirMgmt = directoryMgmt;
 
         StorageHome = Path.Combine(_innerDirMgmt.StorageHome, SystemConsts.HomeName);
+        
         DashHome = Path.Combine(StorageHome, SystemConsts.DashSubName);
+        _subFolders = Directory.EnumerateDirectories(DashHome)
+            .Select(x=>Path.GetFileName(x))
+            .ToHashSet(StringComparer.OrdinalIgnoreCase);
+
         CoverHome = Path.Combine(StorageHome, SystemConsts.CoverSubName);
         DynamicHome = Path.Combine(StorageHome, SystemConsts.DynamicSubName);
     }
@@ -55,7 +35,9 @@ public class FileMgmt : IDirectoryMgmt
     public FileInfo GetVideoFilename(VideoInfo videoInfo, int idx)
     {
         string filename = $"{videoInfo.Cid!}-{idx}_{videoInfo.Bvid}.mp4";     // TBD：修改命名规则，增加视频质量和音频质量
-        string fullName = Path.Combine(DashHome, filename);    // TBD：分文件夹
+        string fullName = _subFolders.Contains(videoInfo.Owner.Name) ?
+            Path.Combine(DashHome, videoInfo.Owner.Name, filename) :
+            Path.Combine(DashHome, filename);    // TBD：分文件夹
         return new FileInfo(fullName);
     }
 
