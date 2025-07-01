@@ -19,11 +19,11 @@ public class BiliApiClient
     };
 
     public string Cookies { get; private set; }
-    public string Home { get; }
+    public FileMgmt FileMgmt { get; private set; }
 
-    public BiliApiClient(DirectoryMgmt directoryMgmt)
+    public BiliApiClient(FileMgmt fileMgmt)
     {
-        Home = Path.Combine(directoryMgmt.StorageHome, SystemConsts.HomeName);
+        this.FileMgmt = fileMgmt;
         Cookies = LoadCookies();
         //ServicePointManager.ServerCertificateValidationCallback += (sender, certificate, chain, sslPolicyErrors) => true;
     }
@@ -32,7 +32,7 @@ public class BiliApiClient
     {
         try
         {
-            string cookiesFilename = Path.Combine(Home, "cookies.txt");
+            string cookiesFilename = Path.Combine(FileMgmt.StorageHome, "cookies.txt");
             return File.ReadAllText(cookiesFilename);
         }
         catch (Exception ex)

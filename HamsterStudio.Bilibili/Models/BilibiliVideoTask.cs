@@ -34,7 +34,7 @@ namespace HamsterStudio.Bilibili.Models
         }
 
         public async Task<BilibiliVideoDownloadResult> Run2()
-        {   
+        {
             throw new NotImplementedException("This method is not implemented yet. Please use the Run method instead.");
 
             State = HamsterTaskState.Running;
@@ -61,7 +61,7 @@ namespace HamsterStudio.Bilibili.Models
 
                 //string wish_filename = $"{videoInfo.Cid!}-{vps}_{videoInfo.Bvid}.mp4";
                 //var result = await downloader.Download(meta, aBaseUrl, vBaseUrl, wish_filename);
-                
+
                 //State = result.State == FileDownloadState.Failed ? HamsterTaskState.Failed:  HamsterTaskState.Succeed;
                 //return result;
 
@@ -80,7 +80,7 @@ namespace HamsterStudio.Bilibili.Models
 
                 static string getAudioBaseUrl(VideoStreamInfo? vsi)
                 {
-                    if(vsi == null ) return string.Empty;
+                    if (vsi == null) return string.Empty;
 
                     var dash = (vsi?.Dash.Flac?.Audio ?? vsi?.Dash.Audio.OrderBy(x => x.Bandwidth).Last())!.Value;
                     Logger.Shared.Information($"Audio dash info : {dash.Bandwidth}");
@@ -91,7 +91,7 @@ namespace HamsterStudio.Bilibili.Models
             {
                 State = HamsterTaskState.Failed;
                 Logger.Shared.Critical(ex);
-                return new() { State = FileDownloadState.Failed, Exception = ex };
+                return new() { VideoDest = null, State = FileDownloadState.Failed, Exception = ex };
             }
             finally
             {
