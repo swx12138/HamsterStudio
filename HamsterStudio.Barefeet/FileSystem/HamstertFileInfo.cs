@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace HamsterStudio.Barefeet.FileSystem;
 
-public class FileInfo(string filename)
+public class HamstertFileInfo(string filename)
 {
     public string Name { get; } = Path.GetFileName(filename);
     public string FullName { get; } = Path.GetFullPath(filename);

@@ -3,13 +3,13 @@ using HamsterStudio.Bilibili.Models;
 using HamsterStudio.Web.Services;
 using HamsterStudio.Web.Strategies.Request;
 using HamsterStudio.Web.Tools;
-using FileInfo = HamsterStudio.Barefeet.FileSystem.FileInfo;
+using HamstertFileInfo = HamsterStudio.Barefeet.FileSystem.HamstertFileInfo;
 
 namespace HamsterStudio.Bilibili.Services.StreamDownloaders;
 
 internal class DurlDownloader(CommonDownloader downloader, AuthenticRequestStrategy strategy, StreamDownloaderChaeine? inner) : StreamDownloaderChaeine(inner)
 {
-    public override async Task<bool> Download(VideoStreamInfo videoStreamInfo, AvMeta meta, FileInfo target)
+    public override async Task<bool> Download(VideoStreamInfo videoStreamInfo, AvMeta meta, HamstertFileInfo target)
     {
         if (videoStreamInfo.Durl != null)
         {

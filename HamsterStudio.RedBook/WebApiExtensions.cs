@@ -13,6 +13,7 @@ public static class WebApiExtensions
     {
         services.AddSingleton<IRedBookParser, RedBookNoteParser>();
         services.AddSingleton<NoteDownloadService>();
+        services.AddSingleton<FileMgmt>();
         
         return services;
     }

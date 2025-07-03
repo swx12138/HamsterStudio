@@ -70,6 +70,9 @@ public partial class App : Application
     protected override void OnExit(ExitEventArgs e)
     {
         WebApiService.StopAsync();
+
+        ResloveService<HamsterStudio.RedBook.Services.FileMgmt>().Save();
+
         base.OnExit(e);
     }
 

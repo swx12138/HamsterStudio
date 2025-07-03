@@ -1,8 +1,6 @@
 ﻿using HamsterStudio.Barefeet.Extensions;
-using HamsterStudio.Barefeet.Interfaces;
+using HamsterStudio.Barefeet.FileSystem;
 using HamsterStudio.Barefeet.Logging;
-using HamsterStudio.Barefeet.Services;
-using HamsterStudio.RedBook.Constants;
 using HamsterStudio.RedBook.Models;
 using HamsterStudio.RedBook.Models.Sub;
 using HamsterStudio.Web.DataModels;
@@ -10,10 +8,8 @@ using HamsterStudio.Web.Services;
 
 namespace HamsterStudio.RedBook.Services;
 
-public class NoteDownloadService(DirectoryMgmt directoryMgmt, CommonDownloader downloader)
+public class NoteDownloadService(FileMgmt fileMgmt, CommonDownloader downloader)
 {
-    public string StorageDirectory { get; set; } = Path.Combine(directoryMgmt.StorageHome, SystemConsts.HomeName);
-
     private readonly Logger _logger = Logger.Shared;
 
     public event Action<NoteDetailModel> OnNoteDetailUpdated = delegate { };
@@ -24,18 +20,34 @@ public class NoteDownloadService(DirectoryMgmt directoryMgmt, CommonDownloader d
         var noteDetail = currentNote.NoteDetail;
         OnNoteDetailUpdated?.Invoke(noteDetail);
 
+        bool isHot = fileMgmt.AlbumCollections.AddAlbum(new AlbumCollectionModel
+        {
+            OwnerName = noteDetail.UserInfo.Nickname,
+            FileCount = noteDetail.ImageList.Sum(x => x.LivePhoto ? 2 : 1) + (noteDetail.Type == "video" ? 1 : 0),
+            Albums = [noteDetail.Title]
+        });
+        if (isHot)
+        {
+            var indepent = fileMgmt.CreateSubFolder(noteDetail.UserInfo.Nickname);
+            foreach (var file in indepent.Parent.GetFiles($"*_xhs_{noteDetail.UserInfo.Nickname}_*"))
+            {
+                string newName = Path.Combine(indepent.FullName, file.Name);
+                File.Move(file.FullName, newName);
+            }
+        }
+
         var containedFiles = new List<string>();
 
         _logger.Information($"开始处理<{GetTypeName(noteDetail)}>作品：{noteData.CurrentNoteId}");
         _logger.Information($"标题：{noteDetail.Title}【{noteDetail.ImageList.Count}】");
 
         // 处理图片下载
-        await ProcessImageDownloads(noteDetail, containedFiles);
+        await ProcessImageDownloads(noteDetail, containedFiles, isHot);
 
         // 处理视频下载
         if (noteDetail.Type == "video")
         {
-            await ProcessVideoDownload(noteDetail, containedFiles);
+            await ProcessVideoDownload(noteDetail, containedFiles, isHot);
         }
 
         _logger.Information("Done.");
@@ -43,7 +55,7 @@ public class NoteDownloadService(DirectoryMgmt directoryMgmt, CommonDownloader d
         return BuildResponse(noteDetail, containedFiles);
     }
 
-    private async Task ProcessImageDownloads(NoteDetailModel noteDetail, List<string> containedFiles)
+    private async Task ProcessImageDownloads(NoteDetailModel noteDetail, List<string> containedFiles, bool isHot)
     {
         string title = SelectTitle(noteDetail);
         await Parallel.ForEachAsync(
@@ -56,24 +68,25 @@ public class NoteDownloadService(DirectoryMgmt directoryMgmt, CommonDownloader d
 
             // 生成文件名
             string token = ExtractToken(imgInfo.DefaultUrl);
-            var filename = FileNameGenerator.GenerateImageFilename(title, index, noteDetail.UserInfo, token);
+            var fileInfo = fileMgmt.GenerateImageFilename(title, index, noteDetail.UserInfo, token, isHot);
+            var filename = fileInfo.Name;
 
             // 检查PNG文件是否已存在
             string png_filename = filename + ".png";
-            string png_full_filename = GetFullPath(png_filename);
+            string png_full_filename = fileInfo.FullName + ".png";
             if (File.Exists(png_full_filename))
             {
-                _logger.Information($"文件已存在：{filename}，跳过下载。");
+                _logger.Information($"文件已存在：{png_full_filename}，跳过下载。");
                 containedFiles.Add(png_filename);
                 return;
             }
 
             // 检查WEBP文件是否已存在
             string webp_filename = filename + ".webp";
-            string webp_full_filename = GetFullPath(webp_filename);
+            string webp_full_filename = fileInfo.FullName + ".webp";
             if (File.Exists(webp_full_filename))
             {
-                _logger.Information($"文件已存在：{filename}，跳过下载。");
+                _logger.Information($"文件已存在：{webp_full_filename}，跳过下载。");
                 containedFiles.Add(webp_filename);
                 return;
             }
@@ -119,28 +132,27 @@ public class NoteDownloadService(DirectoryMgmt directoryMgmt, CommonDownloader d
                 }
             }
 
-
             // 处理LivePhoto
             if (imgInfo.LivePhoto)
             {
-                await ProcessLivePhoto(title, index, noteDetail.UserInfo, imgInfo, containedFiles);
+                await ProcessLivePhoto(title, index, noteDetail.UserInfo, imgInfo, containedFiles, isHot);
             }
 
         }
     }
 
-    private async Task<bool> ProcessLivePhoto(string title, int index, UserInfoModel user, ImageListItemModel imgInfo, List<string> containedFiles)
+    private async Task<bool> ProcessLivePhoto(string title, int index, UserInfoModel user, ImageListItemModel imgInfo, List<string> containedFiles, bool isHot)
     {
         var streamInfo = SelectStream(imgInfo.Stream);
         var streamUrl = streamInfo.MasterUrl;
-        var streamFile = FileNameGenerator.GenerateLivePhotoFilename(title, index, user, streamUrl);
+        var streamFile = fileMgmt.GenerateLivePhotoFilename(title, index, user, streamUrl, isHot);
 
-        var streamFullPath = GetFullPath(streamFile);
+        var streamFullPath = streamFile.FullName;
         var state = await downloader.EasyDownloadFileAsync(new Uri(streamUrl), streamFullPath, concurrent: true);
         if (state)
         {
-            containedFiles.Add(streamFile);
-            _logger.Information($"LivePhoto {streamFile} 下载成功。");
+            containedFiles.Add(streamFile.Name);
+            _logger.Information($"LivePhoto {streamFile.Name} 下载成功。");
             return true;
         }
 
@@ -148,22 +160,22 @@ public class NoteDownloadService(DirectoryMgmt directoryMgmt, CommonDownloader d
         return false;
     }
 
-    private async Task ProcessVideoDownload(NoteDetailModel noteDetail, List<string> containedFiles)
+    private async Task ProcessVideoDownload(NoteDetailModel noteDetail, List<string> containedFiles, bool isHot)
     {
         string videoKey = noteDetail.VideoInfo.Consumer.OriginVideoKey;
         var videoUrl = GenerateVideoLink(videoKey);
-        string videoFile = FileNameGenerator.GenerateVideoFilename(
+        var videoFile = fileMgmt.GenerateVideoFilename(
             SelectTitle(noteDetail),
             noteDetail.UserInfo,
-            videoKey.Split('/').Last()
+            videoKey.Split('/').Last(), isHot
         );
 
-        string fullVideoPath = GetFullPath(videoFile);
+        string fullVideoPath = videoFile.FullName;
         var state = await downloader.EasyDownloadFileAsync(videoUrl, fullVideoPath, concurrent: true);
         if (state)
         {
-            containedFiles.Add(videoFile);
-            _logger.Information($"视频 {videoFile} 下载成功。");
+            containedFiles.Add(videoFile.Name);
+            _logger.Information($"视频 {videoFile.Name} 下载成功。");
         }
         else
         {
@@ -187,10 +199,6 @@ public class NoteDownloadService(DirectoryMgmt directoryMgmt, CommonDownloader d
     }
 
     #region Helper Methods
-    private string GetFullPath(string filename) => Path.Combine(StorageDirectory, filename);
-
-    private async Task ApplyRandomDelay() =>
-        await Task.Delay(100 * Random.Shared.Next(5));
 
     private string SelectTitle(NoteDetailModel noteDetail) =>
         !string.IsNullOrEmpty(noteDetail.Title) ? noteDetail.Title : noteDetail.Time.ToString();

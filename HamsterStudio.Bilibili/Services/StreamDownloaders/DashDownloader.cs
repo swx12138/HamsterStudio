@@ -5,13 +5,13 @@ using HamsterStudio.Bilibili.Models;
 using HamsterStudio.Web.Services;
 using HamsterStudio.Web.Strategies.Request;
 using HamsterStudio.Web.Tools;
-using FileInfo = HamsterStudio.Barefeet.FileSystem.FileInfo;
+using HamstertFileInfo = HamsterStudio.Barefeet.FileSystem.HamstertFileInfo;
 
 namespace HamsterStudio.Bilibili.Services.StreamDownloaders;
 
 internal class DashDownloader(CommonDownloader downloader, FileMgmt fileMgmt, AuthenticRequestStrategy strategy, StreamDownloaderChaeine? inner) : StreamDownloaderChaeine(inner)
 {
-    public override async Task<bool> Download(VideoStreamInfo videoStreamInfo, AvMeta meta, FileInfo target)
+    public override async Task<bool> Download(VideoStreamInfo videoStreamInfo, AvMeta meta, HamstertFileInfo target)
     {
         if (videoStreamInfo.Dash.Video != null && videoStreamInfo.Dash.Audio != null)
         {
@@ -72,7 +72,7 @@ internal class DashDownloader(CommonDownloader downloader, FileMgmt fileMgmt, Au
         }
     }
 
-    public static BilibiliVideoDownloadResult MergeStreamToMp4(AvMeta meta, (string aPath, string vPath) avPath, FileInfo target, bool? DeleteAvCache = true)
+    public static BilibiliVideoDownloadResult MergeStreamToMp4(AvMeta meta, (string aPath, string vPath) avPath, HamstertFileInfo target, bool? DeleteAvCache = true)
     {
         if (File.Exists(target.FullName))
         {

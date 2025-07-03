@@ -1,12 +1,12 @@
 ﻿using HamsterStudio.Barefeet.Logging;
 using HamsterStudio.Bilibili.Models;
-using FileInfo = HamsterStudio.Barefeet.FileSystem.FileInfo;
+using HamstertFileInfo = HamsterStudio.Barefeet.FileSystem.HamstertFileInfo;
 
 namespace HamsterStudio.Bilibili.Services.StreamDownloaders;
 
 internal abstract class StreamDownloaderChaeine(StreamDownloaderChaeine? inner)
 {
-    public virtual async Task<bool> Download(VideoStreamInfo streamInfo, AvMeta meta, FileInfo target)
+    public virtual async Task<bool> Download(VideoStreamInfo streamInfo, AvMeta meta, HamstertFileInfo target)
     {
         if (inner != null)
         {
