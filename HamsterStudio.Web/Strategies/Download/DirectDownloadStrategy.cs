@@ -1,5 +1,5 @@
-﻿using HamsterStudio.Web.Strategies.Request;
-using HamsterStudio.Web.Tools;
+﻿using HamsterStudio.Web.DataModels;
+using HamsterStudio.Web.Strategies.Request;
 using System.Net;
 
 namespace HamsterStudio.Web.Strategies.Download;
@@ -9,12 +9,12 @@ public class DirectDownloadStrategy : IDownloadStrategy // 简单实现
 {
     public async Task<DownloadResult> DownloadAsync(DownloadRequest request)
     {
+        ArgumentNullException.ThrowIfNull(request, nameof(request));
+        
         using var response = await request.RequestStrategy.GetResponseAsync(request.Url);
-        using var memStream = new MemoryStream();
-        await response.Content.CopyToAsync(memStream);
-        return new DownloadResult(
-            Data: memStream.ToArray(),
-            StatusCode: HttpStatusCode.OK
-        );
+        response.EnsureSuccessStatusCode();
+
+        var data = await request.ContentCopyStrategy.ToByteArrayCopy(response.Content);
+        return new DownloadResult(data, HttpStatusCode.OK);
     }
 }

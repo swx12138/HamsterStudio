@@ -1,5 +1,5 @@
-﻿using HamsterStudio.Web.Strategies.Request;
-using HamsterStudio.Web.Tools;
+﻿using HamsterStudio.Web.DataModels;
+using HamsterStudio.Web.Strategies.Request;
 using System.Diagnostics;
 using System.Net;
 
@@ -20,7 +20,7 @@ public class ThreadedDownloadStrategy : RangeBasedDownloadStrategy
             var chunks = CalculateChunks(fileSize, request.MaxConnections);
 
             // 3. 创建并行下载任务
-            var downloadTasks = chunks.Select(chunk => DownloadChunkAsync(request.Url, chunk, request.RequestStrategy)).ToList();
+            var downloadTasks = chunks.Select(chunk => DownloadChunkAsync(request.Url, chunk, request.RequestStrategy, request.ContentCopyStrategy)).ToList();
 
             // 4. 限制最大并发数
             var throttler = new SemaphoreSlim(request.MaxConnections);
@@ -37,8 +37,8 @@ public class ThreadedDownloadStrategy : RangeBasedDownloadStrategy
                 }
             });
 
-            var chunksData = await Task.WhenAll(throttledTasks);
-            var mergedData = MergeChunks(chunksData);
+            IEnumerable<byte[]> chunksData = await Task.WhenAll(throttledTasks);
+            var mergedData = chunksData.SelectMany(x => x).ToArray();
 
             return new DownloadResult(
                 mergedData,

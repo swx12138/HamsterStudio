@@ -1,8 +1,9 @@
 ﻿using HamsterStudio.Barefeet.Constants;
 using HamsterStudio.Barefeet.Logging;
+using HamsterStudio.Web.DataModels;
 using HamsterStudio.Web.Strategies;
 using HamsterStudio.Web.Strategies.Request;
-using HamsterStudio.Web.Tools;
+using HamsterStudio.Web.Strategies.StreamCopy;
 using System.Net;
 
 namespace HamsterStudio.Web.Services;
@@ -46,7 +47,10 @@ public class CommonDownloader(HttpClientProvider httpClientProvider)
 
     public async Task<bool> EasyDownloadFileAsync(Uri uri, string destinationPath, bool concurrent = false)
     {
-        var downloadRequest = new DownloadRequest(uri, new AuthenticRequestStrategy(httpClientProvider.HttpClient), concurrent ? 4 : 1);
+        var downloadRequest = new DownloadRequest(uri,
+            new AuthenticRequestStrategy(httpClientProvider.HttpClient),
+            new DirectHttpContentCopyStrategy(),
+            concurrent ? 4 : 1);
         return await DownloadFileAsync(downloadRequest, destinationPath);
     }
 }
