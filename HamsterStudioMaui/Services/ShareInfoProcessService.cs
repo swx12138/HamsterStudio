@@ -23,7 +23,8 @@ class XiaohongshuProcess(IRedBookClient xhsCli, ProcessChain? next) : ProcessCha
     {
         if (link.Contains("小红书"))
         {
-            var url = link.Split().FirstOrDefault(x => x.StartsWith("http"))?.Split("，").First();
+            var urls = link.Split();
+            var url = urls.FirstOrDefault(x => x.StartsWith("http") || x.StartsWith("xhslink"))?.Split("，").First();
             if (url == null || url == string.Empty)
             {
                 //Log += "解析Url失败！";
@@ -32,6 +33,11 @@ class XiaohongshuProcess(IRedBookClient xhsCli, ProcessChain? next) : ProcessCha
             else
             {
                 //Log += $"Loading url {url}";
+            }
+
+            if (!url.StartsWith("http"))
+            {
+                url = "http://" + url;
             }
 
             var noteData = await xhsCli.PostXhsShareLink(new() { Download = true, Url = url });

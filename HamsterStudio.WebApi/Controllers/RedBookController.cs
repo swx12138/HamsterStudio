@@ -1,6 +1,7 @@
 ﻿using HamsterStudio.Barefeet.Logging;
 using HamsterStudio.RedBook.Interfaces;
 using HamsterStudio.RedBook.Models;
+using HamsterStudio.RedBook.Models.Sub;
 using HamsterStudio.RedBook.Services;
 using HamsterStudio.Web.DataModels;
 using Microsoft.AspNetCore.Mvc;
@@ -36,6 +37,12 @@ public class RedBookController(IRedBookParser parser, NoteDownloadService downlo
     public async Task<ActionResult<ServerRespModel?>> DownloadNote(NoteDataModel noteData)
     {
         return Ok(await downloadService.DownloadNoteAsync(noteData));
+    }
+
+    [HttpPost("pc-web/download")]
+    public async Task<ActionResult<ServerRespModel?>> DownloadNote([FromBody] NoteDetailModel detail)
+    {
+        return Ok(await downloadService.DownloadNoteLowAsync(detail));
     }
 
 }

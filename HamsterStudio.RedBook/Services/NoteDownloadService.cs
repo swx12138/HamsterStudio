@@ -5,6 +5,8 @@ using HamsterStudio.RedBook.Models;
 using HamsterStudio.RedBook.Models.Sub;
 using HamsterStudio.Web.DataModels;
 using HamsterStudio.Web.Services;
+using System.Linq;
+using System.Runtime.InteropServices;
 
 namespace HamsterStudio.RedBook.Services;
 
@@ -18,6 +20,13 @@ public class NoteDownloadService(FileMgmt fileMgmt, CommonDownloader downloader)
     {
         var currentNote = noteData.NoteDetailMap[noteData.CurrentNoteId];
         var noteDetail = currentNote.NoteDetail;
+
+        _logger.Information($"开始处理<{GetTypeName(noteDetail)}>作品：{noteData.CurrentNoteId}");
+        return await DownloadNoteLowAsync(noteDetail);
+    }
+
+    public async Task<ServerRespModel> DownloadNoteLowAsync(NoteDetailModel noteDetail)
+    {
         OnNoteDetailUpdated?.Invoke(noteDetail);
 
         bool isHot = fileMgmt.AlbumCollections.AddAlbum(new AlbumCollectionModel
@@ -37,8 +46,6 @@ public class NoteDownloadService(FileMgmt fileMgmt, CommonDownloader downloader)
         }
 
         var containedFiles = new List<string>();
-
-        _logger.Information($"开始处理<{GetTypeName(noteDetail)}>作品：{noteData.CurrentNoteId}");
         _logger.Information($"标题：{noteDetail.Title}【{noteDetail.ImageList.Count}】");
 
         // 处理图片下载
@@ -185,6 +192,7 @@ public class NoteDownloadService(FileMgmt fileMgmt, CommonDownloader downloader)
 
     private ServerRespModel BuildResponse(NoteDetailModel noteDetail, List<string> files)
     {
+        var comparer = new NaturalStringComparer();
         return new ServerRespModel
         {
             Message = "ok",
@@ -193,9 +201,20 @@ public class NoteDownloadService(FileMgmt fileMgmt, CommonDownloader downloader)
                 Title = noteDetail.Title,
                 Description = noteDetail.Description,
                 AuthorNickName = noteDetail.UserInfo.Nickname,
-                StaticFiles = [.. files.Select(f => $"xiaohongshu/{f}")]
+                StaticFiles = [.. files.Select(f => $"xiaohongshu/{f}").OrderBy(f => f, comparer)]
             }
         };
+    }
+
+    [DllImport("shlwapi.dll", CharSet = CharSet.Unicode)]
+    private static extern int StrCmpLogicalW(string psz1, string psz2);
+
+    private class NaturalStringComparer : IComparer<string>
+    {
+        public int Compare(string x, string y)
+        {
+            return StrCmpLogicalW(x, y);
+        }
     }
 
     #region Helper Methods
