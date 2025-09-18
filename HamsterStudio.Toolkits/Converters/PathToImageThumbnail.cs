@@ -3,11 +3,11 @@ using System.Windows.Data;
 
 namespace HamsterStudio.Toolkits.Converters;
 
-public class PathToImageSource : IValueConverter
+public class PathToImageThumbnail : IValueConverter
 {
     public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
     {
-        return ImageUtils.LoadImageSource(value as string);
+        return ImageUtils.LoadThumbnail (value as string);
     }
 
     public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)

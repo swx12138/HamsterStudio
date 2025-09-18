@@ -10,7 +10,7 @@ namespace HamsterStudio.Toolkits
 {
     public static class ImageUtils
     {
-        public static bool ScaleImage(string inputPath, double scale)
+        public static bool ScaleImage(string inputPath, double scale, string outputPath)
         {
             if (string.IsNullOrWhiteSpace(inputPath) || scale <= 0)
                 return false;
@@ -22,7 +22,7 @@ namespace HamsterStudio.Toolkits
 
             using var src = new Mat(inputPath, ImreadModes.Unchanged);
             using var dst = src.Resize(new Size(src.Width * scale, src.Height * scale));
-            dst.SaveImage(inputPath);
+            dst.SaveImage(outputPath);
             return true;
         }
 
@@ -50,11 +50,13 @@ namespace HamsterStudio.Toolkits
 
         private static readonly string[] KnownImageExts = { ".jpg", ".jpeg", ".png", ".bmp", ".gif", ".tiff" };
 
+        public readonly static Uri Placeholder = new("https://i0.hdslb.com/bfs/live/new_room_cover/f4ebd63d8388bf3b1377756289e47d1e0f206ba6.jpg");
+
         public static BitmapImage LoadThumbnail(string? filePath, int maxWidth = 200)
         {
             if (filePath == null)
             {
-                return new BitmapImage(new Uri("pack://application:,,,/placeholder.png"));
+                return new BitmapImage(Placeholder);
             }
 
             try
@@ -72,7 +74,7 @@ namespace HamsterStudio.Toolkits
             catch (Exception ex)
             {
                 Trace.TraceError($"加载缩略图失败: {ex.Message}\n{ex.StackTrace}");
-                return new BitmapImage(new Uri("pack://application:,,,/placeholder.png"));
+                return new BitmapImage(Placeholder);
             }
         }
 
@@ -83,7 +85,7 @@ namespace HamsterStudio.Toolkits
 
             if (!IsImageFile(path))
             {
-                return null;
+                return new BitmapImage(Placeholder);
             }
 
             var bitmap = new BitmapImage();
@@ -102,7 +104,7 @@ namespace HamsterStudio.Toolkits
                 Trace.TraceError($"file @ {path}，。");
                 Trace.TraceError(ex.Message);
                 Trace.TraceError(ex.StackTrace);
-                throw;
+                return new BitmapImage(Placeholder);
             }
         }
 
@@ -130,6 +132,7 @@ namespace HamsterStudio.Toolkits
 
         public static bool IsImageFile(string path)
         {
+            if (!File.Exists(path)) return false;
             return KnownImageExts.Any(ext => path.EndsWith(ext, StringComparison.OrdinalIgnoreCase));
         }
 

@@ -1,6 +1,7 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using HamsterStudio.Barefeet.Logging;
 using HamsterStudio.Toolkits.Logging;
+using HamsterStudioGUI.Models;
 using HamsterStudioGUI.ViewModels;
 
 namespace HamsterStudioGUI;
@@ -19,6 +20,8 @@ partial class MainWindowModel : ObservableObject
     public ObservableCollectionTarget NlogTarget { get; } = new("App");
 
     public MainViewModel MainViewModel { get; } = new();
+
+    public WallpaperShowConfig WallpaperShowConfigModel { get; } = new();
 
     public MainWindowModel()
     {

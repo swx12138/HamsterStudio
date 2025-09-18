@@ -1,0 +1,88 @@
+﻿<UserControl x:Class="HamsterStudioGUI.Views.WallpaperShowConfigView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:i="https://handyorg.github.io/handycontrol"
+             xmlns:local="clr-namespace:HamsterStudioGUI.Views"
+             xmlns:localb="clr-namespace:HamsterStudioGUI.Behaviors"
+             xmlns:localm="clr-namespace:HamsterStudioGUI.Models"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:tkc="clr-namespace:HamsterStudio.Toolkits.Converters;assembly=HamsterStudio.Toolkits"
+             d:DesignHeight="450"
+             d:DesignWidth="800"
+             mc:Ignorable="d">
+    <!--<UserControl.DataContext>
+        <localm:WallpaperShowConfig />
+    </UserControl.DataContext>-->
+    <UserControl.Resources>
+        <Style x:Key="DropZoneStyle" TargetType="Border">
+            <Setter Property="Background" Value="LightGray" />
+            <Setter Property="Margin" Value="10" />
+            <Setter Property="CornerRadius" Value="5" />
+            <Style.Triggers>
+                <Trigger Property="localb:DragDropHelper.IsDragOver" Value="True">
+                    <Setter Property="Background" Value="LightBlue" />
+                    <Setter Property="BorderBrush" Value="Blue" />
+                    <Setter Property="BorderThickness" Value="2" />
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <DataTemplate x:Key="ItemTemplate">
+            <Border Margin="2" Padding="10" Background="LightGreen" CornerRadius="3">
+                <TextBlock FontWeight="Bold" Text="{Binding Name}" />
+            </Border>
+        </DataTemplate>
+
+        <tkc:PathToImageSource x:Key="PathToImageSourceCvtr" />
+        <tkc:PathToImageThumbnail x:Key="PathToImageThumbnailCvtr" />
+    </UserControl.Resources>
+
+    <DockPanel>
+        <!--  选择屏幕  -->
+        <Border BorderBrush="Pink" BorderThickness="1" CornerRadius="3" DockPanel.Dock="Top">
+            <ComboBox x:Name="cbMonitors" ItemsSource="{Binding MonitorIds}">
+                <ComboBox.ItemTemplate>
+                    <DataTemplate>
+                        <TextBlock Text="{Binding MonitorId}" />
+                    </DataTemplate>
+                </ComboBox.ItemTemplate>
+            </ComboBox>
+        </Border>
+
+        <!--  待选壁纸列表  -->
+        <Border Width="500"
+                BorderBrush="Pink"
+                BorderThickness="1"
+                CornerRadius="3"
+                DockPanel.Dock="Left">
+            <ListView IsManipulationEnabled="True" ItemsSource="{Binding AlternateWallpappers}">
+                <ListView.ItemTemplate>
+                    <DataTemplate>
+                        <Canvas Height="300">
+                            <Image Height="300" Source="{Binding Path, Converter={StaticResource PathToImageThumbnailCvtr}}" Stretch="Uniform" />
+                            <TextBlock Text="{Binding FileName}" />
+                        </Canvas>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+                <ListView.ItemContainerStyle>
+                    <Style TargetType="ListViewItem">
+                        <Setter Property="localb:DragDropHelper.IsDragSource" Value="True" />
+                        <Setter Property="Margin" Value="2" />
+                    </Style>
+                </ListView.ItemContainerStyle>
+            </ListView>
+        </Border>
+
+        <!--  当前壁纸预览  -->
+        <Border BorderBrush="Pink" BorderThickness="1" CornerRadius="3" DataContext="{Binding SelectedItem, ElementName=cbMonitors}">
+            <i:Interaction.Behaviors>
+                <localb:DragDropBehavior DropCommand="{Binding DropCommand}" />
+            </i:Interaction.Behaviors>
+            <Grid>
+                <Image MinWidth="200" MinHeight="200" Source="{Binding CurrentWallpaper, Converter={StaticResource PathToImageSourceCvtr}}" />
+                <TextBlock Text="{Binding CurrentWallpaper}" />
+            </Grid>
+        </Border>
+    </DockPanel>
+</UserControl>
