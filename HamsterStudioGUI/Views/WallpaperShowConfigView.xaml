@@ -36,6 +36,20 @@
 
         <tkc:PathToImageSource x:Key="PathToImageSourceCvtr" />
         <tkc:PathToImageThumbnail x:Key="PathToImageThumbnailCvtr" />
+
+        <DataTemplate x:Key="ImageModelDimFilterTempl" DataType="localm:ImageModelDimFilter">
+            <StackPanel Orientation="Horizontal">
+                <StackPanel.Resources>
+                    <Style TargetType="CheckBox">
+                        <Setter Property="Margin" Value="0,0,8,3" />
+                    </Style>
+                </StackPanel.Resources>
+                <CheckBox Content="只要4K" IsChecked="{Binding Is4kOnly}" />
+                <CheckBox Content="只看竖屏" IsChecked="{Binding IsVerticalOnly}" />
+                <CheckBox Content="只看横图 " IsChecked="{Binding IsHorizontalOnly}" />
+            </StackPanel>
+        </DataTemplate>
+
     </UserControl.Resources>
 
     <DockPanel>
@@ -56,16 +70,7 @@
                 <TextBlock Text="{Binding FilteredAlternateWallpappersView.Count, StringFormat=待选壁纸列表[{0}]}" />
             </GroupBox.Header>
             <DockPanel>
-                <StackPanel DataContext="{Binding AlternateWallpappersFilter}" DockPanel.Dock="Top" Orientation="Horizontal">
-                    <StackPanel.Resources>
-                        <Style TargetType="CheckBox">
-                            <Setter Property="Margin" Value="0,0,8,3" />
-                        </Style>
-                    </StackPanel.Resources>
-                    <CheckBox Content="只要4K" IsChecked="{Binding Is4kOnly}" />
-                    <CheckBox Content="只看竖屏" IsChecked="{Binding IsVerticalOnly}" />
-                    <CheckBox Content="只看横图 " IsChecked="{Binding IsHorizontalOnly}" />
-                </StackPanel>
+                <ContentPresenter Content="{Binding AlternateWallpappersFilter}" ContentTemplate="{StaticResource ImageModelDimFilterTempl}" DockPanel.Dock="Top" />
                 <Button Command="{Binding LoadMoreImagesCommand}" Content="添加..." DockPanel.Dock="Top" />
                 <ListView IsManipulationEnabled="True" ItemsSource="{Binding FilteredAlternateWallpappersView}">
                     <ListView.ItemTemplate>
@@ -104,10 +109,17 @@
             <i:Interaction.Behaviors>
                 <localb:DragDropBehavior DropCommand="{Binding DropCommand}" />
             </i:Interaction.Behaviors>
-            <Grid>
+            <DockPanel>
+                <TextBlock DockPanel.Dock="Top" Text="{Binding CurrentWallpaper}" />
+                <ContentPresenter Content="{Binding Filter}" ContentTemplate="{StaticResource ImageModelDimFilterTempl}" DockPanel.Dock="Top" />
+                <DockPanel DockPanel.Dock="Top">
+                    <CheckBox Content="自动切换" IsChecked="{Binding AutoChangeWallpaper}" />
+                    <TextBlock Margin="8,0,0,4" Text="{Binding LastUpdateTime, StringFormat=上次更新:[yyyy-MM-dd HH:mm:ss]}" />
+                    <TextBlock Margin="8,0,0,4" Text="{Binding NextUpdateTime, StringFormat=下次更新:[yyyy-MM-dd HH:mm:ss]}" />
+                </DockPanel>
+                <Button HorizontalAlignment="Left" Command="{Binding RequestNewWallpapperCommand}" Content="换一个" DockPanel.Dock="Top" />
                 <Image MinWidth="200" MinHeight="200" Source="{Binding CurrentWallpaper, Converter={StaticResource PathToImageSourceCvtr}}" />
-                <TextBlock Text="{Binding CurrentWallpaper}" />
-            </Grid>
+            </DockPanel>
         </Border>
     </DockPanel>
 </UserControl>
