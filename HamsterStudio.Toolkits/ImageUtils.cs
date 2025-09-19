@@ -2,6 +2,7 @@
 using OpenCvSharp;
 using OpenCvSharp.WpfExtensions;
 using System.Diagnostics;
+using System.Drawing;
 using System.IO;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
@@ -10,6 +11,62 @@ namespace HamsterStudio.Toolkits
 {
     public static class ImageUtils
     {
+        // TBD：使用策略模式实现
+        public static (int, int, int) ReadMeta(string path)
+        {
+            if (!File.Exists(path))
+            {
+                throw new FileNotFoundException(Path.GetFullPath(path));
+            }
+
+            using FileStream ifs = File.OpenRead(path);
+            var magicRaw = new byte[2];
+            ifs.Read(magicRaw, 0, magicRaw.Length);
+
+            ushort magic = BitConverter.ToUInt16(magicRaw.Reverse().ToArray());
+            if (magic == 0xffd8) // jpeg
+            {
+                while (true)
+                {
+                    // 读取两个字节
+                    var rawTag = new byte[2];
+                    ifs.Read(rawTag, 0, rawTag.Length);
+                    //rawTag = rawTag.Reverse().ToArray();
+
+                    if (rawTag[0] != 0xff)
+                    {
+                        Console.WriteLine("Not a JPEG format.");
+                        break;
+                    }
+                    var rawLen = new byte[2];
+                    ifs.Read(rawLen, 0, rawLen.Length);
+                    int length = BitConverter.ToUInt16(rawLen.Reverse().ToArray()) - 2; // 减2是因为表示长度的两个字节也在内
+                    if (rawTag[1] != 0xc0)
+                    {
+                        //Console.WriteLine($"Unkown tag {rawTag[0]:x} {rawTag[1]:x},Skipped {length} bytes.");
+                        ifs.Seek(length, SeekOrigin.Current);
+                        continue;
+                    }
+
+                    var sofRaw = new byte[length];
+                    ifs.Read(sofRaw, 0, sofRaw.Length);
+
+                    byte sample = sofRaw[0];
+                    ushort height = BitConverter.ToUInt16(sofRaw.Skip(1).Take(2).Reverse().ToArray());
+                    ushort width = BitConverter.ToUInt16(sofRaw.Skip(3).Take(2).Reverse().ToArray());
+                    byte channel = sofRaw[5];
+
+                    //Console.WriteLine($"It's a jpeg image, {width}*{height} in size, with {channel} channels.");
+                    //break;
+                    return (width, height, channel);
+                }
+
+            }
+
+            //Image.FromStream();
+            return (0, 0, 0);
+        }
+
         public static bool ScaleImage(string inputPath, double scale)
         {
             if (string.IsNullOrWhiteSpace(inputPath) || scale <= 0)
@@ -21,7 +78,7 @@ namespace HamsterStudio.Toolkits
             }
 
             using var src = new Mat(inputPath, ImreadModes.Unchanged);
-            using var dst = src.Resize(new Size(src.Width * scale, src.Height * scale));
+            using var dst = src.Resize(new OpenCvSharp.Size(src.Width * scale, src.Height * scale));
             dst.SaveImage(inputPath);
             return true;
         }
@@ -43,7 +100,7 @@ namespace HamsterStudio.Toolkits
             if (scale <= 0)
                 return false;
 
-            using var dst = src.Resize(new Size(src.Width * scale, src.Height * scale));
+            using var dst = src.Resize(new OpenCvSharp.Size(src.Width * scale, src.Height * scale));
             dst.SaveImage(inputPath);
             return true;
         }
@@ -193,7 +250,7 @@ namespace HamsterStudio.Toolkits
                         var bitmapSource = BitmapSourceConverter.ToBitmapSource(resizedMats[i]);
 
                         // 绘制逻辑（保持宽高比）
-                        var imageSize = new Size(bitmapSource.Width, bitmapSource.Height);
+                        var imageSize = new OpenCvSharp.Size(bitmapSource.Width, bitmapSource.Height);
                         var renderRect = new System.Windows.Rect(left, row * cellHeight, imageSize.Width, imageSize.Height);
                         dc.DrawImage(bitmapSource, renderRect);
 
@@ -274,7 +331,7 @@ namespace HamsterStudio.Toolkits
                     using (var mat = processedMats[i])
                     {
                         double scale = avgHeight / mat.Height;
-                        var resizedMat = mat.Resize(new Size(mat.Width * scale, avgHeight));
+                        var resizedMat = mat.Resize(new OpenCvSharp.Size(mat.Width * scale, avgHeight));
                         result[i] = resizedMat.Clone(); // Clone to ensure the image is not disposed
                     }
                 });
@@ -340,6 +397,11 @@ namespace HamsterStudio.Toolkits
 
         }
     
+    }
+
+    public class ImageHeader { 
+        public long Width { get; set; }
+        public long Height { get; set; }
     }
 
 }
