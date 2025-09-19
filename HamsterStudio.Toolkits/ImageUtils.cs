@@ -11,6 +11,17 @@ namespace HamsterStudio.Toolkits
 {
     public static class ImageUtils
     {
+        // 大端字节序转uint（4字节）
+        public static uint FromBigEndian(byte[] bytes, int offset)
+        {
+            return (uint)(bytes[offset] << 24 | bytes[offset + 1] << 16 | bytes[offset + 2] << 8 | bytes[offset + 3]);
+        }
+
+        public static UInt64 FromBigEndian64(byte[] bytes, int offest)
+        {
+            throw new NotImplementedException();
+        }
+
         // TBD：使用策略模式实现
         public static (int, int, int) ReadMeta(string path)
         {
@@ -62,7 +73,37 @@ namespace HamsterStudio.Toolkits
                 }
 
             }
+            else if (magicRaw[0] == 0x89 && magicRaw[1] == 0x50)
+            {
+                var fullHeasderRaw = new byte[6];
+                //ifs.Seek(0, SeekOrigin.Begin);
+                ifs.Read(fullHeasderRaw, 0, fullHeasderRaw.Length);
+                var fullMagic = BitConverter.ToUInt64(magicRaw.Concat(fullHeasderRaw).Reverse().ToArray());
+                if (fullMagic == 0x89504e470d0a1a0a) // PNG
+                {
+                    var blkSizeRaw = new byte[4];
+                    ifs.Read(blkSizeRaw, 0, blkSizeRaw.Length);
 
+
+                    var blkSize = FromBigEndian(blkSizeRaw, 0);
+                    var blkData = new byte[blkSize];
+                    ifs.Read(blkData, 0, blkData.Length);
+
+                    var blkTypeCode = FromBigEndian(blkData, 0);
+                    if (blkTypeCode == 0x49484452) // IHDR
+                    {
+                        var width = FromBigEndian(blkData, 4);
+                        var height = FromBigEndian(blkData, 8);
+                        var depth = blkData[12];
+                        return ((int)width, (int)height, depth);
+                    }
+                    else
+                    {
+                        // 第一个Block一定是IHDR
+                        throw new FormatException("First block of png is not IHDR!!");
+                    }
+                }
+            }
             //Image.FromStream();
             return (0, 0, 0);
         }
