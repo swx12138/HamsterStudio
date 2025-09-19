@@ -1,4 +1,5 @@
-﻿using HamsterStudio.WebApi;
+﻿using HamsterStudio.Barefeet.Logging;
+using HamsterStudio.WebApi;
 using HamsterStudioGUI.Extensions;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -38,6 +39,8 @@ public partial class App : Application
 
     private void InitializeWebApi()
     {
+        Logger.Shared.Information("Starting Web API Service...");
+
         var builder = WebApplication
 #if DEBUG
             .CreateBuilder(new WebApplicationOptions() { EnvironmentName = Environments.Development });
@@ -62,7 +65,10 @@ public partial class App : Application
 
         WebApiService = builder.Build();
         WebApiService.ConfigureWebApi()
-            .ConfigureStaticFiles();
+            .ConfigureStaticFiles()
+            .ConfigureImageMetaInfoReadService();
+
+        Logger.Shared.Information($"Web API Service listening on ports {HttpPortNumber} (HTTP) and {HttpsPortNumber} (HTTPS)");
 
         WebApiService.RunAsync();
     }

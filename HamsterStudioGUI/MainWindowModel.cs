@@ -1,6 +1,7 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using HamsterStudio.Barefeet.Logging;
 using HamsterStudio.Toolkits.Logging;
+using HamsterStudio.Toolkits.Services;
 using HamsterStudioGUI.Models;
 using HamsterStudioGUI.ViewModels;
 
@@ -21,7 +22,7 @@ partial class MainWindowModel : ObservableObject
 
     public MainViewModel MainViewModel { get; } = new();
 
-    public WallpaperShowConfig WallpaperShowConfigModel { get; } = new();
+    public WallpaperShowConfig WallpaperShowConfigModel { get; } = new(App.ResloveService<ImageMetaInfoReadService>());
 
     public MainWindowModel()
     {

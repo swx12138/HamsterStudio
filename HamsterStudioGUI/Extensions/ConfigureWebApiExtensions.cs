@@ -1,5 +1,7 @@
 ﻿using HamsterStudio.Barefeet.Logging;
 using HamsterStudio.Barefeet.Services;
+using HamsterStudio.Toolkits.Services;
+using HamsterStudio.Toolkits.Services.ImageMetaInfoReader;
 using HamsterStudio.Web.Services;
 using HamsterStudio.WebApi;
 using Microsoft.AspNetCore.Builder;
@@ -13,12 +15,14 @@ internal static class ConfigureWebApiExtensions
 {
     public static void ConfigureService(this IServiceCollection services, string home)
     {
+        services.AddSingleton<ImageMetaInfoReadService>();
         services.AddSingleton(new DirectoryMgmt(home));
         services.AddSingleton<HttpClientProvider>();
     }
 
-    public static void ConfigureStaticFiles(this WebApplication app, params StaticFilePathParam[] static_file_paths)
+    public static WebApplication ConfigureStaticFiles(this WebApplication app, params StaticFilePathParam[] static_file_paths)
     {
+        Logger.Shared.Information("Configuring Static Files...");
         var directoryMgmt = app.Services.GetService<DirectoryMgmt>() ?? throw new NotSupportedException();
         app.AddStaticFiles(new StaticFilePathParam() { PhyPath = directoryMgmt.StorageHome, ReqPath = "static" });
 
@@ -32,6 +36,17 @@ internal static class ConfigureWebApiExtensions
             app.AddStaticFiles(static_file_path);
         }
 
+        return app;
+    }
+
+    public static WebApplication ConfigureImageMetaInfoReadService(this WebApplication app)
+    {
+        Logger.Shared.Information("Configuring ImageMetaInfoReadService...");
+        var svc = app.Services.GetService<ImageMetaInfoReadService>() ?? throw new NotSupportedException();
+        svc.ImageMetaInfoReaders.Add(new JpegImageMetaInfoReader());
+        svc.ImageMetaInfoReaders.Add(new PngImageMetaInfoReader());
+        svc.ImageMetaInfoReaders.Add(new WebpImageMetaInfoReader());
+        return app;
     }
 
     private static void AddStaticFiles(this WebApplication app, StaticFilePathParam static_file_path)
