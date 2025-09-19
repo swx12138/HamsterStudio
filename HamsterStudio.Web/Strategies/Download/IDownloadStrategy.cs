@@ -1,4 +1,4 @@
-﻿using HamsterStudio.Web.Tools;
+﻿using HamsterStudio.Web.DataModels;
 using System.Net;
 
 namespace HamsterStudio.Web.Strategies.Download;

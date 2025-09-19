@@ -2,9 +2,10 @@
 using HamsterStudio.Barefeet.Interfaces;
 using HamsterStudio.Barefeet.Logging;
 using HamsterStudio.Bilibili.Models;
+using HamsterStudio.Web.DataModels;
 using HamsterStudio.Web.Services;
 using HamsterStudio.Web.Strategies.Request;
-using HamsterStudio.Web.Tools;
+using HamsterStudio.Web.Strategies.StreamCopy;
 using HamstertFileInfo = HamsterStudio.Barefeet.FileSystem.HamstertFileInfo;
 
 namespace HamsterStudio.Bilibili.Services.StreamDownloaders;
@@ -34,7 +35,7 @@ internal class DashDownloader(CommonDownloader downloader, FileMgmt fileMgmt, Au
         string vBaseUrl = SelectVideoBaseUrl(acceptQuality, streamInfo);
         string vName = vBaseUrl.Filename();
         string vPath = Path.Combine(fileMgmt.TemporaryHome, vName);
-        var vrequ = new DownloadRequest(new Uri(vBaseUrl), strategy);
+        var vrequ = new DownloadRequest(new Uri(vBaseUrl), strategy, new DirectHttpContentCopyStrategy());
         if (!await downloader.DownloadFileAsync(vrequ, vPath))
         {
             throw new Exception($"Failed to download video stream from {vBaseUrl}");
@@ -43,7 +44,7 @@ internal class DashDownloader(CommonDownloader downloader, FileMgmt fileMgmt, Au
         string aBaseUrl = SelectAudioBaseUrl(streamInfo);
         string aName = aBaseUrl.Filename();
         string aPath = Path.Combine(fileMgmt.TemporaryHome, aName);
-        var arequ = new DownloadRequest(new Uri(aBaseUrl), strategy);
+        var arequ = new DownloadRequest(new Uri(aBaseUrl), strategy, new DirectHttpContentCopyStrategy());
         if (!await downloader.DownloadFileAsync(arequ, aPath))
         {
             throw new Exception($"Failed to download audio stream from {aBaseUrl}");

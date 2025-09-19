@@ -1,7 +1,8 @@
 ﻿using System.Net.Http.Headers;
 using System.Net;
-using HamsterStudio.Web.Tools;
 using HamsterStudio.Web.Strategies.Request;
+using HamsterStudio.Web.DataModels;
+using HamsterStudio.Web.Strategies.StreamCopy;
 
 namespace HamsterStudio.Web.Strategies.Download;
 
@@ -17,7 +18,7 @@ public abstract class RangeBasedDownloadStrategy : IDownloadStrategy
         return response.Content.Headers.ContentLength ?? throw new NotSupportedException("Content-Length header missing");
     }
 
-    protected async Task<byte[]> DownloadChunkAsync(Uri url, ChunkRange range, IRequestStrategy requestStrategy)
+    protected async Task<byte[]> DownloadChunkAsync(Uri url, ChunkRange range, IRequestStrategy requestStrategy, IHttpContentCopyStrategy copyStrategy)
     {
         var request = new HttpRequestMessage(HttpMethod.Get, url);
         request.Headers.Range = new RangeHeaderValue(range.Start, range.End);
@@ -26,7 +27,7 @@ public abstract class RangeBasedDownloadStrategy : IDownloadStrategy
         if (response.StatusCode != HttpStatusCode.PartialContent)
             throw new HttpRequestException($"Unexpected status code: {response.StatusCode}");
 
-        return await response.Content.ReadAsByteArrayAsync();
+        return await copyStrategy.ToByteArrayCopy(response.Content);
     }
 
     public static byte[] MergeChunks(IEnumerable<byte[]> chunks)
@@ -36,7 +37,7 @@ public abstract class RangeBasedDownloadStrategy : IDownloadStrategy
         {
             merged.AddRange(chunk);
         }
-        return merged.ToArray();
+        return [.. merged];
     }
 
     public abstract Task<DownloadResult> DownloadAsync(DownloadRequest request);
