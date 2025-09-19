@@ -1,6 +1,7 @@
 ﻿using HamsterStudio.Barefeet.Extensions;
 using HamsterStudio.Barefeet.Interfaces;
 using HamsterStudio.Barefeet.Logging;
+using HamsterStudio.Barefeet.SysCall;
 using HamsterStudio.Bilibili.Models;
 using HamsterStudio.Web.DataModels;
 using HamsterStudio.Web.Services;
@@ -107,7 +108,7 @@ internal class DashDownloader(CommonDownloader downloader, FileMgmt fileMgmt, Au
             $"-metadata album=\"{meta.album}\" " +
             $"-metadata copyright=\"{meta.copyright}\" " +
             $"\"{outp}\"";
-        ExplorerShell.System(cmd);
+        ShellApi.System(cmd);
         Logger.Shared.Information($"Av merge succeed.");
     }
 

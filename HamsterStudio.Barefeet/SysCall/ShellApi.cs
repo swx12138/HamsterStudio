@@ -1,9 +1,13 @@
 ﻿using System.Diagnostics;
+using System.Runtime.InteropServices;
 
-namespace HamsterStudio.Barefeet.Extensions;
+namespace HamsterStudio.Barefeet.SysCall;
 
-public static class ExplorerShell
+public static class ShellApi
 {
+    [DllImport("Shlwapi.dll", CharSet = CharSet.Unicode)]
+    public static extern int StrCmpLogicalW(string psz1, string psz2);
+
     public static void SelectFile(string filePath)
     {
         if (string.IsNullOrEmpty(filePath))
@@ -36,8 +40,8 @@ public static class ExplorerShell
         ProcessStartInfo startInfo = new ProcessStartInfo();
         startInfo.FileName = "cmd.exe";
         startInfo.Arguments = $"/C {cmd}"; // 示例命令：列出当前目录下的文件和文件夹
-        //startInfo.RedirectStandardOutput = true;
-        //startInfo.RedirectStandardError = true;
+                                           //startInfo.RedirectStandardOutput = true;
+                                           //startInfo.RedirectStandardError = true;
 
         // 设置进程对象的启动信息
         process.StartInfo = startInfo;
@@ -52,6 +56,12 @@ public static class ExplorerShell
         process.Close();
     }
 
-    public static long MilisecondTimestamp => DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
-
+    public static void SendToRecycleBin(string path)
+    {
+        if (!File.Exists(path)) { return; }
+        // 将文件移动到回收站
+        Microsoft.VisualBasic.FileIO.FileSystem.DeleteFile(path,
+                              Microsoft.VisualBasic.FileIO.UIOption.OnlyErrorDialogs,
+                              Microsoft.VisualBasic.FileIO.RecycleOption.SendToRecycleBin);
+    }
 }

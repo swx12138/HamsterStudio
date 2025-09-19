@@ -1,7 +1,6 @@
 ﻿using System.Runtime.InteropServices;
-using System.Runtime.InteropServices.Marshalling;
 
-namespace HamsterStudio.Toolkits.SysCall;
+namespace HamsterStudio.Barefeet.SysCall;
 
 // based off of https://bitbucket.org/ciniml/desktopwallpaper
 [ComImport]
@@ -33,9 +32,9 @@ public interface IDesktopWallpaper
     [return: MarshalAs(UnmanagedType.I4)]
     DesktopWallpaperPosition GetPosition();
 
-    void SetSlideshow(IntPtr items);
+    void SetSlideshow(nint items);
 
-    IntPtr GetSlideshow();
+    nint GetSlideshow();
 
     void SetSlideshowOptions(DesktopSlideshowDirection options, uint slideshowTick);
 

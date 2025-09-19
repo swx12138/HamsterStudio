@@ -1,4 +1,5 @@
 ﻿using HamsterStudio.Barefeet.Extensions;
+using HamsterStudio.Barefeet.Logging;
 using HamsterStudio.Barefeet.Services;
 
 namespace HamsterStudio.SinaWeibo.Services;
@@ -26,6 +27,8 @@ public class FileMgmt
         //        return (fileInfo.Name, fileInfo);
         //    }).ToDictionary();
         UserNameMap = new(this);
+
+        Logger.Shared.Information($"Weibo FileMgmt initialized, storage home: {Home}");
     }
 
     public string GetFullPath(string filename, string userId)

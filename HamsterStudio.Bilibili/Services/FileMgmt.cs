@@ -1,5 +1,6 @@
 ﻿using HamsterStudio.Barefeet.Extensions;
 using HamsterStudio.Barefeet.FileSystem;
+using HamsterStudio.Barefeet.Logging;
 using HamsterStudio.Barefeet.Services;
 using HamsterStudio.Bilibili.Constants;
 using HamsterStudio.Bilibili.Models;
@@ -30,6 +31,8 @@ public class FileMgmt : IDirectoryMgmt
 
         CoverHome = Path.Combine(StorageHome, SystemConsts.CoverSubName);
         DynamicHome = Path.Combine(StorageHome, SystemConsts.DynamicSubName);
+
+        Logger.Shared.Information($"Bilibili FileMgmt initialized, storage home: {StorageHome}");
     }
 
     public HamstertFileInfo GetVideoFilename(VideoInfo videoInfo, int idx)

@@ -1,5 +1,6 @@
 ﻿using HamsterStudio.Barefeet.Extensions;
 using HamsterStudio.Barefeet.FileSystem;
+using HamsterStudio.Barefeet.Logging;
 using HamsterStudio.Barefeet.Services;
 using HamsterStudio.RedBook.Constants;
 using HamsterStudio.RedBook.Models.Sub;
@@ -23,6 +24,7 @@ public class FileMgmt : IDirectoryMgmt
         CacheFilename = Path.Combine(StorageHome, SystemConsts.CacheDirName, "album_collections.json");
         AlbumCollections = AlbumCollectionsModel.Load(CacheFilename, new FilenameInfoParser());
         CheckReallyHots();
+        Logger.Shared.Information($"RedBook FileMgmt initialized, storage home: {StorageHome}");
     }
 
     private void CheckReallyHots()

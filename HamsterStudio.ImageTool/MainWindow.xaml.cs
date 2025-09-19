@@ -1,7 +1,4 @@
-﻿using HamsterStudio.ImageTool.ViewModels;
-using HamsterStudio.Toolkits.SysCall;
-using System.Windows;
-using System.Windows.Navigation;
+﻿using System.Windows;
 
 namespace HamsterStudio.ImageTool;
 

@@ -1,7 +1,4 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Microsoft.Win32;
-using System.Runtime.InteropServices;
-using HamsterStudio.Toolkits.SysCall;
+﻿using System.Runtime.InteropServices;
 
 // based off of https://bitbucket.org/ciniml/desktopwallpaper
 [ComImport]

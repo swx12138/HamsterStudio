@@ -1,6 +1,4 @@
 ﻿using System.Diagnostics;
-using HamsterStudio.Toolkits;
-using System.Drawing;
 
 namespace HamsterStudioTests
 {
@@ -34,17 +32,17 @@ namespace HamsterStudioTests
                 @"C:\Users\collei\AppData\Local\Packages\Microsoft.Windows.ContentDeliveryManager_cw5n1h2txyewy\LocalState\Assets\b0f752d54d948348f250525e0c6ccbb57504038eb204c7155f01ccb4573e3f1f.jpg",
             ];
 
-            var svc = new ImageMetaInfoReadService();
-            svc.ImageMetaInfoReaders.Add(new WebpImageMetaInfoReader());
-            svc.ImageMetaInfoReaders.Add(new PngImageMetaInfoReader());
-            svc.ImageMetaInfoReaders.Add(new JpegImageMetaInfoReader());
+            //var svc = new ImageMetaInfoReadService();
+            //svc.ImageMetaInfoReaders.Add(new WebpImageMetaInfoReader());
+            //svc.ImageMetaInfoReaders.Add(new PngImageMetaInfoReader());
+            //svc.ImageMetaInfoReaders.Add(new JpegImageMetaInfoReader());
             var stopwatch = new Stopwatch();
             //for (int i = 0; i < targets.Length; i++)
             foreach (string target in targets)
             {
                 stopwatch.Restart();
-                var ans = svc.Read(target);
-                Console.WriteLine($"ImageUtils.ReadMeta => {ans.Width} {ans.Height}, used {stopwatch.ElapsedMilliseconds} ms.");
+                //var ans = svc.Read(target);
+                //Console.WriteLine($"ImageUtils.ReadMeta => {ans.Width} {ans.Height}, used {stopwatch.ElapsedMilliseconds} ms.");
             }
 
             // low 1888ms
