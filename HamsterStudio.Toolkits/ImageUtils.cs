@@ -2,14 +2,214 @@
 using OpenCvSharp;
 using OpenCvSharp.WpfExtensions;
 using System.Diagnostics;
+using System.Drawing;
 using System.IO;
+using System.Text.Json.Serialization;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 
 namespace HamsterStudio.Toolkits
 {
+    public struct ImageMetaInfo
+    {
+        [JsonPropertyName("width")]
+        public long Width { get; init; }
+
+        [JsonPropertyName("height")]
+        public long Height { get; init; }
+
+        [JsonPropertyName("type")]
+        public string Type { get; init; }
+    }
+
+    public interface IImageMetaInfoReader
+    {
+        bool Accept(in byte[] header);
+        ImageMetaInfo Read(in FileStream ifs);
+    }
+
+    public class ImageMetaInfoReadService
+    {
+        public List<IImageMetaInfoReader> ImageMetaInfoReaders = [];
+
+        public ImageMetaInfo Read(in string path)
+        {
+            if (!File.Exists(path))
+            {
+                throw new FileNotFoundException(Path.GetFullPath(path));
+            }
+
+            using FileStream ifs = File.OpenRead(path);
+            var headerRaw = new byte[12];
+            ifs.Read(headerRaw, 0, headerRaw.Length);
+            foreach (var reader in ImageMetaInfoReaders)
+            {
+                if (reader.Accept(headerRaw))
+                {
+                    return reader.Read(ifs);
+                }
+            }
+
+            throw new NotSupportedException("Not support file format");
+        }
+
+    }
+
+    public class JpegImageMetaInfoReader : IImageMetaInfoReader
+    {
+        public bool Accept(in byte[] header)
+        {
+            ushort magic = BitConverter.ToUInt16(header.Take(2).Reverse().ToArray());
+            return magic == 0xffd8;
+        }
+
+        public ImageMetaInfo Read(in FileStream ifs)
+        {
+            ifs.Seek(2, SeekOrigin.Begin);
+            while (true)
+            {
+                // 读取两个字节
+                var rawTag = new byte[2];
+                if (0 == ifs.Read(rawTag, 0, rawTag.Length))
+                {
+                    break;
+                }
+                //rawTag = rawTag.Reverse().ToArray();
+
+                if (rawTag[0] != 0xff)
+                {
+                    Console.WriteLine("Not a JPEG format.");
+                    break;
+                }
+                var rawLen = new byte[2];
+                ifs.Read(rawLen, 0, rawLen.Length);
+                int length = BitConverter.ToUInt16(rawLen.Reverse().ToArray()) - 2; // 减2是因为表示长度的两个字节也在内
+                if (rawTag[1] != 0xc0)
+                {
+                    //Console.WriteLine($"Unkown tag {rawTag[0]:x} {rawTag[1]:x},Skipped {length} bytes.");
+                    ifs.Seek(length, SeekOrigin.Current);
+                    continue;
+                }
+
+                var sofRaw = new byte[length];
+                ifs.Read(sofRaw, 0, sofRaw.Length);
+
+                byte sample = sofRaw[0];
+                ushort height = BitConverter.ToUInt16(sofRaw.Skip(1).Take(2).Reverse().ToArray());
+                ushort width = BitConverter.ToUInt16(sofRaw.Skip(3).Take(2).Reverse().ToArray());
+                byte channel = sofRaw[5];
+
+                //Console.WriteLine($"It's a jpeg image, {width}*{height} in size, with {channel} channels.");
+                //break;
+                return new() { Height = height, Width = width, Type = "Jpeg" };
+            }
+            throw new KeyNotFoundException("没有找到文件头信息，可能不是一个正确的JPEG文件。");
+        }
+    }
+
+    public class PngImageMetaInfoReader : IImageMetaInfoReader
+    {
+        public bool Accept(in byte[] header)
+        {
+            var fullMagic = BitConverter.ToUInt64(header.Take(8).Reverse().ToArray());
+            return fullMagic == 0x89504e470d0a1a0a;
+        }
+
+        public ImageMetaInfo Read(in FileStream ifs)
+        {
+            ifs.Seek(8, SeekOrigin.Begin);
+
+            var blkSizeRaw = new byte[4];
+            ifs.Read(blkSizeRaw, 0, blkSizeRaw.Length);
+
+
+            var blkSize = ImageUtils.FromBigEndian(blkSizeRaw, 0);
+            var blkData = new byte[blkSize];
+            ifs.Read(blkData, 0, blkData.Length);
+
+            var blkTypeCode = ImageUtils.FromBigEndian(blkData, 0);
+            if (blkTypeCode == 0x49484452) // IHDR
+            {
+                var width = ImageUtils.FromBigEndian(blkData, 4);
+                var height = ImageUtils.FromBigEndian(blkData, 8);
+                var depth = blkData[12];
+                return new() { Height = height, Width = width, Type = "Png" };
+            }
+            else
+            {
+                // 第一个Block一定是IHDR
+                throw new FormatException("First block of png is not IHDR!!");
+            }
+        }
+    }
+
+    public class WebpImageMetaInfoReader : IImageMetaInfoReader
+    {
+        public bool Accept(in byte[] header)
+        {
+            UInt32 riffMagic = BitConverter.ToUInt32(header.Take(4).Reverse().ToArray());
+            if (riffMagic != 0x52494646)
+            {
+                return false;
+            }
+
+            UInt32 webpMagic = BitConverter.ToUInt32(header.Skip(8).Take(4).Reverse().ToArray());
+            if (webpMagic != 0x57454250)
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+        public static int LiittleEndian12bit(in byte[] data)
+        {
+            return (data[2] << 16 | data[1] << 8 | data[0]);
+        }
+
+        public ImageMetaInfo Read(in FileStream ifs)
+        {
+            while (true)
+            {
+                var tagRaw = new byte[8];
+                if (0 == ifs.Read(tagRaw, 0, tagRaw.Length))
+                {
+                    break;
+                }
+
+                var tag = BitConverter.ToUInt32(tagRaw.Take(4).Reverse().ToArray());
+                var dataSize = BitConverter.ToUInt32(tagRaw.Skip(4).Take(4).ToArray());
+                if (tag != 0x56503858) // VB8X
+                {
+                    ifs.Seek(dataSize, SeekOrigin.Current);
+                    continue;
+                }
+
+                var data = new byte[dataSize];
+                ifs.Read(data, 0, data.Length);
+
+                var flags = data[0];
+                var width = LiittleEndian12bit(data.Skip(4).Take(3).ToArray()) + 1;
+                var height = LiittleEndian12bit(data.Skip(7).Take(3).ToArray()) + 1;
+                return new() { Width = width, Height = height, Type = "Webp" };
+            }
+            throw new FormatException();
+        }
+    }
+
     public static class ImageUtils
     {
+        // 大端字节序转uint（4字节）
+        public static uint FromBigEndian(byte[] bytes, int offset)
+        {
+            return (uint)(bytes[offset] << 24 | bytes[offset + 1] << 16 | bytes[offset + 2] << 8 | bytes[offset + 3]);
+        }
+
+        public static UInt64 FromBigEndian64(byte[] bytes, int offest)
+        {
+            throw new NotImplementedException();
+        }
+
         public static bool ScaleImage(string inputPath, double scale, string outputPath)
         {
             if (string.IsNullOrWhiteSpace(inputPath) || scale <= 0)
@@ -21,8 +221,8 @@ namespace HamsterStudio.Toolkits
             }
 
             using var src = new Mat(inputPath, ImreadModes.Unchanged);
-            using var dst = src.Resize(new Size(src.Width * scale, src.Height * scale));
-            dst.SaveImage(outputPath);
+            using var dst = src.Resize(new OpenCvSharp.Size(src.Width * scale, src.Height * scale));
+            dst.SaveImage(inputPath);
             return true;
         }
 
@@ -43,7 +243,7 @@ namespace HamsterStudio.Toolkits
             if (scale <= 0)
                 return false;
 
-            using var dst = src.Resize(new Size(src.Width * scale, src.Height * scale));
+            using var dst = src.Resize(new OpenCvSharp.Size(src.Width * scale, src.Height * scale));
             dst.SaveImage(inputPath);
             return true;
         }
@@ -196,7 +396,7 @@ namespace HamsterStudio.Toolkits
                         var bitmapSource = BitmapSourceConverter.ToBitmapSource(resizedMats[i]);
 
                         // 绘制逻辑（保持宽高比）
-                        var imageSize = new Size(bitmapSource.Width, bitmapSource.Height);
+                        var imageSize = new OpenCvSharp.Size(bitmapSource.Width, bitmapSource.Height);
                         var renderRect = new System.Windows.Rect(left, row * cellHeight, imageSize.Width, imageSize.Height);
                         dc.DrawImage(bitmapSource, renderRect);
 
@@ -277,7 +477,7 @@ namespace HamsterStudio.Toolkits
                     using (var mat = processedMats[i])
                     {
                         double scale = avgHeight / mat.Height;
-                        var resizedMat = mat.Resize(new Size(mat.Width * scale, avgHeight));
+                        var resizedMat = mat.Resize(new OpenCvSharp.Size(mat.Width * scale, avgHeight));
                         result[i] = resizedMat.Clone(); // Clone to ensure the image is not disposed
                     }
                 });
@@ -344,5 +544,4 @@ namespace HamsterStudio.Toolkits
         }
     
     }
-
 }
