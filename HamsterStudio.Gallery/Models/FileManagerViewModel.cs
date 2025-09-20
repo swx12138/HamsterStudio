@@ -4,8 +4,12 @@ using HamsterStudio.Barefeet.FileSystem;
 using HamsterStudio.Barefeet.Logging;
 using HamsterStudio.Barefeet.MVVM;
 using Microsoft.Win32;
+using System.Collections.ObjectModel;
+using System.ComponentModel;
+using System.IO;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Data;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
@@ -17,7 +21,42 @@ public class FileManagerViewModel : ViewModel
     public ICommand PlayCommand { get; }
     public ICommand OpenCommand { get; }
 
-    public FileManagerModel Model { get; }
+    public ObservableCollection<FileGroupViewModel> FileGroups { get; } = [];
+
+    public int FileCount => FileGroups.Sum(x => x.Files.Count);
+
+    public List<IFileManagerFilter> Filters { get; } = [];
+
+    public IFileManagerGrouper Grouper { get; } = new DirFileManagerGrouper();
+
+    public void ReadFolder(string folder)
+    {
+        if (!Directory.Exists(folder))
+        {
+            return;
+        }
+
+        var files = Directory.EnumerateFiles(folder, "*", SearchOption.AllDirectories).Where(x => Filters.Any(filter => filter.Test(x)));
+        var gfiles = files.GroupBy(x => Grouper.Group(x));
+        foreach (var gfile in gfiles)
+        {
+            var filelist = new ReadOnlyCollection<HamstertFileInfo>([.. gfile.Select(x => new HamstertFileInfo(x))]);
+            var group = FileGroups.FirstOrDefault(x => x.GroupName == gfile.Key);
+            if (group == null)
+            {
+                group = new(gfile.Key)
+                {
+                    Files = filelist
+                };
+                FileGroups.Add(group);
+            }
+            else
+            {
+                group.Files = new ReadOnlyCollection<HamstertFileInfo>([.. group.Files, .. filelist]);
+                Logger.Shared.Trace($"Reload dir {gfile.Key}");
+            }
+        }
+    }
 
     private void OnOpenCmd()
     {
@@ -29,14 +68,13 @@ public class FileManagerViewModel : ViewModel
             return;
         }
 
-        Model.ReadFolder(dialog.FolderName);
-        Logger.Shared.Trace($"现在一共有{Model.FileGroups.Count}个分组，。");
-
+        ReadFolder(dialog.FolderName);
+        Logger.Shared.Trace($"现在一共有{FileGroups.Count}个分组，。");
     }
 
     private async Task OnPlayCmd()
     {
-        if (Model.FileCount <= 0)
+        if (FileCount <= 0)
         {
             Logger.Shared.Warning("No file to be shown.");
             return;
@@ -82,7 +120,7 @@ public class FileManagerViewModel : ViewModel
                     }
                 });
 
-                var filename = Model.FileGroups.SelectMany(x => x.Files).Choice().FullName;
+                var filename = FileGroups.SelectMany(x => x.Files).Choice().FullName;
                 ImageSource imgSource = new BitmapImage(new Uri(filename)) { CacheOption = BitmapCacheOption.OnLoad };
                 imgSource.Freeze();
 
@@ -102,9 +140,8 @@ public class FileManagerViewModel : ViewModel
         Logger.Shared.Information("Play done.");
     }
 
-    public FileManagerViewModel(FileManagerModel fileManager)
+    public FileManagerViewModel()
     {
-        Model = fileManager;
         OpenCommand = new RelayCommand(OnOpenCmd);
         PlayCommand = new AsyncRelayCommand(OnPlayCmd);
     }

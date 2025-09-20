@@ -1,13 +1,15 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
-using HamsterStudio.Barefeet.FileSystem;
 using HamsterStudio.Barefeet.FileSystem.Filters;
+using HamsterStudio.Barefeet.MVVM;
+using HamsterStudio.Gallery.Models;
+using System.ComponentModel;
 using System.Windows;
 
 namespace HamsterStudio.Gallery.ViewModels;
 
-public partial class GalleryViewModel : ObservableObject
+public partial class GalleryViewModel : ViewModel
 {
-    public FileManagerModel FileManager { get; } = new();
+    public FileManagerViewModel FileManager { get; } = new();
 
     [ObservableProperty]
     private Visibility _galleriesVisible = Visibility.Visible;
@@ -18,7 +20,5 @@ public partial class GalleryViewModel : ObservableObject
     public GalleryViewModel()
     {
         FileManager.Filters.Add(new ImageFileFilter());
-
-
     }
 }

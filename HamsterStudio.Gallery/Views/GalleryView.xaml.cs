@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -23,6 +24,16 @@ namespace HamsterStudio.Gallery.Views
         public GalleryView()
         {
             InitializeComponent();
+        }
+
+        int imageLoadCount = 0;
+
+        private void Image_Loaded(object sender, RoutedEventArgs e)
+        {
+            //if(sender is Image image)
+            //{
+            //    Debug.WriteLine($"Loading {image.Source}, Loaded {++imageLoadCount}");
+            //}
         }
     }
 }

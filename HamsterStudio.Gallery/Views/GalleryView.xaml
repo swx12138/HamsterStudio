@@ -2,6 +2,7 @@
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:handy="https://handyorg.github.io/handycontrol"
              xmlns:local="clr-namespace:HamsterStudio.Gallery.Views"
              xmlns:localm="clr-namespace:HamsterStudio.Gallery.Models"
              xmlns:localp="clr-namespace:HamsterStudio.Gallery"
@@ -13,52 +14,73 @@
     <UserControl.DataContext>
         <localvm:GalleryViewModel />
     </UserControl.DataContext>
-    <ScrollViewer Grid.Row="1" IsDeferredScrollingEnabled="True">
-        <Grid Background="AliceBlue">
-            <Grid.ContextMenu>
+
+    <DockPanel DataContext="{Binding FileManager}">
+        <TextBlock DockPanel.Dock="Top" Text="{Binding FileGroups.Count, StringFormat=共计{0}个分组}" />
+        <ComboBox x:Name="cbFileGroups"
+                  DockPanel.Dock="Top"
+                  IsManipulationEnabled="True"
+                  ItemsSource="{Binding FileGroups}"
+                  SelectedIndex="0">
+            <ComboBox.ContextMenu>
                 <ContextMenu>
-                    <MenuItem Command="{Binding FileManager.OpenCommand}" Header="Open" />
-                    <MenuItem Command="{Binding FileManager.PlayCommand}" Header="Play" />
+                    <MenuItem Command="{Binding OpenCommand}" Header="打开文件夹..." />
                 </ContextMenu>
-            </Grid.ContextMenu>
-            <Grid.Resources>
-                <DataTemplate x:Key="FileGroupModelTempl" DataType="localm:FileGroupModel">
-                    <Border Margin="2"
-                            Padding="2"
-                            BorderBrush="Red"
-                            BorderThickness="1"
-                            CornerRadius="2">
-                        <Grid>
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="*" />
-                                <RowDefinition Height="Auto" />
-                                <RowDefinition Height="Auto" />
-                            </Grid.RowDefinitions>
-                            <Grid.ContextMenu>
-                                <ContextMenu>
-                                    <MenuItem Command="{Binding ViewCommand}" Header="查看" />
-                                </ContextMenu>
-                            </Grid.ContextMenu>
-                            <Grid.InputBindings>
-                                <MouseBinding Command="{Binding ViewCommand}" MouseAction="LeftDoubleClick" />
-                            </Grid.InputBindings>
-                            <Image Grid.Row="0" Width="{x:Static localp:Constants.ThumbnailSize}">
-                                <Image.Source>
-                                    <BitmapImage DecodePixelWidth="{x:Static localp:Constants.ThumbnailSize}" UriSource="Binding Files[0]}" />
-                                </Image.Source>
-                            </Image>
-                            <TextBlock Grid.Row="1" Text="{Binding DisplayName}" />
-                        </Grid>
-                    </Border>
+            </ComboBox.ContextMenu>
+            <ComboBox.ItemTemplate>
+                <DataTemplate>
+                    <DockPanel>
+                        <Image Width="128"
+                               Height="128"
+                               DockPanel.Dock="Left"
+                               Source="{Binding Files[0].FullName}"
+                               Stretch="Uniform" />
+                        <DockPanel>
+                            <TextBlock DockPanel.Dock="Top" Text="{Binding GroupName}" />
+                            <TextBlock DockPanel.Dock="Top" Text="{Binding Files.Count, StringFormat=共计{0}个}" />
+                        </DockPanel>
+                    </DockPanel>
                 </DataTemplate>
-            </Grid.Resources>
-            <ItemsControl HorizontalAlignment="Center" ItemTemplate="{StaticResource FileGroupModelTempl}" ItemsSource="{Binding FileManager.FileGroups}">
+            </ComboBox.ItemTemplate>
+        </ComboBox>
+        <DockPanel HorizontalAlignment="Stretch" VerticalAlignment="Stretch" DataContext="{Binding SelectedItem, ElementName=cbFileGroups}">
+            <TextBlock Margin="2" DockPanel.Dock="Top" Text="{Binding GroupName}" />
+            <StackPanel DockPanel.Dock="Top" Orientation="Horizontal">
+                <Button Margin="3" Command="{Binding NextPageCommand}">
+                    <Button.Content>
+                        <TextBlock>
+                            <Run Text="下一页" />
+                            <Run Text="{Binding CurrentPageIndex}" />
+                            <Run Background="SkyBlue" Text="+1" />
+                        </TextBlock>
+                    </Button.Content>
+                </Button>
+                <handy:NumericUpDown handy:InfoElement.Title="PageColumns" Style="{StaticResource NumericUpDownExtend}" Value="{Binding PageColumns}" />
+                <handy:NumericUpDown handy:InfoElement.Title="PageRows" Style="{StaticResource NumericUpDownExtend}" Value="{Binding PageRows}" />
+            </StackPanel>
+            <!--  相册显示区域  -->
+            <ItemsControl x:Name="albm" ItemsSource="{Binding CurrentPageView}">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Grid Margin="3">
+                            <Image MaxWidth="500"
+                                   MaxHeight="500"
+                                   HorizontalAlignment="Center"
+                                   VerticalAlignment="Center"
+                                   Loaded="Image_Loaded"
+                                   Source="{Binding FullName}"
+                                   Stretch="UniformToFill" />
+                            <Rectangle Height="15" VerticalAlignment="Bottom" Fill="Black" Opacity="0.35" />
+                            <TextBlock VerticalAlignment="Bottom" Foreground="White" Text="{Binding Name}" />
+                        </Grid>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
                 <ItemsControl.ItemsPanel>
                     <ItemsPanelTemplate>
-                        <WrapPanel />
+                        <UniformGrid Columns="{Binding PageColumns}" Rows="{Binding PageRows}" />
                     </ItemsPanelTemplate>
                 </ItemsControl.ItemsPanel>
             </ItemsControl>
-        </Grid>
-    </ScrollViewer>
+        </DockPanel>
+    </DockPanel>
 </UserControl>

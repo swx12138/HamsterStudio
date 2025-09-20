@@ -3,6 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:converters="clr-namespace:HamsterStudioGUI.Converters"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:hsgv="clr-namespace:HamsterStudio.Gallery.Views;assembly=HamsterStudio.Gallery"
         xmlns:local="clr-namespace:HamsterStudioGUI"
         xmlns:localv="clr-namespace:HamsterStudioGUI.Views"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -21,27 +22,18 @@
     </Window.Resources>
     <TabControl TabStripPlacement="Left">
         <TabItem Header="主界面">
-            <TabItem.HeaderTemplate>
-                <DataTemplate>
-                    <StackPanel Orientation="Horizontal">
-                        <TextBlock Margin="0,0,5,0" FontSize="16" Text="🏠" />
-                        <TextBlock FontSize="16" Text="主界面" />
-                    </StackPanel>
-                </DataTemplate>
-            </TabItem.HeaderTemplate>
+            <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="32" Text="Hello, " />
         </TabItem>
+
         <TabItem Header="壁纸预览">
-            <TabItem.HeaderTemplate>
-                <DataTemplate>
-                    <StackPanel Orientation="Horizontal">
-                        <TextBlock Margin="0,0,5,0" FontSize="16" Text="🖼️" />
-                        <TextBlock FontSize="16" Text="壁纸预览" />
-                    </StackPanel>
-                </DataTemplate>
-            </TabItem.HeaderTemplate>
             <localv:WallpaperShowConfigView DataContext="{Binding WallpaperShowConfigModel}" />
         </TabItem>
-        <TabItem Header="后台">
+
+        <TabItem Header="图库">
+            <hsgv:GalleryView />
+        </TabItem>
+
+        <TabItem Header="服务后台">
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="3*" />
