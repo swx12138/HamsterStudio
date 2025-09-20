@@ -1,6 +1,7 @@
 ﻿using HamsterStudio.Barefeet.Logging;
 using HamsterStudio.WebApi;
 using HamsterStudioGUI.Extensions;
+using HamsterStudioGUI.Models;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
@@ -71,6 +72,11 @@ public partial class App : Application
         Logger.Shared.Information($"Web API Service listening on ports {HttpPortNumber} (HTTP) and {HttpsPortNumber} (HTTPS)");
 
         WebApiService.RunAsync();
+    }
+
+    protected override void OnSessionEnding(SessionEndingCancelEventArgs e)
+    {
+        base.OnSessionEnding(e);
     }
 
     protected override void OnExit(ExitEventArgs e)

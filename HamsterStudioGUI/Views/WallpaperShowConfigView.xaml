@@ -46,7 +46,8 @@
                 </StackPanel.Resources>
                 <CheckBox Content="只要4K" IsChecked="{Binding Is4kOnly}" />
                 <CheckBox Content="只看竖屏" IsChecked="{Binding IsVerticalOnly}" />
-                <CheckBox Content="只看横图 " IsChecked="{Binding IsHorizontalOnly}" />
+                <CheckBox Content="只看横图" IsChecked="{Binding IsHorizontalOnly}" />
+                <CheckBox Content="已收藏" IsChecked="{Binding IsMarkedOnly}" />
             </StackPanel>
         </DataTemplate>
 
@@ -55,7 +56,7 @@
     <DockPanel>
         <!--  选择屏幕  -->
         <Border BorderBrush="Pink" BorderThickness="1" CornerRadius="3" DockPanel.Dock="Top">
-            <ComboBox x:Name="cbMonitors" ItemsSource="{Binding MonitorIds}">
+            <ComboBox x:Name="cbMonitors" ItemsSource="{Binding MonitorIds}" SelectedIndex="1">
                 <ComboBox.ItemTemplate>
                     <DataTemplate>
                         <TextBlock Text="{Binding MonitorId}" />
@@ -71,6 +72,7 @@
             </GroupBox.Header>
             <DockPanel>
                 <ContentPresenter Content="{Binding AlternateWallpappersFilter}" ContentTemplate="{StaticResource ImageModelDimFilterTempl}" DockPanel.Dock="Top" />
+                <CheckBox Content="收藏优先" DockPanel.Dock="Top" IsChecked="{Binding IsMarkedFirst}" />
                 <Button Command="{Binding LoadMoreImagesCommand}" Content="添加..." DockPanel.Dock="Top" />
                 <ListView IsManipulationEnabled="True" ItemsSource="{Binding FilteredAlternateWallpappersView}">
                     <ListView.ItemTemplate>
@@ -79,18 +81,21 @@
                                 <Grid.ContextMenu>
                                     <ContextMenu>
                                         <MenuItem Command="{Binding RevalInExplorerCommand}" Header="在文件资源管理器中打开..." />
+                                        <MenuItem Command="{Binding RemoveImageCommand}" CommandParameter="{Binding}" Header="从备选列表中移除" />
                                     </ContextMenu>
                                 </Grid.ContextMenu>
                                 <Image Source="{Binding Path, Converter={StaticResource PathToImageThumbnailCvtr}}" Stretch="Uniform" />
-                                <Rectangle Height="70" VerticalAlignment="Top" Fill="AliceBlue" Opacity="0.5" />
-                                <StackPanel>
-                                    <TextBlock Text="{Binding FileName}" TextWrapping="Wrap" />
-                                    <StackPanel Orientation="Horizontal">
+
+                                <Rectangle Height="50" VerticalAlignment="Top" Fill="AliceBlue" Opacity="0.5" />
+                                <DockPanel LastChildFill="False">
+                                    <TextBlock DockPanel.Dock="Top" Text="{Binding FileName}" TextWrapping="Wrap" />
+                                    <StackPanel DockPanel.Dock="Top" Orientation="Horizontal">
                                         <TextBlock Text="{Binding MetaInfo.Width}" />
                                         <TextBlock Text="*" />
                                         <TextBlock Text="{Binding MetaInfo.Height}" />
                                     </StackPanel>
-                                </StackPanel>
+                                    <CheckBox Content="收藏" DockPanel.Dock="Top" IsChecked="{Binding Mark}" />
+                                </DockPanel>
                             </Grid>
                         </DataTemplate>
                     </ListView.ItemTemplate>

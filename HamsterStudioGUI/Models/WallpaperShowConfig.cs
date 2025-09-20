@@ -2,6 +2,7 @@
 using CommunityToolkit.Mvvm.Input;
 using HamsterStudio.Barefeet.Algorithm.Random;
 using HamsterStudio.Barefeet.Logging;
+using HamsterStudio.Barefeet.Services;
 using HamsterStudio.Barefeet.SysCall;
 using HamsterStudio.Constants;
 using HamsterStudio.Toolkits;
@@ -19,10 +20,50 @@ namespace HamsterStudioGUI.Models;
 
 public partial class DesktopWallpaperInfo : ObservableObject
 {
-    public string MonitorId { get; set; }
-
     private readonly IDesktopWallpaper _desktopWallpaper;
     private string _CurrentWallpaper;
+
+    public string MonitorId { get; set; }
+    public string CurrentWallpaper
+    {
+        get => _CurrentWallpaper;
+        set
+        {
+            if (value == null) return;
+            SetProperty(ref _CurrentWallpaper, value);
+            _desktopWallpaper.SetWallpaper(MonitorId, value);
+            LastUpdateTime = DateTime.Now;
+            NextUpdateTime = AutoChangeWallpaper ?
+                (DateTime.Now + (ChangeWallpaperTimer?.Interval ?? throw new Exception("Not possible!"))) :
+                DateTime.MaxValue;
+        }
+    }
+    
+    public event EventHandler RequestNewWallpapper;
+
+    [ObservableProperty]
+    private bool _AutoChangeWallpaper = false;
+
+    [ObservableProperty]
+    private DispatcherTimer _ChangeWallpaperTimer = null;
+
+    [ObservableProperty]
+    private IImageModelDimFilter _Filter = new ImageModelDimFilter() { Is4kOnly = true, IsMarkedOnly = true };
+
+    [ObservableProperty]
+    private DateTime _lastUpdateTime = DateTime.Now;
+
+    [ObservableProperty]
+    private DateTime _nextUpdateTime = DateTime.MaxValue;
+
+    [ObservableProperty]
+    private DesktopWallpaperPosition _position = DesktopWallpaperPosition.Center;
+
+    public ICommand DropCommand => new RelayCommand<string[]>(data =>
+    {
+        CurrentWallpaper = data[0];
+    });
+    public ICommand RequestNewWallpapperCommand { get; }
 
     public DesktopWallpaperInfo(IDesktopWallpaper desktopWallpaper, uint mIdx)
     {
@@ -51,48 +92,6 @@ public partial class DesktopWallpaperInfo : ObservableObject
             }
         });
     }
-
-    public string CurrentWallpaper
-    {
-        get => _CurrentWallpaper;
-        set
-        {
-            if (value == null) return;
-            SetProperty(ref _CurrentWallpaper, value);
-            _desktopWallpaper.SetWallpaper(MonitorId, value);
-            LastUpdateTime = DateTime.Now;
-            NextUpdateTime = AutoChangeWallpaper ?
-                (DateTime.Now + (ChangeWallpaperTimer?.Interval ?? throw new Exception("Not possible!"))) :
-                DateTime.MaxValue;
-        }
-    }
-
-    private static string TempDdir = Path.Combine(
-        Environment.GetFolderPath(
-            Environment.SpecialFolder.LocalApplicationData),
-        SystemConsts.ApplicationName);
-
-    [ObservableProperty]
-    private bool _AutoChangeWallpaper = false;
-
-    [ObservableProperty]
-    private DispatcherTimer _ChangeWallpaperTimer = null;
-
-    [ObservableProperty]
-    private IImageModelDimFilter _Filter = new ImageModelDimFilter() { Is4kOnly = true };
-
-    public ICommand RequestNewWallpapperCommand { get; }
-
-    public event EventHandler RequestNewWallpapper;
-
-    [ObservableProperty]
-    private DateTime _lastUpdateTime = DateTime.Now;
-
-    [ObservableProperty]
-    private DateTime _nextUpdateTime = DateTime.MaxValue;
-
-    [ObservableProperty]
-    private DesktopWallpaperPosition _position = DesktopWallpaperPosition.Center;
 
     protected override void OnPropertyChanged(PropertyChangedEventArgs e)
     {
@@ -124,27 +123,6 @@ public partial class DesktopWallpaperInfo : ObservableObject
         base.OnPropertyChanged(e);
     }
 
-    public ICommand DropCommand => new RelayCommand<string[]>(data =>
-    {
-        //var img = Image.FromFile(data[0]);
-        //if ((img.Width > img.Height && img.Width > 6000) || (img.Width < img.Height && img.Height > 6000))
-        //{
-        //    string temp = Path.Combine(TempDdir, Path.GetFileName(data[0]));
-        //    if (img.Width > img.Height) // 横图
-        //    {
-        //        ImageUtils.ScaleImage(data[0], 3840.0 / img.Width, temp);
-        //    }
-        //    else   // 竖图
-        //    {
-        //        ImageUtils.ScaleImage(data[0], 2160.0 / img.Height, temp);
-        //    }
-        //    CurrentWallpaper = temp;
-        //}
-        //else
-        {
-            CurrentWallpaper = data[0];
-        }
-    });
 }
 
 public class ImageModelDim
@@ -158,8 +136,14 @@ public class ImageModelDim
     [JsonPropertyName("meta")]
     public ImageMetaInfo MetaInfo { get; init; }
 
+    [JsonPropertyName("mark")]
+    public bool Mark { get; set; } = false;
+
     [JsonIgnore]
     public ICommand RevalInExplorerCommand { get; }
+
+    [JsonIgnore]
+    public ICommand RemoveImageCommand { get; init; }
 
     public ImageModelDim()
     {
@@ -173,6 +157,7 @@ public interface IImageModelDimFilter
     bool Is4kOnly { get; set; }
     bool IsVerticalOnly { get; set; }
     bool IsHorizontalOnly { get; set; }
+    bool IsMarkedOnly { get; set; }
     bool Filter(ImageModelDim item);
 }
 
@@ -187,24 +172,36 @@ public partial class ImageModelDimFilter : ObservableObject, IImageModelDimFilte
     [ObservableProperty]
     private bool _IsHorizontalOnly = false;
 
+    [ObservableProperty]
+    private bool _IsMarkedOnly = false;
+
     public event EventHandler<PropertyChangedEventArgs> PropertyChanged;
 
     public bool Filter(ImageModelDim item)
     {
         if (item == null) return false;
-        if (Is4kOnly && !((item.MetaInfo.Width >= 3840 && item.MetaInfo.Height >= 2160) || (item.MetaInfo.Height >= 3840 && item.MetaInfo.Width >= 2160)))
+        
+        if (IsMarkedOnly && !item.Mark)
         {
-            // ShellApi.SendToRecycleBin(item.Path);
             return false;
         }
+
         if (IsVerticalOnly && item.MetaInfo.Width > item.MetaInfo.Height)
         {
             return false;
         }
+
         if (IsHorizontalOnly && item.MetaInfo.Width < item.MetaInfo.Height)
         {
             return false;
         }
+
+        if (Is4kOnly && !((item.MetaInfo.Width >= 3840 && item.MetaInfo.Height >= 2160) || (item.MetaInfo.Height >= 3840 && item.MetaInfo.Width >= 2160)))
+        {
+            // ShellApi.SendToRecycleBin(item.Path);
+            return false;
+        }       
+
         return true;
     }
 
@@ -216,14 +213,20 @@ public partial class ImageModelDimFilter : ObservableObject, IImageModelDimFilte
     }
 }
 
-public partial class WallpaperShowConfig : ObservableObject
+public partial class WallpaperShowConfig : ObservableObject, IDisposable
 {
+    const string BaseWallpapperDir = @"E:\Pictures\bizhi";
+
+    private static string TempDdir = Path.Combine(
+        Environment.GetFolderPath(
+            Environment.SpecialFolder.LocalApplicationData),
+        SystemConsts.ApplicationName);
+
     private static IDesktopWallpaper DesktopWallpaper = (IDesktopWallpaper)new DesktopWallpaper();
     private readonly ImageMetaInfoReadService _imageMetaInfoReadService;
+    private List<ImageModelDim> _AlternateWallpappers = [];
 
     public List<DesktopWallpaperInfo> MonitorIds { get; private set; } = [];
-
-    private List<ImageModelDim> _AlternateWallpappers = [];
 
     [ObservableProperty]
     private ICollectionView _filteredAlternateWallpappersView;
@@ -231,7 +234,14 @@ public partial class WallpaperShowConfig : ObservableObject
     [ObservableProperty]
     private IImageModelDimFilter _alternateWallpappersFilter;
 
+    [ObservableProperty]
+    private bool _isMarkedFirst = false;
+
     public ICommand LoadMoreImagesCommand { get; }
+    public ICommand AlternateWallpapperDropCommand => new RelayCommand<string[]>(data =>
+    {
+        //AlternateWallpappers.AddRange(data);
+    });
 
     public WallpaperShowConfig(ImageMetaInfoReadService imageMetaInfoReadService)
     {
@@ -239,8 +249,7 @@ public partial class WallpaperShowConfig : ObservableObject
 
         MonitorIds = [.. Enumerable.Range(0, (int)DesktopWallpaper.GetMonitorDevicePathCount()).
             Select(i => new DesktopWallpaperInfo(DesktopWallpaper,(uint)i))];
-
-        foreach(var monitor in MonitorIds)
+        foreach (var monitor in MonitorIds)
         {
             monitor.RequestNewWallpapper += Monitor_RequestNewWallpapper;
         }
@@ -264,10 +273,21 @@ public partial class WallpaperShowConfig : ObservableObject
             LoadAlternateWallpappers(dialog.FolderName);
         });
 
+        try
+        {
+            var dat = File.ReadAllBytes(Path.Combine(TempDdir, "wallpapers.dat"));
+            var arr = BinaryDataSerializer.Deserialize<List<ImageModelDim>>(dat);
+            if (arr != null)
+            {
+                _AlternateWallpappers = arr;
+            }
+        }
+        catch
+        {
+        }
+
         _imageMetaInfoReadService = imageMetaInfoReadService;
-        //LoadAlternateWallpappers(@"E:\Pictures\DCIMm");
-        //LoadAlternateWallpappers(@"E:\Pictures\bili");
-        LoadAlternateWallpappers(@"E:\Pictures\bizhi");
+        LoadAlternateWallpappers(BaseWallpapperDir);
 
         FilteredAlternateWallpappersView = CollectionViewSource.GetDefaultView(_AlternateWallpappers);
         FilteredAlternateWallpappersView.Filter = o =>
@@ -279,23 +299,34 @@ public partial class WallpaperShowConfig : ObservableObject
             return false;
         };
 
-
         Logger.Shared.Information($"WallpaperShowConfig initialized in {stopwatch.Elapsed}");
+    }
+
+    protected override void OnPropertyChanged(PropertyChangedEventArgs e)
+    {
+        if(e.PropertyName == nameof(IsMarkedFirst))
+        {
+            if (IsMarkedFirst)
+            {
+                FilteredAlternateWallpappersView?.SortDescriptions.Clear();
+                FilteredAlternateWallpappersView?.SortDescriptions.Add(new SortDescription(nameof(ImageModelDim.Mark), ListSortDirection.Descending));
+                //FilteredAlternateWallpappersView?.SortDescriptions.Add(new SortDescription(nameof(ImageModelDim.FileName), ListSortDirection.Ascending));
+            }
+            else
+            {
+                FilteredAlternateWallpappersView?.SortDescriptions.Clear();
+                //FilteredAlternateWallpappersView?.SortDescriptions.Add(new SortDescription(nameof(ImageModelDim.FileName), ListSortDirection.Ascending));
+            }
+        }
+        base.OnPropertyChanged(e);
     }
 
     private void Monitor_RequestNewWallpapper(object? sender, EventArgs e)
     {
         if (sender is DesktopWallpaperInfo info)
         {
-            while (true)
-            {
-                var wpp = _AlternateWallpappers.Choice();
-                if (info.Filter.Filter(wpp))
-                {
-                    info.CurrentWallpaper = wpp.Path;
-                    break;
-                }
-            }
+            var wpp = _AlternateWallpappers.Where(x => info.Filter.Filter(x)).Choice();
+            info.CurrentWallpaper = wpp.Path;
         }
     }
 
@@ -311,7 +342,13 @@ public partial class WallpaperShowConfig : ObservableObject
                     return new ImageModelDim()
                     {
                         Path = x,
-                        MetaInfo = _imageMetaInfoReadService.Read(x)
+                        MetaInfo = _imageMetaInfoReadService.Read(x),
+                        RemoveImageCommand = new RelayCommand<ImageModelDim>(img =>
+                        {
+                            if (img == null) return;
+                            _AlternateWallpappers.Remove(img);
+                            FilteredAlternateWallpappersView?.Refresh();
+                        })
                     };
                 }
                 catch
@@ -331,16 +368,36 @@ public partial class WallpaperShowConfig : ObservableObject
             })
             //.Where(x => (x.MetaInfo.Width >= 3840 && x.MetaInfo.Height >= 2160) || (x.MetaInfo.Height >= 3840 && x.MetaInfo.Width >= 2160))
             .Where(x => AlternateWallpappersFilter.Filter(x)) // 会导致部分图片一开始就不加载，that's I want.
+            .Where(x => !_AlternateWallpappers.Any(y => string.Equals(y.Path, x.Path, StringComparison.OrdinalIgnoreCase))) // 去重
             .ToArray();
         Logger.Shared.Information("Updating alternate wallpappers");
 
-        _AlternateWallpappers.AddRange(newfiles);
+        using (FilteredAlternateWallpappersView?.DeferRefresh())
+            _AlternateWallpappers.AddRange(newfiles);
+
         Logger.Shared.Information("Update done.");
     }
 
-    public ICommand AlternateWallpapperDropCommand => new RelayCommand<string[]>(data =>
+    public void SaveConfig()
     {
-        //AlternateWallpappers.AddRange(data);
-    });
+        try
+        {
+            var dat = BinaryDataSerializer.Serialize(_AlternateWallpappers);
+            File.WriteAllBytes(Path.Combine(TempDdir, "wallpapers.dat"), dat);
+            Logger.Shared.Debug($"Saved wallpapper dat.");
+        }
+        catch
+        {
+        }
+    }
+
+    public void Dispose()
+    {
+        SaveConfig();
+        foreach (var monitor in MonitorIds)
+        {
+            monitor.RequestNewWallpapper -= Monitor_RequestNewWallpapper;
+        }
+    }
 
 }

@@ -9,6 +9,8 @@
         Title="{Binding Title}"
         Width="1920"
         Height="1280"
+        Closed="Window_Closed"
+        Closing="Window_Closing"
         WindowStartupLocation="CenterScreen"
         mc:Ignorable="d">
     <Window.DataContext>

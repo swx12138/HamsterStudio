@@ -7,7 +7,7 @@ using HamsterStudioGUI.ViewModels;
 
 namespace HamsterStudioGUI;
 
-partial class MainWindowModel : ObservableObject
+partial class MainWindowModel : ObservableObject, IDisposable
 {
     [ObservableProperty]
     private string _title = "Hamster Studio GUI";
@@ -27,6 +27,11 @@ partial class MainWindowModel : ObservableObject
     public MainWindowModel()
     {
         Logger.Shared.AddTarget(NlogTarget, NLog.LogLevel.Info, NLog.LogLevel.Fatal);
+    }
+
+    public void Dispose()
+    {
+        WallpaperShowConfigModel.Dispose();
     }
 
 }
