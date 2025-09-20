@@ -17,6 +17,7 @@ internal static class ConfigureWebApiExtensions
     {
         services.AddSingleton<ImageMetaInfoReadService>();
         services.AddSingleton(new DirectoryMgmt(home));
+        services.AddSingleton<DataStorageMgmt>();
         services.AddSingleton<HttpClientProvider>();
     }
 

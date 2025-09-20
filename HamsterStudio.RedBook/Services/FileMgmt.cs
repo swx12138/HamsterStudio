@@ -29,6 +29,7 @@ public class FileMgmt : IDirectoryMgmt
 
     private void CheckReallyHots()
     {
+        Logger.Shared.Debug($"Running {nameof(FileMgmt)}::{nameof(CheckReallyHots)}() method.");
         foreach (var (albk, albs) in AlbumCollections.Collections)
         {
             if (albs.Albums.Count >= 10 || albs.FileCount > 36)

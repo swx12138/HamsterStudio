@@ -4,7 +4,6 @@ using HamsterStudio.Barefeet.Logging;
 using HamsterStudio.Barefeet.Services;
 using HamsterStudio.Bilibili.Constants;
 using HamsterStudio.Bilibili.Models;
-using System;
 
 namespace HamsterStudio.Bilibili.Services;
 
@@ -18,17 +17,21 @@ public class FileMgmt : IDirectoryMgmt
     public string CoverHome { get; }
     public string DynamicHome { get; }
 
-    public FileMgmt(DirectoryMgmt directoryMgmt)
+    public FileMgmt(DirectoryMgmt directoryMgmt, DataStorageMgmt dataStorageMgmt)
     {
         _innerDirMgmt = directoryMgmt;
 
+        dataStorageMgmt.BeforePersist += (sdr, e) =>
+        {
+            (sdr as DataStorageMgmt)!.Set("bilibili", _subFolders);
+        };
+
         StorageHome = Path.Combine(_innerDirMgmt.StorageHome, SystemConsts.HomeName);
-
         DashHome = Path.Combine(StorageHome, SystemConsts.DashSubName);
-        _subFolders = Directory.EnumerateDirectories(DashHome)
-            .Select(x => Path.GetFileName(x))
-            .ToHashSet(StringComparer.OrdinalIgnoreCase);
-
+        _subFolders = 
+            dataStorageMgmt.Get<HashSet<string>>("bilibili") ?? Directory.EnumerateDirectories(DashHome)
+                .Select(x => Path.GetFileName(x))
+                .ToHashSet(StringComparer.OrdinalIgnoreCase);
         CoverHome = Path.Combine(StorageHome, SystemConsts.CoverSubName);
         DynamicHome = Path.Combine(StorageHome, SystemConsts.DynamicSubName);
 
