@@ -25,10 +25,10 @@ public partial class FileGroupViewModel : KnownViewModel
     private int _currentPageIndex = 0;
 
     [ObservableProperty]
-    private int _pageColumns = 6;
+    private int _pageColumns = 0;
 
     [ObservableProperty]
-    private int _pageRows = 4;
+    private int _pageRows = 0;
 
     public int PageSize => PageColumns * PageRows;
 
@@ -78,42 +78,43 @@ public partial class FileGroupViewModel : KnownViewModel
     
     }
 
+    private bool pauseOnPropertyChanged = false;
     protected override void OnPropertyChanged(PropertyChangedEventArgs e)
     {
         if (e.PropertyName == nameof(Files))
         {
+            pauseOnPropertyChanged = true;
             Logger.Shared.Debug($"Files changed of {GroupName}.");
 
-            if (Files.Count <= 1)
+            if (Files.Count <= 64)
             {
-                PageColumns = PageRows = 1;
-            }
-            else if (Files.Count <= 4)
-            {
-                PageColumns = PageRows = 2;
-            }
-            else if (Files.Count <= 9)
-            {
-                PageColumns = PageRows = 3;
-            }
-            else if (Files.Count <= 16)
-            {
-                PageColumns = PageRows = 4;
+                PageColumns = (int)Math.Round(Math.Sqrt(Files.Count));
+                var rows = Files.Count / PageColumns;
+                if (Files.Count % PageColumns != 0)
+                {
+                    rows++;
+                }
+                PageRows = Math.Min(rows, PageColumns);
+                PageColumns = Math.Max(rows, PageColumns);
             }
             else
             {
-                PageColumns = 6;
-                PageRows = 4;
+                PageColumns = 9;
+                PageRows = 6;
             }
-
             BuildCurrentPageView();
+            pauseOnPropertyChanged = false;
+            OnPageRowsChanged(PageRows);
         }
-        if (e.PropertyName == nameof(PageRows) || e.PropertyName == nameof(PageColumns) ||
-            e.PropertyName == nameof(CurrentPageIndex))
+        if (!pauseOnPropertyChanged)
         {
-            CurrentPageView?.Refresh();
+            if (e.PropertyName == nameof(PageRows) || e.PropertyName == nameof(PageColumns) ||
+                e.PropertyName == nameof(CurrentPageIndex))
+            {
+                CurrentPageView?.Refresh();
+            }
+            base.OnPropertyChanged(e);
         }
-        base.OnPropertyChanged(e);
     }
 
     private void BuildCurrentPageView()

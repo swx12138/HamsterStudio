@@ -102,7 +102,7 @@ public partial class WallpaperShowConfig : ObservableObject, IDisposable
             return false;
         };
 
-        Logger.Shared.Information($"WallpaperShowConfig initialized in {stopwatch.Elapsed}");
+        Logger.Shared.Trace($"WallpaperShowConfig initialized in {stopwatch.Elapsed}");
     }
 
     protected override void OnPropertyChanged(PropertyChangedEventArgs e)
@@ -173,12 +173,12 @@ public partial class WallpaperShowConfig : ObservableObject, IDisposable
             .Where(x => AlternateWallpappersFilter.Filter(x)) // 会导致部分图片一开始就不加载，that's I want.
             .Where(x => !_AlternateWallpappers.Any(y => string.Equals(y.Path, x.Path, StringComparison.OrdinalIgnoreCase))) // 去重
             .ToArray();
-        Logger.Shared.Information("Updating alternate wallpappers");
+        Logger.Shared.Trace("Updating alternate wallpappers");
 
         using (FilteredAlternateWallpappersView?.DeferRefresh())
             _AlternateWallpappers.AddRange(newfiles);
 
-        Logger.Shared.Information("Update done.");
+        Logger.Shared.Trace("Update done.");
     }
 
     public void SaveConfig()

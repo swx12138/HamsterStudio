@@ -28,7 +28,10 @@
         <tkc:PathToImageSource x:Key="PathToImageSource" />
 
         <DataTemplate x:Key="ItemTemplate">
-            <Border Margin="2" Padding="10" Background="LightGreen" CornerRadius="3">
+            <Border Margin="2"
+                    Padding="10"
+                    Background="LightGreen"
+                    CornerRadius="3">
                 <TextBlock FontWeight="Bold" Text="{Binding Name}" />
             </Border>
         </DataTemplate>
@@ -50,9 +53,13 @@
     </UserControl.Resources>
 
     <DockPanel>
-        <!--  选择屏幕  -->
-        <Border BorderBrush="Pink" BorderThickness="1" CornerRadius="3" DockPanel.Dock="Top">
-            <ComboBox x:Name="cbMonitors" ItemsSource="{Binding MonitorIds}" SelectedIndex="1">
+        <!--  屏幕选择下拉列表  -->
+        <Border Margin="1"
+                BorderBrush="{Binding ThemeMgmt.BodyBorderColor}"
+                BorderThickness="1"
+                CornerRadius="3"
+                DockPanel.Dock="Top">
+            <ComboBox x:Name="cbMonitors" ItemsSource="{Binding Configuration.MonitorIds}" SelectedIndex="1">
                 <ComboBox.ItemTemplate>
                     <DataTemplate>
                         <TextBlock Text="{Binding MonitorId}" />
@@ -62,15 +69,25 @@
         </Border>
 
         <!--  待选壁纸列表  -->
-        <GroupBox Width="500" BorderBrush="Pink" BorderThickness="1" DockPanel.Dock="Left">
+        <GroupBox Width="500"
+                  Margin="1"
+                  BorderBrush="{Binding ThemeMgmt.BodyBorderColor}"
+                  BorderThickness="1"
+                  DockPanel.Dock="Left">
             <GroupBox.Header>
-                <TextBlock Text="{Binding FilteredAlternateWallpappersView.Count, StringFormat=待选壁纸列表[{0}]}" />
+                <TextBlock>
+                    <Run Text="待选壁纸列表 [" />
+                    <TextBlock Text="{Binding Configuration.FilteredAlternateWallpappersView.Count}" />
+                    <Run Text="]" />
+                </TextBlock>
             </GroupBox.Header>
-            <DockPanel>
+
+            <!--  左侧壁纸列表  -->
+            <DockPanel DataContext="{Binding Configuration}">
                 <ContentPresenter Content="{Binding AlternateWallpappersFilter}" ContentTemplate="{StaticResource ImageModelDimFilterTempl}" DockPanel.Dock="Top" />
                 <CheckBox Content="收藏优先" DockPanel.Dock="Top" IsChecked="{Binding IsMarkedFirst}" />
                 <Button Command="{Binding LoadMoreImagesCommand}" Content="添加..." DockPanel.Dock="Top" />
-                <ListView IsManipulationEnabled="True" ItemsSource="{Binding FilteredAlternateWallpappersView}">
+                <ListView ItemsSource="{Binding FilteredAlternateWallpappersView}">
                     <ListView.ItemTemplate>
                         <DataTemplate>
                             <Grid Width="475" Height="300">
@@ -82,7 +99,10 @@
                                 </Grid.ContextMenu>
                                 <Image Source="{Binding Path, Converter={StaticResource PathTo500pxImageSource}}" Stretch="Uniform" />
 
-                                <Rectangle Height="50" VerticalAlignment="Top" Fill="AliceBlue" Opacity="0.5" />
+                                <Rectangle Height="50"
+                                           VerticalAlignment="Top"
+                                           Fill="AliceBlue"
+                                           Opacity="0.5" />
                                 <DockPanel LastChildFill="False">
                                     <TextBlock DockPanel.Dock="Top" Text="{Binding FileName}" TextWrapping="Wrap" />
                                     <StackPanel DockPanel.Dock="Top" Orientation="Horizontal">
@@ -103,14 +123,15 @@
                     </ListView.ItemContainerStyle>
                 </ListView>
             </DockPanel>
+
         </GroupBox>
 
         <!--  当前壁纸预览  -->
-        <Border BorderBrush="Pink" BorderThickness="1" CornerRadius="3" DataContext="{Binding SelectedItem, ElementName=cbMonitors}">
-            <hc:Interaction.Behaviors>
-                <localb:DragDropBehavior DropCommand="{Binding DropCommand}" />
-            </hc:Interaction.Behaviors>
-            <DockPanel IsManipulationEnabled="True">
+        <Border Margin="1"
+                BorderBrush="{Binding ThemeMgmt.BodyBorderColor}"
+                BorderThickness="1"
+                CornerRadius="3">
+            <DockPanel DataContext="{Binding SelectedItem, ElementName=cbMonitors}" IsManipulationEnabled="True">
                 <TextBlock DockPanel.Dock="Top" Text="{Binding CurrentWallpaper}" />
                 <ContentPresenter Content="{Binding Filter}" ContentTemplate="{StaticResource ImageModelDimFilterTempl}" DockPanel.Dock="Top" />
                 <DockPanel DockPanel.Dock="Top">
@@ -118,8 +139,15 @@
                     <TextBlock Margin="8,0,0,4" Text="{Binding LastUpdateTime, StringFormat=上次更新:[yyyy-MM-dd HH:mm:ss]}" />
                     <TextBlock Margin="8,0,0,4" Text="{Binding NextUpdateTime, StringFormat=下次更新:[yyyy-MM-dd HH:mm:ss]}" />
                 </DockPanel>
-                <Button HorizontalAlignment="Left" Command="{Binding RequestNewWallpapperCommand}" Content="换一个" DockPanel.Dock="Top" />
-                <Image Source="{Binding CurrentWallpaper, Converter={StaticResource PathToImageSource}}" />
+                <Button HorizontalAlignment="Left"
+                        Command="{Binding RequestNewWallpapperCommand}"
+                        Content="立即切换"
+                        DockPanel.Dock="Top" />
+                <Image Source="{Binding CurrentWallpaper, Converter={StaticResource PathToImageSource}}">
+                    <hc:Interaction.Behaviors>
+                        <localb:DragDropBehavior DropCommand="{Binding DropCommand}" />
+                    </hc:Interaction.Behaviors>
+                </Image>
             </DockPanel>
         </Border>
     </DockPanel>

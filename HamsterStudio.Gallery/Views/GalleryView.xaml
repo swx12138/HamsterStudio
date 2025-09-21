@@ -26,7 +26,13 @@
                   DockPanel.Dock="Top"
                   IsManipulationEnabled="True"
                   ItemsSource="{Binding FileManager.FileGroups}"
+                  MaxDropDownHeight="600"
                   SelectedIndex="0">
+            <ComboBox.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <VirtualizingStackPanel CanHorizontallyScroll="False" />
+                </ItemsPanelTemplate>
+            </ComboBox.ItemsPanel>
             <ComboBox.ItemTemplate>
                 <DataTemplate>
                     <DockPanel>
@@ -113,7 +119,13 @@
                                        VerticalAlignment="Center"
                                        Loaded="Image_Loaded"
                                        Source="{Binding FullName, Converter={StaticResource PathTo500pxImageSource}}"
-                                       Stretch="Uniform" />
+                                       Stretch="Uniform">
+                                    <Image.ContextMenu>
+                                        <ContextMenu>
+                                            <MenuItem Command="{Binding RevealInExplorerCommand}" Header="在文件资源管理器中打开..." />
+                                        </ContextMenu>
+                                    </Image.ContextMenu>
+                                </Image>
                                 <Rectangle Height="15"
                                            VerticalAlignment="Bottom"
                                            Fill="Black"

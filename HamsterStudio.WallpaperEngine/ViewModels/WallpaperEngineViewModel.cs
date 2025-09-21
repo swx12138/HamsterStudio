@@ -15,9 +15,15 @@ public partial class WallpaperEngineViewModel : KnownViewModel
     [ObservableProperty]
     public WallpaperShowConfig _configuration;
 
-    public WallpaperEngineViewModel(ImageMetaInfoReadService svc)
+    public ThemeMgmt ThemeMgmt { get; }
+
+    public WallpaperEngineViewModel(ImageMetaInfoReadService svc, ThemeMgmt themeMgmt)
     {
         DisplayName = "壁纸预览";
+        
+        ThemeMgmt = themeMgmt;
+        
         _configuration = new WallpaperShowConfig(svc);
+
     }
 }

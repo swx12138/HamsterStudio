@@ -27,12 +27,11 @@ partial class MainWindowModel : ObservableObject, IDisposable
     public ObservableCollectionTarget NlogTarget { get; } = new("App");
 
     public MainViewModel MainViewModel { get; } = new();
-
     public WallpaperEngineViewModel  WallpaperEngineViewModel { get; } 
-
     public GalleryViewModel GalleryViewModel { get; }
 
-    public ThemeMgmt ThemeMgmt { get; }
+    [ObservableProperty]
+    private ThemeMgmt _ThemeMgmt;
 
     public MainWindowModel()
     {
@@ -40,7 +39,7 @@ partial class MainWindowModel : ObservableObject, IDisposable
 
         ThemeMgmt = App.ResloveService<ThemeMgmt>();
         GalleryViewModel = new(App.ResloveService<GalleriaFileMgmt>().FileManager, ThemeMgmt);
-        WallpaperEngineViewModel = new(App.ResloveService<ImageMetaInfoReadService>());
+        WallpaperEngineViewModel = new(App.ResloveService<ImageMetaInfoReadService>(), ThemeMgmt);
     }
 
     public void Dispose()

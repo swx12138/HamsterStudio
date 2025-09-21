@@ -23,7 +23,7 @@
         <converters:WatchLaterSelector x:Key="WatchLaterSelector" />
     </Window.Resources>
     <TabControl TabStripPlacement="Left">
-        <TabItem Header="主界面">
+        <!--<TabItem Header="主界面">
             <DockPanel>
                 <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" DockPanel.Dock="Top" Orientation="Horizontal">
                     <TextBlock FontSize="32" Text="Hello，" />
@@ -34,37 +34,38 @@
                     <hc:ColorPicker SelectedBrush="{Binding ThemeMgmt.BodyBorderColor}" />
                 </UniformGrid>
             </DockPanel>
-        </TabItem>
+        </TabItem>-->
 
-        <TabItem Header="{Binding WallpaperEngineViewModel.DisplayName}">
-            <wev:WallpaperEngineView DataContext="{Binding WallpaperEngineViewModel.Configuration}" />
-        </TabItem>
-
-        <TabItem Header="{Binding GalleryViewModel.DisplayName}">
-            <gv:GalleryView DataContext="{Binding GalleryViewModel}" />
-        </TabItem>
-
-        <TabItem Header="服务后台">
+        <TabItem Header="服务">
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="3*" />
                     <RowDefinition Height="2*" />
-                    <RowDefinition Height="Auto" />
                 </Grid.RowDefinitions>
+
                 <Border Margin="3"
                         VerticalAlignment="Stretch"
-                        BorderBrush="Red"
+                        BorderBrush="{Binding ThemeMgmt.BodyBorderColor}"
                         BorderThickness="1"
                         CornerRadius="5">
                     <localv:MainView DataContext="{Binding MainViewModel}" />
                 </Border>
 
                 <!--  日志  -->
-                <Border Grid.Row="1" Grid.ColumnSpan="2" Background="LightGoldenrodYellow">
+                <Border Grid.Row="1"
+                        Grid.ColumnSpan="2"
+                        Margin="3"
+                        Padding="3"
+                        Background="{Binding ThemeMgmt.FooterBackgroundColor}"
+                        BorderBrush="{Binding ThemeMgmt.BodyBorderColor}"
+                        BorderThickness="1"
+                        CornerRadius="5">
                     <DataGrid xmlns:i="https://handyorg.github.io/handycontrol"
                               xmlns:localbh="clr-namespace:HamsterStudioGUI.Behaviors"
                               AutoGenerateColumns="False"
                               Background="Transparent"
+                              BorderBrush="Transparent"
+                              BorderThickness="0"
                               GridLinesVisibility="All"
                               IsReadOnly="True"
                               ItemsSource="{Binding NlogTarget.LogEntries}">
@@ -78,11 +79,18 @@
                         </DataGrid.Columns>
                     </DataGrid>
                 </Border>
-                <Border Grid.Row="2" VerticalAlignment="Stretch" Background="Gray">
-                    <StatusBar Height="24" />
-                </Border>
+
             </Grid>
         </TabItem>
+
+        <TabItem Header="{Binding WallpaperEngineViewModel.DisplayName}">
+            <wev:WallpaperEngineView DataContext="{Binding WallpaperEngineViewModel}" />
+        </TabItem>
+
+        <TabItem Header="{Binding GalleryViewModel.DisplayName}">
+            <gv:GalleryView DataContext="{Binding GalleryViewModel}" />
+        </TabItem>
+
     </TabControl>
 
 </Window>
