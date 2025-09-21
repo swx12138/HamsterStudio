@@ -1,7 +1,7 @@
 ﻿using System.Windows;
 using System.Windows.Input;
 
-namespace HamsterStudioGUI.Behaviors;
+namespace HamsterStudio.WallpaperEngine.Behaviors;
 
 public static class DragDropHelper
 {

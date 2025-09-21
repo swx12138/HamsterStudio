@@ -3,10 +3,12 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:converters="clr-namespace:HamsterStudioGUI.Converters"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:hsgv="clr-namespace:HamsterStudio.Gallery.Views;assembly=HamsterStudio.Gallery"
+        xmlns:gv="clr-namespace:HamsterStudio.Gallery.Views;assembly=HamsterStudio.Gallery"
+        xmlns:hc="https://handyorg.github.io/handycontrol"
         xmlns:local="clr-namespace:HamsterStudioGUI"
         xmlns:localv="clr-namespace:HamsterStudioGUI.Views"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:wev="clr-namespace:HamsterStudio.WallpaperEngine.Views;assembly=HamsterStudio.WallpaperEngine"
         Title="{Binding Title}"
         Width="1920"
         Height="1280"
@@ -22,15 +24,24 @@
     </Window.Resources>
     <TabControl TabStripPlacement="Left">
         <TabItem Header="主界面">
-            <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="32" Text="Hello, " />
+            <DockPanel>
+                <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" DockPanel.Dock="Top" Orientation="Horizontal">
+                    <TextBlock FontSize="32" Text="Hello，" />
+                    <TextBlock FontSize="32" Text="{Binding UserName}" />
+                    <TextBlock FontSize="32" Text="。" />
+                </StackPanel>
+                <UniformGrid>
+                    <hc:ColorPicker SelectedBrush="{Binding ThemeMgmt.BodyBorderColor}" />
+                </UniformGrid>
+            </DockPanel>
         </TabItem>
 
-        <TabItem Header="壁纸预览">
-            <localv:WallpaperShowConfigView DataContext="{Binding WallpaperShowConfigModel}" />
+        <TabItem Header="{Binding WallpaperEngineViewModel.DisplayName}">
+            <wev:WallpaperEngineView DataContext="{Binding WallpaperEngineViewModel.Configuration}" />
         </TabItem>
 
-        <TabItem Header="图库">
-            <hsgv:GalleryView />
+        <TabItem Header="{Binding GalleryViewModel.DisplayName}">
+            <gv:GalleryView DataContext="{Binding GalleryViewModel}" />
         </TabItem>
 
         <TabItem Header="服务后台">

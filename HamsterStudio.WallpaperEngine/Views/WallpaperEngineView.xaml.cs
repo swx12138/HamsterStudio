@@ -13,14 +13,14 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-namespace HamsterStudioGUI.Views
+namespace HamsterStudio.WallpaperEngine.Views
 {
     /// <summary>
-    /// WallpaperShowConfigView.xaml 的交互逻辑
+    /// WallpaperEngineView.xaml 的交互逻辑
     /// </summary>
-    public partial class WallpaperShowConfigView : UserControl
+    public partial class WallpaperEngineView : UserControl
     {
-        public WallpaperShowConfigView()
+        public WallpaperEngineView()
         {
             InitializeComponent();
         }

@@ -1,7 +1,11 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using HamsterStudio.Barefeet.Logging;
+using HamsterStudio.Barefeet.Services;
+using HamsterStudio.Gallery.Services;
+using HamsterStudio.Gallery.ViewModels;
 using HamsterStudio.Toolkits.Logging;
 using HamsterStudio.Toolkits.Services;
+using HamsterStudio.WallpaperEngine.ViewModels;
 using HamsterStudioGUI.Models;
 using HamsterStudioGUI.ViewModels;
 
@@ -18,20 +22,31 @@ partial class MainWindowModel : ObservableObject, IDisposable
     [ObservableProperty]
     private bool _topmost = false;
 
+    public string UserName => Environment.UserName;
+
     public ObservableCollectionTarget NlogTarget { get; } = new("App");
 
     public MainViewModel MainViewModel { get; } = new();
 
-    public WallpaperShowConfig WallpaperShowConfigModel { get; } = new(App.ResloveService<ImageMetaInfoReadService>());
+    public WallpaperEngineViewModel  WallpaperEngineViewModel { get; } 
+
+    public GalleryViewModel GalleryViewModel { get; }
+
+    public ThemeMgmt ThemeMgmt { get; }
 
     public MainWindowModel()
     {
         Logger.Shared.AddTarget(NlogTarget, NLog.LogLevel.Info, NLog.LogLevel.Fatal);
+
+        ThemeMgmt = App.ResloveService<ThemeMgmt>();
+        GalleryViewModel = new(App.ResloveService<GalleriaFileMgmt>().FileManager, ThemeMgmt);
+        WallpaperEngineViewModel = new(App.ResloveService<ImageMetaInfoReadService>());
     }
 
     public void Dispose()
     {
-        WallpaperShowConfigModel.Dispose();
+        App.ResloveService<DataStorageMgmt>().Persist();
+        WallpaperEngineViewModel.Configuration.Dispose();
     }
 
 }

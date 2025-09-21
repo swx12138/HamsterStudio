@@ -47,6 +47,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HamsterStudio.ArchiveMaster
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Web", "Web", "{AE51203A-AD1A-4DF7-B4E6-220EF3A0A895}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HamsterStudio.WallpaperEngine", "HamsterStudio.WallpaperEngine\HamsterStudio.WallpaperEngine.csproj", "{6AFECDB6-0CEA-40DF-A699-A08D565C3AE7}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -127,6 +129,10 @@ Global
 		{4850781E-DE0F-4820-9497-0340CBB5E14E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4850781E-DE0F-4820-9497-0340CBB5E14E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4850781E-DE0F-4820-9497-0340CBB5E14E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6AFECDB6-0CEA-40DF-A699-A08D565C3AE7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6AFECDB6-0CEA-40DF-A699-A08D565C3AE7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6AFECDB6-0CEA-40DF-A699-A08D565C3AE7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6AFECDB6-0CEA-40DF-A699-A08D565C3AE7}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -148,6 +154,7 @@ Global
 		{78AB431A-0B7F-49D7-BAE9-57F7E9E383A7} = {AE51203A-AD1A-4DF7-B4E6-220EF3A0A895}
 		{4850781E-DE0F-4820-9497-0340CBB5E14E} = {85879EA5-7D16-4A63-B0E8-76A6308EDA32}
 		{AE51203A-AD1A-4DF7-B4E6-220EF3A0A895} = {85879EA5-7D16-4A63-B0E8-76A6308EDA32}
+		{6AFECDB6-0CEA-40DF-A699-A08D565C3AE7} = {85879EA5-7D16-4A63-B0E8-76A6308EDA32}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {2BEFE676-D503-4D35-A413-E099891E452B}

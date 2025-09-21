@@ -1,9 +1,9 @@
-﻿using HamsterStudioGUI.Models;
+﻿using HamsterStudio.WallpaperEngine.Services;
 using HandyControl.Interactivity;
 using System.Windows;
 using System.Windows.Input;
 
-namespace HamsterStudioGUI.Behaviors;
+namespace HamsterStudio.WallpaperEngine.Behaviors;
 
 public class DragDropBehavior : Behavior<UIElement>
 {

@@ -26,6 +26,7 @@
     <ProjectReference Include="..\HamsterStudio.Gallery\HamsterStudio.Gallery.csproj" />
     <ProjectReference Include="..\HamsterStudio.HandyUtil\HamsterStudio.HandyUtil.csproj" />
     <ProjectReference Include="..\HamsterStudio.ImageTool\HamsterStudio.ImageTool.csproj" />
+    <ProjectReference Include="..\HamsterStudio.WallpaperEngine\HamsterStudio.WallpaperEngine.csproj" />
     <ProjectReference Include="..\HamsterStudio.WebApi\HamsterStudio.WebApi.csproj" />
   </ItemGroup>
 

@@ -27,6 +27,7 @@ namespace HamsterStudio.Toolkits
 
         public static ImageSource ExtractAndCreateImageSource(Stream stream, string imageFileNameInZip)
         {
+            throw new NotImplementedException();
             using (var archive = new ZipArchive(stream, ZipArchiveMode.Read))
             {
                 foreach (var entry in archive.Entries)
@@ -38,7 +39,7 @@ namespace HamsterStudio.Toolkits
                         entryStream.CopyTo(memoryStream);
                         memoryStream.Position = 0;
 
-                        return ImageUtils.CreateImageSource(memoryStream);
+                        //return ImageUtils.CreateImageSource(memoryStream);
                     }
                 }
             }
