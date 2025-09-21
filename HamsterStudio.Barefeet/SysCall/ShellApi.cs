@@ -1,4 +1,5 @@
-﻿using System.Diagnostics;
+﻿using HamsterStudio.Barefeet.Logging;
+using System.Diagnostics;
 using System.Runtime.InteropServices;
 
 namespace HamsterStudio.Barefeet.SysCall;
@@ -58,10 +59,18 @@ public static class ShellApi
 
     public static void SendToRecycleBin(string path)
     {
-        if (!File.Exists(path)) { return; }
-        // 将文件移动到回收站
-        Microsoft.VisualBasic.FileIO.FileSystem.DeleteFile(path,
-                              Microsoft.VisualBasic.FileIO.UIOption.OnlyErrorDialogs,
-                              Microsoft.VisualBasic.FileIO.RecycleOption.SendToRecycleBin);
+        try
+        {
+            if (!File.Exists(path)) { return; }
+            // 将文件移动到回收站
+            Microsoft.VisualBasic.FileIO.FileSystem.DeleteFile(path,
+                                  Microsoft.VisualBasic.FileIO.UIOption.OnlyErrorDialogs,
+                                  Microsoft.VisualBasic.FileIO.RecycleOption.SendToRecycleBin);
+        }
+        catch (Exception ex)
+        {
+            Logger.Shared.Error("Send to recycle bin failed.");
+            Logger.Shared.Critical(ex);
+        }
     }
 }

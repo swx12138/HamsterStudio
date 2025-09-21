@@ -1,5 +1,6 @@
 ﻿using HamsterStudio.Barefeet.Logging;
 using HamsterStudio.Barefeet.Services;
+using HamsterStudio.Gallery.Services;
 using HamsterStudio.Toolkits.Services;
 using HamsterStudio.Toolkits.Services.ImageMetaInfoReader;
 using HamsterStudio.Web.Services;
@@ -15,10 +16,16 @@ internal static class ConfigureWebApiExtensions
 {
     public static void ConfigureService(this IServiceCollection services, string home)
     {
+        services.AddSingleton<ThemeMgmt>();
+
+        services.AddSingleton<GalleriaFileMgmt>();
         services.AddSingleton<ImageMetaInfoReadService>();
+
         services.AddSingleton(new DirectoryMgmt(home));
         services.AddSingleton<DataStorageMgmt>();
+
         services.AddSingleton<HttpClientProvider>();
+
     }
 
     public static WebApplication ConfigureStaticFiles(this WebApplication app, params StaticFilePathParam[] static_file_paths)

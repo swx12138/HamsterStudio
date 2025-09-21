@@ -8,32 +8,32 @@
              xmlns:localp="clr-namespace:HamsterStudio.Gallery"
              xmlns:localvm="clr-namespace:HamsterStudio.Gallery.ViewModels"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:tkc="clr-namespace:HamsterStudio.Toolkits.Converters;assembly=HamsterStudio.Toolkits"
              d:DesignHeight="450"
              d:DesignWidth="800"
              mc:Ignorable="d">
-    <UserControl.DataContext>
-        <localvm:GalleryViewModel />
-    </UserControl.DataContext>
-
-    <DockPanel DataContext="{Binding FileManager}">
-        <TextBlock DockPanel.Dock="Top" Text="{Binding FileGroups.Count, StringFormat=共计{0}个分组}" />
+    <UserControl.Resources>
+        <tkc:PathToImageSource x:Key="PathTo100pxImageSource" DecodeWidth="100" />
+        <tkc:PathToImageSource x:Key="PathTo500pxImageSource" DecodeWidth="500" />
+    </UserControl.Resources>
+    <!--<UserControl.ContextMenu>
+        <ContextMenu>
+            <MenuItem Command="{Binding OpenCommand}" Header="打开文件夹..." />
+        </ContextMenu>
+    </UserControl.ContextMenu>-->
+    <DockPanel>
         <ComboBox x:Name="cbFileGroups"
                   DockPanel.Dock="Top"
                   IsManipulationEnabled="True"
-                  ItemsSource="{Binding FileGroups}"
+                  ItemsSource="{Binding FileManager.FileGroups}"
                   SelectedIndex="0">
-            <ComboBox.ContextMenu>
-                <ContextMenu>
-                    <MenuItem Command="{Binding OpenCommand}" Header="打开文件夹..." />
-                </ContextMenu>
-            </ComboBox.ContextMenu>
             <ComboBox.ItemTemplate>
                 <DataTemplate>
                     <DockPanel>
-                        <Image Width="128"
-                               Height="128"
+                        <Image Width="100"
+                               Height="100"
                                DockPanel.Dock="Left"
-                               Source="{Binding Files[0].FullName}"
+                               Source="{Binding Files[0].FullName, Converter={StaticResource PathTo100pxImageSource}}"
                                Stretch="Uniform" />
                         <DockPanel>
                             <TextBlock DockPanel.Dock="Top" Text="{Binding GroupName}" />
@@ -43,44 +43,100 @@
                 </DataTemplate>
             </ComboBox.ItemTemplate>
         </ComboBox>
-        <DockPanel HorizontalAlignment="Stretch" VerticalAlignment="Stretch" DataContext="{Binding SelectedItem, ElementName=cbFileGroups}">
-            <TextBlock Margin="2" DockPanel.Dock="Top" Text="{Binding GroupName}" />
-            <StackPanel DockPanel.Dock="Top" Orientation="Horizontal">
-                <Button Margin="3" Command="{Binding NextPageCommand}">
+        <StackPanel DockPanel.Dock="Top" Orientation="Horizontal">
+            <Button Background="Blue"
+                    Command="{Binding OpenCommand}"
+                    Content="添加"
+                    Foreground="White" />
+            <Button Background="Red"
+                    Command="{Binding ClearCommand}"
+                    Content="清除"
+                    Foreground="White" />
+            <handy:NumericUpDown Width="128"
+                                 Margin="3"
+                                 handy:InfoElement.Title="PageColumns"
+                                 DataContext="{Binding SelectedItem, ElementName=cbFileGroups}"
+                                 Style="{StaticResource NumericUpDownExtend}"
+                                 Value="{Binding PageColumns}" />
+            <handy:NumericUpDown Width="128"
+                                 Margin="3"
+                                 handy:InfoElement.Title="PageRows"
+                                 DataContext="{Binding SelectedItem, ElementName=cbFileGroups}"
+                                 Style="{StaticResource NumericUpDownExtend}"
+                                 Value="{Binding PageRows}" />
+        </StackPanel>
+        <TextBlock Margin="5"
+                   VerticalAlignment="Bottom"
+                   DockPanel.Dock="Bottom"
+                   Text="{Binding FileManager.FileGroups.Count, StringFormat=共计{0}个分组}" />
+        <Border Background="LightYellow"
+                BorderBrush="{Binding ThemeMgmt.BodyBorderColor}"
+                BorderThickness="1"
+                CornerRadius="3">
+            <DockPanel HorizontalAlignment="Stretch" VerticalAlignment="Stretch" DataContext="{Binding SelectedItem, ElementName=cbFileGroups}">
+                <Button Height="75"
+                        Margin="2"
+                        Background="Blue"
+                        Command="{Binding PrevPageCommand}"
+                        DockPanel.Dock="Left"
+                        Foreground="White">
                     <Button.Content>
-                        <TextBlock>
-                            <Run Text="下一页" />
-                            <Run Text="{Binding CurrentPageIndex}" />
-                            <Run Background="SkyBlue" Text="+1" />
-                        </TextBlock>
+                        <StackPanel Orientation="Vertical">
+                            <TextBlock Text="上" />
+                            <TextBlock Text="一" />
+                            <TextBlock Text="页" />
+                        </StackPanel>
                     </Button.Content>
                 </Button>
-                <handy:NumericUpDown handy:InfoElement.Title="PageColumns" Style="{StaticResource NumericUpDownExtend}" Value="{Binding PageColumns}" />
-                <handy:NumericUpDown handy:InfoElement.Title="PageRows" Style="{StaticResource NumericUpDownExtend}" Value="{Binding PageRows}" />
-            </StackPanel>
-            <!--  相册显示区域  -->
-            <ItemsControl x:Name="albm" ItemsSource="{Binding CurrentPageView}">
-                <ItemsControl.ItemTemplate>
-                    <DataTemplate>
-                        <Grid Margin="3">
-                            <Image MaxWidth="500"
-                                   MaxHeight="500"
-                                   HorizontalAlignment="Center"
-                                   VerticalAlignment="Center"
-                                   Loaded="Image_Loaded"
-                                   Source="{Binding FullName}"
-                                   Stretch="UniformToFill" />
-                            <Rectangle Height="15" VerticalAlignment="Bottom" Fill="Black" Opacity="0.35" />
-                            <TextBlock VerticalAlignment="Bottom" Foreground="White" Text="{Binding Name}" />
-                        </Grid>
-                    </DataTemplate>
-                </ItemsControl.ItemTemplate>
-                <ItemsControl.ItemsPanel>
-                    <ItemsPanelTemplate>
-                        <UniformGrid Columns="{Binding PageColumns}" Rows="{Binding PageRows}" />
-                    </ItemsPanelTemplate>
-                </ItemsControl.ItemsPanel>
-            </ItemsControl>
-        </DockPanel>
+                <Button Height="75"
+                        Margin="2"
+                        Background="Blue"
+                        Command="{Binding NextPageCommand}"
+                        DockPanel.Dock="Right"
+                        Foreground="White">
+                    <Button.Content>
+                        <StackPanel Orientation="Vertical">
+                            <TextBlock Text="下" />
+                            <TextBlock Text="一" />
+                            <TextBlock Text="页" />
+                        </StackPanel>
+                    </Button.Content>
+                </Button>
+                <!--  相册显示区域  -->
+                <ItemsControl x:Name="albm" ItemsSource="{Binding CurrentPageView}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Grid Margin="3">
+                                <Image MaxWidth="500"
+                                       MaxHeight="500"
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Center"
+                                       Loaded="Image_Loaded"
+                                       Source="{Binding FullName, Converter={StaticResource PathTo500pxImageSource}}"
+                                       Stretch="Uniform" />
+                                <Rectangle Height="15"
+                                           VerticalAlignment="Bottom"
+                                           Fill="Black"
+                                           Opacity="0.35" />
+                                <TextBlock VerticalAlignment="Bottom" Foreground="White" Text="{Binding Name}" />
+                                <Button Padding="0"
+                                        HorizontalAlignment="Right"
+                                        VerticalAlignment="Bottom"
+                                        VerticalContentAlignment="Bottom"
+                                        Background="Transparent"
+                                        BorderBrush="Transparent"
+                                        Command="{Binding RemoveCommand}"
+                                        Content="delete" />
+                            </Grid>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <UniformGrid Columns="{Binding PageColumns}" Rows="{Binding PageRows}" />
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                </ItemsControl>
+            </DockPanel>
+        </Border>
     </DockPanel>
 </UserControl>

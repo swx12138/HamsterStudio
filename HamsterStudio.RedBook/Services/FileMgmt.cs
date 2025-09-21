@@ -58,11 +58,11 @@ public class FileMgmt : IDirectoryMgmt
     {
         if (isHot)
         {
-            return new HamstertFileInfo(Path.Combine(StorageHome, userInfo.Nickname, $"{baseName}"));
+            return new HamstertFileInfo(Path.Combine(StorageHome, userInfo.Nickname, $"{baseName}")) { RemoveCommand = null };
         }
         else
         {
-            return new HamstertFileInfo(Path.Combine(StorageHome, $"{baseName}"));
+            return new HamstertFileInfo(Path.Combine(StorageHome, $"{baseName}")) { RemoveCommand = null };
         }
     }
 

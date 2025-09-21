@@ -44,7 +44,7 @@ public class FileMgmt : IDirectoryMgmt
         string fullName = _subFolders.Contains(videoInfo.Owner.Name) ?
             Path.Combine(DashHome, videoInfo.Owner.Name, filename) :
             Path.Combine(DashHome, filename);    // TBD：分文件夹
-        return new HamstertFileInfo(fullName);
+        return new HamstertFileInfo(fullName) { RemoveCommand = null };
     }
 
     public HamstertFileInfo GetCoverFilename(string url, string bvid)
@@ -52,7 +52,7 @@ public class FileMgmt : IDirectoryMgmt
         string base_name = GetFilenameFromUrl(url);
         string filename = $"{bvid}_bili_{base_name}";        // tbd：将旧文件名重命名
         string fullName = Path.Combine(CoverHome, filename);    // TBD：分文件夹
-        return new HamstertFileInfo(fullName);
+        return new HamstertFileInfo(fullName) { RemoveCommand = null };
     }
 
     public HamstertFileInfo GetDynamicFilename(string url, string dynamicId, int idx)
@@ -60,7 +60,7 @@ public class FileMgmt : IDirectoryMgmt
         string base_name = GetFilenameFromUrl(url);
         string filename = $"{dynamicId}_{idx}_bili_{base_name}";
         string fullName = Path.Combine(CoverHome, filename);    // TBD：分文件夹
-        return new HamstertFileInfo(fullName);
+        return new HamstertFileInfo(fullName) { RemoveCommand = null };
     }
 
     public static string GetFilenameFromUrl(string url) => url.Split("?")[0].Split("@")[0].Split('/').Where(x => !x.IsNullOrEmpty()).Last();
