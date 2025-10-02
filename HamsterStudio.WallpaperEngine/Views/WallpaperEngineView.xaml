@@ -3,6 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:hc="https://handyorg.github.io/handycontrol"
+             xmlns:hcu="clr-namespace:HamsterStudio.HandyUtil.DragDrop;assembly=HamsterStudio.HandyUtil"
              xmlns:local="clr-namespace:HamsterStudio.WallpaperEngine.Views"
              xmlns:localb="clr-namespace:HamsterStudio.WallpaperEngine.Behaviors"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -11,20 +12,20 @@
              d:DesignWidth="800"
              mc:Ignorable="d">
     <UserControl.Resources>
-        <Style x:Key="DropZoneStyle" TargetType="Border">
+        <!--<Style x:Key="DropZoneStyle" TargetType="Border">
             <Setter Property="Background" Value="LightGray" />
             <Setter Property="Margin" Value="10" />
             <Setter Property="CornerRadius" Value="5" />
             <Style.Triggers>
-                <Trigger Property="localb:DragDropHelper.IsDragOver" Value="True">
+                <Trigger Property="tk:DragDropHelper.IsDragOver" Value="True">
                     <Setter Property="Background" Value="LightBlue" />
                     <Setter Property="BorderBrush" Value="Blue" />
                     <Setter Property="BorderThickness" Value="2" />
                 </Trigger>
             </Style.Triggers>
-        </Style>
+        </Style>-->
 
-        <tkc:PathToImageSource x:Key="PathTo500pxImageSource" DecodeWidth="500" />
+        <tkc:PathToImageSource x:Key="PathToPreviewImageSource" DecodeWidth="200" />
         <tkc:PathToImageSource x:Key="PathToImageSource" />
 
         <DataTemplate x:Key="ItemTemplate">
@@ -84,44 +85,51 @@
 
             <!--  左侧壁纸列表  -->
             <DockPanel DataContext="{Binding Configuration}">
+                <hc:Interaction.Behaviors>
+                    <hcu:DragDropBehavior />
+                </hc:Interaction.Behaviors>
                 <ContentPresenter Content="{Binding AlternateWallpappersFilter}" ContentTemplate="{StaticResource ImageModelDimFilterTempl}" DockPanel.Dock="Top" />
                 <CheckBox Content="收藏优先" DockPanel.Dock="Top" IsChecked="{Binding IsMarkedFirst}" />
                 <Button Command="{Binding LoadMoreImagesCommand}" Content="添加..." DockPanel.Dock="Top" />
-                <ListView ItemsSource="{Binding FilteredAlternateWallpappersView}">
-                    <ListView.ItemTemplate>
-                        <DataTemplate>
-                            <Grid Width="475" Height="300">
-                                <Grid.ContextMenu>
-                                    <ContextMenu>
-                                        <MenuItem Command="{Binding RevalInExplorerCommand}" Header="在文件资源管理器中打开..." />
-                                        <MenuItem Command="{Binding RemoveImageCommand}" CommandParameter="{Binding}" Header="从备选列表中移除" />
-                                    </ContextMenu>
-                                </Grid.ContextMenu>
-                                <Image Source="{Binding Path, Converter={StaticResource PathTo500pxImageSource}}" Stretch="Uniform" />
-
-                                <Rectangle Height="50"
-                                           VerticalAlignment="Top"
-                                           Fill="AliceBlue"
-                                           Opacity="0.5" />
-                                <DockPanel LastChildFill="False">
-                                    <TextBlock DockPanel.Dock="Top" Text="{Binding FileName}" TextWrapping="Wrap" />
-                                    <StackPanel DockPanel.Dock="Top" Orientation="Horizontal">
-                                        <TextBlock Text="{Binding MetaInfo.Width}" />
-                                        <TextBlock Text="*" />
-                                        <TextBlock Text="{Binding MetaInfo.Height}" />
-                                    </StackPanel>
-                                    <CheckBox Content="收藏" DockPanel.Dock="Top" IsChecked="{Binding Mark}" />
-                                </DockPanel>
-                            </Grid>
-                        </DataTemplate>
-                    </ListView.ItemTemplate>
-                    <ListView.ItemContainerStyle>
-                        <Style TargetType="ListViewItem">
-                            <Setter Property="localb:DragDropHelper.IsDragSource" Value="True" />
-                            <Setter Property="Margin" Value="2" />
-                        </Style>
-                    </ListView.ItemContainerStyle>
-                </ListView>
+                <ScrollViewer IsDeferredScrollingEnabled="True">
+                    <ItemsControl ItemsSource="{Binding FilteredAlternateWallpappersView}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Grid>
+                                    <Grid.ContextMenu>
+                                        <ContextMenu>
+                                            <MenuItem Command="{Binding RevalInExplorerCommand}" Header="在文件资源管理器中打开..." />
+                                            <MenuItem Command="{Binding RemoveImageCommand}" CommandParameter="{Binding}" Header="从备选列表中移除" />
+                                        </ContextMenu>
+                                    </Grid.ContextMenu>
+                                    <hc:Interaction.Behaviors>
+                                        <hcu:DragBehavior />
+                                    </hc:Interaction.Behaviors>
+                                    <Image Source="{Binding Path, Converter={StaticResource PathToPreviewImageSource}}" Stretch="Uniform" />
+                                    <Rectangle Height="50"
+                                               VerticalAlignment="Top"
+                                               Fill="AliceBlue"
+                                               Opacity="0.5" />
+                                    <DockPanel LastChildFill="False">
+                                        <TextBlock DockPanel.Dock="Top" Text="{Binding FileName}" TextWrapping="Wrap" />
+                                        <StackPanel DockPanel.Dock="Top" Orientation="Horizontal">
+                                            <TextBlock Text="{Binding MetaInfo.Width}" />
+                                            <TextBlock Text="*" />
+                                            <TextBlock Text="{Binding MetaInfo.Height}" />
+                                        </StackPanel>
+                                        <CheckBox Content="收藏" DockPanel.Dock="Top" IsChecked="{Binding Mark}" />
+                                    </DockPanel>
+                                </Grid>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                        <!--<ItemsControl.ItemContainerStyle>
+                            <Style TargetType="ContentPresenter">
+                                <Setter Property="tk:DragDropHelper.IsDragSource" Value="True" />
+                                <Setter Property="Margin" Value="2" />
+                            </Style>
+                        </ItemsControl.ItemContainerStyle>-->
+                    </ItemsControl>
+                </ScrollViewer>
             </DockPanel>
 
         </GroupBox>
@@ -134,18 +142,25 @@
             <DockPanel DataContext="{Binding SelectedItem, ElementName=cbMonitors}" IsManipulationEnabled="True">
                 <TextBlock DockPanel.Dock="Top" Text="{Binding CurrentWallpaper}" />
                 <ContentPresenter Content="{Binding Filter}" ContentTemplate="{StaticResource ImageModelDimFilterTempl}" DockPanel.Dock="Top" />
-                <DockPanel DockPanel.Dock="Top">
+                <StackPanel DockPanel.Dock="Top" Orientation="Horizontal">
+                    <StackPanel.Resources>
+                        <Style TargetType="TextBlock">
+                            <Setter Property="Margin" Value="5,0" />
+                            <Setter Property="TextDecorations" Value="Baseline" />
+                        </Style>
+                    </StackPanel.Resources>
                     <CheckBox Content="自动切换" IsChecked="{Binding AutoChangeWallpaper}" />
-                    <TextBlock Margin="8,0,0,4" Text="{Binding LastUpdateTime, StringFormat=上次更新:[yyyy-MM-dd HH:mm:ss]}" />
-                    <TextBlock Margin="8,0,0,4" Text="{Binding NextUpdateTime, StringFormat=下次更新:[yyyy-MM-dd HH:mm:ss]}" />
-                </DockPanel>
-                <Button HorizontalAlignment="Left"
-                        Command="{Binding RequestNewWallpapperCommand}"
-                        Content="立即切换"
-                        DockPanel.Dock="Top" />
+                    <TextBlock Background="YellowGreen" Text="{Binding LastUpdateTime, StringFormat=上次更新:[yyyy-MM-dd HH:mm:ss]}" />
+                    <TextBlock Background="GreenYellow" Text="{Binding NextUpdateTime, StringFormat=下次更新:[yyyy-MM-dd HH:mm:ss]}" />
+                </StackPanel>
+                <StackPanel DockPanel.Dock="Top" Orientation="Horizontal">
+                    <hc:NumericUpDown Margin="3,0" Value="{Binding DispatcherTimerInterval, UpdateSourceTrigger=LostFocus}" />
+                    <Button Margin="3,0" Command="{Binding RequestNewWallpapperCommand}" Content="立即切换" />
+                </StackPanel>
+
                 <Image Source="{Binding CurrentWallpaper, Converter={StaticResource PathToImageSource}}">
                     <hc:Interaction.Behaviors>
-                        <localb:DragDropBehavior DropCommand="{Binding DropCommand}" />
+                        <localb:ImageModelDimDropBehavior />
                     </hc:Interaction.Behaviors>
                 </Image>
             </DockPanel>

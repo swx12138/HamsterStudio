@@ -1,13 +1,14 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using HamsterStudio.Barefeet.SysCall;
+using HamsterStudio.Toolkits.DragDrop;
 using System.ComponentModel;
 using System.Windows.Input;
 using System.Windows.Threading;
 
 namespace HamsterStudio.WallpaperEngine.Services;
 
-public partial class DesktopWallpaperInfo : ObservableObject
+public partial class DesktopWallpaperInfo : ObservableObject, IDroppable<ImageModelDim>
 {
     private readonly IDesktopWallpaper _desktopWallpaper;
     private string _CurrentWallpaper;
@@ -31,13 +32,16 @@ public partial class DesktopWallpaperInfo : ObservableObject
     public event EventHandler RequestNewWallpapper;
 
     [ObservableProperty]
-    private bool _AutoChangeWallpaper = false;
+    private bool _AutoChangeWallpaper = true;
 
     [ObservableProperty]
     private DispatcherTimer _ChangeWallpaperTimer = null;
 
     [ObservableProperty]
-    private IImageModelDimFilter _Filter = new ImageModelDimFilter() { Is4kOnly = true, IsMarkedOnly = true };
+    private uint _DispatcherTimerInterval = 15;
+
+    [ObservableProperty]
+    private IImageModelDimFilter _Filter = new ImageModelDimFilter() { Is4kOnly = true, IsMarkedOnly = true }; // TBD:看看Filter更新时时间消耗在哪里
 
     [ObservableProperty]
     private DateTime _lastUpdateTime = DateTime.Now;
@@ -45,14 +49,13 @@ public partial class DesktopWallpaperInfo : ObservableObject
     [ObservableProperty]
     private DateTime _nextUpdateTime = DateTime.MaxValue;
 
-    [ObservableProperty]
-    private DesktopWallpaperPosition _position = DesktopWallpaperPosition.Center;
-
     public ICommand DropCommand => new RelayCommand<string[]>(data =>
     {
         CurrentWallpaper = data[0];
     });
     public ICommand RequestNewWallpapperCommand { get; }
+
+    public string AcceptDataFormat { get; } = nameof(ImageModelDim);
 
     public DesktopWallpaperInfo(IDesktopWallpaper desktopWallpaper, uint mIdx)
     {
@@ -80,6 +83,7 @@ public partial class DesktopWallpaperInfo : ObservableObject
                 ChangeWallpaperTimer.Start();
             }
         });
+        OnPropertyChanged(new PropertyChangedEventArgs(nameof(AutoChangeWallpaper)));
     }
 
     protected override void OnPropertyChanged(PropertyChangedEventArgs e)
@@ -89,7 +93,7 @@ public partial class DesktopWallpaperInfo : ObservableObject
             if (ChangeWallpaperTimer == null)
             {
                 ChangeWallpaperTimer = new();
-                ChangeWallpaperTimer.Interval = TimeSpan.FromMinutes(5);
+                ChangeWallpaperTimer.Interval = TimeSpan.FromMinutes(15);
                 ChangeWallpaperTimer.Tick += (sdrr, ee) =>
                 {
                     RequestNewWallpapper?.Invoke(this, e);
@@ -107,9 +111,23 @@ public partial class DesktopWallpaperInfo : ObservableObject
             NextUpdateTime = AutoChangeWallpaper ?
                 (DateTime.Now + (ChangeWallpaperTimer?.Interval ?? throw new Exception("Not possible!"))) :
                 DateTime.MaxValue;
-
         }
+        else if (e.PropertyName == nameof(DispatcherTimerInterval))
+        {
+            if (ChangeWallpaperTimer != null)
+            {
+                ChangeWallpaperTimer.Interval = TimeSpan.FromMinutes(DispatcherTimerInterval);
+                NextUpdateTime = AutoChangeWallpaper ?
+                    (DateTime.Now + (ChangeWallpaperTimer?.Interval ?? throw new Exception("Not possible!"))) :
+                    DateTime.MaxValue;
+            }
+        }
+
         base.OnPropertyChanged(e);
     }
 
+    public void Drop(ImageModelDim data)
+    {
+        CurrentWallpaper = data.Path;
+    }
 }

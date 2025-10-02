@@ -10,6 +10,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\Github\HandyControl\src\Net_GE45\HandyControl_Net_GE45\HandyControl_Net_GE45.csproj" />
     <ProjectReference Include="..\HamsterStudio.Controls\HamsterStudio.Controls.csproj" />
+    <ProjectReference Include="..\HamsterStudio.Toolkits\HamsterStudio.Toolkits.csproj" />
   </ItemGroup>
 
 </Project>
