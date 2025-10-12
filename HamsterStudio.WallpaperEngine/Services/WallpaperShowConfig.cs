@@ -50,8 +50,9 @@ public partial class WallpaperShowConfig : FileDroppableBase, IDisposable
     {
         Stopwatch stopwatch = Stopwatch.StartNew();
 
-        MonitorIds = [.. Enumerable.Range(0, (int)DesktopWallpaper.GetMonitorDevicePathCount()).
-            Select(i => new DesktopWallpaperInfo(DesktopWallpaper,(uint)i))];
+        MonitorIds = [.. Enumerable.Range(0, (int)DesktopWallpaper.GetMonitorDevicePathCount())
+            .Select(i => new DesktopWallpaperInfo(DesktopWallpaper,(uint)i))
+            .Where(x=>x.InitSucceeds)];
         foreach (var monitor in MonitorIds)
         {
             monitor.RequestNewWallpapper += Monitor_RequestNewWallpapper;

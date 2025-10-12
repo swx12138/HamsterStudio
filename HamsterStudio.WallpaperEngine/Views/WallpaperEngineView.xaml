@@ -91,10 +91,11 @@
                 <ContentPresenter Content="{Binding AlternateWallpappersFilter}" ContentTemplate="{StaticResource ImageModelDimFilterTempl}" DockPanel.Dock="Top" />
                 <CheckBox Content="收藏优先" DockPanel.Dock="Top" IsChecked="{Binding IsMarkedFirst}" />
                 <Button Command="{Binding LoadMoreImagesCommand}" Content="添加..." DockPanel.Dock="Top" />
-                <ScrollViewer IsDeferredScrollingEnabled="True">
-                    <ItemsControl ItemsSource="{Binding FilteredAlternateWallpappersView}">
-                        <ItemsControl.ItemTemplate>
-                            <DataTemplate>
+
+                <ListView ItemsSource="{Binding FilteredAlternateWallpappersView}" VirtualizingPanel.IsVirtualizing="True">
+                    <ListView.ItemTemplate>
+                        <DataTemplate>
+                            <ListViewItem>
                                 <Grid>
                                     <Grid.ContextMenu>
                                         <ContextMenu>
@@ -105,7 +106,10 @@
                                     <hc:Interaction.Behaviors>
                                         <hcu:DragBehavior />
                                     </hc:Interaction.Behaviors>
-                                    <Image Source="{Binding Path, Converter={StaticResource PathToPreviewImageSource}}" Stretch="Uniform" />
+                                    <Image Height="300"
+                                           HorizontalAlignment="Left"
+                                           Source="{Binding Path, Converter={StaticResource PathToPreviewImageSource}}"
+                                           Stretch="Uniform" />
                                     <Rectangle Height="50"
                                                VerticalAlignment="Top"
                                                Fill="AliceBlue"
@@ -120,16 +124,16 @@
                                         <CheckBox Content="收藏" DockPanel.Dock="Top" IsChecked="{Binding Mark}" />
                                     </DockPanel>
                                 </Grid>
-                            </DataTemplate>
-                        </ItemsControl.ItemTemplate>
-                        <!--<ItemsControl.ItemContainerStyle>
+                            </ListViewItem>
+                        </DataTemplate>
+                    </ListView.ItemTemplate>
+                    <!--<ItemsControl.ItemContainerStyle>
                             <Style TargetType="ContentPresenter">
                                 <Setter Property="tk:DragDropHelper.IsDragSource" Value="True" />
                                 <Setter Property="Margin" Value="2" />
                             </Style>
                         </ItemsControl.ItemContainerStyle>-->
-                    </ItemsControl>
-                </ScrollViewer>
+                </ListView>
             </DockPanel>
 
         </GroupBox>

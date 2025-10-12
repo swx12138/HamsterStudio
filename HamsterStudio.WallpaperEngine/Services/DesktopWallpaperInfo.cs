@@ -1,5 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using HamsterStudio.Barefeet.Logging;
 using HamsterStudio.Barefeet.SysCall;
 using HamsterStudio.Toolkits.DragDrop;
 using System.ComponentModel;
@@ -32,7 +33,7 @@ public partial class DesktopWallpaperInfo : ObservableObject, IDroppable<ImageMo
     public event EventHandler RequestNewWallpapper;
 
     [ObservableProperty]
-    private bool _AutoChangeWallpaper = true;
+    private bool _AutoChangeWallpaper = false;
 
     [ObservableProperty]
     private DispatcherTimer _ChangeWallpaperTimer = null;
@@ -57,33 +58,43 @@ public partial class DesktopWallpaperInfo : ObservableObject, IDroppable<ImageMo
 
     public string AcceptDataFormat { get; } = nameof(ImageModelDim);
 
+    public bool InitSucceeds { get; } = true;
+
     public DesktopWallpaperInfo(IDesktopWallpaper desktopWallpaper, uint mIdx)
     {
-        _desktopWallpaper = desktopWallpaper;
-        MonitorId = desktopWallpaper.GetMonitorDevicePathAt(mIdx);
-        var rect = desktopWallpaper.GetMonitorRECT(MonitorId);
-        if (rect.Right - rect.Left > rect.Bottom - rect.Top) // 宽大于高
+        try
         {
-            Filter.IsHorizontalOnly = true;
-            Filter.IsVerticalOnly = false;
-        }
-        else
-        {
-            Filter.IsVerticalOnly = true;
-            Filter.IsHorizontalOnly = false;
-        }
-
-        _CurrentWallpaper = desktopWallpaper.GetWallpaper(MonitorId);
-        RequestNewWallpapperCommand = new RelayCommand(() =>
-        {
-            RequestNewWallpapper?.Invoke(this, null);
-            if(ChangeWallpaperTimer?.IsEnabled ?? false)
+            _desktopWallpaper = desktopWallpaper;
+            MonitorId = desktopWallpaper.GetMonitorDevicePathAt(mIdx);
+            var rect = desktopWallpaper.GetMonitorRECT(MonitorId);
+            if (rect.Right - rect.Left > rect.Bottom - rect.Top) // 宽大于高
             {
-                ChangeWallpaperTimer.Stop();
-                ChangeWallpaperTimer.Start();
+                Filter.IsHorizontalOnly = true;
+                Filter.IsVerticalOnly = false;
             }
-        });
-        OnPropertyChanged(new PropertyChangedEventArgs(nameof(AutoChangeWallpaper)));
+            else
+            {
+                Filter.IsVerticalOnly = true;
+                Filter.IsHorizontalOnly = false;
+            }
+
+            _CurrentWallpaper = desktopWallpaper.GetWallpaper(MonitorId);
+            RequestNewWallpapperCommand = new RelayCommand(() =>
+            {
+                RequestNewWallpapper?.Invoke(this, null);
+                if (ChangeWallpaperTimer?.IsEnabled ?? false)
+                {
+                    ChangeWallpaperTimer.Stop();
+                    ChangeWallpaperTimer.Start();
+                }
+            });
+            OnPropertyChanged(new PropertyChangedEventArgs(nameof(AutoChangeWallpaper)));
+        }
+        catch(Exception ex)
+        {
+            Logger.Shared.Trace(ex.Message + "\n" + ex.StackTrace);
+            InitSucceeds = false;
+        }
     }
 
     protected override void OnPropertyChanged(PropertyChangedEventArgs e)
