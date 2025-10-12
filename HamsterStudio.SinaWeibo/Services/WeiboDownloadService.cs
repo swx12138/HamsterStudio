@@ -18,9 +18,9 @@ public class WeiboDownloadService(
 
     private Logger logger = Logger.Shared;
 
-    public async Task<ServerRespModel> Download(string show_id)
+    public async Task<ServerRespModel> Download(string show_id, string referer)
     {
-        var model = await api.GetShowInfo(show_id);
+        var model = await api.GetShowInfo(show_id, referer);
         return await Download(model.RetweetedStatus ?? model);
     }
 

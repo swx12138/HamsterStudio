@@ -13,7 +13,7 @@ public class SinaWeiboController(WeiboDownloadService downloadService) : Control
     public async Task<ActionResult<ServerRespModel?>> Download([FromBody] DownloadPostModel post)
     {
         var showId = post.Url.Split('?').First().Split('/').Last();
-        var resp = await downloadService.Download(showId);
+        var resp = await downloadService.Download(showId, post.Referer);
         return Ok(resp);
     }
 

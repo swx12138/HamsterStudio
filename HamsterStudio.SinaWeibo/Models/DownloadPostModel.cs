@@ -6,6 +6,6 @@ using System.Threading.Tasks;
 
 namespace HamsterStudio.SinaWeibo.Models;
 
-public record DownloadPostModel(string Url)
+public record DownloadPostModel(string Url, string Referer)
 {
 }
