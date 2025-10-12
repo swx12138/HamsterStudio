@@ -4,6 +4,7 @@ using HamsterStudio.Barefeet.Logging;
 using HamsterStudio.Barefeet.Services;
 using HamsterStudio.Bilibili.Constants;
 using HamsterStudio.Bilibili.Models;
+using HamsterStudio.Web.FileSystem;
 
 namespace HamsterStudio.Bilibili.Services;
 
@@ -28,8 +29,8 @@ public class FileMgmt : IDirectoryMgmt
 
         StorageHome = Path.Combine(_innerDirMgmt.StorageHome, SystemConsts.HomeName);
         DashHome = Path.Combine(StorageHome, SystemConsts.DashSubName);
-        _subFolders = 
-            dataStorageMgmt.Get<HashSet<string>>("bilibili") ?? Directory.EnumerateDirectories(DashHome)
+        _subFolders = /* dataStorageMgmt.Get<HashSet<string>>("bilibili") ?? */
+            Directory.EnumerateDirectories(DashHome)
                 .Select(x => Path.GetFileName(x))
                 .ToHashSet(StringComparer.OrdinalIgnoreCase);
         CoverHome = Path.Combine(StorageHome, SystemConsts.CoverSubName);
@@ -49,7 +50,7 @@ public class FileMgmt : IDirectoryMgmt
 
     public HamstertFileInfo GetCoverFilename(string url, string bvid)
     {
-        string base_name = GetFilenameFromUrl(url);
+        string base_name = FileNamingTools.GetFilenameFromUrl(url);
         string filename = $"{bvid}_bili_{base_name}";        // tbd：将旧文件名重命名
         string fullName = Path.Combine(CoverHome, filename);    // TBD：分文件夹
         return new HamstertFileInfo(fullName) { RemoveCommand = null };
@@ -57,12 +58,9 @@ public class FileMgmt : IDirectoryMgmt
 
     public HamstertFileInfo GetDynamicFilename(string url, string dynamicId, int idx)
     {
-        string base_name = GetFilenameFromUrl(url);
+        string base_name = FileNamingTools.GetFilenameFromUrl(url);
         string filename = $"{dynamicId}_{idx}_bili_{base_name}";
         string fullName = Path.Combine(CoverHome, filename);    // TBD：分文件夹
         return new HamstertFileInfo(fullName) { RemoveCommand = null };
     }
-
-    public static string GetFilenameFromUrl(string url) => url.Split("?")[0].Split("@")[0].Split('/').Where(x => !x.IsNullOrEmpty()).Last();
-
 }

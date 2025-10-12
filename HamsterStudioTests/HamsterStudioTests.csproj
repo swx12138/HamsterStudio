@@ -17,6 +17,7 @@
     <ProjectReference Include="..\HamsterStudio.ArchiveMaster\HamsterStudio.ArchiveMaster.csproj" />
     <ProjectReference Include="..\HamsterStudio.Bilibili\HamsterStudio.Bilibili.csproj" />
     <ProjectReference Include="..\HamsterStudio.DeepSeek\HamsterStudio.DeepSeek.csproj" />
+    <ProjectReference Include="..\HamsterStudio.Douyin\HamsterStudio.Douyin.csproj" />
     <ProjectReference Include="..\HamsterStudio.RedBook\HamsterStudio.RedBook.csproj" />
     <ProjectReference Include="..\HamsterStudio.SinaWeibo\HamsterStudio.SinaWeibo.csproj" />
   </ItemGroup>

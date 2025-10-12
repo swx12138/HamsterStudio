@@ -1,4 +1,5 @@
 ﻿using HamsterStudio.Bilibili;
+using HamsterStudio.Douyin;
 using HamsterStudio.RedBook;
 using HamsterStudio.SinaWeibo;
 using HamsterStudio.Web.Services;
@@ -23,12 +24,13 @@ public static class WebApiServiceExtensions
 
         services.AddRedBookWebApiServices()
             .AddBilibiliWebApiServices()
-            .AddWeiboServices();
+            .AddWeiboServices()
+            .ResisterDouyinService();
 
         services.AddControllers()
             .ConfigureApplicationPartManager(apm =>
             {
-                apm.ApplicationParts.Add(new AssemblyPart(typeof(RedBookController).Assembly));
+                apm.ApplicationParts.Add(new AssemblyPart(typeof(WeatherForecastController).Assembly));
             });// 添加特定的程序集
 
         services.AddEndpointsApiExplorer();
