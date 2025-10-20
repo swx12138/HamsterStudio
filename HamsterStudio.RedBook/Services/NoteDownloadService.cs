@@ -156,7 +156,7 @@ public class NoteDownloadService(FileMgmt fileMgmt, CommonDownloader downloader)
         var streamFile = fileMgmt.GenerateLivePhotoFilename(title, index, user, streamUrl, isHot);
 
         var streamFullPath = streamFile.FullName;
-        var state = await downloader.EasyDownloadFileAsync(new Uri(streamUrl), streamFullPath, concurrent: true);
+        var state = await downloader.EasyDownloadFileAsync(new Uri(streamUrl), streamFullPath);
         if (state)
         {
             containedFiles.Add(streamFile.Name);
@@ -179,7 +179,7 @@ public class NoteDownloadService(FileMgmt fileMgmt, CommonDownloader downloader)
         );
 
         string fullVideoPath = videoFile.FullName;
-        var state = await downloader.EasyDownloadFileAsync(videoUrl, fullVideoPath, FileConstants.FileSize_32M, true);
+        var state = await downloader.EasyDownloadFileAsync(videoUrl, fullVideoPath, FileSizeDescriptor.FileSize_32M, true);
         if (state)
         {
             containedFiles.Add(videoFile.Name);

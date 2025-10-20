@@ -3,6 +3,8 @@ using System.Net;
 using HamsterStudio.Web.Strategies.Request;
 using HamsterStudio.Web.DataModels;
 using HamsterStudio.Web.Strategies.StreamCopy;
+using HamsterStudio.Barefeet.Logging;
+using HamsterStudio.Barefeet.FileSystem;
 
 namespace HamsterStudio.Web.Strategies.Download;
 
@@ -15,7 +17,9 @@ public abstract class RangeBasedDownloadStrategy : IDownloadStrategy
     {
         using var message = new HttpRequestMessage(HttpMethod.Head, url);
         using var response = await requestStrategy.SendAsync(message);
-        return response.Content.Headers.ContentLength ?? throw new NotSupportedException("Content-Length header missing");
+        var contentLength = response.Content.Headers.ContentLength ?? throw new NotSupportedException("Content-Length header missing");
+        Logger.Shared.Trace($"远程文件大小: {FileSizeDescriptor.ToReadableFileSize(contentLength)}({contentLength} 字节)。");
+        return contentLength;
     }
 
     protected async Task<Stream> DownloadChunkAsync(Uri url, ChunkRange range, IRequestStrategy requestStrategy, IHttpContentCopyStrategy copyStrategy)

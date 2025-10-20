@@ -1,4 +1,6 @@
-﻿using HamsterStudio.Web.DataModels;
+﻿using HamsterStudio.Barefeet.FileSystem;
+using HamsterStudio.Barefeet.Logging;
+using HamsterStudio.Web.DataModels;
 using HamsterStudio.Web.Strategies.Request;
 using HamsterStudio.Web.Strategies.StreamCopy;
 using System.Diagnostics;
@@ -10,6 +12,8 @@ namespace HamsterStudio.Web.Strategies.Download;
 public class FixedChunkSizeDownloadStrategy(int chunkSize, int maxConnections) : RangeBasedDownloadStrategy
 {
     private static SemaphoreSlim throttler = new(Environment.ProcessorCount);
+
+    public bool ShowTruncks { get; set; } = true;
 
     public override async Task<DownloadResult> DownloadAsync(
         Uri uri,
@@ -28,6 +32,25 @@ public class FixedChunkSizeDownloadStrategy(int chunkSize, int maxConnections) :
 
             // 2. 计算分块（基于固定分块大小）
             var chunks = CalculateChunksBySize(fileSize, chunkSize);
+            if (ShowTruncks)
+            {
+                var fileSizeStr = FileSizeDescriptor.ToReadableFileSize(fileSize);
+                var chunkSizeStr = FileSizeDescriptor.ToReadableFileSize(chunkSize);
+                var lastChunkSize = FileSizeDescriptor.ToReadableFileSize(chunks.Count > 0 ? (chunks[^1].End - chunks[^1].Start + 1) : 0);
+                Logger.Shared.Information($"[分块下载] 文件大小: {fileSizeStr} ，分块大小: {chunkSizeStr} 字节，共 {chunks.Count} 块，最后一块大小{lastChunkSize}。");
+#if DEBUG
+                if(chunks.Count > 0)
+                {
+                    for (int i = 0; i < chunks.Count; i++)
+                    {
+                        var chunk = chunks[i];
+                        var currentChunkSize = chunk.End - chunk.Start + 1;
+                        var currentChunkSizeStr = FileSizeDescriptor.ToReadableFileSize(currentChunkSize);
+                        Logger.Shared.Information($"  块 {i + 1}: 范围 [{chunk.Start}, {chunk.End}]，大小: {currentChunkSizeStr}");
+                    }
+                }
+#endif
+            }
 
             // 3. 限制最大并发数
             int maxConcurrency = Math.Min(chunks.Count, maxConnections);
@@ -72,11 +95,57 @@ public class FixedChunkSizeDownloadStrategy(int chunkSize, int maxConnections) :
     {
         var chunks = new List<ChunkRange>();
 
-        for (long start = 0; start < totalSize; start += chunkSize)
+        if (totalSize <= 0 || chunkSize <= 0)
+            return chunks;
+
+        // 计算总chunk数
+        long totalChunks = (totalSize + chunkSize - 1) / chunkSize;
+
+        if (totalChunks < 2)
         {
-            long end = Math.Min(start + chunkSize - 1, totalSize - 1);
-            chunks.Add(new ChunkRange(start, end));
+            // 少于2个chunk，直接返回
+            if (totalSize > 0)
+            {
+                chunks.Add(new ChunkRange(0, totalSize - 1));
+            }
+            return chunks;
         }
+
+        // 计算前n-2个chunk
+        long currentStart = 0;
+        for (int i = 0; i < totalChunks - 2; i++)
+        {
+            long end = currentStart + chunkSize - 1;
+            chunks.Add(new ChunkRange(currentStart, end));
+            currentStart = end + 1;
+        }
+
+        // 计算剩余大小并均衡分配
+        long remainingSize = totalSize - currentStart;
+
+        if (remainingSize <= 0)
+            return chunks;
+
+        // 均衡分配最后两个chunk
+        long firstPart = (remainingSize + 1) / 2;  // 向上取整
+        long secondPart = remainingSize - firstPart;
+
+        // 确保每个chunk至少有一个字节
+        if (firstPart == 0 || secondPart == 0)
+        {
+            // 如果剩余大小很小，直接分成两个chunk
+            firstPart = 1;
+            secondPart = remainingSize - 1;
+            if (secondPart < 1)
+            {
+                // 如果只有一个字节，只创建一个chunk
+                chunks.Add(new ChunkRange(currentStart, totalSize - 1));
+                return chunks;
+            }
+        }
+
+        chunks.Add(new ChunkRange(currentStart, currentStart + firstPart - 1));
+        chunks.Add(new ChunkRange(currentStart + firstPart, totalSize - 1));
 
         return chunks;
     }

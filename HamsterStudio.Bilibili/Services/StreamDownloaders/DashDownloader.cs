@@ -107,7 +107,7 @@ internal class DashDownloader(CommonDownloader downloader, FileMgmt fileMgmt, Au
             $"-metadata album=\"{meta.album}\" " +
             $"-metadata copyright=\"{meta.copyright}\" " +
             $"\"{outp}\"";
-        await ShellApi.System(cmd);
+        ShellApi.System(cmd);
         Logger.Shared.Information($"Av merge succeed.");
     }
 
