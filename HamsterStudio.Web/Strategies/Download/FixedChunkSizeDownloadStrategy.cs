@@ -24,7 +24,6 @@ public class FixedChunkSizeDownloadStrategy(int chunkSize, int maxConnections) :
         ArgumentNullException.ThrowIfNull(contentCopyStrategy);
         ArgumentOutOfRangeException.ThrowIfNegative(maxConnections);
 
-        var stopwatch = Stopwatch.StartNew();
         try
         {
             // 1. 获取文件总大小
@@ -39,7 +38,7 @@ public class FixedChunkSizeDownloadStrategy(int chunkSize, int maxConnections) :
                 var lastChunkSize = FileSizeDescriptor.ToReadableFileSize(chunks.Count > 0 ? (chunks[^1].End - chunks[^1].Start + 1) : 0);
                 Logger.Shared.Information($"[分块下载] 文件大小: {fileSizeStr} ，分块大小: {chunkSizeStr} 字节，共 {chunks.Count} 块，最后一块大小{lastChunkSize}。");
 #if DEBUG
-                if(chunks.Count > 0)
+                if (chunks.Count > 0)
                 {
                     for (int i = 0; i < chunks.Count; i++)
                     {
@@ -79,12 +78,12 @@ public class FixedChunkSizeDownloadStrategy(int chunkSize, int maxConnections) :
             return new DownloadResult(
                 chunksData,
                 HttpStatusCode.OK,
-                stopwatch.Elapsed
+                fileSize
             );
         }
         catch (Exception ex)
         {
-            return new DownloadResult([], HttpStatusCode.InternalServerError, stopwatch.Elapsed, ex.Message);
+            return new DownloadResult([], HttpStatusCode.InternalServerError, -1, ex.Message);
         }
     }
 

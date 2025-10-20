@@ -20,7 +20,6 @@ public class RetryableDownloadStrategy(IDownloadStrategy innerStrategy, int maxR
     {
         int attempt = 0;
         Exception lastError = null;
-        var totalStopwatch = Stopwatch.StartNew();
 
         while (attempt <= maxRetries)
         {
@@ -34,13 +33,13 @@ public class RetryableDownloadStrategy(IDownloadStrategy innerStrategy, int maxR
                 if (result.StatusCode.IsSuccess())
                 {
                     _logger.Information($"Download succeeded after {attempt} retries");
-                    return result with { ElapsedTime = totalStopwatch.Elapsed };
+                    return result;
                 }
 
                 if (!ShouldRetry(result.StatusCode))
                 {
                     _logger.Warning($"Non-retriable status code: {result.StatusCode}");
-                    return result with { ElapsedTime = totalStopwatch.Elapsed };
+                    return result;
                 }
             }
             catch (Exception ex) when (IsTransientError(ex))
@@ -51,12 +50,7 @@ public class RetryableDownloadStrategy(IDownloadStrategy innerStrategy, int maxR
             catch (Exception ex)
             {
                 _logger.Error($"Non-retriable error: {ex.Message}");
-                return new DownloadResult(
-                   [],
-                    HttpStatusCode.InternalServerError,
-                    totalStopwatch.Elapsed,
-                    ex.Message
-                );
+                return new DownloadResult([], HttpStatusCode.InternalServerError, -1, ex.Message);
             }
 
             if (attempt < maxRetries)
@@ -70,12 +64,8 @@ public class RetryableDownloadStrategy(IDownloadStrategy innerStrategy, int maxR
             attemptStopwatch.Stop();
         }
 
-        return new DownloadResult(
-            [new MemoryStream()],
-            HttpStatusCode.RequestTimeout,
-            totalStopwatch.Elapsed,
-            $"Max retry attempts exceeded. Last error: {lastError?.Message}"
-        );
+        return new DownloadResult([new MemoryStream()], HttpStatusCode.RequestTimeout, 0, 
+            $"Max retry attempts exceeded. Last error: {lastError?.Message}");
     }
 
     private static bool ShouldRetry(HttpStatusCode statusCode)

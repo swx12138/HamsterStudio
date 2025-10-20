@@ -8,7 +8,7 @@ namespace HamsterStudio.Web.Strategies.Download;
 public record DownloadResult(
     Stream[] Data ,
     HttpStatusCode StatusCode,
-    TimeSpan ?ElapsedTime = null,
+    long TotalBytes,
     string? ErrorMessage = null
 );
 

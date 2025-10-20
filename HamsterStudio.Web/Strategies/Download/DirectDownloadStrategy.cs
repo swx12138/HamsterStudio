@@ -20,6 +20,6 @@ public class DirectDownloadStrategy : IDownloadStrategy // 简单实现
         response.EnsureSuccessStatusCode();
 
         var data = await contentCopyStrategy.CopyToStream(response.Content);
-        return new DownloadResult([data], HttpStatusCode.OK);
+        return new DownloadResult([data], HttpStatusCode.OK, data.Length);
     }
 }

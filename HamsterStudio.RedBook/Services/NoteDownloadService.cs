@@ -77,6 +77,12 @@ public class NoteDownloadService(FileMgmt fileMgmt, CommonDownloader downloader)
             // 生成文件名
             string token = ExtractToken(imgInfo.DefaultUrl);
             var fileInfo = fileMgmt.GenerateImageFilename(title, index, noteDetail.UserInfo, token, isHot);
+
+            if (noteDetail.ImageList.IndexOf(imgInfo) == 0)
+            {
+                Logger.Shared.Information($"文件将会下载到{fileInfo.Directory}");
+            }
+
             var filename = fileInfo.Name;
 
             // 检查PNG文件是否已存在
@@ -84,7 +90,7 @@ public class NoteDownloadService(FileMgmt fileMgmt, CommonDownloader downloader)
             string png_full_filename = fileInfo.FullName + ".png";
             if (File.Exists(png_full_filename))
             {
-                _logger.Information($"文件已存在：{png_full_filename}，跳过下载。");
+
                 containedFiles.Add(png_filename);
                 return;
             }
@@ -94,7 +100,6 @@ public class NoteDownloadService(FileMgmt fileMgmt, CommonDownloader downloader)
             string webp_full_filename = fileInfo.FullName + ".webp";
             if (File.Exists(webp_full_filename))
             {
-                _logger.Information($"文件已存在：{webp_full_filename}，跳过下载。");
                 containedFiles.Add(webp_filename);
                 return;
             }
@@ -107,7 +112,7 @@ public class NoteDownloadService(FileMgmt fileMgmt, CommonDownloader downloader)
                 if (resu)
                 {
                     containedFiles.Add(png_filename);
-                    _logger.Information($"{png_full_filename}【{imgInfo.Width}, {imgInfo.Height}】下载成功。");
+                    //_logger.Information($"{png_full_filename}【{imgInfo.Width}, {imgInfo.Height}】下载成功。");
                 }
                 else
                 {
@@ -116,7 +121,7 @@ public class NoteDownloadService(FileMgmt fileMgmt, CommonDownloader downloader)
                     if (resu)
                     {
                         containedFiles.Add(webp_filename);
-                        _logger.Information($"{webp_full_filename}【{imgInfo.Width}, {imgInfo.Height}】下载成功。");
+                        //_logger.Information($"{webp_full_filename}【{imgInfo.Width}, {imgInfo.Height}】下载成功。");
                     }
                     else
                     {
@@ -132,7 +137,7 @@ public class NoteDownloadService(FileMgmt fileMgmt, CommonDownloader downloader)
                 if (resu)
                 {
                     containedFiles.Add(webp_filename);
-                    _logger.Information($"{webp_full_filename}【{imgInfo.Width}, {imgInfo.Height}】下载成功。");
+                    //_logger.Information($"{webp_full_filename}【{imgInfo.Width}, {imgInfo.Height}】下载成功。");
                 }
                 else
                 {
@@ -160,7 +165,7 @@ public class NoteDownloadService(FileMgmt fileMgmt, CommonDownloader downloader)
         if (state)
         {
             containedFiles.Add(streamFile.Name);
-            _logger.Information($"LivePhoto {streamFile.Name} 下载成功。");
+            //_logger.Information($"LivePhoto {streamFile.Name} 下载成功。");
             return true;
         }
 

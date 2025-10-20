@@ -10,7 +10,7 @@ namespace HamsterStudio.Bilibili.Services.StreamDownloaders;
 internal abstract class StreamDownloaderChaeine(StreamDownloaderChaeine? inner)
 {
     protected FileStreamHttpContentCopyStrategy ContentCopyStrategy { get; } = new();
-    protected FixedChunkSizeDownloadStrategy DownloadStrategy { get; } = new(FileSizeDescriptor.FileSize_32M, Environment.ProcessorCount);
+    protected FixedChunkSizeDownloadStrategy DownloadStrategy { get; } = new(FileSizeDescriptor.FileSize_32M, 3);
 
     public virtual async Task<bool> Download(VideoStreamInfo streamInfo, AvMeta meta, HamstertFileInfo target)
     {

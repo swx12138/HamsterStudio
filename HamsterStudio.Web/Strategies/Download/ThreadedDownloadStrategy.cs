@@ -17,7 +17,6 @@ public class ThreadedDownloadStrategy(int maxConnections) : RangeBasedDownloadSt
         ArgumentNullException.ThrowIfNull(requestStrategy);
         ArgumentNullException.ThrowIfNull(contentCopyStrategy);
 
-        var stopwatch = Stopwatch.StartNew();
         try
         {
             // 1. 获取文件总大小
@@ -47,15 +46,11 @@ public class ThreadedDownloadStrategy(int maxConnections) : RangeBasedDownloadSt
             });
 
             var chunksData = await Task.WhenAll(throttledTasks);
-            return new DownloadResult(
-                chunksData,
-                HttpStatusCode.OK,
-                stopwatch.Elapsed
-            );
+            return new DownloadResult(chunksData, HttpStatusCode.OK, fileSize);
         }
         catch (Exception ex)
         {
-            return new DownloadResult([], HttpStatusCode.InternalServerError, stopwatch.Elapsed, ex.Message);
+            return new DownloadResult([], HttpStatusCode.InternalServerError, -1, ex.Message);
         }
     }
 

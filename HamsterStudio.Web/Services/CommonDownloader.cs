@@ -1,9 +1,11 @@
-﻿using HamsterStudio.Barefeet.Logging;
+﻿using HamsterStudio.Barefeet.FileSystem;
+using HamsterStudio.Barefeet.Logging;
 using HamsterStudio.Web.DataModels;
 using HamsterStudio.Web.Strategies;
 using HamsterStudio.Web.Strategies.Download;
 using HamsterStudio.Web.Strategies.Request;
 using HamsterStudio.Web.Strategies.StreamCopy;
+using System.Diagnostics;
 using System.Net;
 
 namespace HamsterStudio.Web.Services;
@@ -29,6 +31,7 @@ public class CommonDownloader(HttpClientProvider httpClientProvider)
         }
 
         requestStrategy ??= new AuthenticRequestStrategy(httpClientProvider.HttpClient);
+        var stopwatch = Stopwatch.StartNew();
         try
         {
             var result = await downloadStrategy.DownloadAsync(uri, requestStrategy, contentCopyStrategy);
@@ -52,7 +55,11 @@ public class CommonDownloader(HttpClientProvider httpClientProvider)
                 }
                 await oFileStream.FlushAsync();
             }
-            Logger.Shared.Trace($"{Path.GetFileName(destinationPath)} 成功下载到 {destinationPath}.");
+
+            var bytePerSecond = (long)(result.TotalBytes / stopwatch.Elapsed.TotalSeconds);
+            var bytePerSecondStr = FileSizeDescriptor.ToReadableFileSize(bytePerSecond);
+            var fileSizeStr = FileSizeDescriptor.ToReadableFileSize(result.TotalBytes);
+            Logger.Shared.Information($"下载文件 {Path.GetFileName(destinationPath)} 成功，文件大小{fileSizeStr}，平均速度{bytePerSecondStr}/s.");
 
             return true;
         }
