@@ -1,4 +1,5 @@
-﻿using HamsterStudio.Barefeet.Extensions;
+﻿using HamsterStudio.Barefeet.Constants;
+using HamsterStudio.Barefeet.Extensions;
 using HamsterStudio.Barefeet.FileSystem;
 using HamsterStudio.Barefeet.Logging;
 using HamsterStudio.RedBook.Models;
@@ -41,7 +42,7 @@ public class NoteDownloadService(FileMgmt fileMgmt, CommonDownloader downloader)
             foreach (var file in indepent.Parent.GetFiles($"*_xhs_{noteDetail.UserInfo.Nickname}_*"))
             {
                 string newName = Path.Combine(indepent.FullName, file.Name);
-                File.Move(file.FullName, newName);
+                File.Move(file.FullName, newName, true);
             }
         }
 
@@ -178,7 +179,7 @@ public class NoteDownloadService(FileMgmt fileMgmt, CommonDownloader downloader)
         );
 
         string fullVideoPath = videoFile.FullName;
-        var state = await downloader.EasyDownloadFileAsync(videoUrl, fullVideoPath, concurrent: true);
+        var state = await downloader.EasyDownloadFileAsync(videoUrl, fullVideoPath, FileConstants.FileSize_32M, true);
         if (state)
         {
             containedFiles.Add(videoFile.Name);

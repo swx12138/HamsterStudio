@@ -9,6 +9,8 @@ namespace HamsterStudio.Web.Strategies.Download;
 // 固定分块大小下载策略（自动计算线程数，最大并发数限制为处理器数量）
 public class FixedChunkSizeDownloadStrategy(int chunkSize, int maxConnections) : RangeBasedDownloadStrategy
 {
+    private static SemaphoreSlim throttler = new(Environment.ProcessorCount);
+
     public override async Task<DownloadResult> DownloadAsync(
         Uri uri,
         IRequestStrategy requestStrategy,
@@ -36,7 +38,6 @@ public class FixedChunkSizeDownloadStrategy(int chunkSize, int maxConnections) :
                 .ToList();
 
             // 5. 使用信号量限制并发数
-            var throttler = new SemaphoreSlim(maxConcurrency);
             var throttledTasks = downloadTasks.Select(async task =>
             {
                 await throttler.WaitAsync();

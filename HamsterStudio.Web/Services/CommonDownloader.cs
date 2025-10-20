@@ -42,17 +42,11 @@ public class CommonDownloader(HttpClientProvider httpClientProvider)
             {
                 foreach (var stream in result.Data)
                 {
-                    if (stream.Position > 0)
+                    if (stream.CanSeek)
                     {
-                        if (stream.CanSeek)
-                        {
-                            stream.Seek(0, SeekOrigin.Begin);
-                        }
-                        else
-                        {
-                            Logger.Shared.Warning($"Writting stream started form non zero.");
-                        }
+                        stream.Seek(0, SeekOrigin.Begin);
                     }
+
                     await stream.CopyToAsync(oFileStream);
                     stream.Dispose();
                 }
@@ -73,8 +67,9 @@ public class CommonDownloader(HttpClientProvider httpClientProvider)
     public async Task<bool> EasyDownloadFileAsync(Uri uri, string destinationPath, int trunckSize = 0, bool concurrent = false)
     {
         var requestStrategy = new AuthenticRequestStrategy(httpClientProvider.HttpClient);
-        var copyStrategy = new DirectHttpContentCopyStrategy();
+        var copyStrategy = new FileStreamHttpContentCopyStrategy();
         var downloadStrategy = DownloadStrategyFactory.CreateStrategy(trunckSize, concurrent ? Environment.ProcessorCount : 1);
         return await DownloadFileAsync(uri, destinationPath, requestStrategy, copyStrategy, downloadStrategy);
     }
+
 }
