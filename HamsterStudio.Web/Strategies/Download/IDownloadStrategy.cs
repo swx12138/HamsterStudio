@@ -6,7 +6,7 @@ using System.Net;
 namespace HamsterStudio.Web.Strategies.Download;
 
 public record DownloadResult(
-    byte[] Data,
+    Stream[] Data ,
     HttpStatusCode StatusCode,
     TimeSpan ?ElapsedTime = null,
     string? ErrorMessage = null

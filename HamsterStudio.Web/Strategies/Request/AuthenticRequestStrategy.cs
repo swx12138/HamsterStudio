@@ -14,8 +14,9 @@ public class AuthenticRequestStrategy(HttpClient client, HttpRequestSubstantiato
     public async Task<HttpResponseMessage> SendAsync(HttpRequestMessage message)
     {
         substantiator?.Invoke(message);
-        var response = await client.SendAsync(message);
+        var response = await client.SendAsync(message, HttpCompletionOption.ResponseHeadersRead);
         response.EnsureSuccessStatusCode(); // 确保响应成功   
         return response;
     }
+
 }

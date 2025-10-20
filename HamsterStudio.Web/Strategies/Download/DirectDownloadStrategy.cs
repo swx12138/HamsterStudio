@@ -19,7 +19,7 @@ public class DirectDownloadStrategy : IDownloadStrategy // 简单实现
         using var response = await requestStrategy.GetResponseAsync(uri);
         response.EnsureSuccessStatusCode();
 
-        var data = await contentCopyStrategy.ToByteArrayCopy(response.Content);
-        return new DownloadResult(data, HttpStatusCode.OK);
+        var data = await contentCopyStrategy.CopyToStream(response.Content);
+        return new DownloadResult([data], HttpStatusCode.OK);
     }
 }

@@ -18,21 +18,16 @@ public abstract class RangeBasedDownloadStrategy : IDownloadStrategy
         return response.Content.Headers.ContentLength ?? throw new NotSupportedException("Content-Length header missing");
     }
 
-    protected async Task<byte[]> DownloadChunkAsync(Uri url, ChunkRange range, IRequestStrategy requestStrategy, IHttpContentCopyStrategy copyStrategy)
+    protected async Task<Stream> DownloadChunkAsync(Uri url, ChunkRange range, IRequestStrategy requestStrategy, IHttpContentCopyStrategy copyStrategy)
     {
-        var request = new HttpRequestMessage(HttpMethod.Get, url);
+        using var request = new HttpRequestMessage(HttpMethod.Get, url);
         request.Headers.Range = new RangeHeaderValue(range.Start, range.End);
 
         using var response = await requestStrategy.SendAsync(request);
         if (response.StatusCode != HttpStatusCode.PartialContent)
             throw new HttpRequestException($"Unexpected status code: {response.StatusCode}");
 
-        return await copyStrategy.ToByteArrayCopy(response.Content);
-    }
-
-    public static byte[] MergeChunks(IEnumerable<byte[]> chunks)
-    {
-        return chunks.SelectMany(x => x).ToArray();
+        return await copyStrategy.CopyToStream(response.Content);
     }
 
     public abstract Task<DownloadResult> DownloadAsync(

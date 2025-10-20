@@ -38,7 +38,26 @@ public class CommonDownloader(HttpClientProvider httpClientProvider)
                 return false;
             }
 
-            await File.WriteAllBytesAsync(destinationPath, result.Data);
+            using (var oFileStream = File.OpenWrite(destinationPath))
+            {
+                foreach (var stream in result.Data)
+                {
+                    if (stream.Position > 0)
+                    {
+                        if (stream.CanSeek)
+                        {
+                            stream.Seek(0, SeekOrigin.Begin);
+                        }
+                        else
+                        {
+                            Logger.Shared.Warning($"Writting stream started form non zero.");
+                        }
+                    }
+                    await stream.CopyToAsync(oFileStream);
+                    stream.Dispose();
+                }
+                await oFileStream.FlushAsync();
+            }
             Logger.Shared.Trace($"{Path.GetFileName(destinationPath)} 成功下载到 {destinationPath}.");
 
             return true;

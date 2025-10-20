@@ -1,4 +1,5 @@
-﻿using System;
+﻿using HamsterStudio.Barefeet.Logging;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -43,7 +44,8 @@ public static class RedirectResolver
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"获取重定向地址时出错: {ex.Message}");
+            Logger.Shared.Error($"获取重定向地址时出错: {ex.Message}");
+            Logger.Shared.Critical(ex);
             return url;
         }
     }

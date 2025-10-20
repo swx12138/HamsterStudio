@@ -71,7 +71,7 @@ public class RetryableDownloadStrategy(IDownloadStrategy innerStrategy, int maxR
         }
 
         return new DownloadResult(
-            Array.Empty<byte>(),
+            [new MemoryStream()],
             HttpStatusCode.RequestTimeout,
             totalStopwatch.Elapsed,
             $"Max retry attempts exceeded. Last error: {lastError?.Message}"

@@ -52,10 +52,8 @@ public class FixedChunkSizeDownloadStrategy(int chunkSize, int maxConnections) :
 
             // 6. 等待所有任务完成并合并数据
             var chunksData = await Task.WhenAll(throttledTasks);
-            var mergedData = MergeChunks(chunksData);
-
             return new DownloadResult(
-                mergedData,
+                chunksData,
                 HttpStatusCode.OK,
                 stopwatch.Elapsed
             );

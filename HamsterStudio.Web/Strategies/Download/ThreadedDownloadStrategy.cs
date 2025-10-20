@@ -46,11 +46,9 @@ public class ThreadedDownloadStrategy(int maxConnections) : RangeBasedDownloadSt
                 }
             });
 
-            IEnumerable<byte[]> chunksData = await Task.WhenAll(throttledTasks);
-            var mergedData = MergeChunks(chunksData);
-
+            var chunksData = await Task.WhenAll(throttledTasks);
             return new DownloadResult(
-                mergedData,
+                chunksData,
                 HttpStatusCode.OK,
                 stopwatch.Elapsed
             );
