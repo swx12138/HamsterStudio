@@ -1,9 +1,7 @@
 ﻿using HamsterStudio.Barefeet.Logging;
 using HamsterStudio.Bilibili.Models;
-using HamsterStudio.Web.DataModels;
 using HamsterStudio.Web.Services;
 using HamsterStudio.Web.Strategies.Request;
-using HamsterStudio.Web.Strategies.StreamCopy;
 using HamstertFileInfo = HamsterStudio.Barefeet.FileSystem.HamstertFileInfo;
 
 namespace HamsterStudio.Bilibili.Services.StreamDownloaders;
@@ -14,8 +12,7 @@ internal class DurlDownloader(CommonDownloader downloader, AuthenticRequestStrat
     {
         if (videoStreamInfo.Durl != null)
         {
-            var dreq = new DownloadRequest(new(videoStreamInfo.Durl.First().Url), strategy, new DirectHttpContentCopyStrategy());
-            if (await downloader.DownloadFileAsync(dreq, target.FullName))
+            if (await downloader.DownloadFileAsync(new(videoStreamInfo.Durl.First().Url), target.FullName, strategy, ContentCopyStrategy, DownloadStrategy))
             {
                 Logger.Shared.Information($"Durl下载成功！{target.FullName}");
             }

@@ -1,7 +1,7 @@
-﻿using HamsterStudio.Barefeet.Constants;
-using HamsterStudio.Barefeet.Logging;
+﻿using HamsterStudio.Barefeet.Logging;
 using HamsterStudio.Web.DataModels;
 using HamsterStudio.Web.Strategies;
+using HamsterStudio.Web.Strategies.Download;
 using HamsterStudio.Web.Strategies.Request;
 using HamsterStudio.Web.Strategies.StreamCopy;
 using System.Net;
@@ -10,22 +10,28 @@ namespace HamsterStudio.Web.Services;
 
 public class CommonDownloader(HttpClientProvider httpClientProvider)
 {
-    public async Task<bool> DownloadFileAsync(DownloadRequest request, string destinationPath)
+    public async Task<bool> DownloadFileAsync(
+        Uri uri,
+        string destinationPath,
+        IRequestStrategy requestStrategy,
+        IHttpContentCopyStrategy contentCopyStrategy,
+        IDownloadStrategy downloadStrategy)
     {
-        ArgumentNullException.ThrowIfNull(request, nameof(request));
+        ArgumentNullException.ThrowIfNull(requestStrategy);
+        ArgumentNullException.ThrowIfNull(contentCopyStrategy);
+        ArgumentNullException.ThrowIfNull(downloadStrategy);
 
         ArgumentException.ThrowIfNullOrEmpty(destinationPath, nameof(destinationPath));
         if (File.Exists(destinationPath))
         {
-            Logger.Shared.Warning($"File already exists at {destinationPath}. Skipped.");
+            Logger.Shared.Information($"File already exists at {destinationPath}. Skipped.");
             return true;
         }
 
-        var requestStrategy = request.RequestStrategy ?? new AuthenticRequestStrategy(httpClientProvider.HttpClient);
-        var downloadStrategy = DownloadStrategyFactory.CreateStrategy(request.MaxConnections);
+        requestStrategy ??= new AuthenticRequestStrategy(httpClientProvider.HttpClient);
         try
         {
-            var result = await downloadStrategy.DownloadAsync(request);
+            var result = await downloadStrategy.DownloadAsync(uri, requestStrategy, contentCopyStrategy);
             if (result.StatusCode != HttpStatusCode.OK)
             {
                 Logger.Shared.Error($"Failed to download file: {result.StatusCode} - {result.ErrorMessage}");
@@ -45,12 +51,11 @@ public class CommonDownloader(HttpClientProvider httpClientProvider)
         }
     }
 
-    public async Task<bool> EasyDownloadFileAsync(Uri uri, string destinationPath, bool concurrent = false)
+    public async Task<bool> EasyDownloadFileAsync(Uri uri, string destinationPath, int trunckSize = 0, bool concurrent = false)
     {
-        var downloadRequest = new DownloadRequest(uri,
-            new AuthenticRequestStrategy(httpClientProvider.HttpClient),
-            new DirectHttpContentCopyStrategy(),
-            concurrent ? 4 : 1);
-        return await DownloadFileAsync(downloadRequest, destinationPath);
+        var requestStrategy = new AuthenticRequestStrategy(httpClientProvider.HttpClient);
+        var copyStrategy = new DirectHttpContentCopyStrategy();
+        var downloadStrategy = DownloadStrategyFactory.CreateStrategy(trunckSize, concurrent ? Environment.ProcessorCount : 1);
+        return await DownloadFileAsync(uri, destinationPath, requestStrategy, copyStrategy, downloadStrategy);
     }
 }

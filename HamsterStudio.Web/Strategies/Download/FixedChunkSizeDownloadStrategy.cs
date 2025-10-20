@@ -1,4 +1,4 @@
-﻿using HamsterStudio.Barefeet.Logging;
+﻿using HamsterStudio.Web.DataModels;
 using HamsterStudio.Web.Strategies.Request;
 using HamsterStudio.Web.Strategies.StreamCopy;
 using System.Diagnostics;
@@ -6,8 +6,8 @@ using System.Net;
 
 namespace HamsterStudio.Web.Strategies.Download;
 
-// 多线程下载策略（按最大连接数）
-public class ThreadedDownloadStrategy(int maxConnections) : RangeBasedDownloadStrategy
+// 固定分块大小下载策略（自动计算线程数，最大并发数限制为处理器数量）
+public class FixedChunkSizeDownloadStrategy(int chunkSize, int maxConnections) : RangeBasedDownloadStrategy
 {
     public override async Task<DownloadResult> DownloadAsync(
         Uri uri,
@@ -16,6 +16,7 @@ public class ThreadedDownloadStrategy(int maxConnections) : RangeBasedDownloadSt
     {
         ArgumentNullException.ThrowIfNull(requestStrategy);
         ArgumentNullException.ThrowIfNull(contentCopyStrategy);
+        ArgumentOutOfRangeException.ThrowIfNegative(maxConnections);
 
         var stopwatch = Stopwatch.StartNew();
         try
@@ -23,16 +24,19 @@ public class ThreadedDownloadStrategy(int maxConnections) : RangeBasedDownloadSt
             // 1. 获取文件总大小
             long fileSize = await GetContentLengthAsync(uri, requestStrategy);
 
-            // 2. 计算分块
-            maxConnections = Math.Min(1, maxConnections);
-            var chunks = CalculateChunks(fileSize, maxConnections);
+            // 2. 计算分块（基于固定分块大小）
+            var chunks = CalculateChunksBySize(fileSize, chunkSize);
 
-            // 3. 创建并行下载任务
-            var downloadTasks = chunks.Select(chunk => DownloadChunkAsync(uri, chunk, requestStrategy, contentCopyStrategy)).ToList();
+            // 3. 限制最大并发数
+            int maxConcurrency = Math.Min(chunks.Count, maxConnections);
 
-            // 4. 限制最大并发数
-            var throttler = new SemaphoreSlim(Environment.ProcessorCount);
-            Logger.Shared.Trace($"多线程下载最大并发数限制为{Environment.ProcessorCount}。");
+            // 4. 创建并行下载任务
+            var downloadTasks = chunks.Select(chunk =>
+                DownloadChunkAsync(uri, chunk, requestStrategy, contentCopyStrategy))
+                .ToList();
+
+            // 5. 使用信号量限制并发数
+            var throttler = new SemaphoreSlim(maxConcurrency);
             var throttledTasks = downloadTasks.Select(async task =>
             {
                 await throttler.WaitAsync();
@@ -46,7 +50,8 @@ public class ThreadedDownloadStrategy(int maxConnections) : RangeBasedDownloadSt
                 }
             });
 
-            IEnumerable<byte[]> chunksData = await Task.WhenAll(throttledTasks);
+            // 6. 等待所有任务完成并合并数据
+            var chunksData = await Task.WhenAll(throttledTasks);
             var mergedData = MergeChunks(chunksData);
 
             return new DownloadResult(
@@ -61,20 +66,20 @@ public class ThreadedDownloadStrategy(int maxConnections) : RangeBasedDownloadSt
         }
     }
 
-    private static List<ChunkRange> CalculateChunks(long totalSize, int maxConnections)
+    /// <summary>
+    /// 根据固定分块大小计算分块范围
+    /// </summary>
+    private static List<ChunkRange> CalculateChunksBySize(long totalSize, long chunkSize)
     {
         var chunks = new List<ChunkRange>();
-        long chunkSize = totalSize / maxConnections;
 
-        for (int i = 0; i < maxConnections; i++)
+        for (long start = 0; start < totalSize; start += chunkSize)
         {
-            long start = i * chunkSize;
-            long end = i == maxConnections - 1 ?
-                totalSize - 1 :
-                start + chunkSize - 1;
-
+            long end = Math.Min(start + chunkSize - 1, totalSize - 1);
             chunks.Add(new ChunkRange(start, end));
         }
+
         return chunks;
     }
+
 }

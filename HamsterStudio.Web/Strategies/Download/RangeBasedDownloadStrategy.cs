@@ -32,13 +32,12 @@ public abstract class RangeBasedDownloadStrategy : IDownloadStrategy
 
     public static byte[] MergeChunks(IEnumerable<byte[]> chunks)
     {
-        var merged = new List<byte>();
-        foreach (var chunk in chunks)
-        {
-            merged.AddRange(chunk);
-        }
-        return [.. merged];
+        return chunks.SelectMany(x => x).ToArray();
     }
 
-    public abstract Task<DownloadResult> DownloadAsync(DownloadRequest request);
+    public abstract Task<DownloadResult> DownloadAsync(
+        Uri uri,
+        IRequestStrategy requestStrategy,
+        IHttpContentCopyStrategy contentCopyStrategy);
+
 }

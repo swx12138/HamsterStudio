@@ -1,5 +1,7 @@
 ﻿using HamsterStudio.Barefeet.Logging;
 using HamsterStudio.Web.DataModels;
+using HamsterStudio.Web.Strategies.Request;
+using HamsterStudio.Web.Strategies.StreamCopy;
 using System.Diagnostics;
 using System.Net;
 
@@ -11,7 +13,10 @@ public class RetryableDownloadStrategy(IDownloadStrategy innerStrategy, int maxR
     private readonly TimeSpan _initialDelay = initialDelay ?? TimeSpan.FromSeconds(1);
     private readonly Logger _logger = Logger.Shared;
 
-    public async Task<DownloadResult> DownloadAsync(DownloadRequest request)
+    public async Task<DownloadResult> DownloadAsync(
+        Uri uri,
+        IRequestStrategy requestStrategy,
+        IHttpContentCopyStrategy contentCopyStrategy)
     {
         int attempt = 0;
         Exception lastError = null;
@@ -24,7 +29,7 @@ public class RetryableDownloadStrategy(IDownloadStrategy innerStrategy, int maxR
             {
                 _logger.Information($"Download attempt {attempt + 1}/{maxRetries + 1}");
 
-                var result = await innerStrategy.DownloadAsync(request);
+                var result = await innerStrategy.DownloadAsync(uri, requestStrategy, contentCopyStrategy);
 
                 if (result.StatusCode.IsSuccess())
                 {
