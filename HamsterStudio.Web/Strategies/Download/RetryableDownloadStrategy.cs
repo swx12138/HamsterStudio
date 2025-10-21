@@ -1,38 +1,41 @@
 ﻿using HamsterStudio.Barefeet.Logging;
-using HamsterStudio.Web.DataModels;
 using HamsterStudio.Web.Strategies.Request;
 using HamsterStudio.Web.Strategies.StreamCopy;
-using System.Diagnostics;
 using System.Net;
 
 namespace HamsterStudio.Web.Strategies.Download;
 
 // 扩展点示例（符合OCP）
-public class RetryableDownloadStrategy(IDownloadStrategy innerStrategy, int maxRetries = 3, TimeSpan? initialDelay = null) : IDownloadStrategy
+public class RetryableDownloadStrategy(IDownloadStrategy innerStrategy, int maxRetries = 5, TimeSpan? initialDelay = null) : IDownloadStrategy
 {
     private readonly TimeSpan _initialDelay = initialDelay ?? TimeSpan.FromSeconds(1);
     private readonly Logger _logger = Logger.Shared;
+    private int attempt = 0;
+
+    public string Info => $"[可重试下载 {attempt}/{maxRetries}]";
 
     public async Task<DownloadResult> DownloadAsync(
         Uri uri,
         IRequestStrategy requestStrategy,
         IHttpContentCopyStrategy contentCopyStrategy)
     {
-        int attempt = 0;
         Exception lastError = null;
-
-        while (attempt <= maxRetries)
+        for (attempt = 0; attempt <= maxRetries; attempt++)
         {
-            var attemptStopwatch = Stopwatch.StartNew();
             try
             {
-                _logger.Information($"Download attempt {attempt + 1}/{maxRetries + 1}");
+                if (innerStrategy is ChunkDownloadStrategy)
+                {
+                    Logger.Shared.Trace(Info + innerStrategy.Info);
+                }
+                else
+                {
+                    Logger.Shared.Trace(Info);
+                }
 
                 var result = await innerStrategy.DownloadAsync(uri, requestStrategy, contentCopyStrategy);
-
                 if (result.StatusCode.IsSuccess())
                 {
-                    _logger.Information($"Download succeeded after {attempt} retries");
                     return result;
                 }
 
@@ -59,12 +62,9 @@ public class RetryableDownloadStrategy(IDownloadStrategy innerStrategy, int maxR
                 _logger.Information($"Retrying in {delay.TotalSeconds}s...");
                 await Task.Delay(delay);
             }
-
-            attempt++;
-            attemptStopwatch.Stop();
         }
 
-        return new DownloadResult([new MemoryStream()], HttpStatusCode.RequestTimeout, 0, 
+        return new DownloadResult([new MemoryStream()], HttpStatusCode.RequestTimeout, 0,
             $"Max retry attempts exceeded. Last error: {lastError?.Message}");
     }
 

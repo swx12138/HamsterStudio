@@ -10,7 +10,7 @@ public static class FileSizeDescriptor
     public const int FileSize_32M = 2 * FileSize_16M;
     public const int FileSize_64M = 2 * FileSize_32M;
 
-    public static string ToReadableFileSize(long byteCount)
+    public static string ToReadableFileSize(this long byteCount)
     {
         string[] suf = { "B", "KB", "MB", "GB", "TB", "PB", "EB" }; // Longs run out around EB
         if (byteCount == 0)

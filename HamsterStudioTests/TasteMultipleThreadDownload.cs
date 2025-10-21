@@ -1,4 +1,5 @@
-﻿using HamsterStudio.Web.Services;
+﻿using HamsterStudio.Barefeet.FileSystem;
+using HamsterStudio.Web.Services;
 using HamsterStudio.Web.Strategies.Download;
 using HamsterStudio.Web.Strategies.Request;
 using HamsterStudio.Web.Strategies.StreamCopy;
@@ -58,7 +59,6 @@ public class TasteMultipleThreadDownload
             Directory.CreateDirectory(dest);
         }
 
-
         dest = Path.Combine(dest, "large_file.bin");
         if (File.Exists(dest))
         {
@@ -71,7 +71,7 @@ public class TasteMultipleThreadDownload
             dest,
             new AuthenticRequestStrategy(provider.HttpClient),
             new FileStreamHttpContentCopyStrategy(),
-            new FixedChunkSizeDownloadStrategy(2 * 1024 * 1024,
+            new FixedChunkSizeDownloadStrategy(FileSizeDescriptor.FileSize_4M,
             Environment.ProcessorCount));
         Console.WriteLine($"[{rslt}] {dest} in {watch.ElapsedMilliseconds} ms");
     }

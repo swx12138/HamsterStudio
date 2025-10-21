@@ -19,4 +19,6 @@ public interface IDownloadStrategy // 策略模式接口（符合OCP）
         Uri uri,
         IRequestStrategy requestStrategy,
         IHttpContentCopyStrategy contentCopyStrategy);
+    
+    string Info { get; }
 }

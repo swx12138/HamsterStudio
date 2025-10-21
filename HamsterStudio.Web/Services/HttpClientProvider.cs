@@ -7,7 +7,8 @@ public class HttpClientProvider
 {
     private Lazy<HttpClient> _lazyClient = new(() =>
     {
-        var cli = new HttpClient(new LoggingHandler(new HttpClientHandler()));
+        //var cli = new HttpClient(new LoggingHandler(new HttpClientHandler()));
+        var cli = new HttpClient(new HttpClientHandler());
         cli.DefaultRequestHeaders.Add("User-Agent", BrowserConsts.EdgeUserAgent);
         return cli;
     });
