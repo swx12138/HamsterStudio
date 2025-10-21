@@ -6,7 +6,6 @@ using HamsterStudio.Bilibili.Services.Restful;
 using HamsterStudio.Bilibili.Services.StreamDownloaders;
 using HamsterStudio.Web.DataModels;
 using HamsterStudio.Web.Services;
-using NLog.Targets;
 
 namespace HamsterStudio.Bilibili.Services;
 
