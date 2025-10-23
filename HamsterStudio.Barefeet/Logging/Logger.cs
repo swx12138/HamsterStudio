@@ -33,6 +33,7 @@ namespace HamsterStudio.Barefeet.Logging
         public void Information(string message) => logger.Info(message);
 
         public void Trace(string message) => logger.Trace(message);
+        public void Trace(Exception ex) => logger.Trace(ex.Message + "\n" + ex.StackTrace);
 
         public void Warning(string message) => logger.Warn(message);
 

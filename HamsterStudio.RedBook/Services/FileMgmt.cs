@@ -66,10 +66,17 @@ public class FileMgmt : IDirectoryMgmt
         }
     }
 
-    public HamstertFileInfo GenerateImageFilename(string tiltle, int? index, UserInfoModel userInfo, string token, bool isHot)
+    public HamstertFileInfo GenerateImageFilename(string tiltle, int index, UserInfoModel userInfo, string token, bool isHot)
     {
         string bareToken = token.Split('/').Last();
         string baseName = FileNameUtil.SanitizeFileName($"{tiltle}_{index}_xhs_{userInfo.Nickname}_{bareToken}");
+        return GenerateFilename(userInfo, baseName, isHot);
+    }
+
+    public HamstertFileInfo GenerateCommentImageFilename(string tiltle, string comment_author, string comment_id, int index, UserInfoModel userInfo, string token, bool isHot)
+    {
+        string bareToken = token.Split('/').Last();
+        string baseName = FileNameUtil.SanitizeFileName($"{tiltle}_{comment_id}_{index}_xhs_{comment_author}_{bareToken}");
         return GenerateFilename(userInfo, baseName, isHot);
     }
 

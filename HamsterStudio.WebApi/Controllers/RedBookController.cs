@@ -40,9 +40,12 @@ public class RedBookController(IRedBookParser parser, NoteDownloadService downlo
     }
 
     [HttpPost("pc-web/download")]
-    public async Task<ActionResult<ServerRespModel?>> DownloadNote([FromBody] NoteDetailModel detail)
+    public async Task<ActionResult<ServerRespModel?>> DownloadNote(PcWebPostBodyModel postBody)
     {
-        return Ok(await downloadService.DownloadNoteLowAsync(detail));
+        return Ok(await downloadService.DownloadNoteLowAsync(
+            postBody.NoteDetail, 
+            postBody.Options, 
+            postBody.Comments));
     }
 
 }
