@@ -156,12 +156,14 @@ internal class NoteDetailProcessor(NoteDetailModel noteDetail, FileMgmt fileMgmt
                     isHot);
 
                 var pnkLink = NoteDetailHelper.GeneratePngLink(token);
-                if (!await downloader.EasyDownloadFileAsync(pnkLink, filename.FullName + ".png"))
+                var status = await downloader.EasyDownloadFileAsync(pnkLink, filename.FullName + ".png");
+                if (DownloadStatus.Failed == status)
                 {
                     var webpLink = NoteDetailHelper.GenerateWebpLink(token);
-                    if (!await downloader.EasyDownloadFileAsync(pnkLink, filename.FullName + ".webp"))
+                    status = await downloader.EasyDownloadFileAsync(pnkLink, filename.FullName + ".webp");
+                    if (DownloadStatus.Failed == status)
                     {
-                        await downloader.EasyDownloadFileAsync(new Uri(url), filename.FullName + ".jpeg");
+                        status = await downloader.EasyDownloadFileAsync(new Uri(url), filename.FullName + ".jpeg");
                         _logger.Error($"评论图片下载失败：{url}");
                     }
                 }
@@ -224,20 +226,18 @@ internal class NoteDetailProcessor(NoteDetailModel noteDetail, FileMgmt fileMgmt
             try
             {
                 var pngUrl = NoteDetailHelper.GeneratePngLink(token);
-                var resu = await downloader.EasyDownloadFileAsync(pngUrl, png_full_filename);
-                if (resu)
+                var status = await downloader.EasyDownloadFileAsync(pngUrl, png_full_filename);
+                if (status != DownloadStatus.Failed)
                 {
                     containedFiles.Add(png_filename);
-                    //_logger.Information($"{png_full_filename}【{imgInfo.Width}, {imgInfo.Height}】下载成功。");
                 }
                 else
                 {
                     var webpUrl = NoteDetailHelper.GenerateWebpLink(token);
-                    resu = await downloader.EasyDownloadFileAsync(webpUrl, webp_full_filename);
-                    if (resu)
+                    status = await downloader.EasyDownloadFileAsync(webpUrl, webp_full_filename);
+                    if (status != DownloadStatus.Failed)
                     {
                         containedFiles.Add(webp_filename);
-                        //_logger.Information($"{webp_full_filename}【{imgInfo.Width}, {imgInfo.Height}】下载成功。");
                     }
                     else
                     {
@@ -249,15 +249,10 @@ internal class NoteDetailProcessor(NoteDetailModel noteDetail, FileMgmt fileMgmt
             {
                 _logger.Warning(ex.Message);
                 var webpUrl = NoteDetailHelper.GenerateWebpLink(token);
-                var resu = await downloader.EasyDownloadFileAsync(webpUrl, webp_full_filename);
-                if (resu)
+                var status = await downloader.EasyDownloadFileAsync(webpUrl, webp_full_filename);
+                if (status != DownloadStatus.Failed)
                 {
                     containedFiles.Add(webp_filename);
-                    //_logger.Information($"{webp_full_filename}【{imgInfo.Width}, {imgInfo.Height}】下载成功。");
-                }
-                else
-                {
-                    _logger.Error($"下载失败：{imgInfo.DefaultUrl}【{imgInfo.Width}, {imgInfo.Height}】");
                 }
             }
 
@@ -277,11 +272,10 @@ internal class NoteDetailProcessor(NoteDetailModel noteDetail, FileMgmt fileMgmt
         var streamFile = fileMgmt.GenerateLivePhotoFilename(title, index, user, streamUrl, isHot);
 
         var streamFullPath = streamFile.FullName;
-        var state = await downloader.EasyDownloadFileAsync(new Uri(streamUrl), streamFullPath);
-        if (state)
+        var status = await downloader.EasyDownloadFileAsync(new Uri(streamUrl), streamFullPath);
+        if (status != DownloadStatus.Failed)
         {
             containedFiles.Add(streamFile.Name);
-            //_logger.Information($"LivePhoto {streamFile.Name} 下载成功。");
             return true;
         }
 
@@ -300,16 +294,12 @@ internal class NoteDetailProcessor(NoteDetailModel noteDetail, FileMgmt fileMgmt
         );
 
         string fullVideoPath = videoFile.FullName;
-        var state = await downloader.EasyDownloadFileAsync(videoUrl, fullVideoPath, FileSizeDescriptor.FileSize_32M, true);
-        if (state)
+        var status = await downloader.EasyDownloadFileAsync(videoUrl, fullVideoPath, FileSizeDescriptor.FileSize_32M, true);
+        if (status != DownloadStatus.Failed)
         {
             containedFiles.Add(videoFile.Name);
-            _logger.Information($"视频 {videoFile.Name} 下载成功。");
         }
-        else
-        {
-            _logger.Error($"视频下载失败：{videoUrl}");
-        }
+
     }
 
 }

@@ -84,16 +84,8 @@ public class BangumiDownloadService(
                 //     };
                 // }
                 var videoStreamInfo = await blient.GetVideoStream(bvid, page.Cid) ?? throw new NotSupportedException(); // videoStreamInfoResp.Data;
-                if (await _downloaderChain.Download(videoStreamInfo, meta, target))
-                {
-                    Logger.Shared.Information($"Downloaded {videoInfo.Bvid} to {target.FullName}");
-                }
-                else
-                {
-                    Logger.Shared.Warning($"Failed to download {videoInfo.Bvid} to {target.FullName}");
-                }
-
-                await SaveCover(videoInfo);
+                _ = await _downloaderChain.Download(videoStreamInfo, meta, target);
+                _ = await SaveCover(videoInfo);
             }
 
             return new ServerRespModel()
@@ -145,15 +137,7 @@ public class BangumiDownloadService(
         try
         {
             var dest = fileMgmt.GetCoverFilename(url, bvid);
-            var result = await downloader.EasyDownloadFileAsync(new(url), dest.FullName);
-            if (result)
-            {
-                Logger.Shared.Information($"Saved {bvid} cover to {dest.FullName}");
-            }
-            else
-            {
-                Logger.Shared.Warning($"Failed to save {bvid} cover \n\t from {url} \n\t to {dest.FullName}");
-            }
+            _ = await downloader.EasyDownloadFileAsync(new(url), dest.FullName);
             return dest.FullName;
         }
         catch (Exception ex)

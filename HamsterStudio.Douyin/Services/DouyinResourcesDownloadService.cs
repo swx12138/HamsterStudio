@@ -19,7 +19,8 @@ public class DouyinResourcesDownloadService(CommonDownloader downloader, FileCou
             string name = FileNamingTools.GetFilenameFromUrl(request.ResourceUrls[i]);
             string filename = FileNamingTools.FormatFilename(name, "douyin", request.Title, request.UserName);
             string dest = FileMgmt.CreateFile(filename, request.UserName);
-            if (await downloader.EasyDownloadFileAsync(new Uri(request.ResourceUrls[i]), dest))
+            var status = await downloader.EasyDownloadFileAsync(new Uri(request.ResourceUrls[i]), dest);
+            if (status != DownloadStatus.Failed)
             {
                 list.Add(dest);
             }

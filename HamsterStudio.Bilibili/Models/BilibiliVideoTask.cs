@@ -3,6 +3,7 @@ using HamsterStudio.Barefeet.Interfaces;
 using HamsterStudio.Barefeet.Logging;
 using HamsterStudio.Barefeet.Task;
 using HamsterStudio.Bilibili.Services;
+using HamsterStudio.Web.Services;
 
 namespace HamsterStudio.Bilibili.Models
 {
@@ -91,7 +92,7 @@ namespace HamsterStudio.Bilibili.Models
             {
                 State = HamsterTaskState.Failed;
                 Logger.Shared.Critical(ex);
-                return new() { VideoDest = null, State = FileDownloadState.Failed, Exception = ex };
+                return new() { VideoDest = null, State = DownloadStatus.Failed, Exception = ex };
             }
             finally
             {

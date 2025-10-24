@@ -10,9 +10,14 @@ using System.Net;
 
 namespace HamsterStudio.Web.Services;
 
+public enum DownloadStatus
+{
+    Success, Exists, Failed
+}
+
 public class CommonDownloader(HttpClientProvider httpClientProvider)
 {
-    public async Task<bool> DownloadFileAsync(
+    public async Task<DownloadStatus> DownloadFileAsync(
         Uri uri,
         string destinationPath,
         IRequestStrategy requestStrategy,
@@ -26,8 +31,8 @@ public class CommonDownloader(HttpClientProvider httpClientProvider)
         ArgumentException.ThrowIfNullOrEmpty(destinationPath, nameof(destinationPath));
         if (File.Exists(destinationPath))
         {
-            Logger.Shared.Information($"File already exists at {destinationPath}. Skipped.");
-            return true;
+            Logger.Shared.Information($"文件 {destinationPath} 已存在.");
+            return DownloadStatus.Exists;
         }
 
         requestStrategy ??= new AuthenticRequestStrategy(httpClientProvider.HttpClient);
@@ -38,7 +43,7 @@ public class CommonDownloader(HttpClientProvider httpClientProvider)
             if (result.StatusCode != HttpStatusCode.OK)
             {
                 Logger.Shared.Error($"Failed to download file: {result.StatusCode} - {result.ErrorMessage}");
-                return false;
+                return DownloadStatus.Failed;
             }
 
             using (var oFileStream = File.OpenWrite(destinationPath))
@@ -61,17 +66,17 @@ public class CommonDownloader(HttpClientProvider httpClientProvider)
             var fileSizeStr = FileSizeDescriptor.ToReadableFileSize(result.TotalBytes);
             Logger.Shared.Information($"下载文件 {Path.GetFileName(destinationPath)} 成功，文件大小{fileSizeStr}，平均速度{bytePerSecondStr}/s.");
 
-            return true;
+            return DownloadStatus.Success;
         }
         catch (Exception ex)
         {
             Logger.Shared.Warning($"Error downloading file: {ex.Message}");
             Logger.Shared.Debug(ex);
-            return false;
+            return DownloadStatus.Failed;
         }
     }
 
-    public async Task<bool> EasyDownloadFileAsync(Uri uri, string destinationPath, int trunckSize = 0, bool concurrent = false)
+    public async Task<DownloadStatus> EasyDownloadFileAsync(Uri uri, string destinationPath, int trunckSize = 0, bool concurrent = false)
     {
         var requestStrategy = new AuthenticRequestStrategy(httpClientProvider.HttpClient);
         var copyStrategy = new FileStreamHttpContentCopyStrategy();

@@ -12,7 +12,7 @@ namespace HamsterStudio.Bilibili.Services.StreamDownloaders;
 
 internal class DashDownloader(CommonDownloader downloader, FileMgmt fileMgmt, AuthenticRequestStrategy strategy, StreamDownloaderChaeine? inner) : StreamDownloaderChaeine(inner)
 {
-    public override async Task<bool> Download(VideoStreamInfo videoStreamInfo, AvMeta meta, HamstertFileInfo target)
+    public override async Task<DownloadStatus> Download(VideoStreamInfo videoStreamInfo, AvMeta meta, HamstertFileInfo target)
     {
         if (videoStreamInfo.Dash.Video != null && videoStreamInfo.Dash.Audio != null)
         {
@@ -24,7 +24,7 @@ internal class DashDownloader(CommonDownloader downloader, FileMgmt fileMgmt, Au
 
             var avPath = await DownloadStream(videoStreamInfo, acceptQuality, meta.copyright);
             var rslt = await MergeStreamToMp4(meta, avPath, target, DeleteAvCache: true);
-            return rslt.State == FileDownloadState.Succeed || rslt.State == FileDownloadState.Existed;
+            return rslt.State;
         }
 
         return await base.Download(videoStreamInfo, meta, target);
@@ -37,7 +37,8 @@ internal class DashDownloader(CommonDownloader downloader, FileMgmt fileMgmt, Au
         string vPath = Path.Combine(fileMgmt.TemporaryHome, vName);
         //var vrequ = new DownloadRequest(, , );
 
-        if (!await downloader.DownloadFileAsync(new Uri(vBaseUrl), vPath, strategy, ContentCopyStrategy, DownloadStrategy))
+        var status = await downloader.DownloadFileAsync(new Uri(vBaseUrl), vPath, strategy, ContentCopyStrategy, DownloadStrategy);
+        if (status == DownloadStatus.Failed)
         {
             throw new Exception($"Failed to download video stream from {vBaseUrl}");
         }
@@ -45,7 +46,8 @@ internal class DashDownloader(CommonDownloader downloader, FileMgmt fileMgmt, Au
         string aBaseUrl = SelectAudioBaseUrl(streamInfo);
         string aName = aBaseUrl.Filename();
         string aPath = Path.Combine(fileMgmt.TemporaryHome, aName);
-        if (!await downloader.DownloadFileAsync(new Uri(aBaseUrl), aPath, strategy, ContentCopyStrategy, DownloadStrategy))
+        status = await downloader.DownloadFileAsync(new Uri(aBaseUrl), aPath, strategy, ContentCopyStrategy, DownloadStrategy);
+        if (status == DownloadStatus.Failed)
         {
             throw new Exception($"Failed to download audio stream from {aBaseUrl}");
         }
@@ -81,7 +83,7 @@ internal class DashDownloader(CommonDownloader downloader, FileMgmt fileMgmt, Au
             return new()
             {
                 VideoDest = target,
-                State = FileDownloadState.Existed,
+                State = DownloadStatus.Exists,
             };
         }
 
@@ -95,7 +97,7 @@ internal class DashDownloader(CommonDownloader downloader, FileMgmt fileMgmt, Au
         return new()
         {
             VideoDest = target,
-            State = FileDownloadState.Succeed,
+            State = DownloadStatus.Success,
         };
     }
 
