@@ -1,12 +1,10 @@
 ﻿using HamsterStudio.Barefeet.Extensions;
-using HamsterStudio.Barefeet.Interfaces;
+using HamsterStudio.Barefeet.FileSystem;
 using HamsterStudio.Barefeet.Logging;
 using HamsterStudio.Barefeet.SysCall;
 using HamsterStudio.Bilibili.Models;
 using HamsterStudio.Web.Services;
 using HamsterStudio.Web.Strategies.Request;
-using System.Threading.Tasks;
-using HamstertFileInfo = HamsterStudio.Barefeet.FileSystem.HamstertFileInfo;
 
 namespace HamsterStudio.Bilibili.Services.StreamDownloaders;
 
@@ -23,8 +21,7 @@ internal class DashDownloader(CommonDownloader downloader, FileMgmt fileMgmt, Au
             Logger.Shared.Information($"Selected quality {qua}({qua_str}, {qua_num})");
 
             var avPath = await DownloadStream(videoStreamInfo, acceptQuality, meta.copyright);
-            var rslt = await MergeStreamToMp4(meta, avPath, target, DeleteAvCache: true);
-            return rslt.State;
+            return await MergeStreamToMp4(meta, avPath, target, DeleteAvCache: true);
         }
 
         return await base.Download(videoStreamInfo, meta, target);
@@ -75,16 +72,12 @@ internal class DashDownloader(CommonDownloader downloader, FileMgmt fileMgmt, Au
         }
     }
 
-    public static async Task<BilibiliVideoDownloadResult> MergeStreamToMp4(AvMeta meta, (string aPath, string vPath) avPath, HamstertFileInfo target, bool? DeleteAvCache = true)
+    public static async Task<DownloadStatus> MergeStreamToMp4(AvMeta meta, (string aPath, string vPath) avPath, HamstertFileInfo target, bool? DeleteAvCache = true)
     {
         if (File.Exists(target.FullName))
         {
             Logger.Shared.Information($"{target.FullName} Exists.");
-            return new()
-            {
-                VideoDest = target,
-                State = DownloadStatus.Exists,
-            };
+            return DownloadStatus.Exists;
         }
 
         await MergeAv(avPath.vPath, avPath.aPath, meta, target.FullName);
@@ -94,11 +87,7 @@ internal class DashDownloader(CommonDownloader downloader, FileMgmt fileMgmt, Au
             try { File.Delete(avPath.vPath); } catch (Exception ex) { Logger.Shared.Critical(ex); }
         }
 
-        return new()
-        {
-            VideoDest = target,
-            State = DownloadStatus.Success,
-        };
+        return DownloadStatus.Success;
     }
 
     public static async Task MergeAv(string vname, string aname, AvMeta meta, string outp)
