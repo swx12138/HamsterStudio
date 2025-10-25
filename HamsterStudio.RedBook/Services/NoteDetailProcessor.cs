@@ -82,6 +82,7 @@ internal class NoteDetailProcessor(NoteDetailModel noteDetail, FileMgmt fileMgmt
         string png_full_filename = fileInfo.FullName + ".png";
         if (File.Exists(png_full_filename))
         {
+            _logger.Information($"文件已存在：{png_filename}，跳过下载。");
             ContainedFiles.Add(png_filename);
             return;
         }
@@ -91,6 +92,7 @@ internal class NoteDetailProcessor(NoteDetailModel noteDetail, FileMgmt fileMgmt
         string webp_full_filename = fileInfo.FullName + ".webp";
         if (File.Exists(webp_full_filename))
         {
+            _logger.Information($"文件已存在：{webp_filename}，跳过下载。");
             ContainedFiles.Add(webp_filename);
             return;
         }

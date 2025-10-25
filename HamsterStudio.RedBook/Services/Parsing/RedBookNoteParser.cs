@@ -22,6 +22,7 @@ public class RedBookNoteParser(FakeBrowser? browser = null) : IRedBookParser
             var ndata = GetNote(htmlDoc);
             if (ndata == null || ndata.CurrentNoteId == null)
             {
+                Logger.Shared.Error($"Parse note data failed. see lastest.html for detail.");
                 htmlDoc.Save("lastest.html");
                 return null;
             }
