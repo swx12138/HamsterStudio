@@ -6,7 +6,6 @@ using HamsterStudio.Gallery.ViewModels;
 using HamsterStudio.Toolkits.Logging;
 using HamsterStudio.Toolkits.Services;
 using HamsterStudio.WallpaperEngine.ViewModels;
-using HamsterStudioGUI.Models;
 using HamsterStudioGUI.ViewModels;
 
 namespace HamsterStudioGUI;
@@ -29,6 +28,7 @@ partial class MainWindowModel : ObservableObject, IDisposable
     public MainViewModel MainViewModel { get; } = new();
     public WallpaperEngineViewModel  WallpaperEngineViewModel { get; } 
     public GalleryViewModel GalleryViewModel { get; }
+    public SpacialDownloadsViewModel SpacialDownloadsViewModel { get; } = new();
 
     [ObservableProperty]
     private ThemeMgmt _ThemeMgmt;

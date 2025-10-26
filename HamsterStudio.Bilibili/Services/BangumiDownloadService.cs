@@ -25,7 +25,7 @@ public class BangumiDownloadService(
             new DurlDownloader(downloader, requestStrategyProvider.Strategy,
                 null));
 
-    public async Task<ServerRespModel> DownloadVideoByBvid(string bvid, int idx = -1)
+    public async Task<ServerRespModel> DownloadVideoByBvid(string bvid, int idx = -1, long cid = -99)
     {
         try
         {
@@ -53,7 +53,7 @@ public class BangumiDownloadService(
             OnVideoInfoUpdated?.Invoke(videoInfo);
 
             idx = Math.Max(idx, 0);
-            var target = fileMgmt.GetVideoFilename(videoInfo, idx);
+            var target = fileMgmt.GetVideoFilename(videoInfo, idx, cid);
             Logger.Shared.Information($"Output Dir:{target.FullName}");
 
             if (File.Exists(target.FullName))
@@ -73,17 +73,7 @@ public class BangumiDownloadService(
                     copyright = videoInfo.Bvid!
                 };
 
-                //获取视频流信息
-                //var videoStreamInfoResp = await bilibiliApi.GetVideoStreamInfoAsync(page.Cid, bvid, Cookies);
-                // if (videoStreamInfoResp.Code != 0)
-                // {
-                //     return new ServerRespModel()
-                //     {
-                //         Message = videoStreamInfoResp.Message,
-                //         Status = (int)(0 - videoStreamInfoResp.Code),
-                //     };
-                // }
-                var videoStreamInfo = await blient.GetVideoStream(bvid, page.Cid) ?? throw new NotSupportedException(); // videoStreamInfoResp.Data;
+                var videoStreamInfo = await blient.GetVideoStream(bvid, cid != -99 ? cid : page.Cid) ?? throw new NotSupportedException(); // videoStreamInfoResp.Data;
                 _ = await _downloaderChain.Download(videoStreamInfo, meta, target);
                 _ = await SaveCover(videoInfo);
             }

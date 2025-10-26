@@ -48,7 +48,14 @@
                         BorderBrush="{Binding ThemeMgmt.BodyBorderColor}"
                         BorderThickness="1"
                         CornerRadius="5">
-                    <localv:MainView DataContext="{Binding MainViewModel}" />
+                    <TabControl>
+                        <TabItem Header="Home">
+                            <localv:MainView DataContext="{Binding MainViewModel}" />
+                        </TabItem>
+                        <TabItem Header="特殊下载">
+                            <localv:SpacialDownloadsView DataContext="{Binding SpacialDownloadsViewModel}" />
+                        </TabItem>
+                    </TabControl>
                 </Border>
 
                 <!--  日志  -->

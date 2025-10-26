@@ -39,9 +39,10 @@ public class FileMgmt : IDirectoryMgmt
         Logger.Shared.Information($"Bilibili FileMgmt initialized, storage home: {StorageHome}");
     }
 
-    public HamstertFileInfo GetVideoFilename(VideoInfo videoInfo, int idx)
+    public HamstertFileInfo GetVideoFilename(VideoInfo videoInfo, int idx, long cid = -99)
     {
-        string filename = $"{videoInfo.Cid!}-{idx}_{videoInfo.Bvid}.mp4";     // TBD：修改命名规则，增加视频质量和音频质量
+        long realCid = cid != -99 ? cid : videoInfo.Cid!;
+        string filename = $"{realCid}-{idx}_{videoInfo.Bvid}.mp4";     // TBD：修改命名规则，增加视频质量和音频质量
         string fullName = _subFolders.Contains(videoInfo.Owner.Name) ?
             Path.Combine(DashHome, videoInfo.Owner.Name, filename) :
             Path.Combine(DashHome, filename);    // TBD：分文件夹
