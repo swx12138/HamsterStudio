@@ -1,4 +1,5 @@
 ﻿using HamsterStudio.Barefeet.Extensions;
+using HamsterStudio.Barefeet.Logging;
 using HamsterStudio.RedBook.Models.Sub;
 
 namespace HamsterStudio.RedBook.Services;
@@ -28,7 +29,9 @@ internal static class NoteDetailHelper
 
     public static Uri GenerateVideoLink(string token)
     {
-        return new Uri($"https://sns-video-bd.xhscdn.com/{token}");
+        string uri = $"https://sns-video-bd.xhscdn.com/{token}";
+        Logger.Shared.Information("视频链接：" + uri) ;
+        return new Uri(uri);
     }
 
     public static string ExtractToken(string url)

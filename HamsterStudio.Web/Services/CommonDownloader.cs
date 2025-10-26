@@ -1,5 +1,6 @@
 ﻿using HamsterStudio.Barefeet.FileSystem;
 using HamsterStudio.Barefeet.Logging;
+using HamsterStudio.Barefeet.SysCall;
 using HamsterStudio.Web.DataModels;
 using HamsterStudio.Web.Strategies;
 using HamsterStudio.Web.Strategies.Download;
@@ -42,6 +43,7 @@ public class CommonDownloader(HttpClientProvider httpClientProvider)
             var result = await downloadStrategy.DownloadAsync(uri, requestStrategy, contentCopyStrategy);
             if (result.StatusCode != HttpStatusCode.OK)
             {
+                ShellApi.OpenBrowser(uri.AbsoluteUri);
                 Logger.Shared.Error($"Failed to download file: {result.StatusCode} - {result.ErrorMessage}");
                 return DownloadStatus.Failed;
             }

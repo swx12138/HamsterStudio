@@ -32,6 +32,24 @@ public static class ShellApi
         });
     }
 
+    public static bool OpenBrowser(string url)
+    {
+        try
+        {
+            Process.Start(new ProcessStartInfo
+            {
+                FileName = url,
+                UseShellExecute = true
+            });
+            return true;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"打开浏览器失败: {ex.Message}");
+            return false;
+        }
+    }
+
     public static void System(string cmd)
     {
         // 创建一个进程对象
