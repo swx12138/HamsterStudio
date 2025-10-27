@@ -6,7 +6,7 @@ using HamsterStudio.Web.Services;
 
 namespace HamsterStudio.RedBook.Services;
 
-internal class NoteDetailProcessor(NoteDetailModel noteDetail, FileMgmt fileMgmt, CommonDownloader downloader, Logger _logger, bool isHot)
+public class NoteDetailProcessor(NoteDetailModel noteDetail, FileMgmt fileMgmt, CommonDownloader downloader, Logger _logger, bool isHot)
 {
     public List<string> ContainedFiles { get; } = [];
 
@@ -53,24 +53,9 @@ internal class NoteDetailProcessor(NoteDetailModel noteDetail, FileMgmt fileMgmt
         }
     }
 
-    public async Task ProcessImageDownloads()
+    public async Task<DownloadStatus> DownloadImageByToken(string token, HamstertFileInfo fileInfo, bool showDestPath)
     {
-        string title = NoteDetailHelper.SelectTitle(noteDetail);
-        await Parallel.ForEachAsync(
-            noteDetail.ImageList,
-            new ParallelOptions { MaxDegreeOfParallelism = Environment.ProcessorCount / 2 },
-            async (x, ct) => await ProcessImage(x, title));
-    }
-
-    private async Task ProcessImage(ImageListItemModel imgInfo, string title)
-    {
-        int index = noteDetail.ImageList.IndexOf(imgInfo) + 1;
-
-        // 生成文件名
-        string token = NoteDetailHelper.ExtractToken(imgInfo.DefaultUrl);
-        var fileInfo = fileMgmt.GenerateImageFilename(title, index, noteDetail.UserInfo, token, isHot);
-
-        if (noteDetail.ImageList.IndexOf(imgInfo) == 0)
+        if (showDestPath)
         {
             Logger.Shared.Information($"文件将会下载到{fileInfo.Directory}");
         }
@@ -84,7 +69,7 @@ internal class NoteDetailProcessor(NoteDetailModel noteDetail, FileMgmt fileMgmt
         {
             _logger.Information($"文件已存在：{png_filename}，跳过下载。");
             ContainedFiles.Add(png_filename);
-            return;
+            return DownloadStatus.Exists;
         }
 
         // 检查WEBP文件是否已存在
@@ -94,7 +79,7 @@ internal class NoteDetailProcessor(NoteDetailModel noteDetail, FileMgmt fileMgmt
         {
             _logger.Information($"文件已存在：{webp_filename}，跳过下载。");
             ContainedFiles.Add(webp_filename);
-            return;
+            return DownloadStatus.Exists;
         }
 
         // 下载流程
@@ -114,11 +99,9 @@ internal class NoteDetailProcessor(NoteDetailModel noteDetail, FileMgmt fileMgmt
                 {
                     ContainedFiles.Add(webp_filename);
                 }
-                else
-                {
-                    _logger.Error($"下载失败：{imgInfo.DefaultUrl}【{imgInfo.Width}, {imgInfo.Height}】");
-                }
+
             }
+            return status;
         }
         catch (Exception ex)
         {
@@ -129,6 +112,23 @@ internal class NoteDetailProcessor(NoteDetailModel noteDetail, FileMgmt fileMgmt
             {
                 ContainedFiles.Add(webp_filename);
             }
+            return status;
+        }
+    }
+
+    public async Task ProcessImage(ImageListItemModel imgInfo, string title, Action<string>? handleToken)
+    {
+        int index = noteDetail.ImageList.IndexOf(imgInfo) + 1;
+
+        // 生成文件名
+        string token = NoteDetailHelper.ExtractToken(imgInfo.DefaultUrl);
+        handleToken?.Invoke(token);
+
+        var fileInfo = fileMgmt.GenerateImageFilename(title, index, noteDetail.UserInfo, token, isHot);
+        var status = await DownloadImageByToken(token, fileInfo, noteDetail.ImageList.IndexOf(imgInfo) == 0);
+        if (status == DownloadStatus.Failed)
+        {
+            _logger.Error($"下载失败：{imgInfo.DefaultUrl}【{imgInfo.Width}, {imgInfo.Height}】");
         }
 
         // 处理LivePhoto

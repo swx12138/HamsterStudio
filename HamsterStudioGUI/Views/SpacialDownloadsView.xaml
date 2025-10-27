@@ -15,5 +15,8 @@
         <TabItem Header="Bilibili">
             <spdownloads:BilibiliSpDownloads DataContext="{Binding BilibiliSpDownloadsViewModel}" />
         </TabItem>
+        <TabItem Header="小红书">
+            <spdownloads:XiaoHongshuSpDownloadView DataContext="{Binding XiaoHongshuSpDownloadViewModel}" />
+        </TabItem>
     </TabControl>
 </UserControl>

@@ -1,7 +1,6 @@
 ﻿using HamsterStudio.Barefeet.FileSystem;
 using HamsterStudio.Barefeet.Logging;
 using HamsterStudio.Barefeet.SysCall;
-using HamsterStudio.Web.DataModels;
 using HamsterStudio.Web.Strategies;
 using HamsterStudio.Web.Strategies.Download;
 using HamsterStudio.Web.Strategies.Request;

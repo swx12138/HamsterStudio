@@ -14,6 +14,8 @@ public class NoteDownloadService(FileMgmt fileMgmt, CommonDownloader downloader)
 
     public event Action<NoteDetailModel> OnNoteDetailUpdated = delegate { };
 
+    public event Action<string> OnImageTokenDetected = delegate { };
+
     public async Task<ServerRespModel> DownloadNoteAsync(NoteDataModel noteData)
     {
         var currentNote = noteData.NoteDetailMap[noteData.CurrentNoteId];
@@ -56,7 +58,12 @@ public class NoteDownloadService(FileMgmt fileMgmt, CommonDownloader downloader)
         _logger.Information($"标题：{noteDetail.Title}【{noteDetail.ImageList.Count}】");
 
         var processor = new NoteDetailProcessor(noteDetail, fileMgmt, downloader, _logger, isHot);
-        await processor.ProcessImageDownloads();
+        string title = NoteDetailHelper.SelectTitle(noteDetail);
+        await Parallel.ForEachAsync(
+            noteDetail.ImageList,
+            new ParallelOptions { MaxDegreeOfParallelism = Environment.ProcessorCount / 2 },
+            async (x, ct) => await processor.ProcessImage(x, title, OnImageTokenDetected));
+
         if (noteDetail.Type == "video")
         {
             await processor.ProcessVideoDownload();

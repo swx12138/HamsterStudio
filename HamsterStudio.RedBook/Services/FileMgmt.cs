@@ -54,11 +54,11 @@ public class FileMgmt : IDirectoryMgmt
         return new DirectoryInfo(subFolderPath);
     }
 
-    private HamstertFileInfo GenerateFilename(UserInfoModel userInfo, string baseName, bool isHot)
+    private HamstertFileInfo GenerateFilename(string nickname, string baseName, bool isHot)
     {
         if (isHot)
         {
-            return new HamstertFileInfo(Path.Combine(StorageHome, userInfo.Nickname, $"{baseName}")) { RemoveCommand = null };
+            return new HamstertFileInfo(Path.Combine(StorageHome, nickname, $"{baseName}")) { RemoveCommand = null };
         }
         else
         {
@@ -68,30 +68,35 @@ public class FileMgmt : IDirectoryMgmt
 
     public HamstertFileInfo GenerateImageFilename(string tiltle, int index, UserInfoModel userInfo, string token, bool isHot)
     {
+        return GenerateImageFilenameLow(tiltle, index, userInfo.Nickname, token, isHot);
+    }
+
+    public HamstertFileInfo GenerateImageFilenameLow(string tiltle, int index, string nickname, string token, bool isHot)
+    {
         string bareToken = token.Split('/').Last();
-        string baseName = FileNameUtil.SanitizeFileName($"{tiltle}_{index}_xhs_{userInfo.Nickname}_{bareToken}");
-        return GenerateFilename(userInfo, baseName, isHot);
+        string baseName = FileNameUtil.SanitizeFileName($"{tiltle}_{index}_xhs_{nickname}_{bareToken}");
+        return GenerateFilename(nickname, baseName, isHot);
     }
 
     public HamstertFileInfo GenerateCommentImageFilename(string tiltle, string comment_author, string comment_id, int index, UserInfoModel userInfo, string token, bool isHot)
     {
         string bareToken = token.Split('/').Last();
         string baseName = FileNameUtil.SanitizeFileName($"{tiltle}_{comment_id}_{index}_xhs_{comment_author}_{bareToken}");
-        return GenerateFilename(userInfo, baseName, isHot);
+        return GenerateFilename(userInfo.Nickname, baseName, isHot);
     }
 
     public HamstertFileInfo GenerateLivePhotoFilename(string tiltle, int? index, UserInfoModel userInfo, string streamUrl, bool isHot)
     {
         var rawname = streamUrl.Split('?').First().Split('/').Last();
         string baseName = FileNameUtil.SanitizeFileName($"{tiltle}_{index}_xhs_{userInfo.Nickname}_{rawname}");
-        return GenerateFilename(userInfo, baseName, isHot);
+        return GenerateFilename(userInfo.Nickname, baseName, isHot);
     }
 
     public HamstertFileInfo GenerateVideoFilename(string tiltle, UserInfoModel userInfo, string token, bool isHot)
     {
         // TBD:自动判断类型
         string baseName = FileNameUtil.SanitizeFileName($"{tiltle}_xhs_{userInfo.Nickname}_{token}.mp4");
-        return GenerateFilename(userInfo, baseName, isHot);
+        return GenerateFilename(userInfo.Nickname, baseName, isHot);
     }
 
     public void Save()

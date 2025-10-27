@@ -18,6 +18,7 @@ public abstract partial class SpDownloadsViewModel : ViewModel
     public SpDownloadsViewModel()
     {
         DownloadCommand = new AsyncRelayCommand(DownloadExecute);
+        Status = "初始化完成。";
     }
 
     public abstract Task DownloadExecute();

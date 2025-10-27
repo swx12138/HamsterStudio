@@ -1,9 +1,7 @@
 ﻿using HamsterStudio.RedBook.Interfaces;
 using HamsterStudio.RedBook.Services;
 using HamsterStudio.RedBook.Services.Parsing;
-using HamsterStudio.RedBook.Services.XhsRestful;
 using Microsoft.Extensions.DependencyInjection;
-using Refit;
 
 namespace HamsterStudio.RedBook;
 
@@ -14,6 +12,7 @@ public static class WebApiExtensions
         services.AddSingleton<IRedBookParser, RedBookNoteParser>();
         services.AddSingleton<NoteDownloadService>();
         services.AddSingleton<FileMgmt>();
+        services.AddSingleton<PreTokenCollector>();
         
         return services;
     }

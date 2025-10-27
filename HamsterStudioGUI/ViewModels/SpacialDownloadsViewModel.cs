@@ -11,6 +11,7 @@ public class SpacialDownloadsViewModel
 {
     public DirectLinkDownloadViewModel DirectLinkDownload { get; } = new();
     public BilibiliSpDownloadsViewModel BilibiliSpDownloadsViewModel { get; } = new();
+    public XiaoHongshuSpDownloadViewModel XiaoHongshuSpDownloadViewModel { get; } = new();
 
     public SpacialDownloadsViewModel()
     {
