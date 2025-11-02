@@ -1,17 +1,15 @@
-﻿using HamsterStudio.Barefeet.Logging;
-using HamsterStudio.Bilibili;
-using HamsterStudio.Bilibili.Constants;
+﻿using HamsterStudio.Bilibili;
+using HamsterStudio.Bilibili.Models;
 using HamsterStudio.Bilibili.Services;
 using HamsterStudio.Bilibili.Services.Restful;
-using Refit;
 using System.Web;
 
-namespace HamsterStudioTests
+namespace HamsterStudioTests.Bilibili
 {
     [TestClass]
     public sealed class TestBilibili
     {
-        const string cookies = "enable_web_push=DISABLE; buvid4=D03E4D6A-5698-2F50-705C-9549A16A515475537-024051806-941xmmeJT0vtfn1cUje7pg%3D%3D; rpdid=|(u))|J)|RRY0J'u~uY|uRu|R; header_theme_version=CLOSE; buvid_fp_plain=undefined; LIVE_BUVID=AUTO2117162089414294; is-2022-channel=1; CURRENT_BLACKGAP=0; opus-goback=1; go-old-space=1; enable_feed_channel=ENABLE; historyviewmode=grid; CURRENT_QUALITY=120; PVID=1; SESSDATA=76cb6115%2C1760530701%2Cdb175%2A42CjCNCj5nsl4CkcEjQeLYN3hevGbGMDFGpQ0cjgfUaTwuOc_XGX5S3AIo2FRfxHfgplESVmtxSm5kWEgzcEMyTDhLRWV1Ykw0YUNhLTZGY0pOdFpxczNtM3NBUGlhNFlLdlhRZjZVdkZSeF9OZWxQRTFQZXhzcTg5Z05IV0s1NE5NMEpndlVCaGlBIIEC; bili_jct=fdd128a38522c7fbc817bd777b2763bf; DedeUserID=225655964; DedeUserID__ckMd5=51a2e7cba9fbbf9e; fingerprint=31c734103c43608ee78a878e843f04f9; buvid3=3D7677FB-DAA0-B9A7-AE9C-4E0FC99CA9F082352infoc; b_nut=1747550082; _uuid=C98E10343-5E9A-10C62-5FF6-C1010E2CA92FCA94782infoc; hit-dyn-v2=1; buvid_fp=2fe05f295e2da86e5b76512adf8822ae; home_feed_column=5; bili_ticket=eyJhbGciOiJIUzI1NiIsImtpZCI6InMwMyIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NDk3NDAwODUsImlhdCI6MTc0OTQ4MDgyNSwicGx0IjotMX0.9DwzXpLzksVHmZMFobUDqNgnwvIMTg3CSIRGk1eUwfE; bili_ticket_expires=1749740025; browser_resolution=1871-1062; sid=5bnsgajr; CURRENT_FNVAL=4048; bp_t_offset_225655964=1077187165160472576; b_lsid=52F109559_1975F062195";
+        string cookies = File.ReadAllText(@"E:\HamsterStudioHome\Bilibili\cookies.txt");
         readonly IBilibiliApiService bapi = WebApiExtensions.CreateServ();
 
         [TestMethod]
@@ -95,6 +93,51 @@ namespace HamsterStudioTests
             var data = resp.Data;
             Assert.IsNotNull(data);
 
+        }
+
+        [TestMethod]
+        public async Task TestGetReplayV2()
+        {
+            var vinfo = await bapi.GetVideoInfoAsync("BV1MZxnzsEuo");
+
+            Assert.IsNotNull(vinfo);
+            Console.WriteLine($"[{vinfo.Code}] {vinfo.Message}");
+
+            Assert.IsNotNull(vinfo.Data);
+            Console.WriteLine($"avid:{vinfo.Data.Aid} bvid:{vinfo.Data.Bvid}");
+            for (int page = 1; ; page++)
+            {
+                Console.WriteLine($"Load page {page} ...");
+                var replayResp = await bapi.GetReplayV2(vinfo.Data!.Aid, page, cookies);
+
+                Assert.IsNotNull(replayResp);
+                Assert.IsNotNull(replayResp.Data);
+                ShowCommentsPage(replayResp.Data.Page);
+
+                if(replayResp.Data.Replies == null)
+                {
+                    break;
+                }
+
+                foreach (var replay in replayResp.Data.Replies)
+                {
+                    ShowReply(replay);
+                }
+            }
+
+        }
+
+        private void ShowCommentsPage(PageModel page)
+        {
+            Console.WriteLine($"Page {page.Num} size:{page.Size} count:{page.Count} acount:{page.Acount}");
+        }
+
+        private void ShowReply(RepliesItemModel reply)
+        {
+            if (reply.UpAction.Like || reply.UpAction.Reply)
+            {
+                Console.WriteLine($"[{reply.UpAction.Like} {reply.UpAction.Reply}] {reply.Member.Uname} {reply.Content.Pictures.Length}");
+            }
         }
 
     }

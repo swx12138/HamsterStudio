@@ -17,6 +17,7 @@ public class FileMgmt : IDirectoryMgmt
     public string DashHome { get; }
     public string CoverHome { get; }
     public string DynamicHome { get; }
+    public string CookiesFile { get; }
 
     public FileMgmt(DirectoryMgmt directoryMgmt, DataStorageMgmt dataStorageMgmt)
     {
@@ -35,6 +36,7 @@ public class FileMgmt : IDirectoryMgmt
                 .ToHashSet(StringComparer.OrdinalIgnoreCase);
         CoverHome = Path.Combine(StorageHome, SystemConsts.CoverSubName);
         DynamicHome = Path.Combine(StorageHome, SystemConsts.DynamicSubName);
+        CookiesFile = Path.Combine(StorageHome, "cookies.txt");
 
         Logger.Shared.Information($"Bilibili FileMgmt initialized, storage home: {StorageHome}");
     }
@@ -64,4 +66,13 @@ public class FileMgmt : IDirectoryMgmt
         string fullName = Path.Combine(CoverHome, filename);    // TBD：分文件夹
         return new HamstertFileInfo(fullName) { RemoveCommand = null };
     }
+
+    public HamstertFileInfo GetReplayFilename(string url, string replyId, string bvid, int idx)
+    {
+        string base_name = FileNamingTools.GetFilenameFromUrl(url);
+        string filename = $"{replyId}_{idx}_bili_{base_name}";
+        string fullName = Path.Combine(DashHome, bvid, filename);    // TBD：分文件夹
+        return new HamstertFileInfo(fullName) { RemoveCommand = null };
+    }
+
 }

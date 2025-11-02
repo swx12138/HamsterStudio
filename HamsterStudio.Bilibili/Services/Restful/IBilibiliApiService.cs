@@ -31,7 +31,7 @@ public interface IBilibiliApiService
     [Get(SystemConsts.ConclusionPath)]
     Task<Response<ConclusionModel>> GetConclusionView(string bvid,
                                                       string cid,
-                                                      string up_mid, 
+                                                      string up_mid,
                                                       [Header("Cookie")] string cookie);
 
     [Post("/bapis/bilibili.api.ticket.v1.Ticket/GenWebTicket")]
@@ -42,6 +42,9 @@ public interface IBilibiliApiService
 
     [Get("/x/polymer/web-dynamic/v1/detail")]
     Task<Response<DynamicDetailDataModel>> GetDynamicDetail([AliasAs("id")] string dynamic_id);
+
+    [Get("/x/v2/reply")]
+    Task<Response<ReplayV2DataModel>> GetReplayV2([AliasAs("oid")] string bvid, int pn, [Header("Cookie")] string cookies, int type = 1);
 }
 
 // https://api.vc.bilibili.com

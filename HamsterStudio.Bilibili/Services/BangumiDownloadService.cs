@@ -25,6 +25,57 @@ public class BangumiDownloadService(
             new DurlDownloader(downloader, requestStrategyProvider.Strategy,
                 null));
 
+    public async Task DownloadReplies(string bvid)
+    {
+        int replayCount = 0;
+
+        for (int page = 0; page < 10; page++)
+        {
+            var resp = await bilibiliApi.GetReplayV2(bvid, page, File.ReadAllText(fileMgmt.CookiesFile));
+            if (resp.Code != 0)
+            {
+                Logger.Shared.Error("Load page failed.");
+                return;
+            }
+
+            if (resp.Data.Replies == null)
+            {
+                continue;
+            }
+
+            foreach (var replay in resp.Data.Replies)
+            {
+                replayCount++;
+                if (replay.Content.Pictures.Length <= 0)
+                {
+                    continue;
+                }
+
+                await DownloadRepliesImage(replay.Content.Pictures, replay.OidStr, bvid);
+            }
+
+            if (replayCount >= resp.Data.Page.Count)
+            {
+                break;
+            }
+        }
+
+        Logger.Shared.Information($"{replayCount} replies.");
+    }
+
+    public async Task DownloadRepliesImage(ReplayPictureModel[] pictures, string replyId, string bvid)
+    {
+        foreach (var pic in pictures)
+        {
+            var filename = fileMgmt.GetReplayFilename(pic.ImageSrc, replyId, bvid, pictures.IndexOf(pic));
+            if (!Directory.Exists(filename.Directory))
+            {
+                Directory.CreateDirectory(filename.Directory);
+            }
+            _ = await downloader.EasyDownloadFileAsync(new Uri(pic.ImageSrc), filename.FullName);
+        }
+    }
+
     public async Task<ServerRespModel> DownloadVideoByBvid(string bvid, int idx = -1, long cid = -99)
     {
         try
@@ -37,6 +88,8 @@ public class BangumiDownloadService(
                     Status = -1,
                 };
             }
+
+            //await DownloadReplies(bvid);
 
             // 获取视频信息
             var videoInfoResp = await bilibiliApi.GetVideoInfoAsync(bvid);
