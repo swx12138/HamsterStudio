@@ -1,4 +1,5 @@
-﻿using HamsterStudio.Barefeet.FileSystem;
+﻿using HamsterStudio.Barefeet;
+using HamsterStudio.Barefeet.FileSystem;
 using HamsterStudio.Barefeet.Logging;
 using HamsterStudio.Barefeet.SysCall;
 using HamsterStudio.Web.Strategies;
@@ -22,7 +23,8 @@ public class CommonDownloader(HttpClientProvider httpClientProvider)
         string destinationPath,
         IRequestStrategy requestStrategy,
         IHttpContentCopyStrategy contentCopyStrategy,
-        IDownloadStrategy downloadStrategy)
+        IDownloadStrategy downloadStrategy,
+        MediaShape? shape = null)
     {
         ArgumentNullException.ThrowIfNull(requestStrategy);
         ArgumentNullException.ThrowIfNull(contentCopyStrategy);
@@ -31,7 +33,7 @@ public class CommonDownloader(HttpClientProvider httpClientProvider)
         ArgumentException.ThrowIfNullOrEmpty(destinationPath, nameof(destinationPath));
         if (File.Exists(destinationPath))
         {
-            Logger.Shared.Information($"文件 {destinationPath} 已存在.");
+            Logger.Shared.Information(formatExistsMessage(destinationPath, shape));
             return DownloadStatus.Exists;
         }
 
@@ -65,7 +67,8 @@ public class CommonDownloader(HttpClientProvider httpClientProvider)
             var bytePerSecond = (long)(result.TotalBytes / stopwatch.Elapsed.TotalSeconds);
             var bytePerSecondStr = FileSizeDescriptor.ToReadableFileSize(bytePerSecond);
             var fileSizeStr = FileSizeDescriptor.ToReadableFileSize(result.TotalBytes);
-            Logger.Shared.Information($"下载文件 {Path.GetFileName(destinationPath)} 成功，文件大小{fileSizeStr}，平均速度{bytePerSecondStr}/s.");
+
+            Logger.Shared.Information(formatMessage(destinationPath, fileSizeStr, bytePerSecondStr, shape));
 
             return DownloadStatus.Success;
         }
@@ -75,14 +78,40 @@ public class CommonDownloader(HttpClientProvider httpClientProvider)
             Logger.Shared.Debug(ex);
             return DownloadStatus.Failed;
         }
+
+        string formatMessage(string destinationPath, string fileSizeStr, string bytePerSecondStr, MediaShape? shape)
+        {
+            if (shape != null)
+            {
+                return $"下载文件 {Path.GetFileName(destinationPath)} 成功，文件大小{fileSizeStr}({shape.Width}*{shape.Height})，平均速度{bytePerSecondStr}/s.";
+            }
+            else
+            {
+                return $"下载文件 {Path.GetFileName(destinationPath)} 成功，文件大小{fileSizeStr}，平均速度{bytePerSecondStr}/s.";
+            }
+        }
+
+        string formatExistsMessage(string destinationPath, MediaShape? shape)
+        {
+            if (shape != null)
+            {
+
+                return $"文件 {destinationPath} 已存在({shape.Width}*{shape.Height}).";
+            }
+            else
+            {
+                return $"文件 {destinationPath} 已存在.";
+            }
+        }
+
     }
 
-    public async Task<DownloadStatus> EasyDownloadFileAsync(Uri uri, string destinationPath, int trunckSize = 0, bool concurrent = false)
+    public async Task<DownloadStatus> EasyDownloadFileAsync(Uri uri, string destinationPath, int trunckSize = 0, bool concurrent = false, MediaShape? shape = null)
     {
         var requestStrategy = new AuthenticRequestStrategy(httpClientProvider.HttpClient);
         var copyStrategy = new FileStreamHttpContentCopyStrategy();
         var downloadStrategy = DownloadStrategyFactory.CreateStrategy(trunckSize, concurrent ? Environment.ProcessorCount : 1);
-        return await DownloadFileAsync(uri, destinationPath, requestStrategy, copyStrategy, downloadStrategy);
+        return await DownloadFileAsync(uri, destinationPath, requestStrategy, copyStrategy, downloadStrategy, shape);
     }
 
 }

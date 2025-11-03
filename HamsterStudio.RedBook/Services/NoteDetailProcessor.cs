@@ -1,4 +1,6 @@
-﻿using HamsterStudio.Barefeet.FileSystem;
+﻿using HamsterStudio.Barefeet;
+using HamsterStudio.Barefeet.Extensions;
+using HamsterStudio.Barefeet.FileSystem;
 using HamsterStudio.Barefeet.Logging;
 using HamsterStudio.RedBook.Models;
 using HamsterStudio.RedBook.Models.Sub;
@@ -10,22 +12,29 @@ public class NoteDetailProcessor(NoteDetailModel noteDetail, FileMgmt fileMgmt, 
 {
     public List<string> ContainedFiles { get; } = [];
 
-    public async Task ProcessComment(CommentModel comment)
+    public async Task ProcessComment(CommentDataModel comment, string noteTitle, bool authorOnly, string noteId)
     {
-        try
+        bool isAuthor = comment.ShowTags.Any(x => x == "is_author");
+        if (authorOnly && !isAuthor)
         {
-            string title = NoteDetailHelper.SelectTitle(noteDetail);
-            for (int index = 0; index < comment.ImageList.Length; index++)
-            {
-                string url = comment.ImageList[index];
-                string token = "comment/" + url.Split('!').First().Split('/').Last();
-                bool isAuthor = isPostAuthor(comment.Author, noteDetail.UserInfo.Nickname);
-                var filename = fileMgmt.GenerateCommentImageFilename(title,
-                    isAuthor ? noteDetail.UserInfo.Nickname : comment.Author,
-                    comment.Id, index,
-                    noteDetail.UserInfo, token,
-                    isHot);
+            return;
+        }
 
+        string title = NoteDetailHelper.SelectTitle(comment);
+        foreach (var pic in comment.Pictures)
+        {
+            try
+            {
+                string url = pic.UrlDefault;
+                string token = "comment/" + url.Split('!').First().Split('/').Last();
+                int index = comment.Pictures.IndexOf(pic);
+                var filename = fileMgmt.GenerateCommentImageFilename(comment, title, index, noteDetail.UserInfo, token, isHot, noteId);
+                if(!Directory.Exists(filename.Directory))
+                {
+                    Directory.CreateDirectory(filename.Directory);
+                }
+
+                var shape = new MediaShape(pic.Width, pic.Height);
                 var pnkLink = NoteDetailHelper.GeneratePngLink(token);
                 var status = await downloader.EasyDownloadFileAsync(pnkLink, filename.FullName + ".png");
                 if (DownloadStatus.Failed == status)
@@ -38,22 +47,17 @@ public class NoteDetailProcessor(NoteDetailModel noteDetail, FileMgmt fileMgmt, 
                         _logger.Error($"评论图片下载失败：{url}");
                     }
                 }
-            }
-        }
-        catch (Exception ex)
-        {
-            _logger.Trace(ex);
-            throw;
-        }
 
-        static bool isPostAuthor(string author, string postAuthor)
-        {
-            string[] parts = author.Split('\n').ToArray();
-            return parts[0] == postAuthor;
+            }
+            catch (Exception ex)
+            {
+                _logger.Trace(ex);
+                //throw;
+            }
         }
     }
 
-    public async Task<DownloadStatus> DownloadImageByToken(string token, HamstertFileInfo fileInfo, bool showDestPath)
+    public async Task<DownloadStatus> DownloadImageByToken(string token, HamstertFileInfo fileInfo, bool showDestPath, MediaShape? shape)
     {
         if (showDestPath)
         {
@@ -86,7 +90,7 @@ public class NoteDetailProcessor(NoteDetailModel noteDetail, FileMgmt fileMgmt, 
         try
         {
             var pngUrl = NoteDetailHelper.GeneratePngLink(token);
-            var status = await downloader.EasyDownloadFileAsync(pngUrl, png_full_filename);
+            var status = await downloader.EasyDownloadFileAsync(pngUrl, png_full_filename, shape: shape);
             if (status != DownloadStatus.Failed)
             {
                 ContainedFiles.Add(png_filename);
@@ -94,7 +98,7 @@ public class NoteDetailProcessor(NoteDetailModel noteDetail, FileMgmt fileMgmt, 
             else
             {
                 var webpUrl = NoteDetailHelper.GenerateWebpLink(token);
-                status = await downloader.EasyDownloadFileAsync(webpUrl, webp_full_filename);
+                status = await downloader.EasyDownloadFileAsync(webpUrl, webp_full_filename, shape: shape);
                 if (status != DownloadStatus.Failed)
                 {
                     ContainedFiles.Add(webp_filename);
@@ -125,7 +129,8 @@ public class NoteDetailProcessor(NoteDetailModel noteDetail, FileMgmt fileMgmt, 
         handleToken?.Invoke(token);
 
         var fileInfo = fileMgmt.GenerateImageFilename(title, index, noteDetail.UserInfo, token, isHot);
-        var status = await DownloadImageByToken(token, fileInfo, noteDetail.ImageList.IndexOf(imgInfo) == 0);
+        var shape = new MediaShape(imgInfo.Width, imgInfo.Height);
+        var status = await DownloadImageByToken(token, fileInfo, noteDetail.ImageList.IndexOf(imgInfo) == 0, shape);
         if (status == DownloadStatus.Failed)
         {
             _logger.Error($"下载失败：{imgInfo.DefaultUrl}【{imgInfo.Width}, {imgInfo.Height}】");

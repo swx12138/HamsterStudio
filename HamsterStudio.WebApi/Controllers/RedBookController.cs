@@ -6,6 +6,7 @@ using HamsterStudio.RedBook.Services;
 using HamsterStudio.Web.DataModels;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
+using System.Threading.Tasks;
 
 namespace HamsterStudio.WebApi.Controllers;
 
@@ -43,9 +44,17 @@ public class RedBookController(IRedBookParser parser, NoteDownloadService downlo
     public async Task<ActionResult<ServerRespModel?>> DownloadNote(PcWebPostBodyModel postBody)
     {
         return Ok(await downloadService.DownloadNoteLowAsync(
-            postBody.NoteDetail, 
-            postBody.Options, 
+            postBody.NoteDetail,
+            postBody.NoteId,
+            postBody.Options,
             postBody.Comments));
+    }
+
+    [HttpPost("token/download")]
+    public async Task<ActionResult<ServerRespModel?>> ValidateToken([FromBody] string[] tokens)
+    {
+        var resp = await downloadService.DownloadWithBaseTokens(tokens);
+        return Ok(resp);
     }
 
 }

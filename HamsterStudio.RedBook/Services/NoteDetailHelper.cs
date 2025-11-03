@@ -1,5 +1,6 @@
 ﻿using HamsterStudio.Barefeet.Extensions;
 using HamsterStudio.Barefeet.Logging;
+using HamsterStudio.RedBook.Models;
 using HamsterStudio.RedBook.Models.Sub;
 
 namespace HamsterStudio.RedBook.Services;
@@ -8,6 +9,20 @@ internal static class NoteDetailHelper
 {
     public static string SelectTitle(NoteDetailModel noteDetail) =>
 !string.IsNullOrEmpty(noteDetail.Title) ? noteDetail.Title : noteDetail.Time.ToString();
+
+    public static string SelectTitle(CommentDataModel comment)
+    {
+        var title = comment.Content;
+        if(title.Length > 40)
+        {
+            title = title[..40];
+        }
+        if(string.IsNullOrEmpty(title))
+        {
+            title = comment.CreateTime.ToString();
+        }
+        return title;
+    }
 
     public static string GetTypeName(NoteDetailModel noteDetail) =>
         noteDetail.Type switch { "normal" => "图文", "video" => "视频", _ => "Unknown" };

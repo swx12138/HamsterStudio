@@ -13,6 +13,7 @@ public static class WebApiExtensions
         services.AddSingleton<NoteDownloadService>();
         services.AddSingleton<FileMgmt>();
         services.AddSingleton<PreTokenCollector>();
+        services.AddSingleton(sp => new Lazy<PreTokenCollector>(() => sp.GetService<PreTokenCollector>()!));
         
         return services;
     }

@@ -3,8 +3,8 @@ using HamsterStudio.Barefeet.FileSystem;
 using HamsterStudio.Barefeet.Logging;
 using HamsterStudio.Barefeet.Services;
 using HamsterStudio.RedBook.Constants;
+using HamsterStudio.RedBook.Models;
 using HamsterStudio.RedBook.Models.Sub;
-using HamsterStudio.RedBook.Services.Parsing;
 
 namespace HamsterStudio.RedBook.Services;
 
@@ -12,37 +12,42 @@ public class FileMgmt : IDirectoryMgmt
 {
     private readonly DirectoryMgmt _innerDirMgmt;
 
-    public AlbumCollectionsModel AlbumCollections { get; }
+    public IHamsterMediaCollection AlbumCollections { get; } 
     public string StorageHome { get; }
     public string TemporaryHome => _innerDirMgmt.TemporaryHome;
-    public string CacheFilename { get; }
+    //public string CacheFilename { get; }
 
     public FileMgmt(DirectoryMgmt directoryMgmt)
     {
         _innerDirMgmt = directoryMgmt;
         StorageHome = Path.Combine(_innerDirMgmt.StorageHome, SystemConsts.HomeName);
-        CacheFilename = Path.Combine(StorageHome, SystemConsts.CacheDirName, "album_collections.json");
-        AlbumCollections = AlbumCollectionsModel.Load(CacheFilename, new FilenameInfoParser());
-        CheckReallyHots();
+        //CacheFilename = Path.Combine(StorageHome, SystemConsts.CacheDirName, "album_collections.json");
+        //AlbumCollections = AlbumCollectionsModel.Load(CacheFilename, new FilenameInfoParser());
+
+        AlbumCollections = new HamsterMediaCollectionModel(StorageHome);
+        AlbumCollections.Prepare();
+
+        //CheckReallyHots();
         Logger.Shared.Information($"RedBook FileMgmt initialized, storage home: {StorageHome}");
     }
 
-    private void CheckReallyHots()
-    {
-        Logger.Shared.Debug($"Running {nameof(FileMgmt)}::{nameof(CheckReallyHots)}() method.");
-        foreach (var (albk, albs) in AlbumCollections.Collections)
-        {
-            if (albs.Albums.Count >= 10 || albs.FileCount > 36)
-            {
-                var indepent = CreateSubFolder(albs.OwnerName);
-                foreach (var file in indepent.Parent.GetFiles($"*_xhs_{albs.OwnerName}_*"))
-                {
-                    string newName = Path.Combine(indepent.FullName, file.Name);
-                    File.Move(file.FullName, newName);
-                }
-            }
-        }
-    }
+    //private void CheckReallyHots()
+    //{
+    //    Logger.Shared.Debug($"Running {nameof(FileMgmt)}::{nameof(CheckReallyHots)}() method.");
+    //    foreach (var (albk, albs) in AlbumCollections.Collections)
+    //    {
+    //        if (albs.Albums.Count >= 10 || albs.FileCount > 36)
+    //        {
+    //            var indepent = CreateSubFolder(albs.OwnerName);
+    //            foreach (var file in indepent.Parent.GetFiles($"*_xhs_{albs.OwnerName}_*"))
+    //            {
+    //                string newName = Path.Combine(indepent.FullName, file.Name);
+    //                File.Move(file.FullName, newName);
+    //            }
+    //        }
+    //    }
+    //}
+
 
     public DirectoryInfo CreateSubFolder(string subFolderName)
     {
@@ -54,16 +59,14 @@ public class FileMgmt : IDirectoryMgmt
         return new DirectoryInfo(subFolderPath);
     }
 
-    private HamstertFileInfo GenerateFilename(string nickname, string baseName, bool isHot)
+    private HamstertFileInfo GenerateFilename(string nickname, string baseName, bool isHot, string? commentSubDir = null)
     {
-        if (isHot)
+        string home = isHot ? Path.Combine(StorageHome, nickname) : StorageHome;
+        if (!string.IsNullOrEmpty(commentSubDir))
         {
-            return new HamstertFileInfo(Path.Combine(StorageHome, nickname, $"{baseName}")) { RemoveCommand = null };
+            home = Path.Combine(home, commentSubDir);
         }
-        else
-        {
-            return new HamstertFileInfo(Path.Combine(StorageHome, $"{baseName}")) { RemoveCommand = null };
-        }
+        return new HamstertFileInfo(Path.Combine(home, $"{baseName}")) { RemoveCommand = null };
     }
 
     public HamstertFileInfo GenerateImageFilename(string tiltle, int index, UserInfoModel userInfo, string token, bool isHot)
@@ -78,11 +81,11 @@ public class FileMgmt : IDirectoryMgmt
         return GenerateFilename(nickname, baseName, isHot);
     }
 
-    public HamstertFileInfo GenerateCommentImageFilename(string tiltle, string comment_author, string comment_id, int index, UserInfoModel userInfo, string token, bool isHot)
+    public HamstertFileInfo GenerateCommentImageFilename(CommentDataModel comment, string title, int index, UserInfoModel userInfo, string token, bool isHot, string subDir)
     {
         string bareToken = token.Split('/').Last();
-        string baseName = FileNameUtil.SanitizeFileName($"{tiltle}_{comment_id}_{index}_xhs_{comment_author}_{bareToken}");
-        return GenerateFilename(userInfo.Nickname, baseName, isHot);
+        string baseName = FileNameUtil.SanitizeFileName($"{title}_{comment.Id}_{index}_xhs_{comment.UserInfo.Nickname}_{bareToken}");
+        return GenerateFilename(userInfo.Nickname, baseName, isHot, subDir);
     }
 
     public HamstertFileInfo GenerateLivePhotoFilename(string tiltle, int? index, UserInfoModel userInfo, string streamUrl, bool isHot)
@@ -101,7 +104,7 @@ public class FileMgmt : IDirectoryMgmt
 
     public void Save()
     {
-        AlbumCollections.Save(CacheFilename);
+        //AlbumCollections.Save(CacheFilename);
     }
 
 }

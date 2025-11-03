@@ -23,4 +23,6 @@ namespace HamsterStudio.Barefeet
         FillOnly,
     }
 
+    public record MediaShape (long Width, long Height);
+
 }

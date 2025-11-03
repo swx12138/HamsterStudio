@@ -14,8 +14,7 @@ public partial class XiaoHongshuSpDownloadViewModel : SpDownloadsViewModel
     [ObservableProperty]
     private string _imageToken = string.Empty;
 
-    private Lazy<CommonDownloader> _CommonDownloader = new(() => App.ResloveService<CommonDownloader>());
-    private Lazy<FileMgmt> _FileMgmt = new(() => App.ResloveService<FileMgmt>());
+    private Lazy<NoteDownloadService> _Downloader = new(() => App.ResloveService<NoteDownloadService>());
     private PreTokenCollector _PreTokenCollector = App.ResloveService<PreTokenCollector>();
 
     public IReadOnlyCollection<string> KnownTokenList { get; private set; }
@@ -39,28 +38,14 @@ public partial class XiaoHongshuSpDownloadViewModel : SpDownloadsViewModel
 
     public override async Task DownloadExecute()
     {
-        var processor = new NoteDetailProcessor(null, _FileMgmt.Value, _CommonDownloader.Value, Logger.Shared, true);
-        var fileInfo = _FileMgmt.Value.GenerateImageFilenameLow("banned", 998, "XiaoHongshu_SpDownload", ImageToken, true);
-        if (!Directory.Exists(fileInfo.Directory))
+        var resp = await _Downloader.Value.DownloadWithBaseTokens([ImageToken]);
+        if (resp == null || resp.Data.StaticFiles.Length <= 0)
         {
-            Directory.CreateDirectory(fileInfo.Directory);
+            Status = "下载失败或无效的Token。";
         }
-
-        var status = await processor.DownloadImageByToken(ImageToken, fileInfo, true);
-        if (status != DownloadStatus.Failed)
+        else
         {
-            Status = "下载完成";
-            return;
+            Status = $"下载完成。";
         }
-        foreach(var preToken in KnownTokenList )
-        {
-            status = await processor.DownloadImageByToken(preToken + ImageToken, fileInfo, true);
-            if (status != DownloadStatus.Failed)
-            {
-                Status = "下载完成";
-                return;
-            }
-        }
-        Status = "下载失败";
     }
 }
