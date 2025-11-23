@@ -1,15 +1,15 @@
-﻿using HamsterStudio.HandyUtil.DragDrop;
+﻿using HamsterStudio.Barefeet.Logging;
+using HamsterStudio.HandyUtil.DragDrop;
 using HamsterStudio.WallpaperEngine.Services;
 using System.Windows;
 
 namespace HamsterStudio.WallpaperEngine.Behaviors;
 
 public class ImageModelDimDropBehavior : DragDropBehavior
-{    
+{
     protected override void OnAttached()
     {
         base.OnAttached();
-        AcceptDataFormat = nameof(ImageModelDim);
     }
 
     protected override void OnDrop(object sender, DragEventArgs e)
@@ -17,9 +17,18 @@ public class ImageModelDimDropBehavior : DragDropBehavior
         if (AssociatedObject.DataContext is DesktopWallpaperInfo dwi)
         {
             e.Handled = true;
-            var data = (ImageModelDim)e.Data.GetData(dwi.AcceptDataFormat) ?? null;
-            if (data == null) return;
-            dwi.Drop(data);
+            foreach (var format in dwi.AcceptDataFormat)
+            {
+                try
+                {
+                    var data = e.Data.GetData(format) ?? null;
+                    if (data == null) continue;
+                    dwi.Drop(data);
+                } catch (Exception ex)
+                {
+                    Logger.Shared.Warning($"Drop data format {format} failed: {ex.Message}");
+                }
+            }
         }
         else
         {

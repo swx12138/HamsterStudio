@@ -20,7 +20,7 @@ namespace HamsterStudio.WallpaperEngine.Services;
 [ObservableObject]
 public partial class WallpaperShowConfig : FileDroppableBase, IDisposable
 {
-    private static string TempDdir = Path.Combine(
+    private static readonly string TempDdir = Path.Combine(
         Environment.GetFolderPath(
             Environment.SpecialFolder.LocalApplicationData),
         SystemConsts.ApplicationName);
@@ -41,6 +41,7 @@ public partial class WallpaperShowConfig : FileDroppableBase, IDisposable
     private bool _isMarkedFirst = false;
 
     public ICommand LoadMoreImagesCommand { get; }
+    public ICommand ClearAlternateWallpappersCommand { get; }
     public ICommand AlternateWallpapperDropCommand => new RelayCommand<string[]>(data =>
     {
         //AlternateWallpappers.AddRange(data);
@@ -76,6 +77,8 @@ public partial class WallpaperShowConfig : FileDroppableBase, IDisposable
 
             LoadAlternateWallpappers(dialog.FolderName);
         });
+
+        ClearAlternateWallpappersCommand = new RelayCommand(ClearAlternateWallpappers);
 
 #if RELEASE
         try
@@ -221,4 +224,14 @@ public partial class WallpaperShowConfig : FileDroppableBase, IDisposable
         FilteredAlternateWallpappersView?.Refresh();
         // 触发滚动到最底部
     }
+    
+    private void ClearAlternateWallpappers()
+    {
+        using (FilteredAlternateWallpappersView?.DeferRefresh())
+        {
+            _AlternateWallpappers.Clear();
+        }
+        FilteredAlternateWallpappersView?.Refresh();
+    }
+
 }

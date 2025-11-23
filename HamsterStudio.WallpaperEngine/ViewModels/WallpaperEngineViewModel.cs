@@ -2,11 +2,6 @@
 using HamsterStudio.Barefeet.MVVM;
 using HamsterStudio.Toolkits.Services;
 using HamsterStudio.WallpaperEngine.Services;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace HamsterStudio.WallpaperEngine.ViewModels;
 

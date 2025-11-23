@@ -6,7 +6,7 @@ namespace HamsterStudio.HandyUtil.DragDrop;
 
 public class DragDropBehavior : Behavior<FrameworkElement>
 {
-    protected string AcceptDataFormat = DataFormats.FileDrop;
+    protected string[] AcceptDataFormat = [DataFormats.FileDrop];
 
     protected override void OnAttached()
     {
@@ -25,7 +25,7 @@ public class DragDropBehavior : Behavior<FrameworkElement>
 
     private void OnDragOver(object sender, DragEventArgs e)
     {
-        if (e.Data.GetDataPresent(AcceptDataFormat))
+        if (AcceptDataFormat.Any(e.Data.GetDataPresent))
         {
             e.Effects = DragDropEffects.Copy;
         }

@@ -90,7 +90,10 @@
                 </hc:Interaction.Behaviors>
                 <ContentPresenter Content="{Binding AlternateWallpappersFilter}" ContentTemplate="{StaticResource ImageModelDimFilterTempl}" DockPanel.Dock="Top" />
                 <CheckBox Content="收藏优先" DockPanel.Dock="Top" IsChecked="{Binding IsMarkedFirst}" />
-                <Button Command="{Binding LoadMoreImagesCommand}" Content="添加..." DockPanel.Dock="Top" />
+                <StackPanel DockPanel.Dock="Top" Orientation="Horizontal">
+                    <Button Command="{Binding LoadMoreImagesCommand}" Content="添加..." />
+                    <Button Command="{Binding ClearAlternateWallpappersCommand}" Content="清除" />
+                </StackPanel>
 
                 <ListView ItemsSource="{Binding FilteredAlternateWallpappersView}" VirtualizingPanel.IsVirtualizing="True">
                     <ListView.ItemTemplate>
@@ -144,6 +147,7 @@
                 BorderThickness="1"
                 CornerRadius="3">
             <DockPanel DataContext="{Binding SelectedItem, ElementName=cbMonitors}" IsManipulationEnabled="True">
+                <!--  DataContext是DesktopWallpaperInfo对象  -->
                 <TextBlock DockPanel.Dock="Top" Text="{Binding CurrentWallpaper}" />
                 <ContentPresenter Content="{Binding Filter}" ContentTemplate="{StaticResource ImageModelDimFilterTempl}" DockPanel.Dock="Top" />
                 <StackPanel DockPanel.Dock="Top" Orientation="Horizontal">

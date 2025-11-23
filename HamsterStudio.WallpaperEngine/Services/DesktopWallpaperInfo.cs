@@ -4,6 +4,8 @@ using HamsterStudio.Barefeet.Logging;
 using HamsterStudio.Barefeet.SysCall;
 using HamsterStudio.Toolkits.DragDrop;
 using System.ComponentModel;
+using System.IO;
+using System.Windows;
 using System.Windows.Input;
 using System.Windows.Threading;
 
@@ -29,7 +31,7 @@ public partial class DesktopWallpaperInfo : ObservableObject, IDroppable<ImageMo
                 DateTime.MaxValue;
         }
     }
-    
+
     public event EventHandler RequestNewWallpapper;
 
     [ObservableProperty]
@@ -56,7 +58,7 @@ public partial class DesktopWallpaperInfo : ObservableObject, IDroppable<ImageMo
     });
     public ICommand RequestNewWallpapperCommand { get; }
 
-    public string AcceptDataFormat { get; } = nameof(ImageModelDim);
+    public string[] AcceptDataFormat { get; } = [nameof(ImageModelDim), DataFormats.FileDrop];
 
     public bool InitSucceeds { get; } = true;
 
@@ -90,7 +92,7 @@ public partial class DesktopWallpaperInfo : ObservableObject, IDroppable<ImageMo
             });
             OnPropertyChanged(new PropertyChangedEventArgs(nameof(AutoChangeWallpaper)));
         }
-        catch(Exception ex)
+        catch (Exception ex)
         {
             Logger.Shared.Trace(ex.Message + "\n" + ex.StackTrace);
             InitSucceeds = false;
@@ -140,5 +142,13 @@ public partial class DesktopWallpaperInfo : ObservableObject, IDroppable<ImageMo
     public void Drop(ImageModelDim data)
     {
         CurrentWallpaper = data.Path;
+    }
+
+    public void Drop(object? data)
+    {
+        if (AcceptDataFormat.Contains(DataFormats.FileDrop) && data is string[] paths)
+        {
+            CurrentWallpaper = Path.GetFullPath(paths[0]);
+        }
     }
 }
