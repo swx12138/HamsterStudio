@@ -6,12 +6,30 @@ public interface IDirectoryMgmt
 {
     string StorageHome { get; }
     string TemporaryHome { get; }
+
+    DirectoryInfo CreateSubFolder(string subFolderName);
 }
 
-public class DirectoryMgmt : IDirectoryMgmt
+public abstract class AbstractDirectoryMgmt : IDirectoryMgmt
 {
-    public string StorageHome { get; }
-    public string TemporaryHome { get; } = Path.Combine(
+    public abstract string StorageHome { get; }
+    public abstract string TemporaryHome { get; }
+
+    public DirectoryInfo CreateSubFolder(string subFolderName)
+    {
+        string subFolderPath = Path.Combine(StorageHome, subFolderName);
+        if (!Directory.Exists(subFolderPath))
+        {
+            Directory.CreateDirectory(subFolderPath);
+        }
+        return new DirectoryInfo(subFolderPath);
+    }
+}
+
+public class DirectoryMgmt : AbstractDirectoryMgmt
+{
+    public override string StorageHome { get; }
+    public override string TemporaryHome { get; } = Path.Combine(
         Environment.GetFolderPath(
             Environment.SpecialFolder.LocalApplicationData), 
         SystemConsts.ApplicationName);

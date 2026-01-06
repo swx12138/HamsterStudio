@@ -2,19 +2,20 @@
 using HamsterStudio.Barefeet.FileSystem;
 using HamsterStudio.Barefeet.Logging;
 using HamsterStudio.Barefeet.Services;
+using HamsterStudio.Barefeet.SysCall;
 using HamsterStudio.RedBook.Constants;
 using HamsterStudio.RedBook.Models;
 using HamsterStudio.RedBook.Models.Sub;
 
 namespace HamsterStudio.RedBook.Services;
 
-public class FileMgmt : IDirectoryMgmt
+public class FileMgmt : AbstractDirectoryMgmt
 {
     private readonly DirectoryMgmt _innerDirMgmt;
 
-    public IHamsterMediaCollection AlbumCollections { get; } 
-    public string StorageHome { get; }
-    public string TemporaryHome => _innerDirMgmt.TemporaryHome;
+    public IHamsterMediaCollection AlbumCollections { get; }
+    public override string StorageHome { get; }
+    public override string TemporaryHome => _innerDirMgmt.TemporaryHome;
     //public string CacheFilename { get; }
 
     public FileMgmt(DirectoryMgmt directoryMgmt)
@@ -24,39 +25,37 @@ public class FileMgmt : IDirectoryMgmt
         //CacheFilename = Path.Combine(StorageHome, SystemConsts.CacheDirName, "album_collections.json");
         //AlbumCollections = AlbumCollectionsModel.Load(CacheFilename, new FilenameInfoParser());
 
-        AlbumCollections = new HamsterMediaCollectionModel(StorageHome);
-        AlbumCollections.Prepare();
+        {
+            var coll = new HamsterMediaCollectionModel(StorageHome);
+            coll.Prepare();
 
+            //string current_dir = Environment.CurrentDirectory;
+            //Directory.SetCurrentDirectory(StorageHome);
+            //coll.Enumerate((nickname, record) =>
+            //{
+            //    if (HamsterMediaCollectionModel.ShouldGroup(record))
+            //    {
+            //        //DoGroup(nickname);
+            //        ShellApi.System($"xmd {nickname}");
+            //    }
+            //});
+            //Directory.SetCurrentDirectory(current_dir);
+            AlbumCollections = coll;
+        }
         //CheckReallyHots();
+
         Logger.Shared.Information($"RedBook FileMgmt initialized, storage home: {StorageHome}");
     }
 
-    //private void CheckReallyHots()
-    //{
-    //    Logger.Shared.Debug($"Running {nameof(FileMgmt)}::{nameof(CheckReallyHots)}() method.");
-    //    foreach (var (albk, albs) in AlbumCollections.Collections)
-    //    {
-    //        if (albs.Albums.Count >= 10 || albs.FileCount > 36)
-    //        {
-    //            var indepent = CreateSubFolder(albs.OwnerName);
-    //            foreach (var file in indepent.Parent.GetFiles($"*_xhs_{albs.OwnerName}_*"))
-    //            {
-    //                string newName = Path.Combine(indepent.FullName, file.Name);
-    //                File.Move(file.FullName, newName);
-    //            }
-    //        }
-    //    }
-    //}
-
-
-    public DirectoryInfo CreateSubFolder(string subFolderName)
+    public void DoGroup(string nickname)
     {
-        string subFolderPath = Path.Combine(StorageHome, subFolderName);
-        if (!Directory.Exists(subFolderPath))
+        Logger.Shared.Trace($"Grouping {nickname}");
+        var indepent = CreateSubFolder(nickname);
+        foreach (var file in indepent.Parent.GetFiles($"*_xhs_{nickname}_*"))
         {
-            Directory.CreateDirectory(subFolderPath);
+            string newName = Path.Combine(indepent.FullName, file.Name);
+            File.Move(file.FullName, newName, true);
         }
-        return new DirectoryInfo(subFolderPath);
     }
 
     private HamstertFileInfo GenerateFilename(string nickname, string baseName, bool isHot, string? commentSubDir = null)

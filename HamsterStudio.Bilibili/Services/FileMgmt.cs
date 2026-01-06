@@ -8,12 +8,12 @@ using HamsterStudio.Web.FileSystem;
 
 namespace HamsterStudio.Bilibili.Services;
 
-public class FileMgmt : IDirectoryMgmt
+public class FileMgmt : AbstractDirectoryMgmt
 {
     private readonly DirectoryMgmt _innerDirMgmt;
     private readonly HashSet<string> _subFolders;
-    public string StorageHome { get; }
-    public string TemporaryHome => _innerDirMgmt.TemporaryHome;
+    public override string StorageHome { get; }
+    public override string TemporaryHome => _innerDirMgmt.TemporaryHome;
     public string DashHome { get; }
     public string CoverHome { get; }
     public string DynamicHome { get; }

@@ -72,7 +72,7 @@ public class NoteDetailProcessor(NoteDetailModel noteDetail, FileMgmt fileMgmt, 
         if (File.Exists(png_full_filename))
         {
             _logger.Information($"文件已存在：{png_filename}，跳过下载。");
-            ContainedFiles.Add(png_filename);
+            ContainedFiles.Add(png_full_filename);
             return DownloadStatus.Exists;
         }
 
@@ -82,7 +82,7 @@ public class NoteDetailProcessor(NoteDetailModel noteDetail, FileMgmt fileMgmt, 
         if (File.Exists(webp_full_filename))
         {
             _logger.Information($"文件已存在：{webp_filename}，跳过下载。");
-            ContainedFiles.Add(webp_filename);
+            ContainedFiles.Add(webp_full_filename);
             return DownloadStatus.Exists;
         }
 
@@ -93,7 +93,7 @@ public class NoteDetailProcessor(NoteDetailModel noteDetail, FileMgmt fileMgmt, 
             var status = await downloader.EasyDownloadFileAsync(pngUrl, png_full_filename, shape: shape);
             if (status != DownloadStatus.Failed)
             {
-                ContainedFiles.Add(png_filename);
+                ContainedFiles.Add(png_full_filename);
             }
             else
             {
@@ -101,7 +101,7 @@ public class NoteDetailProcessor(NoteDetailModel noteDetail, FileMgmt fileMgmt, 
                 status = await downloader.EasyDownloadFileAsync(webpUrl, webp_full_filename, shape: shape);
                 if (status != DownloadStatus.Failed)
                 {
-                    ContainedFiles.Add(webp_filename);
+                    ContainedFiles.Add(webp_full_filename);
                 }
 
             }
@@ -114,7 +114,7 @@ public class NoteDetailProcessor(NoteDetailModel noteDetail, FileMgmt fileMgmt, 
             var status = await downloader.EasyDownloadFileAsync(webpUrl, webp_full_filename);
             if (status != DownloadStatus.Failed)
             {
-                ContainedFiles.Add(webp_filename);
+                ContainedFiles.Add(webp_full_filename);
             }
             return status;
         }
@@ -154,7 +154,7 @@ public class NoteDetailProcessor(NoteDetailModel noteDetail, FileMgmt fileMgmt, 
         var status = await downloader.EasyDownloadFileAsync(new Uri(streamUrl), streamFullPath);
         if (status != DownloadStatus.Failed)
         {
-            ContainedFiles.Add(streamFile.Name);
+            ContainedFiles.Add(streamFile.FullName);
             return true;
         }
 
@@ -176,7 +176,7 @@ public class NoteDetailProcessor(NoteDetailModel noteDetail, FileMgmt fileMgmt, 
         var status = await downloader.EasyDownloadFileAsync(videoUrl, fullVideoPath, FileSizeDescriptor.FileSize_32M, true);
         if (status != DownloadStatus.Failed)
         {
-            ContainedFiles.Add(videoFile.Name);
+            ContainedFiles.Add(videoFile.FullName);
         }
 
     }

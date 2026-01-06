@@ -95,7 +95,9 @@ def craete_csharp_class():
 
 
 if __name__ == "__main__":
-    json_data = read_json(r"D:\Code\HamsterStudio\Samples\weibo_show_PxxRmeBta.json")
+    json_data = read_json(
+        r"E:\HamsterStudioHome\Bilibili\BV1MZxnzsEuo(115313244898490)_comments_1.json"
+    )
     class_meta = parse_object(json_data, "ShowData")
     # print(json.dumps(class_metas, indent=2, ensure_ascii=False))
     with open("DataModel.cs", "w") as fp:

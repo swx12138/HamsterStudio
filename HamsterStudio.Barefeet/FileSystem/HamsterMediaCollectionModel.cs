@@ -2,20 +2,21 @@
 
 namespace HamsterStudio.Barefeet.FileSystem;
 
+public class MediaRecord
+{
+    public HashSet<string> MediaIds { get; set; } = [];
+    public int MediaCount { get; set; } = 0;
+}
+
 public interface IHamsterMediaCollection
 {
     void Prepare();
     bool Update(string authorId, string mediaId, int mediaCount);
+    public void Enumerate(Action<string, MediaRecord> action);
 }
 
 public class HamsterMediaCollectionModel(string storageHome) : IHamsterMediaCollection
 {
-    public class MediaRecord
-    {
-        public HashSet<string> MediaIds { get; set; } = [];
-        public int MediaCount { get; set; } = 0;
-    }
-
     public Dictionary<string, MediaRecord> MediaCollectionInfo { get; set; } = [];
 
     public bool Update(string authorId, string mediaId, int mediaCount)
@@ -29,7 +30,20 @@ public class HamsterMediaCollectionModel(string storageHome) : IHamsterMediaColl
         record.MediaIds.Add(mediaId);
         record.MediaCount += mediaCount;
 
-        return record.MediaIds.Count >= 2 || record.MediaCount >= 10;
+        return ShouldGroup(record);
+    }
+
+    public void Enumerate(Action<string, MediaRecord> action)
+    {
+        foreach (var kvp in MediaCollectionInfo)
+        {
+            action(kvp.Key, kvp.Value);
+        }
+    }
+
+    public static bool ShouldGroup(MediaRecord record)
+    {
+        return record.MediaCount >= 3;
     }
 
     public void Prepare()
@@ -62,6 +76,7 @@ public class HamsterMediaCollectionModel(string storageHome) : IHamsterMediaColl
                     MediaIds = mediaIds,
                     MediaCount = mediaCount
                 };
+
             }
             else
             {
@@ -70,4 +85,5 @@ public class HamsterMediaCollectionModel(string storageHome) : IHamsterMediaColl
         }
 
     }
+
 }

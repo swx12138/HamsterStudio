@@ -28,7 +28,7 @@ public class NoteDownloadService(FileMgmt fileMgmt, CommonDownloader downloader,
             new());
     }
 
-    public bool HotProtocol(NoteDetailModel noteDetail, CommentsDataModel comments, bool downloadComments)
+    public bool IsHot(NoteDetailModel noteDetail, CommentsDataModel comments, bool downloadComments)
     {
         int imgCount = noteDetail.ImageList.Sum(x => x.LivePhoto ? 2 : 1) + (noteDetail.Type == "video" ? 1 : 0);
         bool isVeryHot = false;
@@ -45,12 +45,7 @@ public class NoteDownloadService(FileMgmt fileMgmt, CommonDownloader downloader,
 
         if (isHot)
         {
-            var indepent = fileMgmt.CreateSubFolder(noteDetail.UserInfo.Nickname);
-            foreach (var file in indepent.Parent.GetFiles($"*_xhs_{noteDetail.UserInfo.Nickname}_*"))
-            {
-                string newName = Path.Combine(indepent.FullName, file.Name);
-                File.Move(file.FullName, newName, true);
-            }
+            fileMgmt.DoGroup(noteDetail.UserInfo.Nickname);
         }
 
         return isHot;
@@ -61,7 +56,7 @@ public class NoteDownloadService(FileMgmt fileMgmt, CommonDownloader downloader,
         OnNoteDetailUpdated?.Invoke(noteDetail);
 
         bool downloadComments = options.WithComments || options.AuthorCommentsOnly;
-        bool isHot = HotProtocol(noteDetail, comments, downloadComments);
+        bool isHot = IsHot(noteDetail, comments, downloadComments);
 
         _logger.Information($"标题：{noteDetail.Title}【{noteDetail.ImageList.Count}】");
 
@@ -83,6 +78,9 @@ public class NoteDownloadService(FileMgmt fileMgmt, CommonDownloader downloader,
             foreach (var comment in comments.Comments)
             {
                 await processor.ProcessComment(comment, title, options.AuthorCommentsOnly, noteId);
+                _ = comment.SubComments
+                    .Select(async x => await processor.ProcessComment(x, title, options.AuthorCommentsOnly, noteId))
+                    .ToArray();
             }
         }
 
@@ -145,7 +143,7 @@ public class NoteDownloadService(FileMgmt fileMgmt, CommonDownloader downloader,
                 Title = noteDetail.Title,
                 Description = noteDetail.Description,
                 AuthorNickName = noteDetail.UserInfo.Nickname,
-                StaticFiles = [.. files.Select(f => $"xiaohongshu/{f}").OrderBy(f => f, comparer)]
+                StaticFiles = [.. files.Select(f => Path.GetRelativePath(fileMgmt.StorageHome, f)).OrderBy(f => f, comparer)]
             }
         };
     }
