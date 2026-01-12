@@ -65,7 +65,7 @@ public partial class App : Application
 
         WebApiService = builder.Build();
         WebApiService.ConfigureWebApi()
-            .ConfigureStaticFiles()
+            .ConfigureStaticFiles(new StaticFilePathParam() { PhyPath = @"E:\HamsterStudioHome\_XHS_", ReqPath = "/static/xhs" })
             .ConfigureImageMetaInfoReadService();
 
         //var logger = WebApiService.Services.GetRequiredService<ILogger<App>>();

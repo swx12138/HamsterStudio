@@ -1,0 +1,30 @@
+.top-carousel {
+    height: 30vh;
+}
+
+.slick-list,
+.slick-track,
+.slick-slide>div {
+    height: 100%;
+}
+
+.slick-track-image-container {
+    display: flex;
+    justify-content: center;
+    align-items: stretch;
+    height: 100%;
+}
+
+.contain-fit-image {
+    object-fit: contain;
+}
+
+.main-card {
+    height: 70vh;
+}
+
+.ant-card-cover,
+.ant-card-cover>.ant-image,
+.ant-card-cover>.ant-image>img {
+    height: 100%;
+}

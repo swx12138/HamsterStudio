@@ -1,0 +1,22 @@
+.user-info-container {
+    display: inline-block;
+    padding: 16px;
+    font-size: large;
+}
+
+.user-info-avatar {
+    /* display: inline-block; */
+}
+
+.user-info-name {
+    display: inline-block;
+    font-weight: bold;
+    font-size: 1.8em;
+    padding: 8px;
+    vertical-align: bottom;
+}
+
+.user-info-description {
+    margin-top: 12px;
+    font-size: 1.2em;
+}
