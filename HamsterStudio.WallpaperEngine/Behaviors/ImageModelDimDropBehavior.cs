@@ -1,6 +1,6 @@
-﻿using HamsterStudio.Barefeet.Logging;
-using HamsterStudio.HandyUtil.DragDrop;
+﻿using HamsterStudio.HandyUtil.DragDrop;
 using HamsterStudio.WallpaperEngine.Services;
+using Microsoft.Extensions.Logging;
 using System.Windows;
 
 namespace HamsterStudio.WallpaperEngine.Behaviors;
@@ -26,7 +26,7 @@ public class ImageModelDimDropBehavior : DragDropBehavior
                     dwi.Drop(data);
                 } catch (Exception ex)
                 {
-                    Logger.Shared.Warning($"Drop data format {format} failed: {ex.Message}");
+                  dwi. Logger?.LogWarning($"Drop data format {format} failed: {ex.Message}");
                 }
             }
         }

@@ -1,13 +1,13 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using HamsterStudio.Barefeet.Algorithm.Random;
-using HamsterStudio.Barefeet.Logging;
 using HamsterStudio.Barefeet.Services;
 using HamsterStudio.Barefeet.SysCall;
 using HamsterStudio.Constants;
 using HamsterStudio.Toolkits;
 using HamsterStudio.Toolkits.DragDrop;
 using HamsterStudio.Toolkits.Services;
+using Microsoft.Extensions.Logging;
 using Microsoft.Win32;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -47,12 +47,15 @@ public partial class WallpaperShowConfig : FileDroppableBase, IDisposable
         //AlternateWallpappers.AddRange(data);
     });
 
-    public WallpaperShowConfig(ImageMetaInfoReadService imageMetaInfoReadService)
+    private ILogger? _logger = null;
+
+    public WallpaperShowConfig(ImageMetaInfoReadService imageMetaInfoReadService, ILogger? logger)
     {
+        _logger = logger;
         Stopwatch stopwatch = Stopwatch.StartNew();
 
         MonitorIds = [.. Enumerable.Range(0, (int)DesktopWallpaper.GetMonitorDevicePathCount())
-            .Select(i => new DesktopWallpaperInfo(DesktopWallpaper,(uint)i))
+            .Select(i => new DesktopWallpaperInfo(DesktopWallpaper,(uint)i,logger))
             .Where(x=>x.InitSucceeds)];
         foreach (var monitor in MonitorIds)
         {
@@ -106,7 +109,7 @@ public partial class WallpaperShowConfig : FileDroppableBase, IDisposable
             return false;
         };
 
-        Logger.Shared.Trace($"WallpaperShowConfig initialized in {stopwatch.Elapsed}");
+        logger?.LogTrace($"WallpaperShowConfig initialized in {stopwatch.Elapsed}");
     }
 
     //protected override void OnPropertyChanged(PropertyChangedEventArgs e)
@@ -139,7 +142,7 @@ public partial class WallpaperShowConfig : FileDroppableBase, IDisposable
 
     private void LoadAlternateWallpappers(string dir)
     {
-        Logger.Shared.Information($"Loading {dir}");
+        _logger?.LogInformation($"Loading {dir}");
         var newfiles = Directory.EnumerateFiles(dir, "*.*", new EnumerationOptions() { RecurseSubdirectories = true })
             .Where(ImageUtils.IsImageFile)
             .Select(x =>
@@ -171,12 +174,12 @@ public partial class WallpaperShowConfig : FileDroppableBase, IDisposable
             .Where(x => AlternateWallpappersFilter.Filter(x)) // 会导致部分图片一开始就不加载，that's good.
             .Where(x => !_AlternateWallpappers.Any(y => string.Equals(y.Path, x.Path, StringComparison.OrdinalIgnoreCase))) // 去重
             .ToArray();
-        Logger.Shared.Trace("Updating alternate wallpappers");
+        _logger?.LogTrace("Updating alternate wallpappers");
 
         using (FilteredAlternateWallpappersView?.DeferRefresh())
             _AlternateWallpappers.AddRange(newfiles);
 
-        Logger.Shared.Trace("Update done.");
+        _logger?.LogTrace("Update done.");
     }
 
     public void SaveConfig()
@@ -185,7 +188,7 @@ public partial class WallpaperShowConfig : FileDroppableBase, IDisposable
         {
             var dat = BinaryDataSerializer.Serialize(_AlternateWallpappers.Where(x => x.Mark).ToList());
             File.WriteAllBytes(Path.Combine(TempDdir, "wallpapers.dat"), dat);
-            Logger.Shared.Debug($"Saved wallpapper dat.");
+            _logger?.LogDebug($"Saved wallpapper dat.");
         }
         catch
         {
@@ -209,7 +212,7 @@ public partial class WallpaperShowConfig : FileDroppableBase, IDisposable
         {
             foreach (var dat in data)
             {
-                if(_AlternateWallpappers.Any(x=>x.Path == dat))
+                if (_AlternateWallpappers.Any(x => x.Path == dat))
                 {
                     continue;
                 }
@@ -224,7 +227,7 @@ public partial class WallpaperShowConfig : FileDroppableBase, IDisposable
         FilteredAlternateWallpappersView?.Refresh();
         // 触发滚动到最底部
     }
-    
+
     private void ClearAlternateWallpappers()
     {
         using (FilteredAlternateWallpappersView?.DeferRefresh())

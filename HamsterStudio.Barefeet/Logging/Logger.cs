@@ -3,13 +3,13 @@ using NLog.Targets;
 
 namespace HamsterStudio.Barefeet.Logging
 {
-    public class Logger
+    public class Logger0
     {
-        public static Logger Shared { get; } = new Logger();
+        public static Logger0 Shared { get; } = new Logger0();
 
         private readonly NLog.Logger logger = LogManager.GetCurrentClassLogger();
 
-        private Logger()
+        private Logger0()
         {
             var debuggerTarget = new DebuggerTarget();
             debuggerTarget.Name = "Debugger";

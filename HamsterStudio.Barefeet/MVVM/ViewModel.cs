@@ -1,15 +1,15 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
-using HamsterStudio.Barefeet.Logging;
-using System;
-using System.Collections.Generic;
+using Microsoft.Extensions.Logging;
 using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace HamsterStudio.Barefeet.MVVM;
 
-public class ViewModel : ObservableObject
+public abstract class BindableBase(ILogger? logger) : ObservableObject
+{
+    protected ILogger? logger = logger;
+}
+
+public class ViewModel(ILogger? logger) : BindableBase(logger)
 {
     protected override void OnPropertyChanged(PropertyChangedEventArgs e)
     {
@@ -19,12 +19,12 @@ public class ViewModel : ObservableObject
 
     protected virtual void LogPropertyChanged(string propertyName)
     {
-        Logger.Shared.Debug($"Property {propertyName} has changed.");
+        logger?.LogDebug($"Property {propertyName} has changed.");
     }
 
 }
 
-public partial class KnownViewModel : ViewModel
+public partial class KnownViewModel(ILogger? logger) : ViewModel(logger)
 {
     [ObservableProperty]
     private string _displayName = string.Empty;
@@ -36,6 +36,7 @@ public partial class KnownViewModel : ViewModel
 
     override protected void LogPropertyChanged(string propertyName)
     {
-        Logger.Shared.Debug($"Property {propertyName} of {DisplayName} has changed.");
+        logger?.LogDebug($"Property {propertyName} of {DisplayName} has changed.");
     }
+
 }

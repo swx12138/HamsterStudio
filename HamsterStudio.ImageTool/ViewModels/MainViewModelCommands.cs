@@ -1,7 +1,7 @@
 ﻿using CommunityToolkit.Mvvm.Input;
-using HamsterStudio.Barefeet.Logging;
 using HamsterStudio.Barefeet.Models;
 using HamsterStudio.Toolkits;
+using Microsoft.Extensions.Logging;
 using Microsoft.Win32;
 using System.Diagnostics;
 using System.IO;
@@ -119,7 +119,7 @@ namespace HamsterStudio.ImageTool.ViewModels
             {
                 if (Registry.CurrentUser.OpenSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Wallpapers")?.GetValue("BackgroundHistoryPath0") is not string path)
                 {
-                    Logger.Shared.Error("Load wallpapper failed.");
+                    mainViewModel.Logger.LogError("Load wallpapper failed.");
                     return;
                 }
                 CloseFilesCommand.Execute(null);

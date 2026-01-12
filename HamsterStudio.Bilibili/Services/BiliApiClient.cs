@@ -1,9 +1,7 @@
-﻿using HamsterStudio.Barefeet.Logging;
-using HamsterStudio.Barefeet.Services;
-using HamsterStudio.Bilibili.Constants;
+﻿using HamsterStudio.Barefeet.Extensions;
 using HamsterStudio.Bilibili.Models;
 using HamsterStudio.Web;
-using System.Net;
+using Microsoft.Extensions.Logging;
 using System.Text.Json;
 
 namespace HamsterStudio.Bilibili.Services;
@@ -11,7 +9,7 @@ namespace HamsterStudio.Bilibili.Services;
 public class BiliApiClient
 {
     public const string Referer = "https://www.bilibili.com/";
-    
+
     public static readonly JsonSerializerOptions JsonSerializerOptions = new JsonSerializerOptions
     {
         PropertyNameCaseInsensitive = true,
@@ -21,8 +19,11 @@ public class BiliApiClient
     public string Cookies { get; private set; }
     public FileMgmt FileMgmt { get; private set; }
 
-    public BiliApiClient(FileMgmt fileMgmt)
+    private readonly ILogger _logger;
+
+    public BiliApiClient(FileMgmt fileMgmt, ILogger<BiliApiClient> logger)
     {
+        _logger = logger;
         this.FileMgmt = fileMgmt;
         Cookies = LoadCookies();
         //ServicePointManager.ServerCertificateValidationCallback += (sender, certificate, chain, sslPolicyErrors) => true;
@@ -39,7 +40,7 @@ public class BiliApiClient
         {
             if (ex is DirectoryNotFoundException or FileNotFoundException)
             {
-                Logger.Shared.Warning("Load cookies failed.");
+                _logger.LogWarning("Load cookies failed.");
                 return string.Empty;
             }
             throw;
@@ -48,7 +49,7 @@ public class BiliApiClient
 
     public async Task<T?> GetApiAsync<T>(string api)
     {
-        var browser = new FakeBrowser()
+        var browser = new FakeBrowser(_logger)
         {
             Cookies = Cookies,
             Referer = Referer
@@ -59,17 +60,17 @@ public class BiliApiClient
             var respp = await JsonSerializer.DeserializeAsync<Response<T>>(resp, JsonSerializerOptions);
             if (respp.Code != 0)
             {
-                Logger.Shared.Error($"Request {api} failed, {respp.Message}({respp.Code}).");
+                _logger.LogError($"Request {api} failed, {respp.Message}({respp.Code}).");
             }
             return respp.Data;
         }
         catch (JsonException e)
         {
-            Logger.Shared.Critical(e);
+            _logger.LogCritical(e.ToFullString());
 
             resp.Seek(0, SeekOrigin.Begin);
             using StreamReader streamReader = new(resp);
-            Logger.Shared.Information("resp: " + streamReader.ReadToEnd());
+            _logger.LogInformation("resp: " + streamReader.ReadToEnd());
         }
         return default;
     }

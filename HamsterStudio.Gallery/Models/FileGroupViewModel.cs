@@ -1,16 +1,14 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using HamsterStudio.Barefeet.FileSystem;
-using HamsterStudio.Barefeet.Logging;
 using HamsterStudio.Barefeet.MVVM;
 using HamsterStudio.Barefeet.SysCall;
 using HamsterStudio.Gallery.Views;
-using System.Collections.ObjectModel;
+using Microsoft.Extensions.Logging;
 using System.ComponentModel;
 using System.IO;
 using System.Windows.Data;
 using System.Windows.Input;
-using static System.Net.WebRequestMethods;
 
 namespace HamsterStudio.Gallery.Models;
 
@@ -39,7 +37,7 @@ public partial class FileGroupViewModel : KnownViewModel
     public ICommand PrevPageCommand { get; }
     public ICommand NextPageCommand { get; }
 
-    public FileGroupViewModel(string groupName)
+    public FileGroupViewModel(string groupName, ILogger? logger) : base(logger)
     {
         DisplayName = groupName;
 
@@ -61,7 +59,7 @@ public partial class FileGroupViewModel : KnownViewModel
             {
                 CurrentPageIndex--;
             }
-            Logger.Shared.Trace($"Page of {DisplayName} navigated to {CurrentPageIndex}");
+            logger?.LogTrace($"Page of {DisplayName} navigated to {CurrentPageIndex}");
         });
         NextPageCommand = new RelayCommand(() =>
         {
@@ -73,9 +71,9 @@ public partial class FileGroupViewModel : KnownViewModel
             {
                 CurrentPageIndex = 0;
             }
-            Logger.Shared.Trace($"Page of {DisplayName} navigated to {CurrentPageIndex}");
+            logger?.LogTrace($"Page of {DisplayName} navigated to {CurrentPageIndex}");
         });
-    
+
     }
 
     private bool pauseOnPropertyChanged = false;
@@ -84,7 +82,7 @@ public partial class FileGroupViewModel : KnownViewModel
         if (e.PropertyName == nameof(Files))
         {
             pauseOnPropertyChanged = true;
-            Logger.Shared.Debug($"Files changed of {GroupName}.");
+            logger?.LogDebug($"Files changed of {GroupName}.");
 
             if (Files.Count <= 64)
             {
@@ -142,7 +140,12 @@ public partial class FileGroupViewModel : KnownViewModel
             {
                 Files.Remove(info);
                 CurrentPageView?.Refresh();
-                ShellApi.SendToRecycleBin(Path.GetFullPath(x));
+                try { ShellApi.SendToRecycleBin(Path.GetFullPath(x)); }
+                catch (Exception ex)
+                {
+                    logger?.LogError(ex, "Send to recycle bin failed.");
+                }
+
             });
             info = new HamstertFileInfo(x) { RemoveCommand = rmcmd };
             return info;
@@ -156,7 +159,7 @@ public partial class FileGroupViewModel : KnownViewModel
         {
             Files.AddRange(fileInfos);
             CurrentPageView?.Refresh();
-            Logger.Shared.Trace($"Reload file group {GroupName}");
+            logger?.LogTrace($"Reload file group {GroupName}");
         }
     }
 

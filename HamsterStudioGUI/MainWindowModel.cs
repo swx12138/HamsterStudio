@@ -7,6 +7,7 @@ using HamsterStudio.Toolkits.Logging;
 using HamsterStudio.Toolkits.Services;
 using HamsterStudio.WallpaperEngine.ViewModels;
 using HamsterStudioGUI.ViewModels;
+using Microsoft.Extensions.Logging;
 
 namespace HamsterStudioGUI;
 
@@ -28,18 +29,24 @@ partial class MainWindowModel : ObservableObject, IDisposable
     public MainViewModel MainViewModel { get; } = new();
     public WallpaperEngineViewModel  WallpaperEngineViewModel { get; } 
     public GalleryViewModel GalleryViewModel { get; }
-    public SpacialDownloadsViewModel SpacialDownloadsViewModel { get; } = new();
+    public SpacialDownloadsViewModel SpacialDownloadsViewModel { get; }
 
     [ObservableProperty]
     private ThemeMgmt _ThemeMgmt;
 
     public MainWindowModel()
     {
-        Logger.Shared.AddTarget(NlogTarget, NLog.LogLevel.Info, NLog.LogLevel.Fatal);
+        //Logger.Shared.AddTarget(NlogTarget, NLog.LogLevel.Info, NLog.LogLevel.Fatal);
 
         ThemeMgmt = App.ResloveService<ThemeMgmt>();
-        GalleryViewModel = new(App.ResloveService<GalleriaFileMgmt>().FileManager, ThemeMgmt);
-        WallpaperEngineViewModel = new(App.ResloveService<ImageMetaInfoReadService>(), ThemeMgmt);
+        var loggerFactory = App.ResloveService<ILoggerFactory>();
+
+        GalleryViewModel = new(App.ResloveService<GalleriaFileMgmt>().FileManager, ThemeMgmt, App.ResloveService<ILogger<GalleryViewModel>>());
+        SpacialDownloadsViewModel = new(loggerFactory);
+        WallpaperEngineViewModel = new(
+            App.ResloveService<ImageMetaInfoReadService>(),
+            ThemeMgmt,
+            loggerFactory.CreateLogger<WallpaperEngineViewModel>());
     }
 
     public void Dispose()

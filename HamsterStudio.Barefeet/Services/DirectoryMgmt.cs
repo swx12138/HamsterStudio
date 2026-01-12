@@ -1,4 +1,6 @@
-﻿using HamsterStudio.Constants;
+﻿using HamsterStudio.Barefeet.MVVM;
+using HamsterStudio.Constants;
+using Microsoft.Extensions.Logging;
 
 namespace HamsterStudio.Barefeet.Services;
 
@@ -10,7 +12,7 @@ public interface IDirectoryMgmt
     DirectoryInfo CreateSubFolder(string subFolderName);
 }
 
-public abstract class AbstractDirectoryMgmt : IDirectoryMgmt
+public abstract class AbstractDirectoryMgmt(ILogger? logger) : BindableBase(logger), IDirectoryMgmt
 {
     public abstract string StorageHome { get; }
     public abstract string TemporaryHome { get; }
@@ -31,10 +33,10 @@ public class DirectoryMgmt : AbstractDirectoryMgmt
     public override string StorageHome { get; }
     public override string TemporaryHome { get; } = Path.Combine(
         Environment.GetFolderPath(
-            Environment.SpecialFolder.LocalApplicationData), 
+            Environment.SpecialFolder.LocalApplicationData),
         SystemConsts.ApplicationName);
 
-    public DirectoryMgmt(string storageHome)
+    public DirectoryMgmt(string storageHome, ILogger? logger) : base(logger)
     {
         StorageHome = storageHome;
         if (!Directory.Exists(StorageHome))

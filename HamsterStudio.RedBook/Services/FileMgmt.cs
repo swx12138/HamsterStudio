@@ -1,11 +1,10 @@
 ﻿using HamsterStudio.Barefeet.Extensions;
 using HamsterStudio.Barefeet.FileSystem;
-using HamsterStudio.Barefeet.Logging;
 using HamsterStudio.Barefeet.Services;
-using HamsterStudio.Barefeet.SysCall;
 using HamsterStudio.RedBook.Constants;
 using HamsterStudio.RedBook.Models;
 using HamsterStudio.RedBook.Models.Sub;
+using Microsoft.Extensions.Logging;
 
 namespace HamsterStudio.RedBook.Services;
 
@@ -18,7 +17,9 @@ public class FileMgmt : AbstractDirectoryMgmt
     public override string TemporaryHome => _innerDirMgmt.TemporaryHome;
     //public string CacheFilename { get; }
 
-    public FileMgmt(DirectoryMgmt directoryMgmt)
+
+
+    public FileMgmt(DirectoryMgmt directoryMgmt, ILogger<FileMgmt> logger) : base(logger)
     {
         _innerDirMgmt = directoryMgmt;
         StorageHome = Path.Combine(_innerDirMgmt.StorageHome, SystemConsts.HomeName);
@@ -26,7 +27,7 @@ public class FileMgmt : AbstractDirectoryMgmt
         //AlbumCollections = AlbumCollectionsModel.Load(CacheFilename, new FilenameInfoParser());
 
         {
-            var coll = new HamsterMediaCollectionModel(StorageHome);
+            var coll = new HamsterMediaCollectionModel(StorageHome, logger);
             coll.Prepare();
 
             //string current_dir = Environment.CurrentDirectory;
@@ -44,12 +45,12 @@ public class FileMgmt : AbstractDirectoryMgmt
         }
         //CheckReallyHots();
 
-        Logger.Shared.Information($"RedBook FileMgmt initialized, storage home: {StorageHome}");
+        logger.LogInformation($"RedBook FileMgmt initialized, storage home: {StorageHome}");
     }
 
     public void DoGroup(string nickname)
     {
-        Logger.Shared.Trace($"Grouping {nickname}");
+        logger?.LogTrace($"Grouping {nickname}");
         var indepent = CreateSubFolder(nickname);
         foreach (var file in indepent.Parent.GetFiles($"*_xhs_{nickname}_*"))
         {

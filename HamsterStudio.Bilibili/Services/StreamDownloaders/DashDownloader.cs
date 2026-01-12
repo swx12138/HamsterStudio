@@ -1,14 +1,14 @@
 ﻿using HamsterStudio.Barefeet.Extensions;
 using HamsterStudio.Barefeet.FileSystem;
-using HamsterStudio.Barefeet.Logging;
 using HamsterStudio.Barefeet.SysCall;
 using HamsterStudio.Bilibili.Models;
 using HamsterStudio.Web.Services;
 using HamsterStudio.Web.Strategies.Request;
+using Microsoft.Extensions.Logging;
 
 namespace HamsterStudio.Bilibili.Services.StreamDownloaders;
 
-internal class DashDownloader(CommonDownloader downloader, FileMgmt fileMgmt, AuthenticRequestStrategy strategy, StreamDownloaderChaeine? inner) : StreamDownloaderChaeine(inner)
+internal class DashDownloader(CommonDownloader downloader, FileMgmt fileMgmt, AuthenticRequestStrategy strategy, StreamDownloaderChaeine? inner, ILogger? logger) : StreamDownloaderChaeine(inner, logger)
 {
     public override async Task<DownloadStatus> Download(VideoStreamInfo videoStreamInfo, AvMeta meta, HamstertFileInfo target)
     {
@@ -18,7 +18,7 @@ internal class DashDownloader(CommonDownloader downloader, FileMgmt fileMgmt, Au
             var (qua_num, qua, qua_str) = videoStreamInfo.AcceptQuality
                 .Zip(videoStreamInfo.AcceptFormat.Split(','), videoStreamInfo.AcceptDescription)
                 .First(x => x.First == acceptQuality);
-            Logger.Shared.Information($"Selected quality {qua}({qua_str}, {qua_num})");
+            Logger?.LogInformation($"Selected quality {qua}({qua_str}, {qua_num})");
 
             var avPath = await DownloadStream(videoStreamInfo, acceptQuality, meta.copyright);
             return await MergeStreamToMp4(meta, avPath, target, DeleteAvCache: true);
@@ -51,7 +51,7 @@ internal class DashDownloader(CommonDownloader downloader, FileMgmt fileMgmt, Au
 
         return (aPath, vPath);
 
-        static string SelectVideoBaseUrl(int acceptQuality, VideoStreamInfo vsi)
+        string SelectVideoBaseUrl(int acceptQuality, VideoStreamInfo vsi)
         {
             var lst = vsi.Dash.Video.Where(x => x.Id == acceptQuality)
                 .OrderBy(x => x.Bandwidth);
@@ -60,37 +60,37 @@ internal class DashDownloader(CommonDownloader downloader, FileMgmt fileMgmt, Au
                 lst = vsi.Dash.Video.OrderBy(x => x.Bandwidth);
             }
 
-            Logger.Shared.Information($"Video dash info : {lst?.Last()!.Width}*{lst?.Last()!.Height} bandw:{lst?.Last()!.Bandwidth}");
+            Logger?.LogInformation($"Video dash info : {lst?.Last()!.Width}*{lst?.Last()!.Height} bandw:{lst?.Last()!.Bandwidth}");
             return lst?.Last().BaseUrl ?? string.Empty;
         }
 
-        static string SelectAudioBaseUrl(VideoStreamInfo vsi)
+        string SelectAudioBaseUrl(VideoStreamInfo vsi)
         {
             var dash = vsi.Dash.Flac?.Audio ?? vsi.Dash.Audio.OrderBy(x => x.Bandwidth).Last();
-            Logger.Shared.Information($"Audio dash info : {dash.Bandwidth}");
+            Logger?.LogInformation($"Audio dash info : {dash.Bandwidth}");
             return dash.BaseUrl ?? string.Empty;
         }
     }
 
-    public static async Task<DownloadStatus> MergeStreamToMp4(AvMeta meta, (string aPath, string vPath) avPath, HamstertFileInfo target, bool? DeleteAvCache = true)
+    public async Task<DownloadStatus> MergeStreamToMp4(AvMeta meta, (string aPath, string vPath) avPath, HamstertFileInfo target, bool? DeleteAvCache = true)
     {
         if (File.Exists(target.FullName))
         {
-            Logger.Shared.Information($"{target.FullName} Exists.");
+            Logger?.LogInformation($"{target.FullName} Exists.");
             return DownloadStatus.Exists;
         }
 
         await MergeAv(avPath.vPath, avPath.aPath, meta, target.FullName);
         if (DeleteAvCache ?? true)
         {
-            try { File.Delete(avPath.aPath); } catch (Exception ex) { Logger.Shared.Critical(ex); }
-            try { File.Delete(avPath.vPath); } catch (Exception ex) { Logger.Shared.Critical(ex); }
+            try { File.Delete(avPath.aPath); } catch (Exception ex) { Logger?.LogCritical(ex.ToFullString()); }
+            try { File.Delete(avPath.vPath); } catch (Exception ex) { Logger?.LogCritical(ex.ToFullString()); }
         }
 
         return DownloadStatus.Success;
     }
 
-    public static async Task MergeAv(string vname, string aname, AvMeta meta, string outp)
+    public async Task MergeAv(string vname, string aname, AvMeta meta, string outp)
     {
         string cmd = $"chcp 65001 & ffmpeg -i \"{vname}\" -i \"{aname}\" -c:v copy -c:a copy " +
             $"-metadata title=\"{meta.title}\" " +
@@ -99,7 +99,7 @@ internal class DashDownloader(CommonDownloader downloader, FileMgmt fileMgmt, Au
             $"-metadata copyright=\"{meta.copyright}\" " +
             $"\"{outp}\"";
         ShellApi.System(cmd);
-        Logger.Shared.Information($"Av merge succeed.");
+        Logger?.LogInformation($"Av merge succeed.");
     }
 
 }

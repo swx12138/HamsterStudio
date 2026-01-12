@@ -1,5 +1,6 @@
 ﻿using HamsterStudio.Barefeet.FileSystem.Interfaces;
 using HamsterStudio.Barefeet.Logging;
+using Microsoft.Extensions.Logging;
 using System.Text.Encodings.Web;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -29,14 +30,17 @@ public class AlbumCollectionModel
             if (!wasHot && isHot)
             {
                 wasHot = isHot;
-                Logger.Shared.Information($"{OwnerName} has been hot!!");
+                _logger.LogInformation($"{OwnerName} has been hot!!");
             }
             return isHot;
         }
     }
 
-    public AlbumCollectionModel()
+    private readonly ILogger _logger;
+
+    public AlbumCollectionModel(ILogger logger)
     {
+        _logger = logger;
         wasHot = Test();
     }
 
@@ -49,7 +53,7 @@ public class AlbumCollectionModel
 
 }
 
-public class AlbumCollectionsModel
+public class AlbumCollectionsModel()
 {
     [JsonPropertyName("collections")]
     public Dictionary<string, AlbumCollectionModel> Collections { get; set; } = [];
@@ -72,39 +76,39 @@ public class AlbumCollectionsModel
         return isInit ? Collections[album.OwnerName].Test() : Collections[album.OwnerName].IsHot;
     }
 
-    public static AlbumCollectionsModel Load(string filePath, IFilenameInfoParser parser)
-    {
-        if (!File.Exists(filePath))
-        {
-            var model = new AlbumCollectionsModel();
-            if (parser != null)
-            {
-                var home = Directory.GetParent(Path.GetDirectoryName(filePath)).FullName;
-                foreach (var files in Directory.GetFiles(home))
-                {
-                    string filename = Path.GetFileName(files);
-                    var info = parser.Parse(filename);
-                    if (info != null && !string.IsNullOrEmpty(info.Title) && !string.IsNullOrEmpty(info.Owner))
-                    {
-                        var album = new AlbumCollectionModel
-                        {
-                            OwnerName = info.Owner,
-                            FileCount = 1,
-                            Albums = [info.Title]
-                        };
-                        model.AddAlbum(album, true);
-                    }
-                    else
-                    {
-                        Logger.Shared.Warning($"Failed to parse filename: {filename}");
-                    }
-                }
-            }
-            return model;
-        }
-        var json = File.ReadAllText(filePath);
-        return JsonSerializer.Deserialize<AlbumCollectionsModel>(json) ?? new AlbumCollectionsModel();
-    }
+    //public static AlbumCollectionsModel Load(string filePath, IFilenameInfoParser parser)
+    //{
+    //    if (!File.Exists(filePath))
+    //    {
+    //        var model = new AlbumCollectionsModel();
+    //        if (parser != null)
+    //        {
+    //            var home = Directory.GetParent(Path.GetDirectoryName(filePath)).FullName;
+    //            foreach (var files in Directory.GetFiles(home))
+    //            {
+    //                string filename = Path.GetFileName(files);
+    //                var info = parser.Parse(filename);
+    //                if (info != null && !string.IsNullOrEmpty(info.Title) && !string.IsNullOrEmpty(info.Owner))
+    //                {
+    //                    var album = new AlbumCollectionModel
+    //                    {
+    //                        OwnerName = info.Owner,
+    //                        FileCount = 1,
+    //                        Albums = [info.Title]
+    //                    };
+    //                    model.AddAlbum(album, true);
+    //                }
+    //                else
+    //                {
+    //                    Logger.Shared.Warning($"Failed to parse filename: {filename}");
+    //                }
+    //            }
+    //        }
+    //        return model;
+    //    }
+    //    var json = File.ReadAllText(filePath);
+    //    return JsonSerializer.Deserialize<AlbumCollectionsModel>(json) ?? new AlbumCollectionsModel();
+    //}
 
     public void Save(string filePath)
     {

@@ -1,6 +1,4 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
-using HamsterStudio.Barefeet.Interfaces;
-using HamsterStudio.Barefeet.Logging;
 using HamsterStudio.Barefeet.Task;
 using HamsterStudio.Bilibili.Services;
 using HamsterStudio.Web.Services;
@@ -43,7 +41,7 @@ namespace HamsterStudio.Bilibili.Models
             try
             {
                 var accept = vsi.AcceptQuality.Zip(vsi.AcceptFormat.Split(','), vsi.AcceptDescription).First(x => x.First == page.AcceptQuality);
-                Logger.Shared.Information($"Selected quality {accept.Second}({accept.Third}, {accept.First})");
+                //Logger.Shared.Information($"Selected quality {accept.Second}({accept.Third}, {accept.First})");
 
                 string vBaseUrl = getVideoBaseUrl(page, vsi);
                 ArgumentException.ThrowIfNullOrEmpty(vBaseUrl, nameof(vBaseUrl));
@@ -75,7 +73,7 @@ namespace HamsterStudio.Bilibili.Models
                         lst = vsi?.Dash.Video.OrderBy(x => x.Bandwidth);
                     }
 
-                    Logger.Shared.Information($"Video dash info : {lst?.Last()!.Width}*{lst?.Last()!.Height} bandw:{lst?.Last()!.Bandwidth}");
+                    //Logger.Shared.Information($"Video dash info : {lst?.Last()!.Width}*{lst?.Last()!.Height} bandw:{lst?.Last()!.Bandwidth}");
                     return lst?.Last().BaseUrl ?? string.Empty;
                 }
 
@@ -84,14 +82,14 @@ namespace HamsterStudio.Bilibili.Models
                     if (vsi == null) return string.Empty;
 
                     var dash = (vsi?.Dash.Flac?.Audio ?? vsi?.Dash.Audio.OrderBy(x => x.Bandwidth).Last())!.Value;
-                    Logger.Shared.Information($"Audio dash info : {dash.Bandwidth}");
+                    //Logger.Shared.Information($"Audio dash info : {dash.Bandwidth}");
                     return dash.BaseUrl ?? string.Empty;
                 }
             }
             catch (Exception ex)
             {
                 State = HamsterTaskState.Failed;
-                Logger.Shared.Critical(ex);
+                //Logger.Shared.Critical(ex);
                 return new() { VideoDest = null, State = DownloadStatus.Failed, Exception = ex };
             }
             finally

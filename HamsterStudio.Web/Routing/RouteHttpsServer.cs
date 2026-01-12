@@ -15,7 +15,7 @@ namespace HamsterStudio.Web.Routing
 
         protected override void OnError(SocketError error)
         {
-            Logger.Shared.Warning($"HTTP server caught an error: {error}");
+            //Logger.Shared.Warning($"HTTP server caught an error: {error}");
         }
 
     }

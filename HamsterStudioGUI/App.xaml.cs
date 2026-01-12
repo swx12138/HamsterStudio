@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using System.IO;
 using System.Security.Cryptography.X509Certificates;
 using System.Windows;
@@ -40,8 +41,6 @@ public partial class App : Application
 
     private void InitializeWebApi()
     {
-        Logger.Shared.Information("Starting Web API Service...");
-
         var builder = WebApplication
 #if DEBUG
             .CreateBuilder(new WebApplicationOptions() { EnvironmentName = Environments.Development });
@@ -69,7 +68,8 @@ public partial class App : Application
             .ConfigureStaticFiles()
             .ConfigureImageMetaInfoReadService();
 
-        Logger.Shared.Information($"Web API Service listening on ports {HttpPortNumber} (HTTP) and {HttpsPortNumber} (HTTPS)");
+        //var logger = WebApiService.Services.GetRequiredService<ILogger<App>>();
+        //logger.LogInformation($"Web API Service listening on ports {HttpPortNumber} (HTTP) and {HttpsPortNumber} (HTTPS)");
 
         WebApiService.RunAsync();
     }

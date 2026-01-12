@@ -16,8 +16,6 @@ public class WeiboDownloadService(
 {
     public event Action<ShowDataModel>? OnShowInfoUpdated;
 
-    private Logger logger = Logger.Shared;
-
     public async Task<ServerRespModel> Download(string show_id, string referer)
     {
         var model = await api.GetShowInfo(show_id, referer);

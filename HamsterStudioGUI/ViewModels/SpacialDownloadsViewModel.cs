@@ -1,20 +1,13 @@
-﻿using HamsterStudioGUI.ViewModels.SpacialDownloads;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using HamsterStudio.Barefeet.MVVM;
+using HamsterStudioGUI.ViewModels.SpacialDownloads;
+using Microsoft.Extensions.Logging;
 
 namespace HamsterStudioGUI.ViewModels;
 
-public class SpacialDownloadsViewModel
+public class SpacialDownloadsViewModel(ILoggerFactory loggerFactory) : KnownViewModel(loggerFactory.CreateLogger<SpacialDownloadsViewModel>())
 {
-    public DirectLinkDownloadViewModel DirectLinkDownload { get; } = new();
-    public BilibiliSpDownloadsViewModel BilibiliSpDownloadsViewModel { get; } = new();
-    public XiaoHongshuSpDownloadViewModel XiaoHongshuSpDownloadViewModel { get; } = new();
-
-    public SpacialDownloadsViewModel()
-    {
-    }
+    public DirectLinkDownloadViewModel DirectLinkDownload { get; } = new(loggerFactory.CreateLogger<DirectLinkDownloadViewModel>());
+    public BilibiliSpDownloadsViewModel BilibiliSpDownloadsViewModel { get; } = new(loggerFactory.CreateLogger<BilibiliSpDownloadsViewModel>());
+    public XiaoHongshuSpDownloadViewModel XiaoHongshuSpDownloadViewModel { get; } = new(loggerFactory.CreateLogger<XiaoHongshuSpDownloadViewModel>());
 
 }

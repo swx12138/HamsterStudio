@@ -1,18 +1,15 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
+using HamsterStudio.Barefeet.Extensions;
 using HamsterStudio.Barefeet.FileSystem.Filters;
-using HamsterStudio.Barefeet.Logging;
+using HamsterStudio.Barefeet.MVVM;
 using HamsterStudio.Barefeet.Services;
 using HamsterStudio.Gallery.Models;
-using System;
-using System.Collections.Generic;
+using Microsoft.Extensions.Logging;
 using System.Collections.ObjectModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace HamsterStudio.Gallery.Services;
 
-public partial class GalleriaFileMgmt : ObservableObject
+public partial class GalleriaFileMgmt : BindableBase
 {
     private readonly DataStorageMgmt _dataStorageMgmt;
 
@@ -24,12 +21,12 @@ public partial class GalleriaFileMgmt : ObservableObject
 
     public FileManagerViewModel FileManager { get; }
 
-    public GalleriaFileMgmt(DataStorageMgmt dataStorageMgmt)
+    public GalleriaFileMgmt(DataStorageMgmt dataStorageMgmt, ILogger<DataStorageMgmt> logger) : base(logger)
     {
         _dataStorageMgmt = dataStorageMgmt;
         Load();
 
-        var fileMgr = new FileManagerViewModel();
+        var fileMgr = new FileManagerViewModel(logger);
         fileMgr.Filters.Add(new ImageFileFilter());
         foreach (var path in IncludePaths)
         {
@@ -49,12 +46,12 @@ public partial class GalleriaFileMgmt : ObservableObject
         {
             _dataStorageMgmt.Set("Galleria.IncludePaths", IncludePaths.ToArray());
             _dataStorageMgmt.Set("Galleria.ExcludePaths", ExcludePaths.ToArray());
-            Logger.Shared.Information($"Save Galleria data success.");
+            logger?.LogInformation($"Save Galleria data success.");
         }
         catch (Exception ex)
         {
-            Logger.Shared.Error($"Save Galleria.IncludePaths failed.");
-            Logger.Shared.Critical(ex);
+            logger?.LogError($"Save Galleria.IncludePaths failed.");
+            logger?.LogCritical(ex.ToFullString());
         }
     }
 
@@ -72,12 +69,12 @@ public partial class GalleriaFileMgmt : ObservableObject
             {
                 ExcludePaths = new ObservableCollection<string>(excludePaths);
             }
-            Logger.Shared.Information($"Load Galleria data success.");
+            logger?.LogInformation($"Load Galleria data success.");
         }
         catch (Exception ex)
         {
-            Logger.Shared.Error($"Load Galleria data failed.");
-            Logger.Shared.Critical(ex);
+            logger?.LogError($"Load Galleria data failed.");
+            logger?.LogCritical(ex.ToFullString());
         }
     }
 }

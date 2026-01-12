@@ -8,6 +8,7 @@ using HamsterStudio.WebApi;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.FileProviders;
+using Microsoft.Extensions.Logging;
 using System.IO;
 
 namespace HamsterStudioGUI.Extensions;
@@ -21,7 +22,7 @@ internal static class ConfigureWebApiExtensions
         services.AddSingleton<GalleriaFileMgmt>();
         services.AddSingleton<ImageMetaInfoReadService>();
 
-        services.AddSingleton(new DirectoryMgmt(home));
+        services.AddSingleton(sp => new DirectoryMgmt(home, sp.GetService<ILogger>()));
         services.AddSingleton<DataStorageMgmt>();
 
         services.AddSingleton<HttpClientProvider>();
@@ -30,7 +31,7 @@ internal static class ConfigureWebApiExtensions
 
     public static WebApplication ConfigureStaticFiles(this WebApplication app, params StaticFilePathParam[] static_file_paths)
     {
-        Logger.Shared.Information("Configuring Static Files...");
+        app.Logger.LogInformation("Configuring Static Files...");
         var directoryMgmt = app.Services.GetService<DirectoryMgmt>() ?? throw new NotSupportedException();
         app.AddStaticFiles(new StaticFilePathParam() { PhyPath = directoryMgmt.StorageHome, ReqPath = "static" });
 
@@ -38,7 +39,7 @@ internal static class ConfigureWebApiExtensions
         {
             if (!Directory.Exists(static_file_path.PhyPath))
             {
-                Logger.Shared.Trace($"Path {static_file_path} not valid.");
+                app.Logger.LogInformation($"Path {static_file_path} not valid.");
                 continue;
             }
             app.AddStaticFiles(static_file_path);
@@ -49,7 +50,7 @@ internal static class ConfigureWebApiExtensions
 
     public static WebApplication ConfigureImageMetaInfoReadService(this WebApplication app)
     {
-        Logger.Shared.Information("Configuring ImageMetaInfoReadService...");
+        app.Logger.LogInformation("Configuring ImageMetaInfoReadService...");
         var svc = app.Services.GetService<ImageMetaInfoReadService>() ?? throw new NotSupportedException();
         svc.ImageMetaInfoReaders.Add(new JpegImageMetaInfoReader());
         svc.ImageMetaInfoReaders.Add(new PngImageMetaInfoReader());

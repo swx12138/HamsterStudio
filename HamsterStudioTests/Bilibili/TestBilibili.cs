@@ -108,7 +108,7 @@ namespace HamsterStudioTests.Bilibili
             for (int page = 1; ; page++)
             {
                 Console.WriteLine($"Load page {page} ...");
-                var replayResp = await bapi.GetReplayV2(vinfo.Data!.Aid, page, cookies);
+                var replayResp = await bapi.GetReplayV2(vinfo.Data!.Bvid, page, cookies);
 
                 Assert.IsNotNull(replayResp);
                 Assert.IsNotNull(replayResp.Data);

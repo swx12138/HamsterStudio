@@ -1,21 +1,20 @@
 ﻿using HamsterStudio.Barefeet.FileSystem;
-using HamsterStudio.Barefeet.Logging;
 using HamsterStudio.Web.Strategies.Request;
 using HamsterStudio.Web.Strategies.StreamCopy;
-using System;
+using Microsoft.Extensions.Logging;
 using System.Net;
 
 namespace HamsterStudio.Web.Strategies.Download;
 
 // 公共基础类（提取重复逻辑）
-public abstract class RangeBasedDownloadStrategy(int maxConnections) : IDownloadStrategy
+public abstract class RangeBasedDownloadStrategy(int maxConnections, ILogger? logger = null) : IDownloadStrategy
 {
-    public static async Task<long> GetContentLengthAsync(Uri url, IRequestStrategy requestStrategy)
+    public async Task<long> GetContentLengthAsync(Uri url, IRequestStrategy requestStrategy)
     {
         using var message = new HttpRequestMessage(HttpMethod.Head, url);
         using var response = await requestStrategy.SendAsync(message);
         var contentLength = response.Content.Headers.ContentLength ?? throw new NotSupportedException("Content-Length header missing");
-        Logger.Shared.Trace($"远程文件大小: {FileSizeDescriptor.ToReadableFileSize(contentLength)}({contentLength} 字节)。");
+        logger?.LogTrace($"远程文件大小: {FileSizeDescriptor.ToReadableFileSize(contentLength)}({contentLength} 字节)。");
         return contentLength;
     }
 
@@ -102,7 +101,7 @@ public abstract class RangeBasedDownloadStrategy(int maxConnections) : IDownload
         var fileSizeStr = fileSize.ToReadableFileSize();
         var lastChunkSizeStr = FileSizeDescriptor.ToReadableFileSize(chunks.Count > 0 ? (chunks[^1].End - chunks[^1].Start + 1) : 0);
         var msg = FormatChunksInfoMessage(fileSizeStr, lastChunkSizeStr, chunks.Count);
-        Logger.Shared.Information(msg);
+        logger?.LogInformation(msg);
     }
 
     protected virtual string FormatChunksInfoMessage(string fileSizeStr, string lastChunkSizeStr, long chunksCount)

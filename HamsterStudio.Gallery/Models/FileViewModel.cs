@@ -1,5 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.Input;
 using HamsterStudio.Barefeet.MVVM;
+using Microsoft.Extensions.Logging;
 using System.IO;
 using System.Windows.Input;
 
@@ -9,7 +10,7 @@ public partial class FileViewModel : KnownViewModel
 {
     public ICommand ShowImageCommand { get; }
 
-    public FileViewModel(FileInfo fileInfo)
+    public FileViewModel(FileInfo fileInfo, ILogger<FileViewModel> logger) : base(logger)
     {
         DisplayName = fileInfo.Name;
         ShowImageCommand = new RelayCommand(() =>

@@ -1,15 +1,15 @@
 ﻿using HamsterStudio.Barefeet.Logging;
 using HamsterStudio.Web.Strategies.Request;
 using HamsterStudio.Web.Strategies.StreamCopy;
+using Microsoft.Extensions.Logging;
 using System.Net;
 
 namespace HamsterStudio.Web.Strategies.Download;
 
 // 扩展点示例（符合OCP）
-public class RetryableDownloadStrategy(IDownloadStrategy innerStrategy, int maxRetries = 5, TimeSpan? initialDelay = null) : IDownloadStrategy
+public class RetryableDownloadStrategy(IDownloadStrategy innerStrategy, ILogger? logger = null, int maxRetries = 5, TimeSpan? initialDelay = null) : IDownloadStrategy
 {
     private readonly TimeSpan _initialDelay = initialDelay ?? TimeSpan.FromSeconds(1);
-    private readonly Logger _logger = Logger.Shared;
     private int attempt = 0;
 
     public string Info => $"[可重试下载 {attempt}/{maxRetries}]";
@@ -26,11 +26,11 @@ public class RetryableDownloadStrategy(IDownloadStrategy innerStrategy, int maxR
             {
                 if (innerStrategy is ChunkDownloadStrategy)
                 {
-                    Logger.Shared.Trace(Info + innerStrategy.Info);
+                    logger?.LogTrace(Info + innerStrategy.Info);
                 }
                 else
                 {
-                    Logger.Shared.Trace(Info);
+                    logger?.LogTrace(Info);
                 }
 
                 var result = await innerStrategy.DownloadAsync(uri, requestStrategy, contentCopyStrategy);
@@ -41,25 +41,25 @@ public class RetryableDownloadStrategy(IDownloadStrategy innerStrategy, int maxR
 
                 if (!ShouldRetry(result.StatusCode))
                 {
-                    _logger.Warning($"Non-retriable status code: {result.StatusCode}");
+                    logger?.LogWarning($"Non-retriable status code: {result.StatusCode}");
                     return result;
                 }
             }
             catch (Exception ex) when (IsTransientError(ex))
             {
                 lastError = ex;
-                _logger.Warning($"Transient error occurred: {ex.Message}");
+                logger?.LogWarning($"Transient error occurred: {ex.Message}");
             }
             catch (Exception ex)
             {
-                _logger.Error($"Non-retriable error: {ex.Message}");
+                logger?.LogError($"Non-retriable error: {ex.Message}");
                 return new DownloadResult([], HttpStatusCode.InternalServerError, -1, ex.Message);
             }
 
             if (attempt < maxRetries)
             {
                 var delay = CalculateBackoffDelay(attempt);
-                _logger.Information($"Retrying in {delay.TotalSeconds}s...");
+                logger?.LogInformation($"Retrying in {delay.TotalSeconds}s...");
                 await Task.Delay(delay);
             }
         }

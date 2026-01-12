@@ -1,4 +1,5 @@
 ﻿using HamsterStudio.Barefeet.Logging;
+using Microsoft.Extensions.Logging;
 using System.Reflection;
 
 namespace HamsterStudio.Barefeet.Services;
@@ -9,10 +10,13 @@ public class DataStorageMgmt
     private readonly DirectoryMgmt _directoryMgmt;
     private const string DatFilename = "underwear.dat";
 
-    public event EventHandler BeforePersist;
+    public event EventHandler? BeforePersist;
 
-    public DataStorageMgmt(DirectoryMgmt directoryMgmt)
+    private ILogger _logger;
+
+    public DataStorageMgmt(DirectoryMgmt directoryMgmt, ILogger<DataStorageMgmt> logger)
     {
+        _logger = logger;
         _directoryMgmt = directoryMgmt;
         try
         {
@@ -33,8 +37,7 @@ public class DataStorageMgmt
         }
         catch (Exception ex)
         {
-            Logger.Shared.Error($"Save {key} data failed.");
-            Logger.Shared.Critical(ex);
+            _logger.LogError(ex, $"Save {key} data failed.");
         }
     }
 
@@ -53,7 +56,7 @@ public class DataStorageMgmt
 
     public void Persist()
     {
-        BeforePersist?.Invoke(this, null);
+        BeforePersist?.Invoke(this, EventArgs.Empty);
 
         var bin = BinaryDataSerializer.Serialize(_data);
         if (!Directory.Exists(_directoryMgmt.TemporaryHome))

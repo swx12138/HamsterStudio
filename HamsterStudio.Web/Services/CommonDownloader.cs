@@ -6,6 +6,7 @@ using HamsterStudio.Web.Strategies;
 using HamsterStudio.Web.Strategies.Download;
 using HamsterStudio.Web.Strategies.Request;
 using HamsterStudio.Web.Strategies.StreamCopy;
+using Microsoft.Extensions.Logging;
 using System.Diagnostics;
 using System.Net;
 
@@ -16,7 +17,7 @@ public enum DownloadStatus
     Success, Exists, Failed
 }
 
-public class CommonDownloader(HttpClientProvider httpClientProvider)
+public class CommonDownloader(HttpClientProvider httpClientProvider, ILogger<CommonDownloader> logger)
 {
     public async Task<DownloadStatus> DownloadFileAsync(
         Uri uri,
@@ -33,7 +34,7 @@ public class CommonDownloader(HttpClientProvider httpClientProvider)
         ArgumentException.ThrowIfNullOrEmpty(destinationPath, nameof(destinationPath));
         if (File.Exists(destinationPath))
         {
-            Logger.Shared.Information(formatExistsMessage(destinationPath, shape));
+            logger.LogInformation(formatExistsMessage(destinationPath, shape));
             return DownloadStatus.Exists;
         }
 
@@ -45,7 +46,7 @@ public class CommonDownloader(HttpClientProvider httpClientProvider)
             if (result.StatusCode != HttpStatusCode.OK)
             {
                 ShellApi.OpenBrowser(uri.AbsoluteUri);
-                Logger.Shared.Error($"Failed to download file: {result.StatusCode} - {result.ErrorMessage}");
+                logger.LogError($"Failed to download file: {result.StatusCode} - {result.ErrorMessage}");
                 return DownloadStatus.Failed;
             }
 
@@ -68,14 +69,14 @@ public class CommonDownloader(HttpClientProvider httpClientProvider)
             var bytePerSecondStr = FileSizeDescriptor.ToReadableFileSize(bytePerSecond);
             var fileSizeStr = FileSizeDescriptor.ToReadableFileSize(result.TotalBytes);
 
-            Logger.Shared.Information(formatMessage(destinationPath, fileSizeStr, bytePerSecondStr, shape));
+            logger.LogInformation(formatMessage(destinationPath, fileSizeStr, bytePerSecondStr, shape));
 
             return DownloadStatus.Success;
         }
         catch (Exception ex)
         {
-            Logger.Shared.Warning($"Error downloading file: {ex.Message}");
-            Logger.Shared.Debug(ex);
+            logger.LogWarning($"Error downloading file: {ex.Message}");
+            logger.LogDebug(ex.Message + "\n" + ex.StackTrace);
             return DownloadStatus.Failed;
         }
 

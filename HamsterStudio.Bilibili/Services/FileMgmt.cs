@@ -5,6 +5,7 @@ using HamsterStudio.Barefeet.Services;
 using HamsterStudio.Bilibili.Constants;
 using HamsterStudio.Bilibili.Models;
 using HamsterStudio.Web.FileSystem;
+using Microsoft.Extensions.Logging;
 
 namespace HamsterStudio.Bilibili.Services;
 
@@ -19,8 +20,11 @@ public class FileMgmt : AbstractDirectoryMgmt
     public string DynamicHome { get; }
     public string CookiesFile { get; }
 
-    public FileMgmt(DirectoryMgmt directoryMgmt, DataStorageMgmt dataStorageMgmt)
+    private readonly ILogger _logger;
+
+    public FileMgmt(DirectoryMgmt directoryMgmt, DataStorageMgmt dataStorageMgmt, ILogger<FileMgmt> logger) : base(logger)
     {
+        _logger = logger;
         _innerDirMgmt = directoryMgmt;
 
         dataStorageMgmt.BeforePersist += (sdr, e) =>
@@ -38,7 +42,7 @@ public class FileMgmt : AbstractDirectoryMgmt
         DynamicHome = Path.Combine(StorageHome, SystemConsts.DynamicSubName);
         CookiesFile = Path.Combine(StorageHome, "cookies.txt");
 
-        Logger.Shared.Information($"Bilibili FileMgmt initialized, storage home: {StorageHome}");
+        _logger.LogInformation($"Bilibili FileMgmt initialized, storage home: {StorageHome}");
     }
 
     public HamstertFileInfo GetVideoFilename(VideoInfo videoInfo, int idx, long cid = -99)

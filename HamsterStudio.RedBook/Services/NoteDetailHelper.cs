@@ -45,7 +45,6 @@ internal static class NoteDetailHelper
     public static Uri GenerateVideoLink(string token)
     {
         string uri = $"https://sns-video-bd.xhscdn.com/{token}";
-        Logger.Shared.Information("视频链接：" + uri) ;
         return new Uri(uri);
     }
 

@@ -5,14 +5,13 @@ using HamsterStudio.RedBook.Models;
 using HamsterStudio.RedBook.Models.Sub;
 using HamsterStudio.Web.DataModels;
 using HamsterStudio.Web.Services;
+using Microsoft.Extensions.Logging;
 using System.Threading.Tasks;
 
 namespace HamsterStudio.RedBook.Services;
 
-public class NoteDownloadService(FileMgmt fileMgmt, CommonDownloader downloader, Lazy<PreTokenCollector> tokenCollector)
+public class NoteDownloadService(FileMgmt fileMgmt, CommonDownloader downloader, Lazy<PreTokenCollector> tokenCollector, ILogger<NoteDownloadService> logger)
 {
-    private readonly Logger _logger = Logger.Shared;
-
     public event Action<NoteDetailModel> OnNoteDetailUpdated = delegate { };
 
     public event Action<string> OnImageTokenDetected = delegate { };
@@ -22,7 +21,7 @@ public class NoteDownloadService(FileMgmt fileMgmt, CommonDownloader downloader,
         var currentNote = noteData.NoteDetailMap[noteData.CurrentNoteId];
         var noteDetail = currentNote.NoteDetail;
 
-        _logger.Information($"开始处理<{NoteDetailHelper.GetTypeName(noteDetail)}>作品：{noteData.CurrentNoteId}");
+        logger.LogInformation($"开始处理<{NoteDetailHelper.GetTypeName(noteDetail)}>作品：{noteData.CurrentNoteId}");
         return await DownloadNoteLowAsync(noteDetail, noteData.CurrentNoteId,
             new NoteDataOptionsModel { WithComments = false, AuthorCommentsOnly = true },
             new());
@@ -58,9 +57,9 @@ public class NoteDownloadService(FileMgmt fileMgmt, CommonDownloader downloader,
         bool downloadComments = options.WithComments || options.AuthorCommentsOnly;
         bool isHot = IsHot(noteDetail, comments, downloadComments);
 
-        _logger.Information($"标题：{noteDetail.Title}【{noteDetail.ImageList.Count}】");
+        logger.LogInformation($"标题：{noteDetail.Title}【{noteDetail.ImageList.Count}】");
 
-        var processor = new NoteDetailProcessor(noteDetail, fileMgmt, downloader, _logger, isHot);
+        var processor = new NoteDetailProcessor(noteDetail, fileMgmt, downloader, logger, isHot);
         string title = NoteDetailHelper.SelectTitle(noteDetail);
         await Parallel.ForEachAsync(
             noteDetail.ImageList,
@@ -84,14 +83,14 @@ public class NoteDownloadService(FileMgmt fileMgmt, CommonDownloader downloader,
             }
         }
 
-        _logger.Information("Done.");
+        logger.LogInformation("Done.");
 
         return BuildResponse(noteDetail, processor.ContainedFiles);
     }
 
     public async Task<ServerRespModel> DownloadWithBaseTokens(string[] tokens)
     {
-        var processor = new NoteDetailProcessor(null, fileMgmt, downloader, Logger.Shared, true);
+        var processor = new NoteDetailProcessor(null, fileMgmt, downloader, logger, true);
         var preTokens = tokenCollector.Value.GetTokens();
         var downloadedFiles = new List<string>();
         foreach (var token in tokens)

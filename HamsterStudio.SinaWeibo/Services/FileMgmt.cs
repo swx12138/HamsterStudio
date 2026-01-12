@@ -1,6 +1,7 @@
 ﻿using HamsterStudio.Barefeet.Extensions;
 using HamsterStudio.Barefeet.Logging;
 using HamsterStudio.Barefeet.Services;
+using Microsoft.Extensions.Logging;
 
 namespace HamsterStudio.SinaWeibo.Services;
 
@@ -12,7 +13,7 @@ public class FileMgmt
 
     //private Dictionary<string, FileInfo> FileInfos;
 
-    public FileMgmt(DirectoryMgmt directoryMgmt)
+    public FileMgmt(DirectoryMgmt directoryMgmt, ILogger<FileMgmt> logger)
     {
         Home = Path.Combine(directoryMgmt.StorageHome, "weibo");
         if (!Directory.Exists(Home))
@@ -28,7 +29,7 @@ public class FileMgmt
         //    }).ToDictionary();
         UserNameMap = new(this);
 
-        Logger.Shared.Information($"Weibo FileMgmt initialized, storage home: {Home}");
+        logger.LogInformation($"Weibo FileMgmt initialized, storage home: {Home}");
     }
 
     public string GetFullPath(string filename, string userId)

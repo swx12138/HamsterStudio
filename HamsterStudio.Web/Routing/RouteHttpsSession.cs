@@ -8,7 +8,7 @@ namespace HamsterStudio.Web.Routing
     {
         protected override void OnReceivedRequest(HttpRequest request)
         {
-            Logger.Shared.Trace($"method:{request.Method}\tbody:{request.Body}");
+            //Logger.Shared.Trace($"method:{request.Method}\tbody:{request.Body}");
 
             if (request.Method == "HEAD")
             {
@@ -28,12 +28,12 @@ namespace HamsterStudio.Web.Routing
 
         protected override void OnReceivedRequestError(HttpRequest request, string error)
         {
-            Logger.Shared.Warning($"Request error: {error}");
+            //Logger.Shared.Warning($"Request error: {error}");
         }
 
         protected override void OnError(SocketError error)
         {
-            Logger.Shared.Warning($"HTTP session caught an error: {error}");
+            //Logger.Shared.Warning($"HTTP session caught an error: {error}");
         }
 
     }

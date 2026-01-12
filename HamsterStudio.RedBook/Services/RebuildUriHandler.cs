@@ -1,4 +1,5 @@
 ﻿using HamsterStudio.Barefeet.Logging;
+using System.Diagnostics;
 
 namespace HamsterStudio.RedBook.Services;
 
@@ -21,7 +22,7 @@ public class RebuildUriHandler : DelegatingHandler
         }
 
         // 输出请求地址
-        Logger.Shared.Debug($"[Request] {request}");
+        Trace.TraceInformation($"[Request] {request}");
 
         var response = await base.SendAsync(request, cancellationToken);
         return response;

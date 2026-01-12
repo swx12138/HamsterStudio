@@ -1,14 +1,12 @@
-﻿using CommunityToolkit.Mvvm.Input;
-using HamsterStudio.Barefeet.FileSystem;
-using HamsterStudio.Barefeet.Logging;
+﻿using HamsterStudio.Barefeet.FileSystem;
 using HamsterStudio.Barefeet.MVVM;
-using HamsterStudio.Barefeet.SysCall;
+using Microsoft.Extensions.Logging;
 using System.Collections.ObjectModel;
 using System.IO;
 
 namespace HamsterStudio.Gallery.Models;
 
-public class FileManagerViewModel : ViewModel
+public class FileManagerViewModel(ILogger? logger) : ViewModel(logger)
 {
     public ObservableCollection<FileGroupViewModel> FileGroups { get; } = [];
 
@@ -32,10 +30,10 @@ public class FileManagerViewModel : ViewModel
             var group = FileGroups.FirstOrDefault(x => x.GroupName == gfile.Key);
             if (group == null)
             {
-                group = new(gfile.Key);
+                group = new(gfile.Key, logger);
                 FileGroups.Add(group);
             }
-            group.UpdateFiles([.. gfile.Select(x=>x)]);
+            group.UpdateFiles([.. gfile.Select(x => x)]);
         }
     }
 

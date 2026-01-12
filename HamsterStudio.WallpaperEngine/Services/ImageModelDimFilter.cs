@@ -27,7 +27,7 @@ public partial class ImageModelDimFilter : ObservableObject, IImageModelDimFilte
     [ObservableProperty]
     private bool _IsMarkedOnly = false;
 
-    public event EventHandler<PropertyChangedEventArgs> PropertyChanged;
+    public new event EventHandler<PropertyChangedEventArgs> PropertyChanged;
 
     public bool Filter(ImageModelDim item)
     {
@@ -59,7 +59,7 @@ public partial class ImageModelDimFilter : ObservableObject, IImageModelDimFilte
 
     protected override void OnPropertyChanged(PropertyChangedEventArgs e)
     {
-        Logger.Shared.Debug($"Property {e.PropertyName} has Changed.");
+        //_logger.LogDebug($"Property {e.PropertyName} has Changed.");
         PropertyChanged?.Invoke(this, e);
         base.OnPropertyChanged(e);
     }

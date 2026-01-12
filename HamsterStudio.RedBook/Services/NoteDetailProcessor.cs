@@ -1,14 +1,14 @@
 ﻿using HamsterStudio.Barefeet;
 using HamsterStudio.Barefeet.Extensions;
 using HamsterStudio.Barefeet.FileSystem;
-using HamsterStudio.Barefeet.Logging;
 using HamsterStudio.RedBook.Models;
 using HamsterStudio.RedBook.Models.Sub;
 using HamsterStudio.Web.Services;
+using Microsoft.Extensions.Logging;
 
 namespace HamsterStudio.RedBook.Services;
 
-public class NoteDetailProcessor(NoteDetailModel noteDetail, FileMgmt fileMgmt, CommonDownloader downloader, Logger _logger, bool isHot)
+public class NoteDetailProcessor(NoteDetailModel noteDetail, FileMgmt fileMgmt, CommonDownloader downloader, ILogger logger, bool isHot)
 {
     public List<string> ContainedFiles { get; } = [];
 
@@ -29,7 +29,7 @@ public class NoteDetailProcessor(NoteDetailModel noteDetail, FileMgmt fileMgmt, 
                 string token = "comment/" + url.Split('!').First().Split('/').Last();
                 int index = comment.Pictures.IndexOf(pic);
                 var filename = fileMgmt.GenerateCommentImageFilename(comment, title, index, noteDetail.UserInfo, token, isHot, noteId);
-                if(!Directory.Exists(filename.Directory))
+                if (!Directory.Exists(filename.Directory))
                 {
                     Directory.CreateDirectory(filename.Directory);
                 }
@@ -44,14 +44,14 @@ public class NoteDetailProcessor(NoteDetailModel noteDetail, FileMgmt fileMgmt, 
                     if (DownloadStatus.Failed == status)
                     {
                         status = await downloader.EasyDownloadFileAsync(new Uri(url), filename.FullName + ".jpeg");
-                        _logger.Error($"评论图片下载失败：{url}");
+                        logger.LogError($"评论图片下载失败：{url}");
                     }
                 }
 
             }
             catch (Exception ex)
             {
-                _logger.Trace(ex);
+                logger.LogTrace(ex.Message + "\n" + ex.StackTrace);
                 //throw;
             }
         }
@@ -61,7 +61,7 @@ public class NoteDetailProcessor(NoteDetailModel noteDetail, FileMgmt fileMgmt, 
     {
         if (showDestPath)
         {
-            Logger.Shared.Information($"文件将会下载到{fileInfo.Directory}");
+            logger.LogInformation($"文件将会下载到{fileInfo.Directory}");
         }
 
         var filename = fileInfo.Name;
@@ -71,7 +71,7 @@ public class NoteDetailProcessor(NoteDetailModel noteDetail, FileMgmt fileMgmt, 
         string png_full_filename = fileInfo.FullName + ".png";
         if (File.Exists(png_full_filename))
         {
-            _logger.Information($"文件已存在：{png_filename}，跳过下载。");
+            logger.LogInformation($"文件已存在：{png_filename}，跳过下载。");
             ContainedFiles.Add(png_full_filename);
             return DownloadStatus.Exists;
         }
@@ -81,7 +81,7 @@ public class NoteDetailProcessor(NoteDetailModel noteDetail, FileMgmt fileMgmt, 
         string webp_full_filename = fileInfo.FullName + ".webp";
         if (File.Exists(webp_full_filename))
         {
-            _logger.Information($"文件已存在：{webp_filename}，跳过下载。");
+            logger.LogInformation($"文件已存在：{webp_filename}，跳过下载。");
             ContainedFiles.Add(webp_full_filename);
             return DownloadStatus.Exists;
         }
@@ -109,7 +109,7 @@ public class NoteDetailProcessor(NoteDetailModel noteDetail, FileMgmt fileMgmt, 
         }
         catch (Exception ex)
         {
-            _logger.Warning(ex.Message);
+            logger.LogWarning(ex.Message);
             var webpUrl = NoteDetailHelper.GenerateWebpLink(token);
             var status = await downloader.EasyDownloadFileAsync(webpUrl, webp_full_filename);
             if (status != DownloadStatus.Failed)
@@ -133,7 +133,7 @@ public class NoteDetailProcessor(NoteDetailModel noteDetail, FileMgmt fileMgmt, 
         var status = await DownloadImageByToken(token, fileInfo, noteDetail.ImageList.IndexOf(imgInfo) == 0, shape);
         if (status == DownloadStatus.Failed)
         {
-            _logger.Error($"下载失败：{imgInfo.DefaultUrl}【{imgInfo.Width}, {imgInfo.Height}】");
+            logger.LogError($"下载失败：{imgInfo.DefaultUrl}【{imgInfo.Width}, {imgInfo.Height}】");
         }
 
         // 处理LivePhoto
@@ -158,7 +158,7 @@ public class NoteDetailProcessor(NoteDetailModel noteDetail, FileMgmt fileMgmt, 
             return true;
         }
 
-        _logger.Error($"LivePhoto 下载失败：{streamUrl}");
+        logger.LogError($"LivePhoto 下载失败：{streamUrl}");
         return false;
     }
 
@@ -166,6 +166,8 @@ public class NoteDetailProcessor(NoteDetailModel noteDetail, FileMgmt fileMgmt, 
     {
         string videoKey = noteDetail.VideoInfo.Consumer.OriginVideoKey;
         var videoUrl = NoteDetailHelper.GenerateVideoLink(videoKey);
+        logger.LogInformation("视频链接：" + videoUrl);
+
         var videoFile = fileMgmt.GenerateVideoFilename(
             NoteDetailHelper.SelectTitle(noteDetail),
             noteDetail.UserInfo,

@@ -1,15 +1,16 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
-using HamsterStudio.Barefeet.Logging;
+using HamsterStudio.Barefeet.Extensions;
 using HamsterStudio.Barefeet.Services;
 using HamsterStudio.Web.FileSystem;
 using HamsterStudio.Web.Services;
 using HamsterStudio.Web.Utilities;
+using Microsoft.Extensions.Logging;
 using System.ComponentModel;
 using System.IO;
 
 namespace HamsterStudioGUI.ViewModels.SpacialDownloads;
 
-public partial class DirectLinkDownloadViewModel : SpDownloadsViewModel
+public partial class DirectLinkDownloadViewModel(ILogger<DirectLinkDownloadViewModel> logger) : SpDownloadsViewModel(logger)
 {
     [ObservableProperty]
     public string _url = string.Empty;
@@ -30,7 +31,7 @@ public partial class DirectLinkDownloadViewModel : SpDownloadsViewModel
         catch (Exception ex)
         {
             Status = $"下载失败：{ex.Message}";
-            Logger.Shared.Critical(ex);
+            logger?.LogError(ex.ToFullString());
         }
     }
 

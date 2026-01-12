@@ -20,7 +20,7 @@ namespace HamsterStudio.Barefeet.Extensions
             int index = 0;
             foreach (var item in values)
             {
-                if (item.Equals(target))
+                if (item!.Equals(target))
                 {
                     return index;
                 }

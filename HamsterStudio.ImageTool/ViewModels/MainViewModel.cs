@@ -1,5 +1,7 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using HamsterStudio.Barefeet.Models;
+using HamsterStudio.Barefeet.MVVM;
+using Microsoft.Extensions.Logging;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
@@ -9,7 +11,7 @@ using System.Windows.Media;
 
 namespace HamsterStudio.ImageTool.ViewModels
 {
-    partial class MainViewModel : ObservableObject
+    partial class MainViewModel : ViewModel
     {
         [ObservableProperty]
         private bool _topmost;
@@ -50,7 +52,9 @@ namespace HamsterStudio.ImageTool.ViewModels
         [ObservableProperty]
         private int savingCount = 0;
 
-        public MainViewModel()
+        public ILogger Logger => logger!;
+
+        public MainViewModel(ILogger? logger) : base(logger)
         {
             Commands = new(this);
 

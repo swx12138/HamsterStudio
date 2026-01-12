@@ -2,11 +2,7 @@
 using CommunityToolkit.Mvvm.Input;
 using HamsterStudio.Barefeet.MVVM;
 using HamsterStudio.Bilibili.Services;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 using System.Windows.Input;
 
 namespace HamsterStudioGUI.ViewModels.SpacialDownloads;
@@ -23,7 +19,7 @@ public partial class BilibiliSpDownloadsViewModel : KnownViewModel
 
     private Lazy<BangumiDownloadService> BangumiDownloadService { get; }
 
-    public BilibiliSpDownloadsViewModel()
+    public BilibiliSpDownloadsViewModel(ILogger<BilibiliSpDownloadsViewModel> logger) : base(logger)
     {
         BangumiDownloadService = new Lazy<BangumiDownloadService>(() => App.ResloveService<BangumiDownloadService>());
         DownloadCommand = new AsyncRelayCommand(DownloadExecute);

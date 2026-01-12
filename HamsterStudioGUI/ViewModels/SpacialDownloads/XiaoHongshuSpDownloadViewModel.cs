@@ -1,10 +1,7 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using HamsterStudio.Barefeet.Logging;
-using HamsterStudio.Barefeet.MVVM;
 using HamsterStudio.RedBook.Services;
-using HamsterStudio.Web.Services;
-using System.IO;
+using Microsoft.Extensions.Logging;
 using System.Windows.Input;
 
 namespace HamsterStudioGUI.ViewModels.SpacialDownloads;
@@ -21,7 +18,7 @@ public partial class XiaoHongshuSpDownloadViewModel : SpDownloadsViewModel
 
     public ICommand TestCommand { get; }
 
-    public XiaoHongshuSpDownloadViewModel()
+    public XiaoHongshuSpDownloadViewModel(ILogger<XiaoHongshuSpDownloadViewModel> logger) : base(logger)
     {
         _PreTokenCollector.TokenListChanged += _PreTokenCollector_TokenListChanged;
         KnownTokenList = _PreTokenCollector.GetTokens();

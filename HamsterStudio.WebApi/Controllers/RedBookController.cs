@@ -1,18 +1,15 @@
-﻿using HamsterStudio.Barefeet.Logging;
-using HamsterStudio.RedBook.Interfaces;
+﻿using HamsterStudio.RedBook.Interfaces;
 using HamsterStudio.RedBook.Models;
-using HamsterStudio.RedBook.Models.Sub;
 using HamsterStudio.RedBook.Services;
 using HamsterStudio.Web.DataModels;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
-using System.Threading.Tasks;
 
 namespace HamsterStudio.WebApi.Controllers;
 
 [ApiController]
 [Route("/xhs")]
-public class RedBookController(IRedBookParser parser, NoteDownloadService downloadService) : ControllerBase
+public class RedBookController(IRedBookParser parser, NoteDownloadService downloadService, ILogger<RedBookController> logger) : ControllerBase
 {
     [HttpGet("images/list")]
     public ActionResult<string[]> GetDownloadedImageList()
@@ -23,7 +20,7 @@ public class RedBookController(IRedBookParser parser, NoteDownloadService downlo
     [HttpPost("share-link/info")]
     public ActionResult<NoteDataModel> PostShareLink([FromBody] PostBodyModel postBody)
     {
-        Logger.Shared.Information($"RedBookController: PostShareLink: {postBody.Url}");
+        logger.LogInformation($"RedBookController: PostShareLink: {postBody.Url}");
 
         var data = parser.GetNoteData(postBody.Url);
         if (data == null)

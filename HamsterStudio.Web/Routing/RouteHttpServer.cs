@@ -15,6 +15,6 @@ public class RouteHttpServer(int port) : HttpServer("192.168.0.101", port)
 
     protected override void OnError(SocketError error)
     {
-        Logger.Shared.Warning($"HTTP server caught an error: {error}");
+        //Logger.Shared.Warning($"HTTP server caught an error: {error}");
     }
 }

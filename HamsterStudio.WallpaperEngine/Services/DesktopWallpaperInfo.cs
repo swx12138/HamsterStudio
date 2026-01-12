@@ -1,8 +1,8 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using HamsterStudio.Barefeet.Logging;
 using HamsterStudio.Barefeet.SysCall;
 using HamsterStudio.Toolkits.DragDrop;
+using Microsoft.Extensions.Logging;
 using System.ComponentModel;
 using System.IO;
 using System.Windows;
@@ -62,8 +62,11 @@ public partial class DesktopWallpaperInfo : ObservableObject, IDroppable<ImageMo
 
     public bool InitSucceeds { get; } = true;
 
-    public DesktopWallpaperInfo(IDesktopWallpaper desktopWallpaper, uint mIdx)
+    public ILogger? Logger { get; set; }
+
+    public DesktopWallpaperInfo(IDesktopWallpaper desktopWallpaper, uint mIdx, ILogger? logger)
     {
+        Logger = logger;
         try
         {
             _desktopWallpaper = desktopWallpaper;
@@ -94,7 +97,7 @@ public partial class DesktopWallpaperInfo : ObservableObject, IDroppable<ImageMo
         }
         catch (Exception ex)
         {
-            Logger.Shared.Trace(ex.Message + "\n" + ex.StackTrace);
+            logger?.LogTrace(ex.Message + "\n" + ex.StackTrace);
             InitSucceeds = false;
         }
     }

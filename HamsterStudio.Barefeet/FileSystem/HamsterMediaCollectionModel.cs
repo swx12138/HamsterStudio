@@ -1,4 +1,5 @@
 ﻿using HamsterStudio.Barefeet.Logging;
+using Microsoft.Extensions.Logging;
 
 namespace HamsterStudio.Barefeet.FileSystem;
 
@@ -15,7 +16,7 @@ public interface IHamsterMediaCollection
     public void Enumerate(Action<string, MediaRecord> action);
 }
 
-public class HamsterMediaCollectionModel(string storageHome) : IHamsterMediaCollection
+public class HamsterMediaCollectionModel(string storageHome, ILogger logger) : IHamsterMediaCollection
 {
     public Dictionary<string, MediaRecord> MediaCollectionInfo { get; set; } = [];
 
@@ -65,7 +66,7 @@ public class HamsterMediaCollectionModel(string storageHome) : IHamsterMediaColl
                 }
                 else
                 {
-                    Logger.Shared.Warning($"File '{file.FullName}' does not conform to expected naming pattern.");
+                    logger.LogWarning($"File '{file.FullName}' does not conform to expected naming pattern.");
                     continue;
                 }
             }
@@ -80,7 +81,7 @@ public class HamsterMediaCollectionModel(string storageHome) : IHamsterMediaColl
             }
             else
             {
-                Logger.Shared.Warning($"No valid media files found in directory '{dirInfo.FullName}'.");
+                logger.LogWarning($"No valid media files found in directory '{dirInfo.FullName}'.");
             }
         }
 

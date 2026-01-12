@@ -1,4 +1,5 @@
 ﻿using HamsterStudio.Barefeet.Logging;
+using Microsoft.Extensions.Logging;
 using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
@@ -16,14 +17,17 @@ namespace HamsterStudio.Web
 
         #region Singleton
 
-        private static readonly Lazy<FakeBrowser> CommonClient_ = new(() => new FakeBrowser());     // 线程安全的懒加载
+        private static readonly Lazy<FakeBrowser> CommonClient_ = new(() => new FakeBrowser(null));     // 线程安全的懒加载
 
         public static FakeBrowser CommonClient => CommonClient_.Value;
 
         #endregion
 
-        public FakeBrowser(bool includeCredentials = false)
+        private ILogger? _logger;
+
+        public FakeBrowser(ILogger? logger, bool includeCredentials = false)
         {
+            _logger = logger;
             var httpClientHandler = new SocketsHttpHandler()
             {
                 AllowAutoRedirect = true,
@@ -52,7 +56,7 @@ namespace HamsterStudio.Web
 
         private HttpContent HandleResponse(HttpResponseMessage resp)
         {
-            Logger.Shared.Debug($"[StatusCode] {resp.StatusCode}");
+            _logger?.LogDebug($"[StatusCode] {resp.StatusCode}");
             resp.EnsureSuccessStatusCode();
             return resp.Content;
         }
@@ -61,14 +65,14 @@ namespace HamsterStudio.Web
         {
             try
             {
-                Logger.Shared.Debug($"async [{method}] {api}");
+                _logger?.LogDebug($"async [{method}] {api}");
                 httpRequest ??= CreateRequest(method, api);
                 HttpResponseMessage response = await _Client.SendAsync(httpRequest, HttpCompletionOption.ResponseHeadersRead);
                 return HandleResponse(response);
             }
             catch (Exception ex)
             {
-                Logger.Shared.Debug(nameof(HandleResponse), ex);
+                _logger?.LogDebug(nameof(HandleResponse), ex);
                 throw;
             }
         }
@@ -79,7 +83,7 @@ namespace HamsterStudio.Web
             HttpResponseMessage response = await _Client.SendAsync(request);
             return response.Content.Headers;
         }
-        
+
         public async Task<string> GetRedirectedUrlAsync(string url)
         {
             var request = CreateRequest(HttpMethod.Head, url);
@@ -102,7 +106,7 @@ namespace HamsterStudio.Web
 
         public HttpResponseMessage Fetch(HttpMethod method, string api)
         {
-            Logger.Shared.Debug($"[{method}] {api}");
+            _logger?.LogDebug($"[{method}] {api}");
             HttpRequestMessage httpRequest = CreateRequest(method, api);
             HttpResponseMessage response = _Client.SendAsync(httpRequest).Result;
             return response;
@@ -150,6 +154,6 @@ namespace HamsterStudio.Web
             HttpContentHeaders headers = await GetHeadersAsync(url);
             return headers.ContentLength ?? 0;
         }
-    
+
     }
 }

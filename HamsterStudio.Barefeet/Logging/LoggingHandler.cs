@@ -1,6 +1,8 @@
-﻿namespace HamsterStudio.Barefeet.Logging;
+﻿using Microsoft.Extensions.Logging;
 
-public class LoggingHandler(HttpMessageHandler innerHandler, Action<HttpRequestMessage>? action = null) : DelegatingHandler(innerHandler)
+namespace HamsterStudio.Barefeet.Logging;
+
+public class LoggingHandler(HttpMessageHandler innerHandler, Action<HttpRequestMessage>? action = null, ILogger? logger = null) : DelegatingHandler(innerHandler)
 {
     protected override async Task<HttpResponseMessage> SendAsync(
         HttpRequestMessage request,
@@ -18,8 +20,8 @@ public class LoggingHandler(HttpMessageHandler innerHandler, Action<HttpRequestM
     }
 
 
-    private static void HandleRequest(HttpRequestMessage msg)
+    private void HandleRequest(HttpRequestMessage msg)
     {
-        Logger.Shared.Debug(msg.ToString());
+        logger?.LogDebug(msg.ToString());
     }
 }

@@ -1,13 +1,14 @@
-﻿using HamsterStudio.Barefeet.Logging;
+﻿using HamsterStudio.Barefeet.Extensions;
 using HamsterStudio.RedBook.Interfaces;
 using HamsterStudio.RedBook.Models;
 using HamsterStudio.Web;
 using HtmlAgilityPack;
+using Microsoft.Extensions.Logging;
 using System.Text.Json;
 
 namespace HamsterStudio.RedBook.Services.Parsing;
 
-public class RedBookNoteParser(FakeBrowser? browser = null) : IRedBookParser
+public class RedBookNoteParser(ILogger<RedBookNoteParser> logger, FakeBrowser? browser = null) : IRedBookParser
 {
     private readonly FakeBrowser Browser = browser ?? FakeBrowser.CommonClient;
 
@@ -22,7 +23,7 @@ public class RedBookNoteParser(FakeBrowser? browser = null) : IRedBookParser
             var ndata = GetNote(htmlDoc);
             if (ndata == null || ndata.CurrentNoteId == null)
             {
-                Logger.Shared.Error($"Parse note data failed. see lastest.html for detail.");
+                logger.LogError($"Parse note data failed. see lastest.html for detail.");
                 htmlDoc.Save("lastest.html");
                 return null;
             }
@@ -30,7 +31,7 @@ public class RedBookNoteParser(FakeBrowser? browser = null) : IRedBookParser
         }
         catch (Exception ex)
         {
-            Logger.Shared.Critical(ex);
+            logger.LogCritical(ex.ToFullString());
             return null;
         }
     }

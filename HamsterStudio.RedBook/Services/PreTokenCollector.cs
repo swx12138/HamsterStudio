@@ -1,15 +1,17 @@
 ﻿using HamsterStudio.Barefeet.Logging;
+using HamsterStudio.Barefeet.MVVM;
 using HamsterStudio.Barefeet.Services;
+using Microsoft.Extensions.Logging;
 
 namespace HamsterStudio.RedBook.Services;
 
-public class PreTokenCollector
+public class PreTokenCollector : BindableBase
 {
     private HashSet<string> _tokens;
 
     public event EventHandler? TokenListChanged;
 
-    public PreTokenCollector(NoteDownloadService service, DataStorageMgmt dataStorageMgmt)
+    public PreTokenCollector(NoteDownloadService service, DataStorageMgmt dataStorageMgmt, ILogger<PreTokenCollector> logger) : base(logger)
     {
         service.OnImageTokenDetected += Service_OnImageTokenDetected;
         dataStorageMgmt.BeforePersist += (object? sender, EventArgs e) =>
@@ -47,7 +49,7 @@ public class PreTokenCollector
             if (_tokens.Add(token))
             {
 #if DEBUG
-                Logger.Shared.Information($"已添加前缀《{token}》");
+                logger.LogInformation($"已添加前缀《{token}》");
 #endif
                 TokenListChanged?.Invoke(this, new EventArgs());
             }

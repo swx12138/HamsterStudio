@@ -1,10 +1,11 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using HamsterStudio.Barefeet.Algorithm.Random;
-using HamsterStudio.Barefeet.Logging;
+using HamsterStudio.Barefeet.Extensions;
 using HamsterStudio.Barefeet.MVVM;
 using HamsterStudio.Gallery.Models;
 using HamsterStudio.Toolkits.Services;
+using Microsoft.Extensions.Logging;
 using Microsoft.Win32;
 using System.Windows;
 using System.Windows.Controls;
@@ -31,11 +32,11 @@ public partial class GalleryViewModel : KnownViewModel
     public ICommand ClearCommand { get; }
     public ICommand PlayCommand { get; }
 
-    public GalleryViewModel()
+    public GalleryViewModel(ILogger<GalleryViewModel> logger) : base(logger)
     {
     }
 
-    public GalleryViewModel(FileManagerViewModel fileManager, ThemeMgmt themeMgmt)
+    public GalleryViewModel(FileManagerViewModel fileManager, ThemeMgmt themeMgmt, ILogger<GalleryViewModel> logger) : base(logger)
     {
         DisplayName = "图库";
 
@@ -63,14 +64,14 @@ public partial class GalleryViewModel : KnownViewModel
         }
 
         FileManager.ReadFolder(dialog.FolderName);
-        Logger.Shared.Trace($"现在一共有{FileManager.FileGroups.Count}个分组，。");
+        logger?.LogTrace($"现在一共有{FileManager.FileGroups.Count}个分组，。");
     }
 
     private async Task OnPlayCmd()
     {
         if (FileManager.FileCount <= 0)
         {
-            Logger.Shared.Warning("No file to be shown.");
+            logger?.LogWarning("No file to be shown.");
             return;
         }
 
@@ -127,11 +128,11 @@ public partial class GalleryViewModel : KnownViewModel
             }
             catch (Exception ex)
             {
-                Logger.Shared.Critical(ex);
+                logger?.LogCritical(ex.ToFullString());
             }
         }
 
-        Logger.Shared.Information("Play done.");
+        logger?.LogInformation("Play done.");
     }
 
 }

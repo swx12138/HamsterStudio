@@ -1,15 +1,10 @@
-﻿using HamsterStudio.Barefeet.Logging;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Microsoft.Extensions.Logging;
 
 namespace HamsterStudio.Web.Utilities;
 
 public static class RedirectResolver
 {
-    public static async Task<string> GetFinalUrlAsync(string url, HttpClient httpClient)
+    public static async Task<string> GetFinalUrlAsync(string url, HttpClient httpClient, ILogger? logger = null)
     {
         try
         {
@@ -44,8 +39,7 @@ public static class RedirectResolver
         }
         catch (Exception ex)
         {
-            Logger.Shared.Error($"获取重定向地址时出错: {ex.Message}");
-            Logger.Shared.Critical(ex);
+            logger?.LogCritical($"获取重定向地址时出错: {ex.Message}", ex);
             return url;
         }
     }

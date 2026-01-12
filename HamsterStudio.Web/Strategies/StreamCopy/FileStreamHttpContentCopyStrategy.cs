@@ -1,16 +1,17 @@
 ﻿using HamsterStudio.Barefeet.Logging;
 using HamsterStudio.Web.FileSystem;
+using Microsoft.Extensions.Logging;
 
 namespace HamsterStudio.Web.Strategies.StreamCopy;
 
-public class FileStreamHttpContentCopyStrategy(string? tempfile = null, bool deleteFileOnDispose = true) : IHttpContentCopyStrategy
+public class FileStreamHttpContentCopyStrategy(string? tempfile = null, bool deleteFileOnDispose = true, ILogger? logger = null) : IHttpContentCopyStrategy
 {
     private readonly bool _deleteFileOnDispose = deleteFileOnDispose;
 
     public async Task<Stream> CopyToStream(HttpContent content)
     {
         string filePath = tempfile ?? Path.GetTempFileName();
-        Logger.Shared.Trace($"Created {filePath} for temp");
+        logger?.LogTrace($"Created {filePath} for temp");
 
         FileStream fileStream = null;
         bool success = false;

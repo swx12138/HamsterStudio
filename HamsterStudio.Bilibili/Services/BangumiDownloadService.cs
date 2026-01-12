@@ -6,10 +6,12 @@ using HamsterStudio.Bilibili.Services.Restful;
 using HamsterStudio.Bilibili.Services.StreamDownloaders;
 using HamsterStudio.Web.DataModels;
 using HamsterStudio.Web.Services;
+using Microsoft.Extensions.Logging;
 
 namespace HamsterStudio.Bilibili.Services;
 
 public class BangumiDownloadService(
+    ILogger<BangumiDownloadService> logger,
     IBilibiliApiService bilibiliApi,
     BiliApiClient blient,
     FileMgmt fileMgmt,
@@ -22,8 +24,7 @@ public class BangumiDownloadService(
 
     private readonly StreamDownloaderChaeine _downloaderChain =
         new DashDownloader(downloader, fileMgmt, requestStrategyProvider.Strategy,
-            new DurlDownloader(downloader, requestStrategyProvider.Strategy,
-                null));
+            new DurlDownloader(downloader, requestStrategyProvider.Strategy, null, logger), logger);
 
     public async Task DownloadReplies(string bvid)
     {
@@ -34,7 +35,7 @@ public class BangumiDownloadService(
             var resp = await bilibiliApi.GetReplayV2(bvid, page, File.ReadAllText(fileMgmt.CookiesFile));
             if (resp.Code != 0)
             {
-                Logger.Shared.Error("Load page failed.");
+                logger.LogError("Load page failed.");
                 return;
             }
 
@@ -60,7 +61,7 @@ public class BangumiDownloadService(
             }
         }
 
-        Logger.Shared.Information($"{replayCount} replies.");
+        logger.LogInformation($"{replayCount} replies.");
     }
 
     public async Task DownloadRepliesImage(ReplayPictureModel[] pictures, string replyId, string bvid)
@@ -107,15 +108,15 @@ public class BangumiDownloadService(
 
             idx = Math.Max(idx, 0);
             var target = fileMgmt.GetVideoFilename(videoInfo, idx, cid);
-            Logger.Shared.Information($"Output Dir:{target.FullName}");
+            logger.LogInformation($"Output Dir:{target.FullName}");
 
             if (File.Exists(target.FullName))
             {
-                Logger.Shared.Information($"{target.FullName} is already exists.");
+                logger.LogInformation($"{target.FullName} is already exists.");
             }
             else
             {
-                Logger.Shared.Trace($"Downloading {bvid} to {target.FullName}");
+                logger.LogTrace($"Downloading {bvid} to {target.FullName}");
 
                 var page = videoInfo.Pages[idx];
                 AvMeta meta = new()
@@ -146,7 +147,7 @@ public class BangumiDownloadService(
         }
         catch (Exception ex)
         {
-            Logger.Shared.Critical(ex);
+            logger.LogCritical(ex.ToFullString());
             return new ServerRespModel()
             {
                 Message = ex.Message,
@@ -185,7 +186,7 @@ public class BangumiDownloadService(
         }
         catch (Exception ex)
         {
-            Logger.Shared.Debug(ex);
+            logger.LogDebug(ex.ToFullString());
             return null;
         }
     }

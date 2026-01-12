@@ -11,7 +11,7 @@ namespace HamsterStudio.Web.Routing
 
         public async Task<HttpResponse> Response(HttpRequest request)
         {
-            Logger.Shared.Trace($"Received {request.Url}({request.Method})");
+            //Logger.Shared.Trace($"Received {request.Url}({request.Method})");
             foreach (var route in Routes)
             {
                 if (route.IsMyCake(request.Url))
