@@ -1,16 +1,14 @@
-﻿using HamsterStudio.Barefeet.FileSystem;
-using HamsterStudio.Barefeet.Logging;
+﻿using HamsterStudio.Barefeet.Services;
 using HamsterStudio.Barefeet.SysCall;
 using HamsterStudio.RedBook.Models;
 using HamsterStudio.RedBook.Models.Sub;
 using HamsterStudio.Web.DataModels;
 using HamsterStudio.Web.Services;
 using Microsoft.Extensions.Logging;
-using System.Threading.Tasks;
 
 namespace HamsterStudio.RedBook.Services;
 
-public class NoteDownloadService(FileMgmt fileMgmt, CommonDownloader downloader, Lazy<PreTokenCollector> tokenCollector, ILogger<NoteDownloadService> logger)
+public class NoteDownloadService(FileMgmt fileMgmt, DirectoryMgmt directoryMgmt, CommonDownloader downloader, Lazy<PreTokenCollector> tokenCollector, ILogger<NoteDownloadService> logger)
 {
     public event Action<NoteDetailModel> OnNoteDetailUpdated = delegate { };
 
@@ -142,7 +140,10 @@ public class NoteDownloadService(FileMgmt fileMgmt, CommonDownloader downloader,
                 Title = noteDetail.Title,
                 Description = noteDetail.Description,
                 AuthorNickName = noteDetail.UserInfo.Nickname,
-                StaticFiles = [.. files.Select(f => Path.GetRelativePath(fileMgmt.StorageHome, f)).OrderBy(f => f, comparer)]
+                StaticFiles = [.. files
+                    .Select(f => Path.GetRelativePath(directoryMgmt.StorageHome, f))
+                    .Select(f=> f.Replace('\\','/'))
+                    .OrderBy(f => f, comparer)]
             }
         };
     }

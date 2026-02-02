@@ -1,12 +1,12 @@
-﻿using HamsterStudio.Barefeet.Logging;
-using HamsterStudio.WebApi;
+﻿using HamsterStudio.WebApi;
+using HamsterStudioGUI.Debug;
 using HamsterStudioGUI.Extensions;
-using HamsterStudioGUI.Models;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using System.IO;
 using System.Security.Cryptography.X509Certificates;
 using System.Windows;
@@ -65,8 +65,12 @@ public partial class App : Application
 
         WebApiService = builder.Build();
         WebApiService.ConfigureWebApi()
-            .ConfigureStaticFiles(new StaticFilePathParam() { PhyPath = @"E:\HamsterStudioHome\_XHS_", ReqPath = "/static/xhs" })
+            .ConfigureStaticFiles()
             .ConfigureImageMetaInfoReadService();
+
+#if DEBUG
+        WebApiService.UseMiddleware<RouteDebugMiddleware>();
+#endif
 
         //var logger = WebApiService.Services.GetRequiredService<ILogger<App>>();
         //logger.LogInformation($"Web API Service listening on ports {HttpPortNumber} (HTTP) and {HttpsPortNumber} (HTTPS)");

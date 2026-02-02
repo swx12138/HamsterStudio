@@ -72,7 +72,7 @@ class WeiboProcess(IWeiboClient client, ProcessChain? next) : ProcessChain(next)
     {
         if (link.Contains("weibo.com"))
         {
-            return await client.PostDownloadData(new(link));
+            return await client.PostDownloadData(new(link, link.Split('?').First()));
         }
         return await base.Process(link);
     }

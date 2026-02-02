@@ -29,12 +29,53 @@ internal static class ConfigureWebApiExtensions
 
     }
 
+    private static string GetContentType(string path)
+    {
+        var extension = Path.GetExtension(path).ToLower();
+        return extension switch
+        {
+            ".txt" => "text/plain",
+            ".html" or ".htm" => "text/html",
+            ".css" => "text/css",
+            ".js" => "application/javascript",
+            ".json" => "application/json",
+            ".png" => "image/png",
+            ".jpg" or ".jpeg" => "image/jpeg",
+            ".gif" => "image/gif",
+            ".pdf" => "application/pdf",
+            ".zip" => "application/zip",
+            _ => "application/octet-stream"
+        };
+    }
+
     public static WebApplication ConfigureStaticFiles(this WebApplication app, params StaticFilePathParam[] static_file_paths)
     {
         app.Logger.LogInformation("Configuring Static Files...");
         var directoryMgmt = app.Services.GetService<DirectoryMgmt>() ?? throw new NotSupportedException();
-        app.AddStaticFiles(new StaticFilePathParam() { PhyPath = directoryMgmt.StorageHome, ReqPath = "static" });
 
+#if true
+        app.Map("/static/{**path}", async context =>
+        {
+            var path = context.Request.Path.Value?.Substring("/static/".Length) ?? "";
+            var filePath = Path.Combine(directoryMgmt.StorageHome, path);
+
+            if (File.Exists(filePath))
+            {
+                var fileInfo = new FileInfo(filePath);
+                var contentType = GetContentType(filePath);
+                context.Response.ContentType = contentType;
+                context.Response.ContentLength = fileInfo.Length;
+
+                await using var fileStream = File.OpenRead(filePath);
+                await fileStream.CopyToAsync(context.Response.Body);
+            }
+            else
+            {
+                context.Response.StatusCode = 404;
+            }
+        });
+#else
+        app.AddStaticFiles(new StaticFilePathParam() { PhyPath = directoryMgmt.StorageHome, ReqPath = "static" });
         foreach (var static_file_path in static_file_paths)
         {
             if (!Directory.Exists(static_file_path.PhyPath))
@@ -44,6 +85,7 @@ internal static class ConfigureWebApiExtensions
             }
             app.AddStaticFiles(static_file_path);
         }
+#endif
 
         return app;
     }

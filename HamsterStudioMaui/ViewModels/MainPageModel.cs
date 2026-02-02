@@ -73,7 +73,7 @@ partial class MainPageModel : ObservableObject
         }
         catch (Exception ex)
         {
-            Log = ex.Message + "\n" + ex.StackTrace;
+            Log += "\n" + ex.Message + "\n" + ex.StackTrace;
         }
         finally
         {
