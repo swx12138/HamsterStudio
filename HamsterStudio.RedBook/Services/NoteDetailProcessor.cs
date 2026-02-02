@@ -1,9 +1,11 @@
 ﻿using HamsterStudio.Barefeet;
+using HamsterStudio.Barefeet.Constants;
 using HamsterStudio.Barefeet.Extensions;
 using HamsterStudio.Barefeet.FileSystem;
 using HamsterStudio.RedBook.Models;
 using HamsterStudio.RedBook.Models.Sub;
 using HamsterStudio.Web.Services;
+using HamsterStudio.Web.Strategies.Request;
 using Microsoft.Extensions.Logging;
 
 namespace HamsterStudio.RedBook.Services;
@@ -162,20 +164,89 @@ public class NoteDetailProcessor(NoteDetailModel noteDetail, FileMgmt fileMgmt, 
         return false;
     }
 
+    private Lazy<AuthenticRequestStrategy> RequestStrategy = new(() =>
+    {
+        var handler = new HttpClientHandler();
+        HttpClient client = new(handler);
+        client.DefaultRequestHeaders.UserAgent.Clear();
+        client.DefaultRequestHeaders.UserAgent.ParseAdd(BrowserConsts.EdgeUserAgent);
+        client.DefaultRequestHeaders.Referrer = new Uri("https://www.xiaohongshu.com/");
+        return new AuthenticRequestStrategy(client);
+    });
+
+    public Uri SelectVideoUrl(VideoInfoModel info)
+    {
+        string videoKey = info.Consumer.OriginVideoKey;
+        if (!videoKey.IsNullOrEmpty())
+        {
+            return NoteDetailHelper.GenerateVideoLink(videoKey);
+        }
+        logger.LogWarning($"Not a valid key, key = \"{videoKey}\"");
+
+
+        string result = string.Empty;
+        if (GetUrlFromStream(info.Media.Stream.H266List, out result))
+        {
+            return new Uri(result);
+        }
+        if (GetUrlFromStream(info.Media.Stream.H265List, out result))
+        {
+            return new Uri(result);
+        }
+        if (GetUrlFromStream(info.Media.Stream.Av1List, out result))
+        {
+            return new Uri(result);
+        }
+        if (GetUrlFromStream(info.Media.Stream.H264List, out result))
+        {
+            return new Uri(result);
+        }
+        throw new ArgumentException("No valid video url found");
+
+        static bool SelectUrlWithBackup(MediaStreamListItemModel item, out string url)
+        {
+            url = string.Empty;
+            if (!item.MasterUrl.IsNullOrEmpty())
+            {
+                url = item.MasterUrl;
+                return true;
+            }
+            if (item.BackupUrls != null && item.BackupUrls.Length > 0)
+            {
+                url = item.BackupUrls.Where(x => !x.IsNullOrEmpty()).First();
+                return true;
+            }
+            return false;
+        }
+
+        static bool GetUrlFromStream(MediaStreamListItemModel[] items, out string url)
+        {
+            url = string.Empty;
+            foreach (var item in items.OrderBy(x => x.VideoBitrate))
+            {
+                if (SelectUrlWithBackup(item, out url))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+    }
+
     public async Task ProcessVideoDownload()
     {
-        string videoKey = noteDetail.VideoInfo.Consumer.OriginVideoKey;
-        var videoUrl = NoteDetailHelper.GenerateVideoLink(videoKey);
+        var videoUrl = SelectVideoUrl(noteDetail.VideoInfo);
         logger.LogInformation("视频链接：" + videoUrl);
 
         var videoFile = fileMgmt.GenerateVideoFilename(
             NoteDetailHelper.SelectTitle(noteDetail),
             noteDetail.UserInfo,
-            videoKey.Split('/').Last(), isHot
+            videoUrl.AbsolutePath.Split('?')[0].Split('/').Last(), isHot
         );
 
         string fullVideoPath = videoFile.FullName;
-        var status = await downloader.EasyDownloadFileAsync(videoUrl, fullVideoPath, FileSizeDescriptor.FileSize_32M, true);
+        var status = await downloader.AuthenticatedDownloadFileAsync(videoUrl, fullVideoPath, RequestStrategy.Value, FileSizeDescriptor.FileSize_32M, true);
         if (status != DownloadStatus.Failed)
         {
             ContainedFiles.Add(videoFile.FullName);

@@ -98,7 +98,11 @@ public class FileMgmt : AbstractDirectoryMgmt
     public HamstertFileInfo GenerateVideoFilename(string tiltle, UserInfoModel userInfo, string token, bool isHot)
     {
         // TBD:自动判断类型
-        string baseName = FileNameUtil.SanitizeFileName($"{tiltle}_xhs_{userInfo.Nickname}_{token}.mp4");
+        string baseName = FileNameUtil.SanitizeFileName($"{tiltle}_xhs_{userInfo.Nickname}_{token}");
+        if (!baseName.EndsWith(".mp4"))
+        {
+            baseName += ".mp4";
+        }
         return GenerateFilename(userInfo.Nickname, baseName, isHot);
     }
 

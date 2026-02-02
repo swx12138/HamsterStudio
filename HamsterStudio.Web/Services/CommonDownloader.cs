@@ -22,13 +22,13 @@ public class CommonDownloader(HttpClientProvider httpClientProvider, ILogger<Com
     public async Task<DownloadStatus> DownloadFileAsync(
         Uri uri,
         string destinationPath,
-        IRequestStrategy requestStrategy,
-        IHttpContentCopyStrategy contentCopyStrategy,
+        IRequestStrategy? requestStrategy,
+        IHttpContentCopyStrategy? contentCopyStrategy,
         IDownloadStrategy downloadStrategy,
         MediaShape? shape = null)
     {
-        ArgumentNullException.ThrowIfNull(requestStrategy);
-        ArgumentNullException.ThrowIfNull(contentCopyStrategy);
+        //ArgumentNullException.ThrowIfNull(requestStrategy);
+        //ArgumentNullException.ThrowIfNull(contentCopyStrategy);
         ArgumentNullException.ThrowIfNull(downloadStrategy);
 
         ArgumentException.ThrowIfNullOrEmpty(destinationPath, nameof(destinationPath));
@@ -42,6 +42,7 @@ public class CommonDownloader(HttpClientProvider httpClientProvider, ILogger<Com
         var stopwatch = Stopwatch.StartNew();
         try
         {
+            contentCopyStrategy ??= new FileStreamHttpContentCopyStrategy();
             var result = await downloadStrategy.DownloadAsync(uri, requestStrategy, contentCopyStrategy);
             if (result.StatusCode != HttpStatusCode.OK)
             {
@@ -109,10 +110,14 @@ public class CommonDownloader(HttpClientProvider httpClientProvider, ILogger<Com
 
     public async Task<DownloadStatus> EasyDownloadFileAsync(Uri uri, string destinationPath, int trunckSize = 0, bool concurrent = false, MediaShape? shape = null)
     {
-        var requestStrategy = new AuthenticRequestStrategy(httpClientProvider.HttpClient);
-        var copyStrategy = new FileStreamHttpContentCopyStrategy();
         var downloadStrategy = DownloadStrategyFactory.CreateStrategy(trunckSize, concurrent ? Environment.ProcessorCount : 1);
-        return await DownloadFileAsync(uri, destinationPath, requestStrategy, copyStrategy, downloadStrategy, shape);
+        return await DownloadFileAsync(uri, destinationPath, null, null, downloadStrategy, shape);
+    }
+
+    public async Task<DownloadStatus> AuthenticatedDownloadFileAsync(Uri uri, string destinationPath, AuthenticRequestStrategy strategy, int trunckSize = 0, bool concurrent = false, MediaShape? shape = null)
+    {
+        var downloadStrategy = DownloadStrategyFactory.CreateStrategy(trunckSize, concurrent ? Environment.ProcessorCount : 1);
+        return await DownloadFileAsync(uri, destinationPath, strategy, null, downloadStrategy, shape);
     }
 
 }
