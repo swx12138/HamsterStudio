@@ -5,6 +5,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:gv="clr-namespace:HamsterStudio.Gallery.Views;assembly=HamsterStudio.Gallery"
         xmlns:hc="https://handyorg.github.io/handycontrol"
+        xmlns:hstc="clr-namespace:HamsterStudio.Toolkits.Converters;assembly=HamsterStudio.Toolkits"
         xmlns:local="clr-namespace:HamsterStudioGUI"
         xmlns:localv="clr-namespace:HamsterStudioGUI.Views"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -67,6 +68,9 @@
                         BorderBrush="{Binding ThemeMgmt.BodyBorderColor}"
                         BorderThickness="1"
                         CornerRadius="5">
+                    <Border.Resources>
+                        <hstc:DateTimeStringyConverter x:Key="hstcDateTimeStringyConverter" />
+                    </Border.Resources>
                     <DataGrid xmlns:i="https://handyorg.github.io/handycontrol"
                               xmlns:localbh="clr-namespace:HamsterStudioGUI.Behaviors"
                               AutoGenerateColumns="False"
@@ -75,12 +79,12 @@
                               BorderThickness="0"
                               GridLinesVisibility="All"
                               IsReadOnly="True"
-                              ItemsSource="{Binding NlogTarget.LogEntries}">
+                              ItemsSource="{Binding LogViewModel.LogsView}">
                         <i:Interaction.Behaviors>
                             <localbh:AutoScrollBehavior />
                         </i:Interaction.Behaviors>
                         <DataGrid.Columns>
-                            <DataGridTextColumn Binding="{Binding TimeStamp}" Header="TimeStamp" />
+                            <DataGridTextColumn Binding="{Binding Timestamp, Converter={StaticResource hstcDateTimeStringyConverter}}" Header="TimeStamp" />
                             <DataGridTextColumn Binding="{Binding Level}" Header="Level" />
                             <DataGridTextColumn Width="*" Binding="{Binding Message}" Header="Message" />
                         </DataGrid.Columns>

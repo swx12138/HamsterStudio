@@ -1,5 +1,4 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
-using HamsterStudio.Barefeet.Logging;
 using HamsterStudio.Barefeet.Services;
 using HamsterStudio.Gallery.Services;
 using HamsterStudio.Gallery.ViewModels;
@@ -8,6 +7,10 @@ using HamsterStudio.Toolkits.Services;
 using HamsterStudio.WallpaperEngine.ViewModels;
 using HamsterStudioGUI.ViewModels;
 using Microsoft.Extensions.Logging;
+using Microsoft.Win32;
+using System.Collections.ObjectModel;
+using System.Windows;
+using System.Windows.Data;
 
 namespace HamsterStudioGUI;
 
@@ -24,7 +27,9 @@ partial class MainWindowModel : ObservableObject, IDisposable
 
     public string UserName => Environment.UserName;
 
-    public ObservableCollectionTarget NlogTarget { get; } = new("App");
+    //public ObservableCollectionTarget NlogTarget { get; } = new("App");
+    [ObservableProperty]
+    private LogViewModel _logViewModel;
 
     public MainViewModel MainViewModel { get; } = new();
     public WallpaperEngineViewModel  WallpaperEngineViewModel { get; } 
@@ -38,6 +43,8 @@ partial class MainWindowModel : ObservableObject, IDisposable
     {
         //Logger.Shared.AddTarget(NlogTarget, NLog.LogLevel.Info, NLog.LogLevel.Fatal);
 
+        LogViewModel = App.ResloveService<LogViewModel>();
+
         ThemeMgmt = App.ResloveService<ThemeMgmt>();
         var loggerFactory = App.ResloveService<ILoggerFactory>();
 
@@ -47,6 +54,31 @@ partial class MainWindowModel : ObservableObject, IDisposable
             App.ResloveService<ImageMetaInfoReadService>(),
             ThemeMgmt,
             loggerFactory.CreateLogger<WallpaperEngineViewModel>());
+
+        LogViewModel.ClearLogs();
+        App.WebApiService.Logger.LogInformation("Ready.");
+    }
+
+    private void ClearLogs_Click(object sender, RoutedEventArgs e)
+    {
+        LogViewModel.ClearLogs();
+    }
+
+    private void ExportLogs_Click(object sender, RoutedEventArgs e)
+    {
+        var dialog = new SaveFileDialog
+        {
+            Filter = "日志文件|*.log|所有文件|*.*",
+            DefaultExt = ".log",
+            FileName = $"logs_{DateTime.Now:yyyyMMdd_HHmmss}.log"
+        };
+
+        if (dialog.ShowDialog() == true)
+        {
+            LogViewModel.ExportToFile(dialog.FileName);
+            MessageBox.Show($"日志已导出到: {dialog.FileName}", "成功",
+                MessageBoxButton.OK, MessageBoxImage.Information);
+        }
     }
 
     public void Dispose()
