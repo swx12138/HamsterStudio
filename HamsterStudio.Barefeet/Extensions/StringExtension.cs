@@ -13,6 +13,11 @@ namespace HamsterStudio.Barefeet.Extensions
             return s == null || s.Length == 0;
         }
 
+        public static string ValueOr(this string s, string @default)
+        {
+            return s.IsNullOrEmpty() ? @default : s;
+        }
+
         public static int IndexOf<T>(this IEnumerable<T> values,  T target)
         {
             if (values == null) throw new ArgumentNullException(nameof(values));

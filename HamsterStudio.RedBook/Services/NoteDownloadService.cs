@@ -153,12 +153,4 @@ public class NoteDownloadService(FileMgmt fileMgmt, DirectoryMgmt directoryMgmt,
         throw new NotImplementedException();
     }
 
-    private class NaturalStringComparer : IComparer<string>
-    {
-        public int Compare(string x, string y)
-        {
-            return ShellApi.StrCmpLogicalW(x, y);
-        }
-    }
-
 }
