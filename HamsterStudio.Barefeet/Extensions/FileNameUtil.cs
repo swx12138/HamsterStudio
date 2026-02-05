@@ -55,6 +55,18 @@ public static class FileNameUtil
         return sanitized;
     }
 
+    public static string SanitizeFileNameOr(string input, string @default, bool truncate = true)
+    {
+        try
+        {
+            return SanitizeFileName(input, truncate);
+        }
+        catch
+        {
+            return @default;
+        }
+    }
+
     public static string Filename(this string str)
     {
         string[] part = str.Split("?");

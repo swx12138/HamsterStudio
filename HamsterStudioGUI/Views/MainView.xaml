@@ -45,6 +45,7 @@
                 <Image.ContextMenu>
                     <ContextMenu>
                         <MenuItem Command="{Binding SaveCoverCommand}" Header="保存封面" />
+                        <MenuItem Command="{Binding OpenFolderCommand}" Header="打开文件夹" />
                     </ContextMenu>
                 </Image.ContextMenu>
             </Image>

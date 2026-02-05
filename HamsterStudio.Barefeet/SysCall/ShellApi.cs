@@ -9,6 +9,36 @@ public static class ShellApi
     [DllImport("Shlwapi.dll", CharSet = CharSet.Unicode)]
     public static extern int StrCmpLogicalW(string psz1, string psz2);
 
+    public static void OpenFolder(string folderPath)
+    {
+        if (string.IsNullOrWhiteSpace(folderPath))
+        {
+            throw new ArgumentException("文件夹路径不能为空。");
+        }
+
+        // 检查路径是否存在（如果指向的文件夹可能不存在，可以注释掉此检查）
+        if (!Directory.Exists(folderPath))
+        {
+            throw new DirectoryNotFoundException($"找不到路径：{folderPath}");
+        }
+
+        try
+        {
+            var startInfo = new ProcessStartInfo
+            {
+                FileName = "explorer.exe",
+                Arguments = folderPath, // 可以在这里附加参数，如 "/e, \"{folderPath}\""
+                UseShellExecute = true // 通常保持为true，以通过系统Shell启动
+            };
+            Process.Start(startInfo);
+        }
+        catch (Exception ex) // 捕获如Win32Exception等异常
+        {
+            // 根据你的应用程序类型处理异常，例如记录日志或抛出
+            throw new InvalidOperationException($"无法打开资源管理器：{ex.Message}", ex);
+        }
+    }
+
     public static void SelectFile(string filePath)
     {
         if (string.IsNullOrEmpty(filePath))

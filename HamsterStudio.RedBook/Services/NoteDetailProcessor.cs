@@ -14,7 +14,7 @@ public class NoteDetailProcessor(NoteDetailModel noteDetail, FileMgmt fileMgmt, 
 {
     public List<string> ContainedFiles { get; } = [];
 
-    public async Task ProcessComment(CommentDataModel comment, string noteTitle, bool authorOnly, string noteId)
+    public async Task ProcessComment(CommentDataModel comment, string noteTitle, bool authorOnly, string noteId, DirectoryInfo home)
     {
         bool isAuthor = comment.ShowTags.Any(x => x == "is_author");
         if (authorOnly && !isAuthor)
@@ -30,7 +30,7 @@ public class NoteDetailProcessor(NoteDetailModel noteDetail, FileMgmt fileMgmt, 
                 string url = pic.UrlDefault;
                 string token = "comment/" + url.Split('!').First().Split('/').Last();
                 int index = comment.Pictures.IndexOf(pic);
-                var filename = fileMgmt.GenerateCommentImageFilename(comment, title, index, noteDetail.UserInfo, token, isHot, noteId);
+                var filename = fileMgmt.GenerateCommentImageFilename(comment, title, index, noteDetail.UserInfo, token, noteId, home);
                 if (!Directory.Exists(filename.Directory))
                 {
                     Directory.CreateDirectory(filename.Directory);
@@ -122,7 +122,7 @@ public class NoteDetailProcessor(NoteDetailModel noteDetail, FileMgmt fileMgmt, 
         }
     }
 
-    public async Task ProcessImage(ImageListItemModel imgInfo, string title, Action<string>? handleToken)
+    public async Task ProcessImage(ImageListItemModel imgInfo, string title, Action<string>? handleToken, DirectoryInfo home)
     {
         int index = noteDetail.ImageList.IndexOf(imgInfo) + 1;
 
@@ -130,7 +130,7 @@ public class NoteDetailProcessor(NoteDetailModel noteDetail, FileMgmt fileMgmt, 
         string token = NoteDetailHelper.ExtractToken(imgInfo.DefaultUrl);
         handleToken?.Invoke(token);
 
-        var fileInfo = fileMgmt.GenerateImageFilename(title, index, noteDetail.UserInfo, token, isHot);
+        var fileInfo = fileMgmt.GenerateImageFilename(title, index, noteDetail.UserInfo, token, home);
         var shape = new MediaShape(imgInfo.Width, imgInfo.Height);
         var status = await DownloadImageByToken(token, fileInfo, noteDetail.ImageList.IndexOf(imgInfo) == 0, shape);
         if (status == DownloadStatus.Failed)
@@ -141,16 +141,16 @@ public class NoteDetailProcessor(NoteDetailModel noteDetail, FileMgmt fileMgmt, 
         // 处理LivePhoto
         if (imgInfo.LivePhoto)
         {
-            await ProcessLivePhoto(title, index, noteDetail.UserInfo, imgInfo);
+            await ProcessLivePhoto(title, index, noteDetail.UserInfo, imgInfo, home);
         }
 
     }
 
-    private async Task<bool> ProcessLivePhoto(string title, int index, UserInfoModel user, ImageListItemModel imgInfo)
+    private async Task<bool> ProcessLivePhoto(string title, int index, UserInfoModel user, ImageListItemModel imgInfo, DirectoryInfo home)
     {
         var streamInfo = NoteDetailHelper.SelectStream(imgInfo.Stream);
         var streamUrl = streamInfo.MasterUrl;
-        var streamFile = fileMgmt.GenerateLivePhotoFilename(title, index, user, streamUrl, isHot);
+        var streamFile = fileMgmt.GenerateLivePhotoFilename(title, index, user, streamUrl, home);
 
         var streamFullPath = streamFile.FullName;
         var status = await downloader.EasyDownloadFileAsync(new Uri(streamUrl), streamFullPath);
@@ -234,7 +234,7 @@ public class NoteDetailProcessor(NoteDetailModel noteDetail, FileMgmt fileMgmt, 
 
     }
 
-    public async Task ProcessVideoDownload()
+    public async Task ProcessVideoDownload(DirectoryInfo home)
     {
         var videoUrl = SelectVideoUrl(noteDetail.VideoInfo);
         logger.LogInformation("视频链接：" + videoUrl);
@@ -242,7 +242,8 @@ public class NoteDetailProcessor(NoteDetailModel noteDetail, FileMgmt fileMgmt, 
         var videoFile = fileMgmt.GenerateVideoFilename(
             NoteDetailHelper.SelectTitle(noteDetail),
             noteDetail.UserInfo,
-            videoUrl.AbsolutePath.Split('?')[0].Split('/').Last(), isHot
+            videoUrl.AbsolutePath.Split('?')[0].Split('/').Last(), 
+            home
         );
 
         string fullVideoPath = videoFile.FullName;

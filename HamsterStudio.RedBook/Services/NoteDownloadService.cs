@@ -1,4 +1,5 @@
-﻿using HamsterStudio.Barefeet.Services;
+﻿using HamsterStudio.Barefeet.Extensions;
+using HamsterStudio.Barefeet.Services;
 using HamsterStudio.Barefeet.SysCall;
 using HamsterStudio.RedBook.Models;
 using HamsterStudio.RedBook.Models.Sub;
@@ -10,7 +11,7 @@ namespace HamsterStudio.RedBook.Services;
 
 public class NoteDownloadService(FileMgmt fileMgmt, DirectoryMgmt directoryMgmt, CommonDownloader downloader, Lazy<PreTokenCollector> tokenCollector, ILogger<NoteDownloadService> logger)
 {
-    public event Action<NoteDetailModel> OnNoteDetailUpdated = delegate { };
+    public event Action<(NoteDetailModel, DirectoryInfo)> OnNoteDetailUpdated = delegate { };
 
     public event Action<string> OnImageTokenDetected = delegate { };
 
@@ -25,7 +26,7 @@ public class NoteDownloadService(FileMgmt fileMgmt, DirectoryMgmt directoryMgmt,
             new());
     }
 
-    public bool IsHot(NoteDetailModel noteDetail, CommentsDataModel comments, bool downloadComments)
+    public bool IsHot(NoteDetailModel noteDetail, CommentsDataModel comments, bool downloadComments, out DirectoryInfo saveDirectory)
     {
         int imgCount = noteDetail.ImageList.Sum(x => x.LivePhoto ? 2 : 1) + (noteDetail.Type == "video" ? 1 : 0);
         bool isVeryHot = false;
@@ -42,7 +43,12 @@ public class NoteDownloadService(FileMgmt fileMgmt, DirectoryMgmt directoryMgmt,
 
         if (isHot)
         {
-            fileMgmt.DoGroup(noteDetail.UserInfo.Nickname);
+            string subfolder = FileNameUtil.SanitizeFileNameOr(noteDetail.UserInfo.Nickname, noteDetail.UserInfo.UserId);
+            fileMgmt.DoGroup(subfolder, out saveDirectory);
+        }
+        else
+        {
+            saveDirectory = new DirectoryInfo(fileMgmt.StorageHome);
         }
 
         return isHot;
@@ -50,11 +56,10 @@ public class NoteDownloadService(FileMgmt fileMgmt, DirectoryMgmt directoryMgmt,
 
     public async Task<ServerRespModel> DownloadNoteLowAsync(NoteDetailModel noteDetail, string noteId, NoteDataOptionsModel options, CommentsDataModel comments)
     {
-        OnNoteDetailUpdated?.Invoke(noteDetail);
-
         bool downloadComments = options.WithComments || options.AuthorCommentsOnly;
-        bool isHot = IsHot(noteDetail, comments, downloadComments);
+        bool isHot = IsHot(noteDetail, comments, downloadComments, out DirectoryInfo home);
 
+        OnNoteDetailUpdated?.Invoke((noteDetail, home));
         logger.LogInformation($"标题：{noteDetail.Title}【{noteDetail.ImageList.Count}】");
 
         var processor = new NoteDetailProcessor(noteDetail, fileMgmt, downloader, logger, isHot);
@@ -62,11 +67,11 @@ public class NoteDownloadService(FileMgmt fileMgmt, DirectoryMgmt directoryMgmt,
         await Parallel.ForEachAsync(
             noteDetail.ImageList,
             new ParallelOptions { MaxDegreeOfParallelism = Environment.ProcessorCount / 2 },
-            async (x, ct) => await processor.ProcessImage(x, title, OnImageTokenDetected));
+            async (x, ct) => await processor.ProcessImage(x, title, OnImageTokenDetected, home));
 
         if (noteDetail.Type == "video")
         {
-            await processor.ProcessVideoDownload();
+            await processor.ProcessVideoDownload(home);
         }
 
         // 下载评论区图片
@@ -74,9 +79,9 @@ public class NoteDownloadService(FileMgmt fileMgmt, DirectoryMgmt directoryMgmt,
         {
             foreach (var comment in comments.Comments)
             {
-                await processor.ProcessComment(comment, title, options.AuthorCommentsOnly, noteId);
+                await processor.ProcessComment(comment, title, options.AuthorCommentsOnly, noteId, home);
                 _ = comment.SubComments
-                    .Select(async x => await processor.ProcessComment(x, title, options.AuthorCommentsOnly, noteId))
+                    .Select(async x => await processor.ProcessComment(x, title, options.AuthorCommentsOnly, noteId, home))
                     .ToArray();
             }
         }
@@ -93,7 +98,7 @@ public class NoteDownloadService(FileMgmt fileMgmt, DirectoryMgmt directoryMgmt,
         var downloadedFiles = new List<string>();
         foreach (var token in tokens)
         {
-            var fileInfo = fileMgmt.GenerateImageFilenameLow("banned", 998, "-SpDownload", token, true);
+            var fileInfo = fileMgmt.GenerateImageFilenameLow("banned", 998, "-SpDownload", token, new DirectoryInfo(fileMgmt.StorageHome));
             if (!Directory.Exists(fileInfo.Directory))
             {
                 Directory.CreateDirectory(fileInfo.Directory);

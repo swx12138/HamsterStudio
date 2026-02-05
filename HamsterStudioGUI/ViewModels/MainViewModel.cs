@@ -1,10 +1,12 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using HamsterStudio.Barefeet.SysCall;
 using HamsterStudio.Bilibili.Services;
 using HamsterStudio.RedBook.Services;
 using HamsterStudio.SinaWeibo.Services;
 using HamsterStudioGUI.Constants;
 using HamsterStudioGUI.Models;
+using Microsoft.Extensions.Logging;
 using System.Windows;
 using System.Windows.Input;
 
@@ -27,8 +29,13 @@ namespace HamsterStudioGUI.ViewModels
         [ObservableProperty]
         private PostSummaryModel _postSummary = new();
 
-        public ICommand SaveCoverCommand { get; }
+        [ObservableProperty]
+        private string _lastSavedFileFolder = string.Empty;
 
+        private Lazy<ILogger> logger = new Lazy<ILogger>(() => App.ResloveService<ILogger<MainViewModel>>() ?? throw new NotSupportedException());
+
+        public ICommand SaveCoverCommand { get; }
+        public ICommand OpenFolderCommand { get; }
 
         private BangumiDownloadService downloadService = App.ResloveService<BangumiDownloadService>() ?? throw new NotSupportedException();
         private NoteDownloadService redBookDownloadService = App.ResloveService<NoteDownloadService>() ?? throw new NotSupportedException();
@@ -37,6 +44,17 @@ namespace HamsterStudioGUI.ViewModels
         public MainViewModel()
         {
             SaveCoverCommand = new AsyncRelayCommand(async () => await downloadService.SaveFile(Title, CoverUrl));
+            OpenFolderCommand = new RelayCommand(() =>
+            {
+                try
+                {
+                    ShellApi.OpenFolder(LastSavedFileFolder);
+                }
+                catch (Exception ex)
+                {
+                    logger.Value.LogWarning(ex.Message);
+                }
+            });
 
             downloadService.OnVideoInfoUpdated += async (videoInfo) => await Application.Current.Dispatcher.InvokeAsync(() =>
             {
@@ -55,8 +73,10 @@ namespace HamsterStudioGUI.ViewModels
                     Like = videoInfo.Stat.Like.ToString()
                 };
             });
-            redBookDownloadService.OnNoteDetailUpdated += async (noteDetail) => await Application.Current.Dispatcher.InvokeAsync(() =>
+            redBookDownloadService.OnNoteDetailUpdated += async (pack) => await Application.Current.Dispatcher.InvokeAsync(() =>
             {
+                var (noteDetail, di) = pack;
+
                 Title = noteDetail.Title;
                 CoverUrl = noteDetail.ImageList.FirstOrDefault()?.DefaultUrl ?? string.Empty;
                 Body = noteDetail.Description;
@@ -71,6 +91,8 @@ namespace HamsterStudioGUI.ViewModels
                     Reply = noteDetail.InteractInfo.CommentCount,
                     Share = noteDetail.InteractInfo.ShareCount,
                 };
+
+                _lastSavedFileFolder = di.FullName;
             });
             weiboDs.OnShowInfoUpdated += async show => await Application.Current.Dispatcher.InvokeAsync(() =>
             {

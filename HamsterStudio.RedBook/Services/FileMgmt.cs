@@ -48,10 +48,10 @@ public class FileMgmt : AbstractDirectoryMgmt
         logger.LogInformation($"RedBook FileMgmt initialized, storage home: {StorageHome}");
     }
 
-    public void DoGroup(string nickname)
+    public void DoGroup(string nickname, out DirectoryInfo indepent)
     {
         logger?.LogTrace($"Grouping {nickname}");
-        var indepent = CreateSubFolder(nickname);
+        indepent = CreateSubFolder(nickname);
         foreach (var file in indepent.Parent.GetFiles($"*_xhs_{nickname}_*"))
         {
             string newName = Path.Combine(indepent.FullName, file.Name);
@@ -59,43 +59,42 @@ public class FileMgmt : AbstractDirectoryMgmt
         }
     }
 
-    private HamstertFileInfo GenerateFilename(string nickname, string baseName, bool isHot, string? commentSubDir = null)
+    private HamstertFileInfo GenerateFilename(DirectoryInfo home, string baseName, string? commentSubDir = null)
     {
-        string home = isHot ? Path.Combine(StorageHome, nickname) : StorageHome;
         if (!string.IsNullOrEmpty(commentSubDir))
         {
-            home = Path.Combine(home, commentSubDir);
+            home = home.CreateSubdirectory(commentSubDir);
         }
-        return new HamstertFileInfo(Path.Combine(home, $"{baseName}")) { RemoveCommand = null };
+        return new HamstertFileInfo(Path.Combine(home.FullName, $"{baseName}")) { RemoveCommand = null };
     }
 
-    public HamstertFileInfo GenerateImageFilename(string tiltle, int index, UserInfoModel userInfo, string token, bool isHot)
+    public HamstertFileInfo GenerateImageFilename(string tiltle, int index, UserInfoModel userInfo, string token, DirectoryInfo home)
     {
-        return GenerateImageFilenameLow(tiltle, index, userInfo.Nickname, token, isHot);
+        return GenerateImageFilenameLow(tiltle, index, userInfo.Nickname, token, home);
     }
 
-    public HamstertFileInfo GenerateImageFilenameLow(string tiltle, int index, string nickname, string token, bool isHot)
+    public HamstertFileInfo GenerateImageFilenameLow(string tiltle, int index, string nickname, string token, DirectoryInfo home)
     {
         string bareToken = token.Split('/').Last();
         string baseName = FileNameUtil.SanitizeFileName($"{tiltle}_{index}_xhs_{nickname}_{bareToken}");
-        return GenerateFilename(nickname, baseName, isHot);
+        return GenerateFilename(home, baseName);
     }
 
-    public HamstertFileInfo GenerateCommentImageFilename(CommentDataModel comment, string title, int index, UserInfoModel userInfo, string token, bool isHot, string subDir)
+    public HamstertFileInfo GenerateCommentImageFilename(CommentDataModel comment, string title, int index, UserInfoModel userInfo, string token, string subDir, DirectoryInfo home)
     {
         string bareToken = token.Split('/').Last();
         string baseName = FileNameUtil.SanitizeFileName($"{title}_{comment.Id}_{index}_xhs_{comment.UserInfo.Nickname}_{bareToken}");
-        return GenerateFilename(userInfo.Nickname, baseName, isHot, subDir);
+        return GenerateFilename(home, baseName, subDir);
     }
 
-    public HamstertFileInfo GenerateLivePhotoFilename(string tiltle, int? index, UserInfoModel userInfo, string streamUrl, bool isHot)
+    public HamstertFileInfo GenerateLivePhotoFilename(string tiltle, int? index, UserInfoModel userInfo, string streamUrl, DirectoryInfo home)
     {
         var rawname = streamUrl.Split('?').First().Split('/').Last();
         string baseName = FileNameUtil.SanitizeFileName($"{tiltle}_{index}_xhs_{userInfo.Nickname}_{rawname}");
-        return GenerateFilename(userInfo.Nickname, baseName, isHot);
+        return GenerateFilename(home, baseName);
     }
 
-    public HamstertFileInfo GenerateVideoFilename(string tiltle, UserInfoModel userInfo, string token, bool isHot)
+    public HamstertFileInfo GenerateVideoFilename(string tiltle, UserInfoModel userInfo, string token, DirectoryInfo home)
     {
         // TBD:自动判断类型
         string baseName = FileNameUtil.SanitizeFileName($"{tiltle}_xhs_{userInfo.Nickname}_{token}");
@@ -103,7 +102,7 @@ public class FileMgmt : AbstractDirectoryMgmt
         {
             baseName += ".mp4";
         }
-        return GenerateFilename(userInfo.Nickname, baseName, isHot);
+        return GenerateFilename(home, baseName);
     }
 
     public void Save()
