@@ -10,7 +10,7 @@ using Microsoft.Extensions.Logging;
 
 namespace HamsterStudio.RedBook.Services;
 
-public class NoteDetailProcessor(NoteDetailModel noteDetail, FileMgmt fileMgmt, CommonDownloader downloader, ILogger logger, bool isHot)
+public class NoteDetailProcessor(NoteDetailModel noteDetail, FileMgmt fileMgmt, CommonDownloader downloader, ILogger logger)
 {
     public List<string> ContainedFiles { get; } = [];
 

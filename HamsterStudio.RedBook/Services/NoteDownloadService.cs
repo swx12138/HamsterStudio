@@ -26,52 +26,27 @@ public class NoteDownloadService(FileMgmt fileMgmt, DirectoryMgmt directoryMgmt,
             new());
     }
 
-    public bool IsHot(NoteDetailModel noteDetail, CommentsDataModel comments, bool downloadComments, out DirectoryInfo saveDirectory)
-    {
-        int imgCount = noteDetail.ImageList.Sum(x => x.LivePhoto ? 2 : 1) + (noteDetail.Type == "video" ? 1 : 0);
-        bool isVeryHot = false;
-        if (downloadComments)
-        {
-            int commentsPicCount = comments.Comments.Sum(x => x.Pictures.Length);
-            if (commentsPicCount > 0)
-            {
-                isVeryHot = true;
-            }
-            imgCount += commentsPicCount;
-        }
-        bool isHot = fileMgmt.AlbumCollections.Update(noteDetail.UserInfo.Nickname, noteDetail.Title, imgCount) || isVeryHot;
-
-        if (isHot)
-        {
-            string subfolder = FileNameUtil.SanitizeFileNameOr(noteDetail.UserInfo.Nickname, noteDetail.UserInfo.UserId);
-            fileMgmt.DoGroup(subfolder, out saveDirectory);
-        }
-        else
-        {
-            saveDirectory = new DirectoryInfo(fileMgmt.StorageHome);
-        }
-
-        return isHot;
-    }
-
     public async Task<ServerRespModel> DownloadNoteLowAsync(NoteDetailModel noteDetail, string noteId, NoteDataOptionsModel options, CommentsDataModel comments)
     {
         bool downloadComments = options.WithComments || options.AuthorCommentsOnly;
-        bool isHot = IsHot(noteDetail, comments, downloadComments, out DirectoryInfo home);
+        //bool isHot = IsHot(noteDetail, comments, downloadComments, out DirectoryInfo home);
 
-        OnNoteDetailUpdated?.Invoke((noteDetail, home));
+        string subfolder = FileNameUtil.SanitizeFileNameOr(noteDetail.UserInfo.Nickname, noteDetail.UserInfo.UserId);
+        fileMgmt.DoGroup(subfolder, out DirectoryInfo saveDirectory);
+
+        OnNoteDetailUpdated?.Invoke((noteDetail, saveDirectory));
         logger.LogInformation($"标题：{noteDetail.Title}【{noteDetail.ImageList.Count}】");
 
-        var processor = new NoteDetailProcessor(noteDetail, fileMgmt, downloader, logger, isHot);
+        var processor = new NoteDetailProcessor(noteDetail, fileMgmt, downloader, logger);
         string title = NoteDetailHelper.SelectTitle(noteDetail);
         await Parallel.ForEachAsync(
             noteDetail.ImageList,
             new ParallelOptions { MaxDegreeOfParallelism = Environment.ProcessorCount / 2 },
-            async (x, ct) => await processor.ProcessImage(x, title, OnImageTokenDetected, home));
+            async (x, ct) => await processor.ProcessImage(x, title, OnImageTokenDetected, saveDirectory));
 
         if (noteDetail.Type == "video")
         {
-            await processor.ProcessVideoDownload(home);
+            await processor.ProcessVideoDownload(saveDirectory);
         }
 
         // 下载评论区图片
@@ -79,9 +54,9 @@ public class NoteDownloadService(FileMgmt fileMgmt, DirectoryMgmt directoryMgmt,
         {
             foreach (var comment in comments.Comments)
             {
-                await processor.ProcessComment(comment, title, options.AuthorCommentsOnly, noteId, home);
+                await processor.ProcessComment(comment, title, options.AuthorCommentsOnly, noteId, saveDirectory);
                 _ = comment.SubComments
-                    .Select(async x => await processor.ProcessComment(x, title, options.AuthorCommentsOnly, noteId, home))
+                    .Select(async x => await processor.ProcessComment(x, title, options.AuthorCommentsOnly, noteId, saveDirectory))
                     .ToArray();
             }
         }
@@ -93,7 +68,7 @@ public class NoteDownloadService(FileMgmt fileMgmt, DirectoryMgmt directoryMgmt,
 
     public async Task<ServerRespModel> DownloadWithBaseTokens(string[] tokens)
     {
-        var processor = new NoteDetailProcessor(null, fileMgmt, downloader, logger, true);
+        var processor = new NoteDetailProcessor(null, fileMgmt, downloader, logger);
         var preTokens = tokenCollector.Value.GetTokens();
         var downloadedFiles = new List<string>();
         foreach (var token in tokens)

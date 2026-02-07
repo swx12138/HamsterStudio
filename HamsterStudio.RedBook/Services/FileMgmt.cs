@@ -12,7 +12,8 @@ public class FileMgmt : AbstractDirectoryMgmt
 {
     private readonly DirectoryMgmt _innerDirMgmt;
 
-    public IHamsterMediaCollection AlbumCollections { get; }
+    //public IHamsterMediaCollection AlbumCollections { get; }
+
     public override string StorageHome { get; }
     public override string TemporaryHome => _innerDirMgmt.TemporaryHome;
     //public string CacheFilename { get; }
@@ -27,8 +28,8 @@ public class FileMgmt : AbstractDirectoryMgmt
         //AlbumCollections = AlbumCollectionsModel.Load(CacheFilename, new FilenameInfoParser());
 
         {
-            var coll = new HamsterMediaCollectionModel(StorageHome, logger);
-            coll.Prepare();
+            //var coll = new HamsterMediaCollectionModel(StorageHome, logger);
+            //coll.Prepare();
 
             //string current_dir = Environment.CurrentDirectory;
             //Directory.SetCurrentDirectory(StorageHome);
@@ -41,7 +42,7 @@ public class FileMgmt : AbstractDirectoryMgmt
             //    }
             //});
             //Directory.SetCurrentDirectory(current_dir);
-            AlbumCollections = coll;
+            //AlbumCollections = coll;
         }
         //CheckReallyHots();
 
