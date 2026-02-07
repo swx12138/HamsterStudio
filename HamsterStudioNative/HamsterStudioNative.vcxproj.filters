@@ -72,7 +72,7 @@
     <ClInclude Include="Win32\Platform.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="Win32\Win32.h">
+    <ClInclude Include="Win32\Win32.hpp">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="Win32\Control.hpp">
@@ -93,6 +93,12 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="dllmain.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Image\ImageProcessor.h">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Image\ImageProcessor.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

@@ -4,7 +4,7 @@
 #include <functional>
 #include <thread>
 
-#include "Win32/Win32.h"
+#include "./Win32/Win32.hpp"
 
 constexpr std::string_view AppName = "HamsterStudioApp";
 constexpr std::string_view AppTitle = "HamsterStudio";

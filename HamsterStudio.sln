@@ -4,6 +4,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 VisualStudioVersion = 17.13.35806.99
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HamsterStudioGUI", "HamsterStudioGUI\HamsterStudioGUI.csproj", "{CDD9356D-9D4B-4265-BE32-987D4184D0C3}"
+	ProjectSection(ProjectDependencies) = postProject
+		{0B1C897B-A6AD-40C4-B0BC-F5D57E9345A1} = {0B1C897B-A6AD-40C4-B0BC-F5D57E9345A1}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HamsterStudio.Controls", "HamsterStudio.Controls\HamsterStudio.Controls.csproj", "{9A23A428-8AE2-408B-9719-3A2EB2DD48CF}"
 EndProject

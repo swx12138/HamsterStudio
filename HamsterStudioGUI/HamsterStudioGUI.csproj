@@ -7,6 +7,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <UseWPF>true</UseWPF>
     <ApplicationIcon>chuhua.ico</ApplicationIcon>
+    <PlatformTarget>x64</PlatformTarget>
   </PropertyGroup>
 
   <ItemGroup>
@@ -54,4 +55,8 @@
     </None>
   </ItemGroup>
 
+  <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
+    <Exec Command="copy /b &quot;$(SolutionDir)x64\Debug\HamsterStudioNative64.dll&quot; $(OutDir)&#xD;&#xA;copy /b &quot;$(SolutionDir)x64\Debug\opencv_world4100d.dll&quot; $(OutDir)" />
+  </Target>
+	
 </Project>

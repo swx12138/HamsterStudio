@@ -2,15 +2,14 @@
 using HamsterStudio.Barefeet.Services;
 using HamsterStudio.Gallery.Services;
 using HamsterStudio.Gallery.ViewModels;
+using HamsterStudio.ImageTool.ViewModels;
 using HamsterStudio.Toolkits.Logging;
 using HamsterStudio.Toolkits.Services;
 using HamsterStudio.WallpaperEngine.ViewModels;
 using HamsterStudioGUI.ViewModels;
 using Microsoft.Extensions.Logging;
 using Microsoft.Win32;
-using System.Collections.ObjectModel;
 using System.Windows;
-using System.Windows.Data;
 
 namespace HamsterStudioGUI;
 
@@ -35,6 +34,7 @@ partial class MainWindowModel : ObservableObject, IDisposable
     public WallpaperEngineViewModel  WallpaperEngineViewModel { get; } 
     public GalleryViewModel GalleryViewModel { get; }
     public SpacialDownloadsViewModel SpacialDownloadsViewModel { get; }
+    public ExposureAdjustmentViewModel ExposureAdjustmentViewModel { get; }
 
     [ObservableProperty]
     private ThemeMgmt _ThemeMgmt;
@@ -54,6 +54,7 @@ partial class MainWindowModel : ObservableObject, IDisposable
             App.ResloveService<ImageMetaInfoReadService>(),
             ThemeMgmt,
             loggerFactory.CreateLogger<WallpaperEngineViewModel>());
+        ExposureAdjustmentViewModel = new(loggerFactory.CreateLogger<ExposureAdjustmentViewModel>());
 
         LogViewModel.ClearLogs();
         App.WebApiService.Logger.LogInformation("Ready.");

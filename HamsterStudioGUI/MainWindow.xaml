@@ -5,6 +5,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:gv="clr-namespace:HamsterStudio.Gallery.Views;assembly=HamsterStudio.Gallery"
         xmlns:hc="https://handyorg.github.io/handycontrol"
+        xmlns:hsit="clr-namespace:HamsterStudio.ImageTool.Views;assembly=HamsterStudio.ImageTool"
         xmlns:hstc="clr-namespace:HamsterStudio.Toolkits.Converters;assembly=HamsterStudio.Toolkits"
         xmlns:local="clr-namespace:HamsterStudioGUI"
         xmlns:localv="clr-namespace:HamsterStudioGUI.Views"
@@ -100,6 +101,10 @@
 
         <TabItem Header="{Binding GalleryViewModel.DisplayName}">
             <gv:GalleryView DataContext="{Binding GalleryViewModel}" />
+        </TabItem>
+
+        <TabItem Header="{Binding ExposureAdjustmentViewModel.DisplayName}">
+            <hsit:ExposureAdjustmentView DataContext="{Binding ExposureAdjustmentViewModel}" />
         </TabItem>
 
     </TabControl>

@@ -1,0 +1,245 @@
+﻿<UserControl x:Class="HamsterStudio.ImageTool.Views.ExposureAdjustmentView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:hc="https://handyorg.github.io/handycontrol"
+             xmlns:hsctrl="clr-namespace:HamsterStudio.Controls;assembly=HamsterStudio.Controls"
+             xmlns:local="clr-namespace:HamsterStudio.ImageTool.Views"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             d:DesignHeight="1920"
+             d:DesignWidth="1280"
+             Loaded="UserControl_Loaded"
+             mc:Ignorable="d">
+    <UserControl.Resources>
+        <Style TargetType="Slider">
+            <Setter Property="Margin" Value="5" />
+            <Setter Property="VerticalAlignment" Value="Center" />
+        </Style>
+        <Style TargetType="TextBlock">
+            <Setter Property="Margin" Value="5" />
+            <Setter Property="VerticalAlignment" Value="Center" />
+        </Style>
+        <Style TargetType="TextBox">
+            <Setter Property="Margin" Value="5" />
+            <Setter Property="Width" Value="60" />
+            <Setter Property="VerticalAlignment" Value="Center" />
+        </Style>
+    </UserControl.Resources>
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="3*" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+
+        <!--  左侧：图像显示区域  -->
+        <Border Margin="10"
+                Background="#1E1E1E"
+                BorderBrush="Gray"
+                BorderThickness="1">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+
+                <Canvas Name="ImageCanvas"
+                        Background="SlateGray"
+                        PreviewMouseLeftButtonUp="ImageCanvas_PreviewMouseLeftButtonUp"
+                        PreviewMouseWheel="ImageCanvas_PreviewMouseWheel">
+                    <Image Name="AdjustImage"
+                           Canvas.Left="{Binding ImagePositionX}"
+                           Canvas.Top="{Binding ImagePositionY}"
+                           Width="{Binding ImagePositionWidth}"
+                           Height="{Binding ImagePositionHeight}"
+                           Loaded="AdjustImage_Loaded"
+                           PreviewMouseLeftButtonDown="Image_PreviewMouseLeftButtonDown"
+                           PreviewMouseLeftButtonUp="Image_PreviewMouseLeftButtonUp"
+                           PreviewMouseMove="Image_PreviewMouseMove"
+                           PreviewMouseRightButtonUp="Image_PreviewMouseRightButtonUp"
+                           RenderOptions.BitmapScalingMode="HighQuality"
+                           Source="{Binding AdjustedImage}" />
+                    <Ellipse x:Name="MousePositionPoint"
+                             Canvas.Left="{Binding MousePositionX}"
+                             Canvas.Top="{Binding MousePositionY}"
+                             Width="20"
+                             Height="20"
+                             Fill="Red"
+                             Visibility="{Binding ImageCenterPointVisibility}" />
+                </Canvas>
+
+                <StackPanel>
+                    <TextBlock Text="{Binding ElementName=ImageCanvas, Path=ActualWidth, StringFormat='ImageCanvas.ActualWidth={0:F2}'}" />
+                    <TextBlock Text="{Binding ElementName=ImageCanvas, Path=ActualHeight, StringFormat='ImageCanvas.ActualHeight={0:F2}'}" />
+                    <TextBlock />
+                    <TextBlock Text="{Binding ImageCanvasReadonlyWidth, StringFormat='ImageCanvasReadonlyWidth={0:F2}'}" />
+                    <TextBlock Text="{Binding ImageCanvasReadonlyHeight, StringFormat='ImageCanvasReadonlyHeight={0:F2}'}" />
+                    <TextBlock />
+                    <TextBlock Text="{Binding ElementName=AdjustImage, Path=ActualWidth, StringFormat='AdjustImage.ActualWidth={0:F2}'}" />
+                    <TextBlock Text="{Binding ElementName=AdjustImage, Path=ActualHeight, StringFormat='AdjustImage.ActualHeight={0:F2}'}" />
+                    <TextBlock />
+                    <TextBlock Text="{Binding MousePositionX, StringFormat='MousePositionX={0:F3}'}" />
+                    <TextBlock Text="{Binding MousePositionY, StringFormat='MousePositionY={0:F3}'}" />
+                    <TextBlock Text="{Binding ImagePositionX, StringFormat='ImagePositionX={0:F3}'}" />
+                    <TextBlock Text="{Binding ImagePositionY, StringFormat='ImagePositionY={0:F3}'}" />
+                </StackPanel>
+
+                <!--  工具栏  -->
+                <ToolBar Grid.Row="1">
+                    <Button Command="{Binding LoadNewImageCommand}" Content="加载图片" />
+                    <Button Command="{Binding ResetScaleCommand}" Content="重置缩放" />
+                    <Button Command="{Binding AutoFitImageCommand}" Content="自动适应" />
+                    <Separator />
+                    <TextBlock Margin="5,0" VerticalAlignment="Center" Text="缩放级别:" />
+                    <TextBox Text="{Binding ImageScale, StringFormat=N2}" />
+                    <hc:PreviewSlider Width="300"
+                                      Maximum="5"
+                                      Minimum="1"
+                                      TickFrequency="0.01"
+                                      Value="{Binding ImageScale}" />
+                    <Separator />
+                    <TextBox Text="{Binding LookRectangleAboveOriginalImageX, StringFormat=N2}" />
+                    <TextBox Text="{Binding LookRectangleAboveOriginalImageY, StringFormat=N2}" />
+                    <TextBox Text="{Binding LookRectangleAboveOriginalImageWidth, StringFormat=N2}" />
+                    <TextBox Text="{Binding LookRectangleAboveOriginalImageHeight, StringFormat=N2}" />
+                </ToolBar>
+
+                <!--  拖放提示  -->
+                <Border x:Name="DropHint"
+                        Grid.RowSpan="2"
+                        Background="#80000000"
+                        CornerRadius="10"
+                        Visibility="{Binding DragDropTipsVisibility}">
+                    <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                        <TextBlock HorizontalAlignment="Center"
+                                   FontSize="24"
+                                   Foreground="White"
+                                   Text="拖放图片文件到此区域" />
+                        <TextBlock Margin="0,10,0,0"
+                                   HorizontalAlignment="Center"
+                                   FontSize="14"
+                                   Foreground="LightGray"
+                                   Text="支持格式: PNG, JPG, BMP, GIF" />
+                    </StackPanel>
+                </Border>
+            </Grid>
+        </Border>
+
+        <!--  右侧：控制面板  -->
+        <Grid Grid.Column="1" Margin="5">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+
+            <!--  基本信息  -->
+            <GroupBox Grid.Row="0" Margin="5" Header="图像信息">
+                <StackPanel>
+                    <Canvas Width="256"
+                            Height="256"
+                            HorizontalAlignment="Stretch"
+                            Background="AliceBlue">
+                        <Image Width="256"
+                               Height="256"
+                               HorizontalAlignment="Stretch"
+                               VerticalAlignment="Stretch"
+                               Source="{Binding OriginalImage}" />
+                        <Border Canvas.Left="{Binding LookRectangleAboveOriginalImageX}"
+                                Canvas.Top="{Binding LookRectangleAboveOriginalImageY}"
+                                Width="{Binding LookRectangleAboveOriginalImageWidth}"
+                                Height="{Binding LookRectangleAboveOriginalImageHeight}"
+                                BorderBrush="Red"
+                                BorderThickness="1" />
+                    </Canvas>
+                    <TextBlock x:Name="ImageInfoText" Text="{Binding ImageInfo}" />
+                    <Button Margin="0,10,0,0" Command="{Binding SaveImageCommand}" Content="保存图片" />
+                </StackPanel>
+            </GroupBox>
+
+            <!--  调整参数  -->
+            <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+                <StackPanel>
+                    <!--  基础调整  -->
+                    <GroupBox Margin="5" DataContext="{Binding ImageAdjustments}" Header="基础调整">
+                        <StackPanel>
+                            <StackPanel VerticalAlignment="Center" Orientation="Horizontal">
+                                <TextBlock Text="曝光度" />
+                                <TextBox Text="{Binding Exposure, StringFormat=N1}" />
+                            </StackPanel>
+                            <Slider Maximum="3"
+                                    Minimum="-3"
+                                    TickFrequency="0.1"
+                                    Value="{Binding Exposure}" />
+
+                            <StackPanel VerticalAlignment="Center" Orientation="Horizontal">
+                                <TextBlock Text="色温" />
+                                <TextBox Text="{Binding Temperature}" />
+                            </StackPanel>
+                            <Slider Maximum="100" Minimum="-100" Value="{Binding Temperature}" />
+
+                            <StackPanel VerticalAlignment="Center" Orientation="Horizontal">
+                                <TextBlock Text="色调" />
+                                <TextBox Text="{Binding Tint}" />
+                            </StackPanel>
+                            <Slider Maximum="100" Minimum="-100" Value="{Binding Tint}" />
+
+                        </StackPanel>
+                    </GroupBox>
+
+                    <!--  色调调整  -->
+                    <GroupBox Margin="5" DataContext="{Binding ImageAdjustments}" Header="色调调整">
+                        <StackPanel>
+                            <StackPanel VerticalAlignment="Center" Orientation="Horizontal">
+                                <TextBlock Text="饱和度" />
+                                <TextBox Text="{Binding Saturation}" />
+                            </StackPanel>
+                            <Slider Maximum="100" Minimum="-100" Value="{Binding Saturation}" />
+
+                            <StackPanel VerticalAlignment="Center" Orientation="Horizontal">
+                                <TextBlock Text="鲜艳度" />
+                                <TextBox Text="{Binding Vibrance}" />
+                            </StackPanel>
+                            <Slider Maximum="100" Minimum="-100" Value="{Binding Vibrance}" />
+
+                            <StackPanel VerticalAlignment="Center" Orientation="Horizontal">
+                                <TextBlock Text="高光" />
+                                <TextBox Text="{Binding Highlights}" />
+                            </StackPanel>
+                            <Slider Maximum="100" Minimum="-100" Value="{Binding Highlights}" />
+
+                            <StackPanel VerticalAlignment="Center" Orientation="Horizontal">
+                                <TextBlock Text="阴影" />
+                                <TextBox Text="{Binding Shadows}" />
+                            </StackPanel>
+                            <Slider Maximum="100" Minimum="-100" Value="{Binding Shadows}" />
+
+                            <StackPanel VerticalAlignment="Center" Orientation="Horizontal">
+                                <TextBlock Text="白色色阶" />
+                                <TextBox Text="{Binding Whites}" />
+                            </StackPanel>
+                            <Slider Maximum="100" Minimum="-100" Value="{Binding Whites}" />
+
+                            <StackPanel VerticalAlignment="Center" Orientation="Horizontal">
+                                <TextBlock Text="黑色色阶" />
+                                <TextBox Text="{Binding Blacks}" />
+                            </StackPanel>
+                            <Slider Maximum="100" Minimum="-100" Value="{Binding Blacks}" />
+
+                        </StackPanel>
+                    </GroupBox>
+
+                    <!--  重置按钮  -->
+                    <Button Height="30"
+                            Margin="20,10"
+                            Command="{Binding ResetAdjustmentsCommand}"
+                            Content="重置所有调整" />
+                </StackPanel>
+            </ScrollViewer>
+
+            <!--  直方图  -->
+            <GroupBox Grid.Row="2" Margin="5" Header="直方图">
+                <Canvas x:Name="HistogramCanvas" Height="150" Background="#FF1E1E1E" />
+            </GroupBox>
+        </Grid>
+    </Grid>
+</UserControl>
