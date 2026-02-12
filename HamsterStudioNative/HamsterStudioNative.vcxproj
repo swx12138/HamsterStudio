@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -44,6 +44,7 @@
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v143</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
+    <PreferredToolArchitecture>x64</PreferredToolArchitecture>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
@@ -51,6 +52,7 @@
     <PlatformToolset>v143</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
+    <PreferredToolArchitecture>x64</PreferredToolArchitecture>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -70,6 +72,16 @@
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <TargetName>$(ProjectName)64</TargetName>
+    <CopyLocalProjectReference>true</CopyLocalProjectReference>
+    <CopyLocalDebugSymbols>true</CopyLocalDebugSymbols>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <TargetName>$(ProjectName)64</TargetName>
+    <CopyLocalProjectReference>true</CopyLocalProjectReference>
+    <CopyLocalDebugSymbols>true</CopyLocalDebugSymbols>
+  </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
@@ -107,7 +119,7 @@
       <PreprocessorDefinitions>_DEBUG;HAMSTERSTUDIONATIVE_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <LanguageStandard_C>stdc11</LanguageStandard_C>
+      <LanguageStandard_C>stdc17</LanguageStandard_C>
       <AdditionalIncludeDirectories>D:\Abracadabra\opencv-4.10.0-windows\opencv\build\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
@@ -116,6 +128,9 @@
       <EnableUAC>false</EnableUAC>
       <AdditionalLibraryDirectories>D:\Abracadabra\opencv-4.10.0-windows\opencv\build\x64\vc16\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
+    <PostBuildEvent>
+      <Command>copy /b "D:\Abracadabra\opencv-4.10.0-windows\opencv\build\x64\vc16\bin\opencv_world4100d.dll" $(OutDir)</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -126,7 +141,7 @@
       <PreprocessorDefinitions>NDEBUG;HAMSTERSTUDIONATIVE_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <LanguageStandard_C>stdc11</LanguageStandard_C>
+      <LanguageStandard_C>stdc17</LanguageStandard_C>
       <AdditionalIncludeDirectories>D:\Abracadabra\opencv-4.10.0-windows\opencv\build\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
@@ -137,6 +152,9 @@
       <EnableUAC>false</EnableUAC>
       <AdditionalLibraryDirectories>D:\Abracadabra\opencv-4.10.0-windows\opencv\build\x64\vc16\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
+    <PostBuildEvent>
+      <Command>copy /b "D:\Abracadabra\opencv-4.10.0-windows\opencv\build\x64\vc16\bin\opencv_world4100d.dll" $(OutDir)</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="Algorithm\Array.hpp" />
@@ -155,16 +173,23 @@
     <ClInclude Include="Framework\semaphore.hpp" />
     <ClInclude Include="Framework\utilities.hpp" />
     <ClInclude Include="Framework\WatchDog.hpp" />
+    <ClInclude Include="Image\ImageEditor.h" />
+    <ClInclude Include="Image\Image.hpp" />
+    <ClInclude Include="Image\ImageSlider.h" />
+    <ClInclude Include="Image\Screenshot.h" />
     <ClInclude Include="Win32\Control.hpp" />
     <ClInclude Include="Win32\Drawing.hpp" />
-    <ClInclude Include="Win32\Image.h" />
+    <ClInclude Include="Image\ImageProcessor.h" />
     <ClInclude Include="Win32\Platform.h" />
-    <ClInclude Include="Win32\Win32.h" />
+    <ClInclude Include="Win32\Win32.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Application.cpp" />
     <ClCompile Include="dllmain.cpp" />
-    <ClCompile Include="Win32\Image.cpp" />
+    <ClCompile Include="Image\ImageEditor.cpp" />
+    <ClCompile Include="Image\ImageProcessor.cpp" />
+    <ClCompile Include="Image\ImageSlider.cpp" />
+    <ClCompile Include="Image\Screenshot.cpp" />
     <ClCompile Include="Win32\Platform.cpp" />
     <ClCompile Include="Win32\Win32.cpp" />
   </ItemGroup>

@@ -66,7 +66,7 @@
     <ClInclude Include="Win32\Drawing.hpp">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="Win32\Image.h">
+    <ClInclude Include="Image\ImageProcessor.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="Win32\Platform.h">
@@ -78,11 +78,20 @@
     <ClInclude Include="Win32\Control.hpp">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="Image\Image.hpp">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Image\ImageSlider.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Image\Screenshot.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Image\ImageEditor.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Win32\Image.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
     <ClCompile Include="Win32\Platform.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
@@ -95,10 +104,16 @@
     <ClCompile Include="dllmain.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="Image\ImageProcessor.h">
+    <ClCompile Include="Image\ImageProcessor.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="Image\ImageProcessor.cpp">
+    <ClCompile Include="Image\ImageSlider.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Image\Screenshot.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Image\ImageEditor.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
