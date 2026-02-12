@@ -164,7 +164,7 @@
                         <StackPanel>
                             <StackPanel VerticalAlignment="Center" Orientation="Horizontal">
                                 <TextBlock Text="曝光度" />
-                                <TextBox Text="{Binding Exposure, StringFormat=N1}" />
+                                <hc:NumericUpDown Increment="0.1" Value="{Binding Exposure, StringFormat=F1}" />
                             </StackPanel>
                             <Slider Maximum="3"
                                     Minimum="-3"

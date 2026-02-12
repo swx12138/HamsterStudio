@@ -1,19 +1,6 @@
 ﻿using HamsterStudio.ImageTool.ViewModels;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 
 namespace HamsterStudio.ImageTool.Views
 {
@@ -70,7 +57,7 @@ namespace HamsterStudio.ImageTool.Views
 
         private void AdjustImage_Loaded(object sender, RoutedEventArgs e)
         {
-            Trace.TraceInformation(nameof(AdjustImage_Loaded) + " called");
+            //Trace.TraceInformation(nameof(AdjustImage_Loaded) + " called");
             if (DataContext is ExposureAdjustmentViewModel vm)
             {
                 vm.ImageCanvasReadonlyWidth = ImageCanvas.ActualWidth;
@@ -81,7 +68,7 @@ namespace HamsterStudio.ImageTool.Views
 
         private void ImageCanvas_PreviewMouseWheel(object sender, System.Windows.Input.MouseWheelEventArgs e)
         {
-            Trace.TraceInformation(nameof(ImageCanvas_PreviewMouseWheel) + " called");
+            //Trace.TraceInformation(nameof(ImageCanvas_PreviewMouseWheel) + " called");
             if (DataContext is ExposureAdjustmentViewModel vm)
             {
                 var pos = e.GetPosition(sender as FrameworkElement);
@@ -92,10 +79,12 @@ namespace HamsterStudio.ImageTool.Views
 
         private void UserControl_Loaded(object sender, RoutedEventArgs e)
         {
+#if DEBUG
             if (DataContext is ExposureAdjustmentViewModel vm)
             {
                 vm.LoadImageCommand.Execute(@"E:\HamsterStudioHome\xiaohongshu\小记噜噜\老师…_2_xhs_小记噜噜_1040g2sg31s8k5idplme04b36r575g6afe5ib2pg.png");
             }
+#endif
         }
     }
 
