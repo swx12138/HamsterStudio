@@ -1,18 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using HamsterStudio.Gallery.Models;
+using HamsterStudio.Gallery.ViewModels;
+using HamsterStudio.Toolkits;
+using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 
 namespace HamsterStudio.Gallery.Views
 {
@@ -26,14 +20,74 @@ namespace HamsterStudio.Gallery.Views
             InitializeComponent();
         }
 
-        int imageLoadCount = 0;
+        private CancellationTokenSource cancellationTokenSource = new();
+        private static object lockobj = new();
+        private BackgroundWorker backgroundWorker = new();
 
-        private void Image_Loaded(object sender, RoutedEventArgs e)
+        private void TreeView_SelectedItemChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
         {
-            //if(sender is Image image)
-            //{
-            //    Debug.WriteLine($"Loading {image.Source}, Loaded {++imageLoadCount}");
-            //}
+            if (e.NewValue == null)
+            {
+                return;
+            }
+
+            if (e.OldValue == null)
+            {
+                Trace.TraceInformation($"Selected folder {(e.NewValue as GalleryFolderModel)!.DirInfo.FullName}");
+            }
+            else
+            {
+                Trace.TraceInformation($"Changed selected folder to {(e.NewValue as GalleryFolderModel)!.DirInfo.FullName} form {(e.OldValue as GalleryFolderModel)!.DirInfo.FullName} ");
+            }
+
+            if (DataContext is GalleryViewModel2 gvm2 && e.NewValue is GalleryFolderModel gf)
+            {
+                gvm2.OnSelectedFolderChanged(gf);
+                return;
+
+                cancellationTokenSource.Cancel();
+                cancellationTokenSource = new CancellationTokenSource();
+                backgroundWorker = new BackgroundWorker() { WorkerSupportsCancellation = true };
+                backgroundWorker.DoWork += (sender, e) =>
+                {
+                    lock (lockobj)
+                    {
+                        Application.Current.Dispatcher.Invoke(() =>
+                        {
+                            gvm2.CurrentImages.Clear();
+                        });
+
+                        foreach (var file in gf.Files)
+                        {
+                            if (e.Cancel)
+                            {
+                                break;
+                            }
+
+                            var imgSrc = ImageUtils.LoadImageSource(file.FullName, 400);
+                            if (imgSrc == null)
+                            {
+                                Trace.TraceError($"Load image {file.Name} failed!!!");
+                                continue;
+                            }
+
+                            Application.Current.Dispatcher.Invoke(() =>
+                            {
+                                gvm2.CurrentImages.Add(imgSrc);
+                            });
+                        }
+                    }
+                };
+                backgroundWorker.RunWorkerAsync(cancellationTokenSource.Token);
+            }
+        }
+
+        private void Pagination_PageUpdated(object sender, HandyControl.Data.FunctionEventArgs<int> e)
+        {
+            if (DataContext is GalleryViewModel2 gvm2)
+            {
+                gvm2.OnPageIndexChanged();
+            }
         }
     }
 }
