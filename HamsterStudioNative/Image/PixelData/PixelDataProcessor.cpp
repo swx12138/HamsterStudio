@@ -52,7 +52,7 @@ ExposureRangeProcessor::~ExposureRangeProcessor() noexcept
 {
 }
 
-PixelData& ExposureRangeProcessor::Process(PixelData& pixel) const
+PixelData &ExposureRangeProcessor::Process(PixelData &pixel) const
 {
-
+	return PixelDataProcessor::Process(pixel);
 }

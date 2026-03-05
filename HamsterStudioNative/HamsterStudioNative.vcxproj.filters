@@ -90,6 +90,15 @@
     <ClInclude Include="Image\ImageEditor.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="Image\PixelData\PixelData.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Image\PixelData\PixelDataProcessor.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="html.hpp">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Win32\Platform.cpp">
@@ -114,6 +123,12 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="Image\ImageEditor.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Image\PixelData\PixelData.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Image\PixelData\PixelDataProcessor.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

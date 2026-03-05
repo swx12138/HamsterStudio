@@ -21,6 +21,12 @@
     <ClCompile Include="..\HamsterStudioNative\Image\ImageEditor.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="..\HamsterStudioNative\Image\PixelData\PixelData.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\HamsterStudioNative\Image\PixelData\PixelDataProcessor.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="genshin\genshin.hpp">
