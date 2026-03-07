@@ -4,6 +4,11 @@
 
 class GradientFiller {
 public:
+	static void fillSolidColor(cv::Mat &mat, cv::Scalar color) {
+		if (mat.empty()) return;
+		mat.setTo(color);
+	}
+
 	/**
 	 * @brief 线性渐变
 	 * @param mat 输出的 Mat，必须预先设置好尺寸和类型

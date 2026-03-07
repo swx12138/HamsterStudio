@@ -80,8 +80,12 @@ int main() {
 	namespace fs = std::filesystem;
 	fs::path image_folder_path { "D:\\photos\\约拍\\流萤\\春日手信\\参考" };
 	ImageStitcher stitcher { image_folder_path };
-	stitcher.generateStitchedImage("result_portrait.jpg", false);
-	stitcher.generateStitchedImage("result_landscape.jpg", true);
+
+	std::jthread th_portrait([&] { stitcher.generateStitchedImage("result_portrait.jpg", false); });
+	std::jthread th_landscape([&] { stitcher.generateStitchedImage("result_landscape.jpg", true); });
+
+	th_landscape.join();
+	th_portrait.join();
 
 	return 0;
 }

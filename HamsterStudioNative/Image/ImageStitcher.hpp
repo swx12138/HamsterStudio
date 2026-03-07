@@ -32,6 +32,16 @@ public:
 		}
 		std::cout << "找到 " << all_filenames.size() << " 张图片，正在加载和分类..." << std::endl;
 
+		// 第一张图片默认纯色
+		auto default_landspce_image = PlaceHolderImage();
+		landscape_images_.push_back(default_landspce_image);
+		//cv::imshow("default_landspce_image", default_landspce_image);
+		//cv::waitKey();
+
+		cv::Mat default_portrait_image;
+		cv::rotate(default_landspce_image, default_portrait_image, cv::ROTATE_90_CLOCKWISE);
+		portrait_images_.push_back(default_portrait_image);
+
 		// --- 4. 加载图片并按横竖方向分类 ---
 		for (const auto &filepath : all_filenames) {
 			cv::Mat img = cv::imread(filepath);
@@ -41,14 +51,15 @@ public:
 			}
 
 			if (img.cols > img.rows) {
-				landscape_images_.push_back(normalizeImage(img, Long, Short));
+				landscape_images_.push_back(img);
 			}
 			else {
-				portrait_images_.push_back(normalizeImage(img, Short, Long));
+				portrait_images_.push_back(img);
 			}
 		}
 
-		std::cout << "加载完成。横图: " << landscape_images_.size() << " 张, 竖图: " << portrait_images_.size() << " 张。" << std::endl;
+		std::cout << "加载完成。横图: " << landscape_images_.size() - 1
+			<< " 张, 竖图: " << portrait_images_.size() - 1 << " 张。" << std::endl;
 	}
 
 	/**
@@ -78,10 +89,14 @@ public:
 	 * @param target_height 每个格子的目标高度
 	 * @return 拼接后的单张图片
 	 */
-	static cv::Mat stitch(const std::vector<cv::Mat> &images, int target_width, int target_height) {
+	static cv::Mat stitch(const std::vector<cv::Mat> &images, int target_width, int target_height, int borderThickness = -1) {
 		if (images.empty()) {
 			std::cerr << "错误: 输入图片列表为空，无法进行拼接。" << std::endl;
 			return cv::Mat();
+		}
+
+		if (borderThickness < 0) {
+			borderThickness = std::min(target_width, target_height) / 20; // 默认边距为格子尺寸的 5%
 		}
 
 		const int N = static_cast<int>(images.size());
@@ -95,8 +110,8 @@ public:
 		}
 
 		// 2. 创建拼接画布
-		const int canvas_width = cols * target_width;
-		const int canvas_height = rows * target_height;
+		const int canvas_width = cols * target_width + (cols + 1) * borderThickness;
+		const int canvas_height = rows * target_height + (rows + 1) * borderThickness;
 		cv::Mat canvas = cv::Mat::zeros(canvas_height, canvas_width, CV_8UC3);
 		GradientFiller::fillBilinear(canvas,
 			PantoneColors::YearColor_2025_MochaMousse,
@@ -115,46 +130,45 @@ public:
 				break; // 防止越界
 			}
 
-
 			// 定义画布上的感兴趣区域 (ROI)
-			cv::Mat roi = canvas(cv::Rect(col_idx * target_width, row_idx * target_height, images[i].cols, images[i].rows));
-
-			// 将输入图片复制到 ROI
-			// 注意：如果原图是灰度图而画布是彩色图，需要转换
-			if (images[i].channels() == 1 && canvas.channels() == 3) {
-				cv::cvtColor(images[i], roi, cv::COLOR_GRAY2BGR);
-			}
-			else {
-				//cv::imshow("signle", images[i]);
-				//cv::waitKey();
-
-				images[i].copyTo(roi);
-
-				//cv::imshow("canvas", canvas);
-				//cv::waitKey();
-			}
+			cv::Mat roi = canvas(cv::Rect(
+				borderThickness + col_idx * (target_width + borderThickness),
+				borderThickness + row_idx * (target_height + borderThickness),
+				target_width,
+				target_height
+			));
+			PasteImage(roi, images[i]);
 		}
 
 		return canvas;
 	}
 
-	static cv::Mat normalizeImage(const cv::Mat &image, int target_width, int target_height) {
-		constexpr auto resized_image_window_name = "resized_image";
-		//static std::once_flag init_flag;
-		//std::call_once(init_flag, [] () {
-		//	cv::namedWindow(resized_image_window_name);
-		//	cv::resizeWindow(resized_image_window_name, Long, Long); });
+	static void PasteImage(cv::Mat &canvas, const cv::Mat &image) {
+		double scale_x = static_cast<double>(canvas.cols) / image.cols;
+		double scale_y = static_cast<double>(canvas.rows) / image.rows;
+		double scale = std::min(scale_x, scale_y);
 
-		cv::Mat resized_image;
-		auto scale_x = static_cast<double>(target_width) / image.cols;
-		auto scale_y = static_cast<double>(target_height) / image.rows;
-		auto scale = std::min(scale_x, scale_y);
-		cv::resize(image, resized_image, cv::Size {}, scale, scale);
+		cv::Mat scaled_image;
+		cv::resize(image, scaled_image, cv::Size {}, scale, scale);
 
-		//cv::imshow(resized_image_window_name, resized_image);
-		//cv::waitKey();
+		int x_offset = (canvas.cols - scaled_image.cols) / 2;
+		int y_offset = (canvas.rows - scaled_image.rows) / 2;
+		auto roi = canvas(cv::Rect(x_offset, y_offset, scaled_image.cols, scaled_image.rows));
+		if (scaled_image.channels() == 1 && canvas.channels() == 3) {
+			cv::cvtColor(scaled_image, roi, cv::COLOR_GRAY2BGR);
+		}
+		else {
+			scaled_image.copyTo(roi);
+		}
+	}
 
-		return resized_image;
+	static cv::Mat PlaceHolderImage() {
+		static cv::Mat placeholder = cv::Mat(Short, Long, CV_8UC3);
+		GradientFiller::fillSolidColor(placeholder, PantoneColors::YearColor_2026_CloudDancer);
+		//auto size = cv::Size(Long / 4, Short / 4);
+		//size.width = size.height = std::min(size.width, Long / 2 - 20);
+		//cv::ellipse(placeholder, cv::Point(Long / 2, Short / 2), size, 0, 0, 360, PantoneColors::YearColor_2020_ClassicBlue, -1);
+		return placeholder;
 	}
 
 };
