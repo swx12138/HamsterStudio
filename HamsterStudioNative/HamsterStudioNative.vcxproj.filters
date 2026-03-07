@@ -99,6 +99,9 @@
     <ClInclude Include="html.hpp">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="Image\PixelData\PopularColors.hpp">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Win32\Platform.cpp">
@@ -129,6 +132,12 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="Image\PixelData\PixelDataProcessor.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Image\ImageStitcher.hpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Image\Tools\GradientFiller.hpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

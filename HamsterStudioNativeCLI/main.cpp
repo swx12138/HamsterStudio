@@ -1,5 +1,6 @@
 
 #include "../HamsterStudioNative/Image/ImageEditor.h"
+#include "../HamsterStudioNative/Image/ImageProcessor.h"
 
 #include <chrono>
 #include <iostream>
@@ -10,47 +11,47 @@ const std::string imageOutPath = "D:/.memory/长萌~大家新年快乐呀_1_xhs_艾西Aiwes
 #include <opencv2/opencv.hpp>
 
 int cuda_check_main() {
-    std::cout << "OpenCV Version: " << CV_VERSION << std::endl;
+	std::cout << "OpenCV Version: " << CV_VERSION << std::endl;
 
-    // 打印构建信息，查找 CUDA 相关内容
-    std::cout << "OpenCV Build Information:" << std::endl;
-    std::cout << cv::getBuildInformation() << std::endl;
+	// 打印构建信息，查找 CUDA 相关内容
+	std::cout << "OpenCV Build Information:" << std::endl;
+	std::cout << cv::getBuildInformation() << std::endl;
 
-    // 检查是否有可用的 CUDA 设备
-    int cuda_devices = cv::cuda::getCudaEnabledDeviceCount();
-    std::cout << "Number of CUDA devices available: " << cuda_devices << std::endl;
+	// 检查是否有可用的 CUDA 设备
+	int cuda_devices = cv::cuda::getCudaEnabledDeviceCount();
+	std::cout << "Number of CUDA devices available: " << cuda_devices << std::endl;
 
-    if (cuda_devices > 0) {
-        std::cout << "CUDA support is compiled and working!" << std::endl;
-        // 你可以在这里尝试使用 CUDA 功能，例如 cv::cuda::cvtColor
-    }
-    else {
-        std::cout << "No CUDA devices found or CUDA support not compiled correctly." << std::endl;
-    }
-
-    return 0;
-}
-
-int image_format_convert(std::string const &infile, std::string const &outfile) {
-    cv::Mat image = cv::imread(infile);
-    if (image.empty()) {
-        std::cerr << "Failed to read image: " << infile << std::endl;
-        return 1;
-    }
-    // 保存为 PNG 格式
-    if (!cv::imwrite(outfile, image)) {
-        std::cerr << "Failed to write image: " << outfile << std::endl;
-        return 2;
-    }
+	if (cuda_devices > 0) {
+		std::cout << "CUDA support is compiled and working!" << std::endl;
+		// 你可以在这里尝试使用 CUDA 功能，例如 cv::cuda::cvtColor
+	}
+	else {
+		std::cout << "No CUDA devices found or CUDA support not compiled correctly." << std::endl;
+	}
 
 	return 0;
 }
 
-int main()
+int image_format_convert(std::string const &infile, std::string const &outfile) {
+	cv::Mat image = cv::imread(infile);
+	if (image.empty()) {
+		std::cerr << "Failed to read image: " << infile << std::endl;
+		return 1;
+	}
+	// 保存为 PNG 格式
+	if (!cv::imwrite(outfile, image)) {
+		std::cerr << "Failed to write image: " << outfile << std::endl;
+		return 2;
+	}
+
+	return 0;
+}
+
+int main0()
 {
 	return image_format_convert(
-        "E:\\HamsterStudioHome\\xiaohongshu\\是阿珞子\\缓慢更新库存一则_1_xhs_是阿珞子_1040g00831sg3li8c5kkg5ntlqomgbnsadk0cdl0.png",
-        "E:\\HamsterStudioHome\\xiaohongshu\\是阿珞子\\缓慢更新库存一则_1_xhs_是阿珞子_1040g00831sg3li8c5kkg5ntlqomgbnsadk0cdl0.jpg");
+		"E:\\HamsterStudioHome\\xiaohongshu\\是阿珞子\\缓慢更新库存一则_1_xhs_是阿珞子_1040g00831sg3li8c5kkg5ntlqomgbnsadk0cdl0.png",
+		"E:\\HamsterStudioHome\\xiaohongshu\\是阿珞子\\缓慢更新库存一则_1_xhs_是阿珞子_1040g00831sg3li8c5kkg5ntlqomgbnsadk0cdl0.jpg");
 	return cuda_check_main();
 
 	using namespace std::chrono;
@@ -68,6 +69,19 @@ int main()
 	auto end = high_resolution_clock::now();
 	auto duration = duration_cast<milliseconds>(end - start);
 	std::cout << "Processing time: " << duration.count() << " ms" << std::endl;
+
+	return 0;
+}
+
+#include "../HamsterStudioNative/Image/ImageStitcher.hpp"
+
+int main() {
+
+	namespace fs = std::filesystem;
+	fs::path image_folder_path { "D:\\photos\\约拍\\流萤\\春日手信\\参考" };
+	ImageStitcher stitcher { image_folder_path };
+	stitcher.generateStitchedImage("result_portrait.jpg", false);
+	stitcher.generateStitchedImage("result_landscape.jpg", true);
 
 	return 0;
 }

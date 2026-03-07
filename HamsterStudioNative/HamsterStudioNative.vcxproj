@@ -179,6 +179,7 @@
     <ClInclude Include="Image\ImageSlider.h" />
     <ClInclude Include="Image\PixelData\PixelData.h" />
     <ClInclude Include="Image\PixelData\PixelDataProcessor.h" />
+    <ClInclude Include="Image\PixelData\PopularColors.hpp" />
     <ClInclude Include="Image\Screenshot.h" />
     <ClInclude Include="Win32\Control.hpp" />
     <ClInclude Include="Win32\Drawing.hpp" />
@@ -192,9 +193,11 @@
     <ClCompile Include="Image\ImageEditor.cpp" />
     <ClCompile Include="Image\ImageProcessor.cpp" />
     <ClCompile Include="Image\ImageSlider.cpp" />
+    <ClCompile Include="Image\ImageStitcher.hpp" />
     <ClCompile Include="Image\PixelData\PixelData.cpp" />
     <ClCompile Include="Image\PixelData\PixelDataProcessor.cpp" />
     <ClCompile Include="Image\Screenshot.cpp" />
+    <ClCompile Include="Image\Tools\GradientFiller.hpp" />
     <ClCompile Include="Win32\Platform.cpp" />
     <ClCompile Include="Win32\Win32.cpp" />
   </ItemGroup>
