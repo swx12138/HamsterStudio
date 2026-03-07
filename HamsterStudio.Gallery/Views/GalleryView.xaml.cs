@@ -44,41 +44,6 @@ namespace HamsterStudio.Gallery.Views
             {
                 gvm2.OnSelectedFolderChanged(gf);
                 return;
-
-                cancellationTokenSource.Cancel();
-                cancellationTokenSource = new CancellationTokenSource();
-                backgroundWorker = new BackgroundWorker() { WorkerSupportsCancellation = true };
-                backgroundWorker.DoWork += (sender, e) =>
-                {
-                    lock (lockobj)
-                    {
-                        Application.Current.Dispatcher.Invoke(() =>
-                        {
-                            gvm2.CurrentImages.Clear();
-                        });
-
-                        foreach (var file in gf.Files)
-                        {
-                            if (e.Cancel)
-                            {
-                                break;
-                            }
-
-                            var imgSrc = ImageUtils.LoadImageSource(file.FullName, 400);
-                            if (imgSrc == null)
-                            {
-                                Trace.TraceError($"Load image {file.Name} failed!!!");
-                                continue;
-                            }
-
-                            Application.Current.Dispatcher.Invoke(() =>
-                            {
-                                gvm2.CurrentImages.Add(imgSrc);
-                            });
-                        }
-                    }
-                };
-                backgroundWorker.RunWorkerAsync(cancellationTokenSource.Token);
             }
         }
 
@@ -87,6 +52,14 @@ namespace HamsterStudio.Gallery.Views
             if (DataContext is GalleryViewModel2 gvm2)
             {
                 gvm2.OnPageIndexChanged();
+            }
+        }
+
+        private void TextBox_PreviewKeyDown(object sender, System.Windows.Input.KeyEventArgs e)
+        {
+            if(sender is TextBox tb && tb.Parent is FrameworkElement fe )
+            {
+                fe.Focus();
             }
         }
     }

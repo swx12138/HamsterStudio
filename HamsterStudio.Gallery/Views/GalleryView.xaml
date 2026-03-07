@@ -5,50 +5,88 @@
              xmlns:handy="https://handyorg.github.io/handycontrol"
              xmlns:local="clr-namespace:HamsterStudio.Gallery.Views"
              xmlns:localc="clr-namespace:HamsterStudio.Gallery.Converters"
+             xmlns:localdts="clr-namespace:HamsterStudio.Gallery.DataTemplateSelectors"
              xmlns:localm="clr-namespace:HamsterStudio.Gallery.Models"
              xmlns:localp="clr-namespace:HamsterStudio.Gallery"
-             xmlns:localtc="clr-namespace:HamsterStudio.Toolkits.Converters;assembly=HamsterStudio.Toolkits"
              xmlns:localvm="clr-namespace:HamsterStudio.Gallery.ViewModels"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:tkc="clr-namespace:HamsterStudio.Toolkits.Converters;assembly=HamsterStudio.Toolkits"
              d:DesignHeight="450"
              d:DesignWidth="800"
              mc:Ignorable="d">
+    <UserControl.Resources>
+        <tkc:PathToImageSource x:Key="Path2ImgSrc500px" DecodeWidth="500" />
+    </UserControl.Resources>
     <DockPanel>
         <DockPanel.Resources>
             <localc:GalleryFolderConverter x:Key="GalleryFolderConverter" />
+
             <HierarchicalDataTemplate x:Key="GalleryFolderTemplate" DataType="localm:GalleryFolderModel" ItemsSource="{Binding Folders}">
-                <TextBlock VerticalAlignment="Center" Text="{Binding Converter={StaticResource GalleryFolderConverter}}" />
+                <StackPanel Orientation="Horizontal">
+                    <StackPanel.ContextMenu>
+                        <ContextMenu>
+                            <MenuItem Command="{Binding OpenFolderCommand}" Header="打开文件夹" />
+                        </ContextMenu>
+                    </StackPanel.ContextMenu>
+                    <TextBlock VerticalAlignment="Center" Foreground="ForestGreen" Text="{Binding DirInfo.Name}" />
+                    <TextBlock Text=" - " />
+                    <TextBlock VerticalAlignment="Center" Foreground="Firebrick" Text="{Binding Files.Count}" />
+                </StackPanel>
             </HierarchicalDataTemplate>
+
+            <localdts:GalleryFolderTemplateSelector x:Key="GalleryFolderTemplateSelector">
+                <localdts:GalleryFolderTemplateSelector.FolderTemplate>
+                    <DataTemplate />
+                </localdts:GalleryFolderTemplateSelector.FolderTemplate>
+                <localdts:GalleryFolderTemplateSelector.FullImageTemplate>
+                    <DataTemplate />
+                </localdts:GalleryFolderTemplateSelector.FullImageTemplate>
+            </localdts:GalleryFolderTemplateSelector>
+
             <DataTemplate x:Key="GalleryFolderFileTemplate" DataType="FileInfo">
-                <Grid Margin="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-                    <Image HorizontalAlignment="Center"
-                           VerticalAlignment="Center"
-                           Source="{Binding}"
-                           Stretch="UniformToFill" />
-                </Grid>
+                <Border BorderBrush="Red" BorderThickness="1" CornerRadius="5">
+                    <Image Margin="2" Source="{Binding FullName, Converter={StaticResource Path2ImgSrc500px}}" ToolTip="{Binding FullName}" />
+                </Border>
             </DataTemplate>
         </DockPanel.Resources>
-        <TreeView DockPanel.Dock="Left"
+        <TreeView MinWidth="128"
+                  DockPanel.Dock="Left"
                   ItemTemplate="{StaticResource GalleryFolderTemplate}"
-                  ItemsSource="{Binding GalleryFolders}"
+                  ItemsSource="{Binding GalleryFolders.Folders}"
                   SelectedItemChanged="TreeView_SelectedItemChanged" />
-        <DockPanel Background="AliceBlue">
-            <TextBlock DockPanel.Dock="Top" Text="{Binding CurrentFolder.DirInfo.FullName}" />
-            <handy:Pagination Margin="5"
-                              HorizontalAlignment="Stretch"
-                              DataCountPerPage="{Binding DataCountPerPage}"
-                              DockPanel.Dock="Bottom"
-                              MaxPageCount="{Binding MaxPageCount}"
-                              PageUpdated="Pagination_PageUpdated"
-                              PageIndex="{Binding PageIndex, Mode=TwoWay}" />
-            <ItemsControl ItemTemplate="{StaticResource GalleryFolderFileTemplate}" ItemsSource="{Binding CurrentImages}">
-                <ItemsControl.ItemsPanel>
-                    <ItemsPanelTemplate>
-                        <UniformGrid Columns="{Binding Columns}" Rows="{Binding Rows}" />
-                    </ItemsPanelTemplate>
-                </ItemsControl.ItemsPanel>
-            </ItemsControl>
-        </DockPanel>
+        <Border BorderBrush="Red" BorderThickness="1" CornerRadius="5">
+            <DockPanel Background="AliceBlue">
+                <StackPanel DockPanel.Dock="Top" Orientation="Horizontal">
+                    <handy:Pagination Margin="5"
+                                      DataCountPerPage="{Binding DataCountPerPage}"
+                                      MaxPageCount="{Binding MaxPageCount}"
+                                      PageUpdated="Pagination_PageUpdated"
+                                      PageIndex="{Binding PageIndex, Mode=TwoWay}" />
+                    <TextBlock DockPanel.Dock="Top" Text="{Binding CurrentFolder.DirInfo.FullName}" />
+                    <CheckBox Content="自动切页" IsChecked="{Binding AutoSwitchPage}" />
+                    <handy:NumericUpDown Value="{Binding Columns}" />
+                    <handy:NumericUpDown Value="{Binding Rows}" />
+                    <handy:NumericUpDown Value="{Binding AutoSwitchPageMinDelay}" />
+                    <handy:TextBox Width="200" PreviewKeyDown="TextBox_PreviewKeyDown" Text="{Binding CurrentFolder.SearchText, Mode=TwoWay}" />
+                </StackPanel>
+
+                <!--<ItemsControl ItemTemplate="{StaticResource GalleryFolderFileTemplate}" ItemsSource="{Binding CurrentImages}">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <UniformGrid Columns="{Binding Columns}" Rows="{Binding Rows}" />
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                </ItemsControl>-->
+
+                <ItemsControl ItemTemplate="{StaticResource GalleryFolderFileTemplate}" ItemsSource="{Binding CurrentFolder.SearchedViewSource.View}">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <UniformGrid Columns="{Binding Columns}" Rows="{Binding Rows}" />
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                </ItemsControl>
+
+            </DockPanel>
+        </Border>
     </DockPanel>
 </UserControl>
