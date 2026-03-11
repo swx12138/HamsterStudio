@@ -74,18 +74,44 @@ int main0()
 }
 
 #include "../HamsterStudioNative/Image/ImageStitcher.hpp"
+#include "../HamsterStudioNative/Framework/StopWatch.hpp"
+
+int main_stitch()
+{
+	namespace fs = std::filesystem;
+	StopWatch watch;
+	try {
+		fs::path image_folder_path = fs::current_path();
+		ImageStitcher stitcher { image_folder_path };
+
+		std::jthread th_portrait([&] { stitcher.generateStitchedImage("result_portrait.jpg", false); });
+		std::jthread th_landscape([&] { stitcher.generateStitchedImage("result_landscape.jpg", true); });
+
+		th_landscape.join();
+		th_portrait.join();
+	}
+	catch (const std::exception &e) {
+		std::cerr << "Error: " << e.what() << std::endl;
+		system("pause");
+	}
+	std::cout << "Total processing time: " << std::chrono::duration_cast<std::chrono::milliseconds>(watch.elapsed()).count() << " ms" << std::endl;
+	return 0;
+}
+
+#include "../HamsterStudioNative/Image/Effects/BlackSoftEffect.hpp"
 
 int main() {
+	return main_stitch();
 
-	namespace fs = std::filesystem;
-	fs::path image_folder_path { "D:\\photos\\约拍\\流萤\\春日手信\\参考" };
-	ImageStitcher stitcher { image_folder_path };
+	using namespace ImageEffectsNamespace;
 
-	std::jthread th_portrait([&] { stitcher.generateStitchedImage("result_portrait.jpg", false); });
-	std::jthread th_landscape([&] { stitcher.generateStitchedImage("result_landscape.jpg", true); });
+	cv::Mat image = cv::imread("C:/Users/nv/Downloads/20260222_00193.jpg");
 
-	th_landscape.join();
-	th_portrait.join();
+	// 应用黑柔效果
+	// strength: 0.7 会让暗角非常显著
+	// vignette_size: 0.5 控制暗角从中心扩散的快慢
+	cv::Mat result = applyBlackVelvetEffect(image);
 
-	return 0;
+	cv::imwrite("C:/Users/nv/Downloads/20260222_00193_blacksoft.jpg", result);
+
 }

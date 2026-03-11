@@ -190,6 +190,8 @@
   <ItemGroup>
     <ClCompile Include="Application.cpp" />
     <ClCompile Include="dllmain.cpp" />
+    <ClCompile Include="Image\Effects\BlackSoftEffect.hpp" />
+    <ClCompile Include="Image\Effects\Effects.hpp" />
     <ClCompile Include="Image\ImageEditor.cpp" />
     <ClCompile Include="Image\ImageProcessor.cpp" />
     <ClCompile Include="Image\ImageSlider.cpp" />
@@ -198,6 +200,7 @@
     <ClCompile Include="Image\PixelData\PixelDataProcessor.cpp" />
     <ClCompile Include="Image\Screenshot.cpp" />
     <ClCompile Include="Image\Tools\GradientFiller.hpp" />
+    <ClCompile Include="Framework\StopWatch.hpp" />
     <ClCompile Include="Win32\Platform.cpp" />
     <ClCompile Include="Win32\Win32.cpp" />
   </ItemGroup>

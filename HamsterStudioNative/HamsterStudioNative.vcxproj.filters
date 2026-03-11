@@ -140,5 +140,14 @@
     <ClCompile Include="Image\Tools\GradientFiller.hpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="Image\Effects\BlackSoftEffect.hpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Image\Effects\Effects.hpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Framework\StopWatch.hpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>
