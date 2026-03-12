@@ -8,10 +8,15 @@
 #include <ranges>
 #include <filesystem>
 
+enum ImageStitcheMode {
+	None,
+	Portrait,
+	Landscape
+};
+
 class ImageStitcher {
 	std::filesystem::path image_folder_path_;
-	std::vector<cv::Mat> landscape_images_; // 横图
-	std::vector<cv::Mat> portrait_images_;  // 竖图
+	std::vector<cv::Mat> images_;
 	constexpr static const int Long = 1920;
 	constexpr static const int Short = 1280;
 public:
@@ -33,17 +38,11 @@ public:
 			}
 		}
 
-		std::cout << "找到 " << all_filenames.size() << " 张图片，正在加载和分类..." << std::endl;
+		std::cout << "找到 " << all_filenames.size() << " 张图片，正在加载..." << std::endl;
 
 		// 第一张图片默认纯色
 		auto default_landspce_image = PlaceHolderImage();
-		landscape_images_.push_back(default_landspce_image);
-		//cv::imshow("default_landspce_image", default_landspce_image);
-		//cv::waitKey();
-
-		cv::Mat default_portrait_image;
-		cv::rotate(default_landspce_image, default_portrait_image, cv::ROTATE_90_CLOCKWISE);
-		portrait_images_.push_back(default_portrait_image);
+		images_.push_back(default_landspce_image);
 
 		// --- 4. 加载图片并按横竖方向分类 ---
 		for (const auto &filepath : all_filenames) {
@@ -52,17 +51,10 @@ public:
 				std::cerr << "警告: 无法加载图片: " << filepath << std::endl;
 				continue;
 			}
-
-			if (img.cols > img.rows) {
-				landscape_images_.push_back(img);
-			}
-			else {
-				portrait_images_.push_back(img);
-			}
+			images_.push_back(img);
 		}
 
-		std::cout << "加载完成。横图: " << landscape_images_.size() - 1
-			<< " 张, 竖图: " << portrait_images_.size() - 1 << " 张。" << std::endl;
+		std::cout << "加载完成。共计: " << images_.size() - 1 << " 张。" << std::endl;
 	}
 
 	/**
@@ -71,14 +63,32 @@ public:
 	 * @param target_height 每个格子的目标高度
 	 * @param output_path 输出文件路径
 	 */
-	cv::Mat generateStitchedImage(std::string const &output_name, bool landscape) {
-		std::vector<cv::Mat> all_images = landscape ? landscape_images_ : portrait_images_;
-		if (all_images.size() <= 1) {
-			std::cerr << "警告: 没有足够的图片进行拼接，至少需要一张默认图片和一张用户图片。" << std::endl;
+	cv::Mat generateStitchedImage(std::string const &output_name, ImageStitcheMode const mode) {
+		std::vector<cv::Mat> all_images_;
+		if (mode == ImageStitcheMode::Portrait) {
+			all_images_.push_back(images_[0](cv::Rect(0, 0, Short, Long)));
+			std::ranges::copy_if(images_ | std::views::drop(1),
+				std::back_inserter(all_images_),
+				[] (const cv::Mat &img) { return img.rows > img.cols; });
+		}
+		else if (mode == ImageStitcheMode::Landscape) {
+			all_images_.push_back(images_[0](cv::Rect(0, 0, Long, Short)));
+			std::ranges::copy_if(images_ | std::views::drop(1),
+				std::back_inserter(all_images_),
+				[] (const cv::Mat &img) { return img.cols >= img.rows; });
+		}
+		else {
+			all_images_ = images_;
+		}
+
+		if (all_images_.size() <= 1) {
+			std::cerr << "警告: 没有足够的图片进行拼接，至少需要一张图片。" << std::endl;
 			return cv::Mat();
 		}
 
-		cv::Mat stitched_image = stitch(all_images, landscape ? Long : Short, landscape ? Short : Long);
+		cv::Mat stitched_image = stitch(all_images_,
+			mode != ImageStitcheMode::Portrait ? Long : Short,
+			mode != ImageStitcheMode::Landscape ? Long : Short);
 		if (!stitched_image.empty()) {
 			auto output_path = (image_folder_path_ / output_name);
 			cv::imwrite(output_path.string(), stitched_image);
@@ -109,6 +119,9 @@ public:
 			borderThickness = std::min(target_width, target_height) / 20; // 默认边距为格子尺寸的 5%
 		}
 
+		std::cout << "开始拼接 " << images.size() << " 张图片，每个格子尺寸: " << target_width << "x" << target_height
+			<< "，边距: " << borderThickness << std::endl;
+
 		const int N = static_cast<int>(images.size());
 
 		// 1. 计算最优行列数 (m, n)，使它们最接近
@@ -118,6 +131,8 @@ public:
 		if (rows > cols) {
 			std::swap(rows, cols);
 		}
+
+		std::cout << "计算得到的布局: " << rows << " 行 x " << cols << " 列。" << std::endl;
 
 		// 2. 创建拼接画布
 		const int canvas_width = cols * target_width + (cols + 1) * borderThickness;
@@ -173,7 +188,7 @@ public:
 	}
 
 	static cv::Mat PlaceHolderImage() {
-		static cv::Mat placeholder = cv::Mat(Short, Long, CV_8UC3);
+		static cv::Mat placeholder = cv::Mat(Long, Long, CV_8UC3);
 		GradientFiller::fillSolidColor(placeholder, PantoneColors::YearColor_2026_CloudDancer);
 		//auto size = cv::Size(Long / 4, Short / 4);
 		//size.width = size.height = std::min(size.width, Long / 2 - 20);
@@ -208,6 +223,7 @@ public:
 				<< std::endl;
 		}
 	}
+
 };
 
 // 定义支持的图片格式

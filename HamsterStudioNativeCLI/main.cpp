@@ -76,7 +76,7 @@ int main0()
 #include "../HamsterStudioNative/Image/ImageStitcher.hpp"
 #include "../HamsterStudioNative/Framework/StopWatch.hpp"
 
-int main_stitch()
+int main_stitch(std::vector<std::string> const &args)
 {
 	namespace fs = std::filesystem;
 	StopWatch watch;
@@ -87,11 +87,31 @@ int main_stitch()
 		fs::path image_folder_path = fs::current_path();
 		ImageStitcher stitcher { image_folder_path };
 
-		std::jthread th_portrait([&] { stitcher.generateStitchedImage("result_portrait.jpg", false); });
-		std::jthread th_landscape([&] { stitcher.generateStitchedImage("result_landscape.jpg", true); });
+		if (args.size() != 2) {
+			std::cout << "No mode specified, generating all results in parallel..." << std::endl;
+			std::jthread th_portrait([&] { stitcher.generateStitchedImage("result_portrait.jpg", ImageStitcheMode::Portrait); });
+			std::jthread th_landscape([&] { stitcher.generateStitchedImage("result_landscape.jpg", ImageStitcheMode::Landscape); });
+			th_landscape.join();
+			th_portrait.join();
+		}
+		else if (args[1] == "portrait" || args[1] == "p") {
+			std::cout << "Generating portrait stitched image..." << std::endl;
+			stitcher.generateStitchedImage("result_portrait.jpg", ImageStitcheMode::Portrait);
+		}
+		else if (args[1] == "landscape" || args[1] == "l") {
+			std::cout << "Generating landscape stitched image..." << std::endl;
+			stitcher.generateStitchedImage("result_landscape.jpg", ImageStitcheMode::Landscape);
+		}
+		else if (args[1] == "all" || args[1] == "a") {
+			std::cout << "Generating all stitched images..." << std::endl;
+			stitcher.generateStitchedImage("result_all.jpg", ImageStitcheMode::None);
+		}
+		else {
+			std::cerr << "Invalid argument: " << args[1] << std::endl;
+			std::cerr << "Usage: " << args[0] << " [portrait|landscape|all]" << std::endl;
+			return 1;
+		}
 
-		th_landscape.join();
-		th_portrait.join();
 #ifdef _DEBUG
 #else
 	}
@@ -106,9 +126,9 @@ int main_stitch()
 
 #include "../HamsterStudioNative/Image/Effects/BlackSoftEffect.hpp"
 
-int main() {
-
-	return main_stitch();
+int main(int argc, char **argv) {
+	std::vector<std::string> args(argv, argv + argc);
+	return main_stitch(args);
 
 	using namespace ImageEffectsNamespace;
 
@@ -121,4 +141,5 @@ int main() {
 
 	cv::imwrite("C:/Users/nv/Downloads/20260222_00193_blacksoft.jpg", result);
 
+	return 0;
 }
