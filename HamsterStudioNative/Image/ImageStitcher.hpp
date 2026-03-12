@@ -1,7 +1,9 @@
 #pragma once
 
 #include <opencv2/opencv.hpp>
+
 #include "./Tools/GradientFiller.hpp"
+#include "../Framework/utilities.hpp"
 
 #include <ranges>
 #include <filesystem>
@@ -18,18 +20,19 @@ public:
 	const static std::set<std::string> supported_extensions;
 
 	explicit ImageStitcher(std::filesystem::path const &image_folder) : image_folder_path_(image_folder) {
-		// 使用 ranges 从路径读取并过滤图片文件
-		auto image_files_view = std::filesystem::directory_iterator(image_folder_path_)
-			| std::views::filter([] (const std::filesystem::directory_entry &entry) { return entry.is_regular_file()
-				&& !entry.path().filename().string().starts_with("result_")
-				&& supported_extensions.count(std::filesystem::path(entry).extension().string()); })
-			| std::views::transform([] (const std::filesystem::directory_entry &entry) -> std::string { return entry.path().string(); /*转换为完整路径字符串*/ });
-
 		// 将视图内容收集到 vector 中以便排序和后续处理
-		std::vector<std::string> all_filenames;
-		for (const auto &filename : image_files_view) {
-			all_filenames.push_back(filename);
+		std::vector<std::filesystem::path> all_filenames;
+		for (auto const &entry : std::filesystem::directory_iterator(image_folder_path_)) {
+			if (!entry.is_regular_file()) { continue; }
+
+			auto path = entry.path();
+			if (path.filename().wstring().starts_with(L"result_")) { continue; }
+
+			if (supported_extensions.count(path.extension().string())) {
+				all_filenames.push_back(path);
+			}
 		}
+
 		std::cout << "找到 " << all_filenames.size() << " 张图片，正在加载和分类..." << std::endl;
 
 		// 第一张图片默认纯色
@@ -44,7 +47,7 @@ public:
 
 		// --- 4. 加载图片并按横竖方向分类 ---
 		for (const auto &filepath : all_filenames) {
-			cv::Mat img = cv::imread(filepath);
+			auto img = LoadImageCV(filepath);
 			if (img.empty()) {
 				std::cerr << "警告: 无法加载图片: " << filepath << std::endl;
 				continue;
@@ -70,6 +73,11 @@ public:
 	 */
 	cv::Mat generateStitchedImage(std::string const &output_name, bool landscape) {
 		std::vector<cv::Mat> all_images = landscape ? landscape_images_ : portrait_images_;
+		if (all_images.size() <= 1) {
+			std::cerr << "警告: 没有足够的图片进行拼接，至少需要一张默认图片和一张用户图片。" << std::endl;
+			return cv::Mat();
+		}
+
 		cv::Mat stitched_image = stitch(all_images, landscape ? Long : Short, landscape ? Short : Long);
 		if (!stitched_image.empty()) {
 			auto output_path = (image_folder_path_ / output_name);
@@ -81,6 +89,8 @@ public:
 		}
 		return stitched_image;
 	}
+
+#undef min
 
 	/**
 	 * @brief 拼接图片的核心算法
@@ -171,6 +181,33 @@ public:
 		return placeholder;
 	}
 
+	static cv::Mat LoadImageCV(const std::filesystem::path &filepath) {
+		try {
+			cv::Mat img = cv::imread(filepath.string());
+			return img;
+		}
+		catch (const std::exception &e) {
+			std::wcerr << L"错误: 无法加载图片 " << filepath
+				<< L"，异常信息: " << e.what()
+				<< L"，准备重试。。。"
+				<< std::endl;
+		}
+		try {
+			auto temp_filename = filepath.parent_path()
+				.append("temp_image" + std::filesystem::path(filepath).extension().string());
+			std::filesystem::copy_file(filepath, temp_filename, std::filesystem::copy_options::overwrite_existing);
+			cv::Mat img = cv::imread(temp_filename.string());
+
+			std::wcerr << L"重试成功。" << std::endl;
+			std::filesystem::remove(temp_filename);
+			return img;
+		}
+		catch (const std::exception &e) {
+			std::wcerr << L"错误: 无法加载图片 " << filepath
+				<< L"，异常信息: " << e.what()
+				<< std::endl;
+		}
+	}
 };
 
 // 定义支持的图片格式

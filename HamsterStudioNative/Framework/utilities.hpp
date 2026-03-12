@@ -479,7 +479,42 @@ namespace util
 			return std::filesystem::path(std::format("C:\\Users\\{}\\AppData\\LocalLow", user_name()));
 		}
 
-	
+		// Helper function to get the short path name for a given path
+		std::string getShortPathName(const std::wstring &long_path_str) {
+			DWORD length = Win32::GetShortPathNameW(long_path_str.c_str(), nullptr, 0);
+			if (length == 0) {
+				// GetShortPathNameW failed, return original path
+				std::wcerr << L"警告: 无法获取 '" << long_path_str << L"' 的短文件名。错误代码: " << Win32::GetLastError() << std::endl;
+				return to_string(long_path_str);
+			}
+
+			std::vector<wchar_t> buffer(length);
+			Win32::GetShortPathNameW(long_path_str.c_str(), buffer.data(), length);
+			return to_string(std::wstring(buffer.data()));
+		}
+
+		//class TemporaryFile
+		//{
+		//	std::wstring path_;
+		//public:
+		//	TemporaryFile(std::string const &prefix = "tmp_", std::string const &suffix = ".tmp")
+		//	{
+		//		path_ = std::filesystem::temp_directory_path() / std::filesystem::path(prefix + password() + suffix);
+		//		std::ofstream ofs(path_);
+		//	}
+		//	~TemporaryFile()
+		//	{
+		//		std::error_code ec;
+		//		std::filesystem::remove(path_, ec);
+		//		if (ec) {
+		//			std::cerr << "警告: 无法删除临时文件 '" << path_ << "'。错误代码: " << ec.value() << " - " << ec.message() << std::endl;
+		//		}
+		//	}
+		//	std::filesystem::path const &path() const
+		//	{
+		//		return path_;
+		//	}
+		//};
 
 	}
 

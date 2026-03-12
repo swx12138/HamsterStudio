@@ -1,29 +1,29 @@
-
+ï»¿
 #include "../HamsterStudioNative/Image/ImageEditor.h"
 #include "../HamsterStudioNative/Image/ImageProcessor.h"
 
 #include <chrono>
 #include <iostream>
 
-const std::string imagePath = "E:/HamsterStudioHome/xiaohongshu/°¬Î÷Aiwest/³¤ÃÈ~´ó¼ÒĞÂÄê¿ìÀÖÑ½_1_xhs_°¬Î÷Aiwest_1040g3k031sqfb1cdlk0g5nt3psrg8e7n8c09eko.png";
-const std::string imageOutPath = "D:/.memory/³¤ÃÈ~´ó¼ÒĞÂÄê¿ìÀÖÑ½_1_xhs_°¬Î÷Aiwest_1040g3k031sqfb1cdlk0g5nt3psrg8e7n8c09eko.png";
+const std::string imagePath = "E:/HamsterStudioHome/xiaohongshu/è‰¾è¥¿Aiwest/é•¿èŒ~å¤§å®¶æ–°å¹´å¿«ä¹å‘€_1_xhs_è‰¾è¥¿Aiwest_1040g3k031sqfb1cdlk0g5nt3psrg8e7n8c09eko.png";
+const std::string imageOutPath = "D:/.memory/é•¿èŒ~å¤§å®¶æ–°å¹´å¿«ä¹å‘€_1_xhs_è‰¾è¥¿Aiwest_1040g3k031sqfb1cdlk0g5nt3psrg8e7n8c09eko.png";
 
 #include <opencv2/opencv.hpp>
 
 int cuda_check_main() {
 	std::cout << "OpenCV Version: " << CV_VERSION << std::endl;
 
-	// ´òÓ¡¹¹½¨ĞÅÏ¢£¬²éÕÒ CUDA Ïà¹ØÄÚÈİ
+	// æ‰“å°æ„å»ºä¿¡æ¯ï¼ŒæŸ¥æ‰¾ CUDA ç›¸å…³å†…å®¹
 	std::cout << "OpenCV Build Information:" << std::endl;
 	std::cout << cv::getBuildInformation() << std::endl;
 
-	// ¼ì²éÊÇ·ñÓĞ¿ÉÓÃµÄ CUDA Éè±¸
+	// æ£€æŸ¥æ˜¯å¦æœ‰å¯ç”¨çš„ CUDA è®¾å¤‡
 	int cuda_devices = cv::cuda::getCudaEnabledDeviceCount();
 	std::cout << "Number of CUDA devices available: " << cuda_devices << std::endl;
 
 	if (cuda_devices > 0) {
 		std::cout << "CUDA support is compiled and working!" << std::endl;
-		// Äã¿ÉÒÔÔÚÕâÀï³¢ÊÔÊ¹ÓÃ CUDA ¹¦ÄÜ£¬ÀıÈç cv::cuda::cvtColor
+		// ä½ å¯ä»¥åœ¨è¿™é‡Œå°è¯•ä½¿ç”¨ CUDA åŠŸèƒ½ï¼Œä¾‹å¦‚ cv::cuda::cvtColor
 	}
 	else {
 		std::cout << "No CUDA devices found or CUDA support not compiled correctly." << std::endl;
@@ -38,7 +38,7 @@ int image_format_convert(std::string const &infile, std::string const &outfile) 
 		std::cerr << "Failed to read image: " << infile << std::endl;
 		return 1;
 	}
-	// ±£´æÎª PNG ¸ñÊ½
+	// ä¿å­˜ä¸º PNG æ ¼å¼
 	if (!cv::imwrite(outfile, image)) {
 		std::cerr << "Failed to write image: " << outfile << std::endl;
 		return 2;
@@ -50,8 +50,8 @@ int image_format_convert(std::string const &infile, std::string const &outfile) 
 int main0()
 {
 	return image_format_convert(
-		"E:\\HamsterStudioHome\\xiaohongshu\\ÊÇ°¢çó×Ó\\»ºÂı¸üĞÂ¿â´æÒ»Ôò_1_xhs_ÊÇ°¢çó×Ó_1040g00831sg3li8c5kkg5ntlqomgbnsadk0cdl0.png",
-		"E:\\HamsterStudioHome\\xiaohongshu\\ÊÇ°¢çó×Ó\\»ºÂı¸üĞÂ¿â´æÒ»Ôò_1_xhs_ÊÇ°¢çó×Ó_1040g00831sg3li8c5kkg5ntlqomgbnsadk0cdl0.jpg");
+		"E:\\HamsterStudioHome\\xiaohongshu\\æ˜¯é˜¿çå­\\ç¼“æ…¢æ›´æ–°åº“å­˜ä¸€åˆ™_1_xhs_æ˜¯é˜¿çå­_1040g00831sg3li8c5kkg5ntlqomgbnsadk0cdl0.png",
+		"E:\\HamsterStudioHome\\xiaohongshu\\æ˜¯é˜¿çå­\\ç¼“æ…¢æ›´æ–°åº“å­˜ä¸€åˆ™_1_xhs_æ˜¯é˜¿çå­_1040g00831sg3li8c5kkg5ntlqomgbnsadk0cdl0.jpg");
 	return cuda_check_main();
 
 	using namespace std::chrono;
@@ -80,7 +80,10 @@ int main_stitch()
 {
 	namespace fs = std::filesystem;
 	StopWatch watch;
+#ifdef _DEBUG
+#else
 	try {
+#endif // _DEBUG
 		fs::path image_folder_path = fs::current_path();
 		ImageStitcher stitcher { image_folder_path };
 
@@ -89,11 +92,14 @@ int main_stitch()
 
 		th_landscape.join();
 		th_portrait.join();
+#ifdef _DEBUG
+#else
 	}
 	catch (const std::exception &e) {
 		std::cerr << "Error: " << e.what() << std::endl;
 		system("pause");
 	}
+#endif // _DEBUG
 	std::cout << "Total processing time: " << std::chrono::duration_cast<std::chrono::milliseconds>(watch.elapsed()).count() << " ms" << std::endl;
 	return 0;
 }
@@ -101,15 +107,16 @@ int main_stitch()
 #include "../HamsterStudioNative/Image/Effects/BlackSoftEffect.hpp"
 
 int main() {
+
 	return main_stitch();
 
 	using namespace ImageEffectsNamespace;
 
 	cv::Mat image = cv::imread("C:/Users/nv/Downloads/20260222_00193.jpg");
 
-	// Ó¦ÓÃºÚÈáĞ§¹û
-	// strength: 0.7 »áÈÃ°µ½Ç·Ç³£ÏÔÖø
-	// vignette_size: 0.5 ¿ØÖÆ°µ½Ç´ÓÖĞĞÄÀ©É¢µÄ¿ìÂı
+	// åº”ç”¨é»‘æŸ”æ•ˆæœ
+	// strength: 0.7 ä¼šè®©æš—è§’éå¸¸æ˜¾è‘—
+	// vignette_size: 0.5 æ§åˆ¶æš—è§’ä»ä¸­å¿ƒæ‰©æ•£çš„å¿«æ…¢
 	cv::Mat result = applyBlackVelvetEffect(image);
 
 	cv::imwrite("C:/Users/nv/Downloads/20260222_00193_blacksoft.jpg", result);
