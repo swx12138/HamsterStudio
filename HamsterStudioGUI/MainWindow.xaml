@@ -100,12 +100,12 @@
         </TabItem>
 
         <TabItem Header="{Binding GalleryViewModel.DisplayName}">
-            <gv:GalleryView DataContext="{Binding GalleryViewModel}" />
+            <gv:GalleryView DataContext="{Binding GalleryViewModel2}" />
         </TabItem>
 
-        <TabItem Header="{Binding ExposureAdjustmentViewModel.DisplayName}">
+        <!--<TabItem Header="{Binding ExposureAdjustmentViewModel.DisplayName}">
             <hsit:ExposureAdjustmentView DataContext="{Binding ExposureAdjustmentViewModel}" />
-        </TabItem>
+        </TabItem>-->
 
     </TabControl>
 
