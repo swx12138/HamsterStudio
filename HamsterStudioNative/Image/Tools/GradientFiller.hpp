@@ -21,16 +21,16 @@ public:
 
 		for (int y = 0; y < mat.rows; ++y) {
 			for (int x = 0; x < mat.cols; ++x) {
-				float t = 0.0f;
+				double t = 0.0f;
 				if (direction == "horizontal") {
-					t = static_cast<float>(x) / (mat.cols - 1);
+					t = static_cast<double>(x) / (mat.cols - 1);
 				}
 				else if (direction == "vertical") {
-					t = static_cast<float>(y) / (mat.rows - 1);
+					t = static_cast<double>(y) / (mat.rows - 1);
 				}
 				else if (direction == "diagonal") {
-					t = (static_cast<float>(x) + static_cast<float>(y)) / (mat.cols + mat.rows - 2);
-					t = std::min(1.0f, t); // 确保 t 不超过 1.0
+					t = (static_cast<double>(x) + static_cast<double>(y)) / (mat.cols + mat.rows - 2);
+					t = std::min(1.0, t); // 确保 t 不超过 1.0
 				}
 
 				mat.at<cv::Vec3b>(y, x) = interpolateColor(color_start, color_end, t);
@@ -49,13 +49,12 @@ public:
 	static void fillRadial(cv::Mat &mat, cv::Point center, int radius, cv::Scalar const &color_center, cv::Scalar const &color_edge) {
 		if (mat.empty()) return;
 
-		const float max_radius = static_cast<float>(radius);
+		const double max_radius = static_cast<double>(radius);
 		for (int y = 0; y < mat.rows; ++y) {
 			for (int x = 0; x < mat.cols; ++x) {
-				float distance = cv::norm(cv::Point(x, y) - center);
-				float t = distance / max_radius;
-				t = std::min(1.0f, t); // 超出半径的区域保持边缘颜色
-
+				auto distance = cv::norm(cv::Point(x, y) - center);
+				auto t = distance / max_radius;
+				t = std::min(1.0, t); // 超出半径的区域保持边缘颜色
 				mat.at<cv::Vec3b>(y, x) = interpolateColor(color_center, color_edge, t);
 			}
 		}
@@ -74,8 +73,8 @@ public:
 
 		for (int y = 0; y < mat.rows; ++y) {
 			for (int x = 0; x < mat.cols; ++x) {
-				float t_x = static_cast<float>(x) / (mat.cols - 1);
-				float t_y = static_cast<float>(y) / (mat.rows - 1);
+				double t_x = static_cast<double>(x) / (mat.cols - 1);
+				double t_y = static_cast<double>(y) / (mat.rows - 1);
 
 				// 先在 x 方向上插值顶部和底部颜色
 				cv::Vec3b top_color = interpolateColor(color_tl, color_tr, t_x);
@@ -89,7 +88,7 @@ public:
 
 private:
 	// 颜色插值辅助函数
-	static cv::Vec3b interpolateColor(const cv::Scalar &c1, const cv::Scalar &c2, float t) {
+	static cv::Vec3b interpolateColor(const cv::Scalar &c1, const cv::Scalar &c2, double t) {
 		cv::Vec3b color;
 		for (int i = 0; i < 3; ++i) { // BGR channels
 			color[i] = static_cast<uchar>((1.0f - t) * c1[i] + t * c2[i]);

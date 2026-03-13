@@ -16,7 +16,7 @@ public:
      * @param vignette_size 暗角范围 (0.0 - 1.0)，值越大暗角覆盖范围越广
      * @return 应用效果后的图像
      */
-    static cv::Mat applyEffect(const cv::Mat &src, float strength = 0.5f, float vignette_size = 0.6f) {
+    static cv::Mat applyEffect(const cv::Mat &src, double strength = 0.5f, double vignette_size = 0.6f) {
         if (src.empty()) {
             return src;
         }
@@ -34,7 +34,7 @@ public:
         cv::Point2f center(width / 2.0f, height / 2.0f);
 
         // 计算从中心到最远角落的距离，作为归一化基准
-        float max_distance = cv::norm(center);
+        double max_distance = cv::norm(center);
 
         // 创建一个与图像同样大小的遮罩矩阵
         cv::Mat mask = cv::Mat::ones(height, width, CV_32F);
@@ -42,24 +42,24 @@ public:
         for (int y = 0; y < height; ++y) {
             for (int x = 0; x < width; ++x) {
                 // 计算当前像素到中心的距离
-                cv::Point2f pixel_pos(x, y);
-                float distance_from_center = cv::norm(pixel_pos - center);
+                cv::Point2f pixel_pos((float)x, (float)y);
+                double distance_from_center = cv::norm(pixel_pos - center);
 
                 // 归一化距离
-                float normalized_dist = distance_from_center / max_distance;
+                double normalized_dist = distance_from_center / max_distance;
 
                 // 根据 vignette_size 参数调整遮罩的陡峭程度
                 // vignette_size 越小，遮罩变化越陡峭，暗角范围越小
-                float adjusted_dist = std::pow(normalized_dist, 1.0f / vignette_size);
+                double adjusted_dist = std::pow(normalized_dist, 1.0f / vignette_size);
 
                 // 计算遮罩值，strength 控制暗角的深浅
                 // normalized_dist 为 0 时，mask_value 为 1 (无影响)
                 // normalized_dist 为 1 时，mask_value 为 (1 - strength)
-                float mask_value = 1.0f - (strength * adjusted_dist);
+                double mask_value = 1.0f - (strength * adjusted_dist);
 
                 // 将遮罩值应用到该像素的每个通道 (B, G, R)
                 for (int c = 0; c < img_f.channels(); ++c) {
-                    img_f.at<cv::Vec3f>(y, x)[c] *= mask_value;
+                    img_f.at<cv::Vec3f>(y, x)[c] *= (float)mask_value;
                 }
             }
         }
@@ -89,13 +89,13 @@ cv::Mat applyBlackVelvetEffect(const cv::Mat &src, double high_pass_sigma = 1.0,
         return src;
     }
 
-    cv::Mat src_float;
-    src.convertTo(src_float, CV_32F, 1.0 / 255.0); // 转换为浮点型，便于计算
+    cv::Mat src_double;
+    src.convertTo(src_double, CV_32F, 1.0 / 255.0); // 转换为浮点型，便于计算
 
     // 1. 高反差保留 (High Pass Filter)
     cv::Mat blurred;
-    cv::GaussianBlur(src_float, blurred, cv::Size(0, 0), high_pass_sigma, high_pass_sigma);
-    cv::Mat high_pass_detail = src_float - blurred; // 得到细节图
+    cv::GaussianBlur(src_double, blurred, cv::Size(0, 0), high_pass_sigma, high_pass_sigma);
+    cv::Mat high_pass_detail = src_double - blurred; // 得到细节图
 
     // 2. 分离明暗细节
     cv::Mat bright_details = cv::Mat::zeros(high_pass_detail.size(), high_pass_detail.type());
@@ -114,7 +114,7 @@ cv::Mat applyBlackVelvetEffect(const cv::Mat &src, double high_pass_sigma = 1.0,
     cv::GaussianBlur(bright_details, softened_bright_details, cv::Size(0, 0), high_pass_sigma * 2, high_pass_sigma * 2); // 使用更大的sigma
 
     // 4. 深化暗部
-    cv::Mat darkened_image = src_float;
+    cv::Mat darkened_image = src_double;
     cv::Mat blurred_dark_details;
     cv::GaussianBlur(dark_details, blurred_dark_details, cv::Size(0, 0), darkening_sigma, darkening_sigma);
     darkened_image = darkened_image + blurred_dark_details * darkening_strength;

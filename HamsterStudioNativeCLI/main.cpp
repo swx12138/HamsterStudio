@@ -73,7 +73,7 @@ int main0()
 	return 0;
 }
 
-#include "../HamsterStudioNative/Image/ImageStitcher.hpp"
+#include "../HamsterStudioNative/Image/ImageStitcher.h"
 #include "../HamsterStudioNative/Framework/StopWatch.hpp"
 
 int main_stitch(std::vector<std::string> const &args)
@@ -85,26 +85,34 @@ int main_stitch(std::vector<std::string> const &args)
 	try {
 #endif // _DEBUG
 		fs::path image_folder_path = fs::current_path();
-		ImageStitcher stitcher { image_folder_path };
+		ImageStitcher stitcher { image_folder_path,false };
+
+		auto name = image_folder_path.filename().string();
+		if (name == "参考") {
+			name = image_folder_path.parent_path().filename().string();
+		}
+		auto portrait_file = image_folder_path / ("result_" + name + "_portrait.jpg"),
+			landscape_file = image_folder_path / ("result_" + name + "_landscape.jpg");
 
 		if (args.size() != 2) {
 			std::cout << "No mode specified, generating all results in parallel..." << std::endl;
-			std::jthread th_portrait([&] { stitcher.generateStitchedImage("result_portrait.jpg", ImageStitcheMode::Portrait); });
-			std::jthread th_landscape([&] { stitcher.generateStitchedImage("result_landscape.jpg", ImageStitcheMode::Landscape); });
+			std::jthread th_portrait([&] { stitcher.generateStitchedImage(portrait_file, ImageStitcheMode::Portrait); });
+			std::jthread th_landscape([&] { stitcher.generateStitchedImage(landscape_file, ImageStitcheMode::Landscape); });
 			th_landscape.join();
 			th_portrait.join();
 		}
 		else if (args[1] == "portrait" || args[1] == "p") {
 			std::cout << "Generating portrait stitched image..." << std::endl;
-			stitcher.generateStitchedImage("result_portrait.jpg", ImageStitcheMode::Portrait);
+			stitcher.generateStitchedImage(portrait_file, ImageStitcheMode::Portrait);
 		}
 		else if (args[1] == "landscape" || args[1] == "l") {
 			std::cout << "Generating landscape stitched image..." << std::endl;
-			stitcher.generateStitchedImage("result_landscape.jpg", ImageStitcheMode::Landscape);
+			stitcher.generateStitchedImage(landscape_file, ImageStitcheMode::Landscape);
 		}
 		else if (args[1] == "all" || args[1] == "a") {
 			std::cout << "Generating all stitched images..." << std::endl;
-			stitcher.generateStitchedImage("result_all.jpg", ImageStitcheMode::None);
+			auto allinone_file = image_folder_path / ("result_" + name + "_all.jpg");
+			stitcher.generateStitchedImage(allinone_file, ImageStitcheMode::None);
 		}
 		else {
 			std::cerr << "Invalid argument: " << args[1] << std::endl;

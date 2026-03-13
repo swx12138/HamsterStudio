@@ -15,6 +15,10 @@ namespace Win32 {
 	#include <Psapi.h>
 }
 
+#pragma warning(push)
+#pragma warning(disable: 4267)
+#pragma warning(disable: 4244)
+
 namespace util
 {
 	class CmdLineArgs
@@ -121,18 +125,18 @@ namespace util
 	namespace Huawei
 	{
 		//@brief:UTF8 to string
-		std::string utf8_to_string(std::string const& str)
+		std::string utf8_to_string(std::string const &str)
 		{
-			long long nwLen = MultiByteToWideChar(CP_UTF8, 0, str.c_str(), -1, NULL, 0);
+			auto nwLen = MultiByteToWideChar(CP_UTF8, 0, str.c_str(), -1, NULL, 0);
 
-			wchar_t* pwBuf = new wchar_t[nwLen + 1u]; // Be sure to add 1, otherwise there will be a tail
-			memset(pwBuf, 0, static_cast<long long>(nwLen * 2u + 2));
+			wchar_t *pwBuf = new wchar_t[nwLen + 1u]; // Be sure to add 1, otherwise there will be a tail
+			memset(pwBuf, 0, static_cast<size_t>(nwLen * 2u + 2));
 
-			MultiByteToWideChar(CP_UTF8, 0, str.c_str(), str.length(), pwBuf, nwLen);
+			MultiByteToWideChar(CP_UTF8, 0, str.c_str(), static_cast<int>(str.length()), pwBuf, nwLen);
 
-			long long nLen = WideCharToMultiByte(CP_ACP, 0, pwBuf, -1, NULL, NULL, NULL, NULL);
+			auto nLen = WideCharToMultiByte(CP_ACP, 0, pwBuf, -1, NULL, NULL, NULL, NULL);
 
-			char* pBuf = new char[nLen + 1u];
+			char *pBuf = new char[nLen + 1u];
 			memset(pBuf, 0, nLen + 1u);
 
 			WideCharToMultiByte(CP_ACP, 0, pwBuf, nwLen, pBuf, nLen, NULL, NULL);
@@ -279,8 +283,6 @@ namespace util
 		return false;
 	}
 
-	using StringList = std::vector<std::string>;
-
 	template <typename _Ty>
 	_Ty sum(std::vector<_Ty> const& arr)
 	{
@@ -302,7 +304,7 @@ namespace util
 		return _Stream.str();
 	}
 
-	StringList split(std::string const& str, std::string delim)
+	std::vector<std::string> split(std::string const& str, std::string delim)
 	{
 		std::vector<int> _Tmp;
 		auto _Pos = str.find_first_of(delim);
@@ -320,9 +322,9 @@ namespace util
 		return _Ans;
 	}
 
-	StringList split2(std::string const& str, char const delim)
+	std::vector<std::string> split2(std::string const& str, char const delim)
 	{
-		StringList ret;
+		std::vector<std::string> ret;
 		std::stringstream ss(str);
 		std::string ea;
 		while (std::getline(ss, ea, delim))
@@ -442,7 +444,7 @@ namespace util
 
 	namespace fs
 	{
-		StringList GetFiles(stdfs::path const& _Path, bool (*filter)(stdfs::path const&), bool recur)
+		std::vector<std::string> GetFiles(stdfs::path const& _Path, bool (*filter)(stdfs::path const&), bool recur)
 		{
 			std::vector<std::string> retList;
 			if (recur)
@@ -478,43 +480,6 @@ namespace util
 		{
 			return std::filesystem::path(std::format("C:\\Users\\{}\\AppData\\LocalLow", user_name()));
 		}
-
-		// Helper function to get the short path name for a given path
-		std::string getShortPathName(const std::wstring &long_path_str) {
-			DWORD length = Win32::GetShortPathNameW(long_path_str.c_str(), nullptr, 0);
-			if (length == 0) {
-				// GetShortPathNameW failed, return original path
-				std::wcerr << L"警告: 无法获取 '" << long_path_str << L"' 的短文件名。错误代码: " << Win32::GetLastError() << std::endl;
-				return to_string(long_path_str);
-			}
-
-			std::vector<wchar_t> buffer(length);
-			Win32::GetShortPathNameW(long_path_str.c_str(), buffer.data(), length);
-			return to_string(std::wstring(buffer.data()));
-		}
-
-		//class TemporaryFile
-		//{
-		//	std::wstring path_;
-		//public:
-		//	TemporaryFile(std::string const &prefix = "tmp_", std::string const &suffix = ".tmp")
-		//	{
-		//		path_ = std::filesystem::temp_directory_path() / std::filesystem::path(prefix + password() + suffix);
-		//		std::ofstream ofs(path_);
-		//	}
-		//	~TemporaryFile()
-		//	{
-		//		std::error_code ec;
-		//		std::filesystem::remove(path_, ec);
-		//		if (ec) {
-		//			std::cerr << "警告: 无法删除临时文件 '" << path_ << "'。错误代码: " << ec.value() << " - " << ec.message() << std::endl;
-		//		}
-		//	}
-		//	std::filesystem::path const &path() const
-		//	{
-		//		return path_;
-		//	}
-		//};
 
 	}
 
@@ -556,27 +521,6 @@ namespace util
 			_Ans.push_back(val * 16 + _Dehex(*iter++));
 		}
 		return _Ans;
-	}
-
-	class Application
-	{
-
-	public:
-		void Exit(int nCode) const
-		{
-			return exit(nCode);
-		}
-	};
-
-	namespace Debug
-	{
-		void Assert(bool condition, std::string const& message = "")
-		{
-			if (!condition)
-			{
-				throw std::exception(message.data());
-			}
-		}
 	}
 
 	class BigInteger {
@@ -643,3 +587,5 @@ namespace util
 
 
 } // namespace util
+
+#pragma warning(pop)

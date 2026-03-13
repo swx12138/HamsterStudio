@@ -148,6 +148,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\HamsterStudioNative\Image\ImageEditor.cpp" />
+    <ClCompile Include="..\HamsterStudioNative\Image\ImageStitcher.cpp" />
     <ClCompile Include="..\HamsterStudioNative\Image\PixelData\PixelData.cpp" />
     <ClCompile Include="..\HamsterStudioNative\Image\PixelData\PixelDataProcessor.cpp" />
     <ClCompile Include="main.cpp" />

@@ -134,7 +134,7 @@
     <ClCompile Include="Image\PixelData\PixelDataProcessor.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="Image\ImageStitcher.hpp">
+    <ClCompile Include="Image\ImageStitcher.h">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="Image\Tools\GradientFiller.hpp">
@@ -147,6 +147,9 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="Framework\StopWatch.hpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Image\ImageStitcher.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
