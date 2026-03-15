@@ -194,8 +194,51 @@ cv::Mat ImageStitcher::stitch(const std::vector<cv::Mat> &images, int target_wid
 	return canvas;
 }
 
+void drawFilledRoundRect(cv::Mat &img, const cv::Point &topLeft, const cv::Size &rectSize, int cornerRadius, const cv::Scalar &color)
+{
+	// 绘制矩形(不包括圆角)
+	cv::rectangle(img,
+		cv::Point(topLeft.x + cornerRadius, topLeft.y),
+		cv::Point(topLeft.x + rectSize.width - cornerRadius, topLeft.y + rectSize.height),
+		color,
+		-1); // 负值表示填充
+
+	cv::rectangle(img,
+		cv::Point(topLeft.x, topLeft.y + cornerRadius),
+		cv::Point(topLeft.x + rectSize.width, topLeft.y + rectSize.height - cornerRadius),
+		color,
+		-1); // 负值表示填充
+
+	// 绘制四个圆角
+	cv::circle(img,
+		cv::Point(topLeft.x + cornerRadius, topLeft.y + cornerRadius),
+		cornerRadius,
+		color,
+		-1);
+
+	cv::circle(img,
+		cv::Point(topLeft.x + rectSize.width - cornerRadius, topLeft.y + cornerRadius),
+		cornerRadius,
+		color,
+		-1);
+
+	cv::circle(img,
+		cv::Point(topLeft.x + cornerRadius, topLeft.y + rectSize.height - cornerRadius),
+		cornerRadius,
+		color,
+		-1);
+
+	cv::circle(img,
+		cv::Point(topLeft.x + rectSize.width - cornerRadius, topLeft.y + rectSize.height - cornerRadius),
+		cornerRadius,
+		color,
+		-1);
+}
+
 void ImageStitcher::PasteImage(cv::Mat &canvas, const cv::Mat &image)
 {
+	drawFilledRoundRect(canvas, cv::Point(0, 0), canvas.size(), std::min(canvas.cols, canvas.rows) / 20, PantoneColors::YearColor_2026_CloudDancer);
+
 	double scale_x = static_cast<double>(canvas.cols) / image.cols;
 	double scale_y = static_cast<double>(canvas.rows) / image.rows;
 	double scale = std::min(scale_x, scale_y);
