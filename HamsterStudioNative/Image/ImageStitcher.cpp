@@ -59,37 +59,45 @@ ImageStitcher::ImageStitcher(std::filesystem::path const &image_folder, bool use
 cv::Mat ImageStitcher::generateStitchedImage(std::filesystem::path const &output_path, ImageStitcheMode const mode)
 {
 	std::vector<cv::Mat> all_images_;
-	if (use_placeholder_) {
-		if (mode == ImageStitcheMode::Portrait) {
+
+	if (mode == ImageStitcheMode::Portrait) {
+		if (use_placeholder_) {
 			all_images_.push_back(images_[0](cv::Rect(0, 0, Short, Long)));
 			std::ranges::copy_if(images_ | std::views::drop(1),
 				std::back_inserter(all_images_),
 				[] (const cv::Mat &img) { return img.rows > img.cols; });
 		}
-		else if (mode == ImageStitcheMode::Landscape) {
+		else {
+			std::ranges::copy_if(images_,
+				std::back_inserter(all_images_),
+				[] (const cv::Mat &img) { return img.rows > img.cols; });
+		}
+	}
+	else if (mode == ImageStitcheMode::Landscape) {
+		if (use_placeholder_) {
 			all_images_.push_back(images_[0](cv::Rect(0, 0, Long, Short)));
 			std::ranges::copy_if(images_ | std::views::drop(1),
 				std::back_inserter(all_images_),
 				[] (const cv::Mat &img) { return img.cols >= img.rows; });
 		}
 		else {
-			all_images_ = images_;
-		}
-	}
-	else {
-		if (mode == ImageStitcheMode::Portrait) {
-			std::ranges::copy_if(images_,
-				std::back_inserter(all_images_),
-				[] (const cv::Mat &img) { return img.rows > img.cols; });
-		}
-		else if (mode == ImageStitcheMode::Landscape) {
 			std::ranges::copy_if(images_,
 				std::back_inserter(all_images_),
 				[] (const cv::Mat &img) { return img.cols >= img.rows; });
 		}
-		else {
-			all_images_ = images_;
+	}
+	else {
+		// 横屏图片在前，竖屏图片在后
+		std::vector<cv::Mat> _p;
+		for (auto const &img : images_) {
+			if (img.cols >= img.rows) {
+				all_images_.push_back(img);
+			}
+			else {
+				_p.push_back(img);
+			}
 		}
+		all_images_.insert(all_images_.end(), _p.begin(), _p.end());
 	}
 
 	if (all_images_.size() <= 1) {
@@ -112,6 +120,27 @@ cv::Mat ImageStitcher::generateStitchedImage(std::filesystem::path const &output
 
 #undef min
 
+std::pair<int, int> CalculateGridLayout(int image_count, int cell_width, int cell_height) {
+	if (image_count < 4) {
+		if (cell_width > cell_height) {
+			return { image_count, 1 }; // 横屏且图片较少，单列展示
+		}
+		else {
+			return { 1, image_count }; // 竖屏且图片较少，单行展示
+		}
+	}
+	else {
+		// 正常计算布局
+		int cols = static_cast<int>(sqrt(image_count));
+		if (cols * cols < image_count) {
+			cols += 1; // 如果列数的平方小于图片数量，增加一列
+		}
+
+		int rows = (image_count + cols - 1) / cols; // 向上取整
+		return { rows,cols };
+	}
+}
+
 cv::Mat ImageStitcher::stitch(const std::vector<cv::Mat> &images, int target_width, int target_height, int borderThickness)
 {
 	if (images.empty()) {
@@ -126,16 +155,9 @@ cv::Mat ImageStitcher::stitch(const std::vector<cv::Mat> &images, int target_wid
 	std::cout << "开始拼接 " << images.size() << " 张图片，每个格子尺寸: " << target_width << "x" << target_height
 		<< "，边距: " << borderThickness << std::endl;
 
-	const int N = static_cast<int>(images.size());
 
-	// 1. 计算最优行列数 (m, n)，使它们最接近
-	int rows = static_cast<int>(std::ceil(std::sqrt(static_cast<double>(N))));
-	int cols = static_cast<int>(std::ceil(static_cast<double>(N) / rows));
-	// 确保 rows <= cols，优先形成横向布局（例如 2x3 而非 3x2）
-	if (rows > cols) {
-		std::swap(rows, cols);
-	}
-
+	auto layout = CalculateGridLayout(static_cast<int>(images.size()), target_width, target_height);
+	int rows = layout.first, cols = layout.second;
 	std::cout << "计算得到的布局: " << rows << " 行 x " << cols << " 列。" << std::endl;
 
 	// 2. 创建拼接画布

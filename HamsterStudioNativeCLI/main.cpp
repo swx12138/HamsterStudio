@@ -134,8 +134,36 @@ int main_stitch(std::vector<std::string> const &args)
 
 #include "../HamsterStudioNative/Image/Effects/BlackSoftEffect.hpp"
 
+int main_tojpeg(std::vector<std::string> const &args) {
+	if (args.size() != 2) {
+		std::cerr << "Usage: " << args[0] << " <input_image>" << std::endl;
+		return 1;
+	}
+
+	std::filesystem::path input_path(args[1]);
+	if (input_path.extension() == ".jpg" && input_path.extension() == ".jpeg") {
+		std::cerr << "Error: Input file must not be a JPEG image." << std::endl;
+		return 2;
+	}
+
+	auto img = cv::imread(input_path.string());
+	if (img.empty()) {
+		std::cerr << "Error: Failed to read image: " << input_path << std::endl;
+		return 3;
+	}
+
+	auto output_path = input_path.parent_path() / (input_path.stem().string() + "_hsc.jpg");
+	if (!cv::imwrite(output_path.string(), img)) {
+		std::cerr << "Error: Failed to write image: " << output_path << std::endl;
+		return 4;
+	}
+
+	return 0;
+}
+
 int main(int argc, char **argv) {
 	std::vector<std::string> args(argv, argv + argc);
+	//return main_tojpeg(args);
 	return main_stitch(args);
 
 	using namespace ImageEffectsNamespace;
