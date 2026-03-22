@@ -14,23 +14,20 @@ namespace HamsterStudio.WallpaperEngine.Services;
 public partial class DesktopWallpaperInfo : ObservableObject, IDroppable<ImageModelDim>
 {
     private readonly IDesktopWallpaper _desktopWallpaper;
+
+    [ObservableProperty]
     private string _CurrentWallpaper;
 
     public string MonitorId { get; set; }
-    public string CurrentWallpaper
-    {
-        get => _CurrentWallpaper;
-        set
-        {
-            if (value == null) return;
-            SetProperty(ref _CurrentWallpaper, value);
-            _desktopWallpaper.SetWallpaper(MonitorId, value);
-            LastUpdateTime = DateTime.Now;
-            NextUpdateTime = AutoChangeWallpaper ?
-                (DateTime.Now + (ChangeWallpaperTimer?.Interval ?? throw new Exception("Not possible!"))) :
-                DateTime.MaxValue;
-        }
-    }
+    //public string CurrentWallpaper
+    //{
+    //    get => _CurrentWallpaper;
+    //    set
+    //    {
+    //        if (value == null) return;
+    //        SetProperty(ref _CurrentWallpaper, value);
+    //    }
+    //}
 
     public event EventHandler RequestNewWallpapper;
 
@@ -102,6 +99,44 @@ public partial class DesktopWallpaperInfo : ObservableObject, IDroppable<ImageMo
         }
     }
 
+    private void OnCurrentWallpaperChanged()
+    {
+        try
+        {
+            if (!(CurrentWallpaper.EndsWith(".jpg") || CurrentWallpaper.EndsWith(".jpeg")))
+            {
+                Logger?.LogWarning($"Current wallpaper {CurrentWallpaper} is not a jpg/jpeg file, copying to temp location and set as wallpaper.");
+
+                var tempDir = Path.Combine(Path.GetTempPath(), "HamsterStudioWallpaperEngine");
+                if (!Directory.Exists(tempDir))
+                {
+                    Directory.CreateDirectory(tempDir);
+                }
+
+                var filename = Path.GetFileNameWithoutExtension(CurrentWallpaper);
+                var tempPath = Path.Combine(tempDir, filename + ".jpg");
+
+                var mat = OpenCvSharp.Cv2.ImRead(CurrentWallpaper);
+                OpenCvSharp.Cv2.ImWrite(tempPath, mat);
+                _desktopWallpaper.SetWallpaper(MonitorId, tempPath);
+            }
+            else
+            {
+                _desktopWallpaper.SetWallpaper(MonitorId, CurrentWallpaper);
+            }
+
+            LastUpdateTime = DateTime.Now;
+            NextUpdateTime = AutoChangeWallpaper ?
+                (DateTime.Now + (ChangeWallpaperTimer?.Interval ?? throw new Exception("Not possible!"))) :
+                DateTime.MaxValue;
+            Logger?.LogInformation($"Wallpaper updated to {CurrentWallpaper} at {LastUpdateTime}");
+        }
+        catch (Exception ex)
+        {
+            Logger?.LogError($"Failed to set wallpaper: {ex.Message}");
+        }
+    }
+
     protected override void OnPropertyChanged(PropertyChangedEventArgs e)
     {
         if (e.PropertyName == nameof(AutoChangeWallpaper))
@@ -138,7 +173,10 @@ public partial class DesktopWallpaperInfo : ObservableObject, IDroppable<ImageMo
                     DateTime.MaxValue;
             }
         }
-
+        if (e.PropertyName == nameof(CurrentWallpaper))
+        {
+            OnCurrentWallpaperChanged();
+        }
         base.OnPropertyChanged(e);
     }
 
@@ -154,4 +192,6 @@ public partial class DesktopWallpaperInfo : ObservableObject, IDroppable<ImageMo
             CurrentWallpaper = Path.GetFullPath(paths[0]);
         }
     }
+
+    
 }
