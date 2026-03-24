@@ -1,6 +1,4 @@
-﻿using HamsterStudio.Barefeet.Logging;
-using Microsoft.Extensions.Logging;
-using System.Reflection;
+﻿using Microsoft.Extensions.Logging;
 
 namespace HamsterStudio.Barefeet.Services;
 

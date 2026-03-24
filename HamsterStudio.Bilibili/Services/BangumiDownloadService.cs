@@ -1,4 +1,5 @@
 ﻿using HamsterStudio.Barefeet.Extensions;
+using HamsterStudio.Barefeet.FileSystem;
 using HamsterStudio.Barefeet.Logging;
 using HamsterStudio.Bilibili.Models;
 using HamsterStudio.Bilibili.Models.Sub;
@@ -20,7 +21,7 @@ public class BangumiDownloadService(
 {
     public string Cookies { get; set; } = string.Empty;
 
-    public event Action<VideoInfo> OnVideoInfoUpdated = delegate { };
+    public event Action<(VideoInfo, HamstertFileInfo)> OnVideoInfoUpdated = delegate { };
 
     private readonly StreamDownloaderChaeine _downloaderChain =
         new DashDownloader(downloader, fileMgmt, requestStrategyProvider.Strategy,
@@ -104,11 +105,12 @@ public class BangumiDownloadService(
             }
 
             var videoInfo = videoInfoResp.Data!;
-            OnVideoInfoUpdated?.Invoke(videoInfo);
 
             idx = Math.Max(idx, 0);
             var target = fileMgmt.GetVideoFilename(videoInfo, idx, cid);
             logger.LogInformation($"Output Dir:{target.FullName}");
+
+            OnVideoInfoUpdated?.Invoke((videoInfo, target));
 
             if (File.Exists(target.FullName))
             {

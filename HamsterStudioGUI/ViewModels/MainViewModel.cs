@@ -7,6 +7,7 @@ using HamsterStudio.SinaWeibo.Services;
 using HamsterStudioGUI.Constants;
 using HamsterStudioGUI.Models;
 using Microsoft.Extensions.Logging;
+using System.IO;
 using System.Windows;
 using System.Windows.Input;
 
@@ -48,7 +49,14 @@ namespace HamsterStudioGUI.ViewModels
             {
                 try
                 {
-                    ShellApi.OpenFolder(LastSavedFileFolder);
+                    if (File.Exists(LastSavedFileFolder))
+                    {
+                        ShellApi.SelectFile(LastSavedFileFolder);
+                    }
+                    else
+                    {
+                        ShellApi.OpenFolder(LastSavedFileFolder);
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -56,8 +64,10 @@ namespace HamsterStudioGUI.ViewModels
                 }
             });
 
-            downloadService.OnVideoInfoUpdated += async (videoInfo) => await Application.Current.Dispatcher.InvokeAsync(() =>
+            downloadService.OnVideoInfoUpdated += async (pack) => await Application.Current.Dispatcher.InvokeAsync(() =>
             {
+                var (videoInfo, hfi) = pack;
+
                 Title = videoInfo.Title;
                 CoverUrl = videoInfo.Pic;
                 Body = videoInfo.Desc;
@@ -72,6 +82,8 @@ namespace HamsterStudioGUI.ViewModels
                     Share = videoInfo.Stat.Share.ToString(),
                     Like = videoInfo.Stat.Like.ToString()
                 };
+
+                _lastSavedFileFolder = hfi.FullName ?? string.Empty;
             });
             redBookDownloadService.OnNoteDetailUpdated += async (pack) => await Application.Current.Dispatcher.InvokeAsync(() =>
             {

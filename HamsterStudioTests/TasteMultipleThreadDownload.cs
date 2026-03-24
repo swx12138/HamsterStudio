@@ -51,7 +51,7 @@ public class TasteMultipleThreadDownload
     public async Task TestMultipleThreadDownload()
     {
         HttpClientProvider provider = new();
-        var downloader = new CommonDownloader(provider);
+        var downloader = new CommonDownloader(provider, null);
 
         var dest = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), nameof(HamsterStudioTests));
         if (!Directory.Exists(dest))

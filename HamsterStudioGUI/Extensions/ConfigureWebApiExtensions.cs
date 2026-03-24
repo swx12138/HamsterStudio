@@ -13,7 +13,7 @@ using System.IO;
 
 namespace HamsterStudioGUI.Extensions;
 
-internal static class ConfigureWebApiExtensions
+public static class ConfigureWebApiExtensions
 {
     public static void ConfigureService(this IServiceCollection services, string home)
     {

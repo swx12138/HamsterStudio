@@ -11,4 +11,9 @@ public class HamstertFileInfo(string filename)
     public string Directory { get; } = Path.GetDirectoryName(filename) ?? Environment.CurrentDirectory;
     public required ICommand RemoveCommand { get; init; }
     public ICommand RevealInExplorerCommand { get; } = new RelayCommand(() => { ShellApi.SelectFile(Path.GetFullPath(filename)); });
+
+    public HamstertFileInfo(FileInfo fileInfo) : this(fileInfo.FullName)
+    {
+        // 待优化
+    }
 }

@@ -25,6 +25,8 @@ public partial class App : Application
     public int HttpPortNumber => httpPortNumber;
     public int HttpsPortNumber => httpPortNumber + 1;
 
+    public const string Home = @"E:\HamsterStudioHome";
+
     public App()
     {
         //AppDomain.CurrentDomain.FirstChanceException += (sender, e) =>
@@ -60,7 +62,7 @@ public partial class App : Application
             });
         });
         builder.Services.AddWebApiServices();
-        builder.Services.ConfigureService(@"E:\HamsterStudioHome");
+        builder.Services.ConfigureService(Home);
         builder.WebHost.UseUrls(
             $"http://0.0.0.0:{HttpPortNumber}",
             $"https://0.0.0.0:{HttpsPortNumber}");   // 更改监听地址
@@ -105,8 +107,15 @@ public partial class App : Application
 
     internal static T ResloveService<T>()
     {
-        return WebApiService!.Services!.GetService<T>()!;
+        try
+        {
+            return WebApiService!.Services!.GetService<T>()!;
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show($"无法解析服务 {typeof(T).FullName}，请检查服务注册。\n异常信息: {ex.Message}\n{ex.StackTrace}");
+            throw;
+        }
     }
-
 }
 
