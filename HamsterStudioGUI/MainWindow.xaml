@@ -101,9 +101,9 @@
             <wev:WallpaperEngineView DataContext="{Binding WallpaperEngineViewModel}" />
         </TabItem>
 
-        <!--<TabItem Header="{Binding GalleryViewModel.DisplayName}">
+        <TabItem Header="{Binding GalleryViewModel.DisplayName}">
             <gv:GalleryView DataContext="{Binding GalleryViewModel2}" />
-        </TabItem>-->
+        </TabItem>
 
         <TabItem Header="{Binding PhotogrammetryMainViewModel.DisplayName}">
             <pmv:PhotogrammetryMainView DataContext="{Binding PhotogrammetryMainViewModel}" />

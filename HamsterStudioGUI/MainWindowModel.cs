@@ -32,9 +32,9 @@ partial class MainWindowModel : ObservableObject, IDisposable
     private LogViewModel _logViewModel;
 
     public MainViewModel MainViewModel { get; } = new();
-    public WallpaperEngineViewModel  WallpaperEngineViewModel { get; } 
-    //public GalleryViewModel GalleryViewModel { get; }
-    //public GalleryViewModel2 GalleryViewModel2 { get; }
+    public WallpaperEngineViewModel  WallpaperEngineViewModel { get; }
+    public GalleryViewModel GalleryViewModel { get; }
+    public GalleryViewModel2 GalleryViewModel2 { get; }
     public SpacialDownloadsViewModel SpacialDownloadsViewModel { get; }
     public ExposureAdjustmentViewModel ExposureAdjustmentViewModel { get; }
     public PhotogrammetryMainViewModel PhotogrammetryMainViewModel { get; }
@@ -51,8 +51,8 @@ partial class MainWindowModel : ObservableObject, IDisposable
         ThemeMgmt = App.ResloveService<ThemeMgmt>();
         var loggerFactory = App.ResloveService<ILoggerFactory>();
 
-        //GalleryViewModel = new(App.ResloveService<GalleriaFileMgmt>().FileManager, ThemeMgmt, App.ResloveService<ILogger<GalleryViewModel>>());
-        //GalleryViewModel2 = new(App.ResloveService<ILogger<GalleryViewModel2>>());
+        GalleryViewModel = new(App.ResloveService<GalleriaFileMgmt>().FileManager, ThemeMgmt, App.ResloveService<ILogger<GalleryViewModel>>());
+        GalleryViewModel2 = new(App.ResloveService<ILogger<GalleryViewModel2>>());
 
         SpacialDownloadsViewModel = new(loggerFactory);
         WallpaperEngineViewModel = new(
