@@ -1,0 +1,73 @@
+﻿<UserControl x:Class="HamsterStudio.Photogrammetry.Views.PhotogrammetryMainView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:hc="https://handyorg.github.io/handycontrol"
+             xmlns:local="clr-namespace:HamsterStudio.Photogrammetry.Views"
+             xmlns:localf="clr-namespace:HamsterStudio.Photogrammetry.Views.Functions"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             d:DesignHeight="450"
+             d:DesignWidth="800"
+             mc:Ignorable="d">
+    <TabControl TabStripPlacement="Left">
+        <TabItem Header="景深计算">
+            <DockPanel>
+                <StackPanel DockPanel.Dock="Top" Orientation="Horizontal">
+                    <StackPanel.Resources>
+                        <Style TargetType="Button">
+                            <Setter Property="Margin" Value="5" />
+                        </Style>
+                    </StackPanel.Resources>
+                    <Button Command="{Binding AddDepthOfFieldCalculatorViewModelsCommand}" Content="添加" />
+                </StackPanel>
+                <ScrollViewer>
+                    <ItemsControl Background="AliceBlue" ItemsSource="{Binding DepthOfFieldCalculatorViewModels}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border Margin="6"
+                                        Padding="6"
+                                        BorderBrush="#ba1143"
+                                        BorderThickness="1"
+                                        CornerRadius="6">
+                                    <localf:DepthOfFieldCalculatorView DataContext="{Binding}" />
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </ScrollViewer>
+            </DockPanel>
+        </TabItem>
+        <TabItem Header="等效曝光">
+            <DockPanel>
+                <StackPanel DockPanel.Dock="Top" Orientation="Horizontal">
+                    <StackPanel.Resources>
+                        <Style TargetType="Button">
+                            <Setter Property="Margin" Value="5" />
+                        </Style>
+                    </StackPanel.Resources>
+                    <Button Command="{Binding AddEquivalentExposureCalculatorViewModelCommand}" Content="添加" />
+                </StackPanel>
+                <ScrollViewer>
+                    <ItemsControl Background="AliceBlue" ItemsSource="{Binding EquivalentExposureCalculatorViewModels}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border Margin="6"
+                                        Padding="6"
+                                        BorderBrush="#ba1143"
+                                        BorderThickness="1"
+                                        CornerRadius="6">
+                                    <Border.ContextMenu>
+                                        <ContextMenu>
+                                            <MenuItem Command="{Binding DestroyThisViewModelCommand}" Header="移除" />
+                                        </ContextMenu>
+                                    </Border.ContextMenu>
+                                    <hc:PropertyGrid SelectedObject="{Binding}" />
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </ScrollViewer>
+            </DockPanel>
+        </TabItem>
+    </TabControl>
+</UserControl>

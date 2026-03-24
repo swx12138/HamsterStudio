@@ -3,6 +3,7 @@ using HamsterStudio.Barefeet.Services;
 using HamsterStudio.Gallery.Services;
 using HamsterStudio.Gallery.ViewModels;
 using HamsterStudio.ImageTool.ViewModels;
+using HamsterStudio.Photogrammetry.ViewModels;
 using HamsterStudio.Toolkits.Logging;
 using HamsterStudio.Toolkits.Services;
 using HamsterStudio.WallpaperEngine.ViewModels;
@@ -36,6 +37,7 @@ partial class MainWindowModel : ObservableObject, IDisposable
     public GalleryViewModel2 GalleryViewModel2 { get; }
     public SpacialDownloadsViewModel SpacialDownloadsViewModel { get; }
     public ExposureAdjustmentViewModel ExposureAdjustmentViewModel { get; }
+    public PhotogrammetryMainViewModel PhotogrammetryMainViewModel { get; }
 
     [ObservableProperty]
     private ThemeMgmt _ThemeMgmt;
@@ -58,6 +60,8 @@ partial class MainWindowModel : ObservableObject, IDisposable
             ThemeMgmt,
             loggerFactory.CreateLogger<WallpaperEngineViewModel>());
         ExposureAdjustmentViewModel = new(loggerFactory.CreateLogger<ExposureAdjustmentViewModel>());
+
+        PhotogrammetryMainViewModel = new(App.ResloveService<IServiceProvider>(), loggerFactory);
 
         LogViewModel.ClearLogs();
         App.WebApiService.Logger.LogInformation("Ready.");
