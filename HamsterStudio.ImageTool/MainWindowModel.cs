@@ -1,14 +1,18 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+﻿using HamsterStudio.Barefeet.MVVM;
 using HamsterStudio.ImageTool.ViewModels;
-using HamsterStudio.ImageTool.Views;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 namespace HamsterStudio.ImageTool;
 
-partial class MainWindowModel : ObservableObject
+partial class MainWindowModel : ViewModel
 {
-    public MainView MainView { get; set; } = new();
+    public MainViewModel MainViewModel { get; }
 
-    public MainViewModel MainViewModel => MainView.DataContext as MainViewModel;
-   
+    public MainWindowModel() : base(null)
+    {
+        base.logger = App.ServiceProvider?.GetRequiredService<ILogger<MainWindowModel>>()!;
+        MainViewModel = App.ServiceProvider?.GetRequiredService<MainViewModel>()!;
+    }
 
 }

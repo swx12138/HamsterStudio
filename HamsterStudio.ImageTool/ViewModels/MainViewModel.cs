@@ -54,7 +54,7 @@ namespace HamsterStudio.ImageTool.ViewModels
 
         public ILogger Logger => logger!;
 
-        public MainViewModel(ILogger? logger) : base(logger)
+        public MainViewModel(ILogger<MainViewModel>? logger) : base(logger)
         {
             Commands = new(this);
 

@@ -1,5 +1,5 @@
 ﻿<UserControl
-    x:Class="HamsterStudio.ImageTool.Views.MainView"
+    x:Class="HamsterStudio.ImageTool.Views.ImageToolMainView"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -7,30 +7,19 @@
     xmlns:hsc="clr-namespace:HamsterStudio.Toolkits.Converters;assembly=HamsterStudio.Toolkits"
     xmlns:hscc="clr-namespace:HamsterStudio.Barefeet.Constants;assembly=HamsterStudio.Barefeet"
     xmlns:hsm="clr-namespace:HamsterStudio.Barefeet.Models;assembly=HamsterStudio.Barefeet"
-    xmlns:local="clr-namespace:HamsterStudio.ImageTool"
+    xmlns:local="clr-namespace:HamsterStudio.ImageTool.Views"
     xmlns:localvm="clr-namespace:HamsterStudio.ImageTool.ViewModels"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    d:Height="960"
+    d:Height="720"
     d:Width="1920"
     AllowDrop="True"
     Drop="Window_Drop"
     mc:Ignorable="d">
-    <UserControl.DataContext>
-        <localvm:MainViewModel />
-    </UserControl.DataContext>
     <UserControl.Resources>
         <hsc:PathToImageSource x:Key="PathToImageSourceCvtr" />
     </UserControl.Resources>
-    <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="*" />
-        </Grid.RowDefinitions>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*" />
-            <ColumnDefinition Width="2*" />
-        </Grid.ColumnDefinitions>
-        <Menu Grid.ColumnSpan="2">
+    <DockPanel>
+        <Menu DockPanel.Dock="Top" Background="LightGray" Margin="1">
             <MenuItem Header="File" InputGestureText="F">
                 <MenuItem
                     Command="{Binding Commands.OpenFilesCommand}"
@@ -87,8 +76,8 @@
             <MenuItem Header="Help" />
             <MenuItem Header="About" />
         </Menu>
-        <ScrollViewer Grid.Row="1">
-            <ItemsControl AlternationCount="9999" ItemsSource="{Binding ImagePaths}">
+        <ScrollViewer DockPanel.Dock="Left">
+            <ItemsControl MinWidth="200" ItemsSource="{Binding ImagePaths}">
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
                         <Border
@@ -150,34 +139,21 @@
                 </ItemsControl.ItemsPanel>
             </ItemsControl>
         </ScrollViewer>
-        <GridSplitter
-            Grid.Row="1"
-            Width="2"
-            VerticalAlignment="Stretch"
-            Background="LightBlue" />
-        <Grid
-            Grid.Row="1"
-            Grid.Column="1"
-            Background="LightSeaGreen">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="*" />
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="Auto" />
-            </Grid.RowDefinitions>
-            <Grid.ContextMenu>
+        <DockPanel Background="AliceBlue">
+            <DockPanel.ContextMenu>
                 <ContextMenu>
                     <MenuItem Command="{Binding Commands.RefreshPreviewCommand}" Header="Refresh" />
                 </ContextMenu>
-            </Grid.ContextMenu>
-            <Image Margin="2" Source="{Binding PreviewImage}" />
-            <hc:PropertyGrid
-                Grid.Row="1"
-                Description="111"
-                SelectedObject="{Binding PreviewImageProps}" />
-            <Button
-                Grid.Row="2"
+            </DockPanel.ContextMenu>
+            <Button 
+                DockPanel.Dock="Bottom"
                 Command="{Binding Commands.SaveCommand}"
                 Content="{Binding SavingCount, StringFormat='Saved {0} times'}" />
-        </Grid>
-    </Grid>
+            <hc:PropertyGrid 
+                DockPanel.Dock="Bottom"
+                Description="111"
+                SelectedObject="{Binding PreviewImageProps}" />
+            <Image Source="{Binding PreviewImage}" />
+        </DockPanel>
+    </DockPanel>
 </UserControl>

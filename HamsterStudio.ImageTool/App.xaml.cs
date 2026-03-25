@@ -1,5 +1,4 @@
-﻿using System.Configuration;
-using System.Data;
+﻿using Microsoft.Extensions.DependencyInjection;
 using System.Windows;
 
 namespace HamsterStudio.ImageTool;
@@ -9,5 +8,21 @@ namespace HamsterStudio.ImageTool;
 /// </summary>
 public partial class App : Application
 {
+    ServiceCollection Services { get; } = new();
+    public static IServiceProvider? ServiceProvider { get; set; }
+
+    public App()
+    {
+        Services.AddLogging();
+        ImageToolProfile.RegisterServices(Services);
+    }
+
+    protected override void OnStartup(StartupEventArgs e)
+    {
+        ServiceProvider = Services.BuildServiceProvider();
+        base.OnStartup(e);
+    }
+
+
 }
 

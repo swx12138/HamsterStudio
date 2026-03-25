@@ -9,9 +9,9 @@ namespace HamsterStudio.ImageTool.Views
     /// <summary>
     /// MainView.xaml 的交互逻辑
     /// </summary>
-    public partial class MainView : UserControl
+    public partial class ImageToolMainView : UserControl
     {
-        public MainView()
+        public ImageToolMainView()
         {
             InitializeComponent();
         }
