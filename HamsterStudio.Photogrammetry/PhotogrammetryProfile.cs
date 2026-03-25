@@ -9,6 +9,7 @@ public static class PhotogrammetryProfile
         // 注册景深计算器服务
         services.AddSingleton<Services.DepthOfFieldCalculator>();
         // 注册视图模型
+        services.AddTransient<ViewModels.PhotogrammetryMainViewModel>();
         services.AddTransient<ViewModels.DepthOfFieldCalculatorViewModel>();
         services.AddTransient<ViewModels.EquivalentExposureCalculatorViewModel>();
     }

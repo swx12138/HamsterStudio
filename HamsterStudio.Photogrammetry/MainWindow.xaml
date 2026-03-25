@@ -1,0 +1,16 @@
+﻿<Window x:Class="HamsterStudio.Photogrammetry.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:HamsterStudio.Photogrammetry"
+        xmlns:localv="clr-namespace:HamsterStudio.Photogrammetry.Views"
+        mc:Ignorable="d"
+        Title="键盘摄影" Height="720" Width="1280">
+    <Window.DataContext>
+        <local:MainWindowModel />
+    </Window.DataContext>
+    <DockPanel>
+        <localv:PhotogrammetryMainView DataContext="{Binding MainViewModel}" />
+    </DockPanel>
+</Window>
