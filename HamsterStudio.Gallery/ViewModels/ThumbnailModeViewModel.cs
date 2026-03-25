@@ -37,7 +37,7 @@ public partial class ThumbnailModeViewModel : ViewModel
     private BackgroundWorker _autoSwitchPageWorker;
     private CancellationTokenSource _autoSwitchPageCancellationTokenSource;
 
-    public ThumbnailModeViewModel(ILogger logger) : base(logger)
+    public ThumbnailModeViewModel(ILogger<ThumbnailModeViewModel> logger) : base(logger)
     {
         CurrentFolder.Logger = logger;
         _autoSwitchPageCancellationTokenSource = new CancellationTokenSource();

@@ -1,26 +1,31 @@
-﻿using System.Windows;
+﻿using HamsterStudio.Gallery.ViewModels;
+using System.Windows;
 using System.Windows.Controls;
 
 namespace HamsterStudio.Gallery.DataTemplateSelectors;
 
 internal class ViewModeDataTemplateSelector : DataTemplateSelector
 {
-    public bool IsThumbnailView { get; set; }
-
     public required DataTemplate ThumbnailView { get; set; }
     public required DataTemplate LargeImageView { get; set; }
+    public required DataTemplate DefaultView { get; set; }
 
     public override DataTemplate SelectTemplate(object item, DependencyObject container)
     {
         try
         {
-            if (IsThumbnailView)
+            if (item is ThumbnailModeViewModel)
             {
+
                 return ThumbnailView;
+            }
+            else if (item is LargeImageViewModel)
+            {
+                return LargeImageView;
             }
             else
             {
-                return LargeImageView;
+                return DefaultView;
             }
         }
         catch

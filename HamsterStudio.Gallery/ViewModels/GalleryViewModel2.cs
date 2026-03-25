@@ -6,6 +6,7 @@ using Microsoft.Extensions.Logging;
 using System.ComponentModel;
 using System.IO;
 using System.Windows.Input;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace HamsterStudio.Gallery.ViewModels;
 
@@ -15,6 +16,10 @@ public partial class GalleryViewModel2 : KnownViewModel
     private GalleryFolderModel _galleryFolders = new(new DirectoryInfo("Root"));
 
     public ThumbnailModeViewModel ThumbnailModeViewModel { get; }
+    public LargeImageViewModel LargeImageViewModel { get; private set; }
+
+    [ObservableProperty]
+    public object _ContentDataContext;
 
     public ICommand LoadFolderCommand { get; }
     public ICommand RemoveFolderCommand { get; }
@@ -22,9 +27,12 @@ public partial class GalleryViewModel2 : KnownViewModel
     [ObservableProperty]
     private bool _isThumbnailView = true;
 
-    public GalleryViewModel2(ILogger<GalleryViewModel2> logger) : base(logger)
+    public GalleryViewModel2(ILogger<GalleryViewModel2> logger, ThumbnailModeViewModel thumbnail, LargeImageViewModel largeImage) : base(logger)
     {
-        ThumbnailModeViewModel = new(logger);
+        ThumbnailModeViewModel = thumbnail;
+        LargeImageViewModel = largeImage;
+
+        DisplayName = "相册";
 
         LoadFolderCommand = new RelayCommand<string>(dir =>
         {
@@ -64,13 +72,15 @@ public partial class GalleryViewModel2 : KnownViewModel
         {
             //GalleryFolders.Add(
             //    GalleryFolderModel.LoadFolder(new DirectoryInfo(@"E:\Pictures\00_瞎拍\04_Cosplay")));
+            LoadFolder(@"E:\HamsterStudioHome\xiaohongshu"); 
             LoadFolder(@"E:\Pictures\Boundhub_Album");
-            LoadFolder(@"E:\HamsterStudioHome\xiaohongshu");
         }
 #endif
 
         ThumbnailModeViewModel.OnPageIndexChanged();
         ThumbnailModeViewModel.StartAutoSwitchPage();
+
+        ContentDataContext = ThumbnailModeViewModel;
     }
 
     public void LoadFolder(DirectoryInfo di)
@@ -91,6 +101,15 @@ public partial class GalleryViewModel2 : KnownViewModel
     public void LoadFolder(string dir)
     {
         LoadFolder(new DirectoryInfo(dir));
+    }
+
+    protected override void OnPropertyChanged(PropertyChangedEventArgs e)
+    {
+        if(e.PropertyName == nameof(IsThumbnailView))
+        {
+            ContentDataContext = IsThumbnailView ? ThumbnailModeViewModel : LargeImageViewModel;
+        }
+        base.OnPropertyChanged(e);
     }
 
 }

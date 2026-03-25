@@ -51,8 +51,7 @@ partial class MainWindowModel : ObservableObject, IDisposable
         ThemeMgmt = App.ResloveService<ThemeMgmt>();
         var loggerFactory = App.ResloveService<ILoggerFactory>();
 
-        GalleryViewModel = new(App.ResloveService<GalleriaFileMgmt>().FileManager, ThemeMgmt, App.ResloveService<ILogger<GalleryViewModel>>());
-        GalleryViewModel2 = new(App.ResloveService<ILogger<GalleryViewModel2>>());
+        GalleryViewModel2 = App.ResloveService<GalleryViewModel2>();
 
         SpacialDownloadsViewModel = new(loggerFactory);
         WallpaperEngineViewModel = new(

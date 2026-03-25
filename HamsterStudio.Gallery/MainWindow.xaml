@@ -5,7 +5,7 @@
         xmlns:local="clr-namespace:HamsterStudio.Gallery"
         xmlns:localv="clr-namespace:HamsterStudio.Gallery.Views"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        Title="MainWindow"
+        Title="{Binding ViewModel.DisplayName}"
         Width="1600"
         Height="1200"
         Topmost="{Binding Topmost}"
@@ -14,19 +14,5 @@
     <Window.DataContext>
         <local:MainWindowModel />
     </Window.DataContext>
-    <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="*" />
-        </Grid.RowDefinitions>
-        <Menu>
-            <MenuItem Header="File">
-                <MenuItem Command="{Binding OpenCommand}" Header="Open" InputGestureText="Ctrl+O" />
-            </MenuItem>
-            <MenuItem Header="View">
-                <MenuItem Header="Topmost" IsCheckable="True" IsChecked="{Binding Topmost}" />
-            </MenuItem>
-        </Menu>
-        <ContentPresenter Grid.Row="1" HorizontalAlignment="Stretch" Content="{Binding MainView}" />
-    </Grid>
+    <localv:GalleryView DataContext="{Binding ViewModel}" />
 </Window>
