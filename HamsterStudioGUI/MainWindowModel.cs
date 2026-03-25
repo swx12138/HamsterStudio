@@ -1,6 +1,5 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using HamsterStudio.Barefeet.Services;
-using HamsterStudio.Gallery.Services;
 using HamsterStudio.Gallery.ViewModels;
 using HamsterStudio.ImageTool.ViewModels;
 using HamsterStudio.Photogrammetry.ViewModels;
@@ -32,8 +31,7 @@ partial class MainWindowModel : ObservableObject, IDisposable
 
     public MainViewModel MainViewModel { get; } = new();
     public WallpaperEngineViewModel  WallpaperEngineViewModel { get; }
-    public GalleryViewModel GalleryViewModel { get; }
-    public GalleryViewModel2 GalleryViewModel2 { get; }
+    //public GalleryViewModel2 GalleryViewModel2 { get; }
     public SpacialDownloadsViewModel SpacialDownloadsViewModel { get; }
     public ExposureAdjustmentViewModel ExposureAdjustmentViewModel { get; }
     public PhotogrammetryMainViewModel PhotogrammetryMainViewModel { get; }
@@ -44,14 +42,10 @@ partial class MainWindowModel : ObservableObject, IDisposable
 
     public MainWindowModel()
     {
-        //Logger.Shared.AddTarget(NlogTarget, NLog.LogLevel.Info, NLog.LogLevel.Fatal);
-
         LogViewModel = App.ResloveService<LogViewModel>();
 
         ThemeMgmt = App.ResloveService<ThemeMgmt>();
         var loggerFactory = App.ResloveService<ILoggerFactory>();
-
-        GalleryViewModel2 = App.ResloveService<GalleryViewModel2>();
 
         SpacialDownloadsViewModel = new(loggerFactory);
         WallpaperEngineViewModel = new(
@@ -62,6 +56,7 @@ partial class MainWindowModel : ObservableObject, IDisposable
         PhotogrammetryMainViewModel = App.ResloveService<PhotogrammetryMainViewModel>();
         ImageToolMainViewModel = App.ResloveService<ImageToolMainViewModel>();
         ExposureAdjustmentViewModel = App.ResloveService<ExposureAdjustmentViewModel>();
+        //GalleryViewModel2 = App.ResloveService<GalleryViewModel2>();
 
         LogViewModel.ClearLogs();
         App.WebApiService.Logger.LogInformation("Ready.");

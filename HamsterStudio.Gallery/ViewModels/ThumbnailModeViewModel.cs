@@ -108,11 +108,13 @@ public partial class ThumbnailModeViewModel : ViewModel
 
     public void UpdateMaxPageCount()
     {
+        logger?.LogDebug(nameof(UpdateMaxPageCount));
         MaxPageCount = (CurrentFolder.Files.Count / DataCountPerPage) + (CurrentFolder.Files.Count % DataCountPerPage == 0 ? 0 : 1);
     }
 
     public void UpdateDataCountPerPage()
     {
+        logger?.LogDebug(nameof(UpdateDataCountPerPage));
         DataCountPerPage = Rows * Columns;
     }
 
