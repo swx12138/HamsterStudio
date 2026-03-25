@@ -7,12 +7,12 @@ namespace HamsterStudio.ImageTool;
 
 partial class MainWindowModel : ViewModel
 {
-    public MainViewModel MainViewModel { get; }
+    public ImageToolMainViewModel MainViewModel { get; }
 
     public MainWindowModel() : base(null)
     {
         base.logger = App.ServiceProvider?.GetRequiredService<ILogger<MainWindowModel>>()!;
-        MainViewModel = App.ServiceProvider?.GetRequiredService<MainViewModel>()!;
+        MainViewModel = App.ServiceProvider?.GetRequiredService<ImageToolMainViewModel>()!;
     }
 
 }

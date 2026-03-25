@@ -7,7 +7,7 @@ public static class ImageToolProfile
 {
     public static void RegisterServices(IServiceCollection services)
     {
-        services.AddTransient<MainViewModel>();
+        services.AddTransient<ImageToolMainViewModel>();
         services.AddTransient<ExposureAdjustmentViewModel>();
     }
 

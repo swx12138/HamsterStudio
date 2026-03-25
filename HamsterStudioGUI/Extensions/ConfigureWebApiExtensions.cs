@@ -1,6 +1,7 @@
 ﻿using HamsterStudio.Barefeet.Logging;
 using HamsterStudio.Barefeet.Services;
 using HamsterStudio.Gallery.Services;
+using HamsterStudio.ImageTool;
 using HamsterStudio.Photogrammetry;
 using HamsterStudio.Toolkits.Services;
 using HamsterStudio.Toolkits.Services.ImageMetaInfoReader;
@@ -29,6 +30,7 @@ public static class ConfigureWebApiExtensions
         services.AddSingleton<HttpClientProvider>();
 
         PhotogrammetryProfile.RegisterServices(services);
+        ImageToolProfile.RegisterServices(services);
     }
 
     private static string GetContentType(string path)

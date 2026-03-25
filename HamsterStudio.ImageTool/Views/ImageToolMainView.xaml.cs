@@ -18,7 +18,7 @@ namespace HamsterStudio.ImageTool.Views
 
         private void Window_Drop(object sender, DragEventArgs e)
         {
-            if (DataContext is MainViewModel viewModel)
+            if (DataContext is ImageToolMainViewModel viewModel)
             {
                 if (e.Data.GetData(DataFormats.FileDrop) is string[] files)
                 {

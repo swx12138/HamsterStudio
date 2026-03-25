@@ -27,7 +27,6 @@ partial class MainWindowModel : ObservableObject, IDisposable
 
     public string UserName => Environment.UserName;
 
-    //public ObservableCollectionTarget NlogTarget { get; } = new("App");
     [ObservableProperty]
     private LogViewModel _logViewModel;
 
@@ -38,6 +37,7 @@ partial class MainWindowModel : ObservableObject, IDisposable
     public SpacialDownloadsViewModel SpacialDownloadsViewModel { get; }
     public ExposureAdjustmentViewModel ExposureAdjustmentViewModel { get; }
     public PhotogrammetryMainViewModel PhotogrammetryMainViewModel { get; }
+    public ImageToolMainViewModel ImageToolMainViewModel { get; }
 
     [ObservableProperty]
     private ThemeMgmt _ThemeMgmt;
@@ -59,9 +59,10 @@ partial class MainWindowModel : ObservableObject, IDisposable
             App.ResloveService<ImageMetaInfoReadService>(),
             ThemeMgmt,
             loggerFactory.CreateLogger<WallpaperEngineViewModel>());
-        ExposureAdjustmentViewModel = new(loggerFactory.CreateLogger<ExposureAdjustmentViewModel>());
 
-        PhotogrammetryMainViewModel = new(App.ResloveService<IServiceProvider>(), loggerFactory);
+        PhotogrammetryMainViewModel = App.ResloveService<PhotogrammetryMainViewModel>();
+        ImageToolMainViewModel = App.ResloveService<ImageToolMainViewModel>();
+        ExposureAdjustmentViewModel = App.ResloveService<ExposureAdjustmentViewModel>();
 
         LogViewModel.ClearLogs();
         App.WebApiService.Logger.LogInformation("Ready.");
