@@ -17,7 +17,7 @@ public class PhotogrammetryMainViewModel : KnownViewModel
 
     public PhotogrammetryMainViewModel(IServiceProvider provider, ILoggerFactory factory) : base(null)
     {
-        DisplayName = "键摄";
+        DisplayName = "键盘摄影";
 
         AddDepthOfFieldCalculatorViewModelsCommand = new RelayCommand(() =>
         {
