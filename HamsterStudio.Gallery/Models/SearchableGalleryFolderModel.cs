@@ -1,4 +1,5 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
+using HamsterStudio.Barefeet.FileSystem;
 using Microsoft.Extensions.Logging;
 using System.ComponentModel;
 using System.IO;
@@ -23,12 +24,11 @@ public partial class SearchableGalleryFolderModel : GalleryFolderModel
         SearchedViewSource.Source = Files;
         SearchedViewSource.Filter += (sender, e) =>
         {
-            if (e.Item is not FileInfo file)
+            if (e.Item is not HamstertFileInfo file)
             {
                 e.Accepted = false;
                 return;
             }
-
             int index = Files.IndexOf(file);
             if (index < _pageIndex * _pageSize || index >= (_pageIndex + 1) * _pageSize)
             {
@@ -47,8 +47,9 @@ public partial class SearchableGalleryFolderModel : GalleryFolderModel
 
             if (e.Accepted == true)
             {
-                Logger?.LogInformation($"Selected {file.Name}, index:{index}");
+                Logger?.LogInformation($"Accepted {file.Name}, index:{index}");
             }
+
         };
     }
 

@@ -1,12 +1,12 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using HamsterStudio.Barefeet.MVVM;
 using HamsterStudio.Gallery.Models;
-using HamsterStudio.Toolkits;
 using Microsoft.Extensions.Logging;
-using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
-using System.Windows.Media;
+using System.Windows.Input;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace HamsterStudio.Gallery.ViewModels;
 
@@ -15,113 +15,101 @@ public partial class GalleryViewModel2 : KnownViewModel
     [ObservableProperty]
     private GalleryFolderModel _galleryFolders = new(new DirectoryInfo("Root"));
 
-    [ObservableProperty]
-    private int _MaxPageCount = 0;
+    public ThumbnailModeViewModel ThumbnailModeViewModel { get; }
+    public LargeImageViewModel LargeImageViewModel { get; private set; }
 
     [ObservableProperty]
-    private int _DataCountPerPage;
+    public object _ContentDataContext;
+
+    public ICommand LoadFolderCommand { get; }
+    public ICommand RemoveFolderCommand { get; }
 
     [ObservableProperty]
-    private int _PageIndex = 0;
+    private bool _isThumbnailView = true;
 
-    [ObservableProperty]
-    private int _Columns = 6;
-
-    [ObservableProperty]
-    private int _Rows = 5;
-
-    [ObservableProperty]
-    private SearchableGalleryFolderModel _currentFolder= new(new DirectoryInfo(Environment.CurrentDirectory));
-
-    [ObservableProperty]
-    private bool _AutoSwitchPage = false;
-
-    [ObservableProperty]
-    private int _AutoSwitchPageMinDelay = 3999;
-
-    public GalleryViewModel2(ILogger<GalleryViewModel2> logger) : base(logger)
+    public GalleryViewModel2(ILogger<GalleryViewModel2> logger, ThumbnailModeViewModel thumbnail, LargeImageViewModel largeImage) : base(logger)
     {
-        CurrentFolder.Logger = logger;
-        //GalleryFolders.Add(
-        //    GalleryFolderModel.LoadFolder(new DirectoryInfo(@"E:\Pictures\00_瞎拍\04_Cosplay")));
-        GalleryFolders.Folders.Add(
-            GalleryFolderModel.LoadFolder(new DirectoryInfo(@"E:\Pictures\Boundhub_Album")));
-        GalleryFolders.Folders.Add(
-            GalleryFolderModel.LoadFolder(new DirectoryInfo(@"E:\HamsterStudioHome\xiaohongshu")));
+        ThumbnailModeViewModel = thumbnail;
+        LargeImageViewModel = largeImage;
 
-        UpdateDataCountPerPage();
-        OnPageIndexChanged();
+        DisplayName = "相册";
 
-        Task.Run(async () =>
+        LoadFolderCommand = new RelayCommand<string>(dir =>
         {
-            while (1 > 0)
+            if (dir == null || !Directory.Exists(dir))
             {
-                if (AutoSwitchPage)
-                {
-                    if (PageIndex < MaxPageCount)
-                    {
+                logger.LogWarning($"Directory {dir} does not exist.");
+                return;
+            }
+            LoadFolder(dir);
+        });
+        RemoveFolderCommand = new RelayCommand<GalleryFolderModel>(folder =>
+        {
+            if (folder == null)
+            {
+                logger.LogWarning($"No folder selected.");
+                return;
+            }
 
-                        PageIndex++;
-                    }
-                    else
-                    {
-                        PageIndex = 1;
-                    }
+            GalleryFolders.Folders.Remove(folder);
+            if (ThumbnailModeViewModel.CurrentFolder.DirInfo.FullName == folder.DirInfo.FullName)
+            {
+                if (GalleryFolders.Folders.Count > 0)
+                {
+                    ThumbnailModeViewModel.OnSelectedFolderChanged(GalleryFolders.Folders[0]);
                 }
-                await Task.Delay(Math.Max(Columns * Rows * 200, AutoSwitchPageMinDelay));
+                else
+                {
+                    ThumbnailModeViewModel.ClearCache();
+                }
             }
         });
 
+        ThumbnailModeViewModel.UpdateDataCountPerPage();
+
+#if DEBUG
+        using (ThumbnailModeViewModel.CurrentFolder.SearchedViewSource.DeferRefresh())
+        {
+            //GalleryFolders.Add(
+            //    GalleryFolderModel.LoadFolder(new DirectoryInfo(@"E:\Pictures\00_瞎拍\04_Cosplay")));
+            LoadFolder(@"E:\HamsterStudioHome\xiaohongshu"); 
+            LoadFolder(@"E:\Pictures\Boundhub_Album");
+        }
+#endif
+
+        ThumbnailModeViewModel.OnPageIndexChanged();
+        ThumbnailModeViewModel.StartAutoSwitchPage();
+
+        ContentDataContext = ThumbnailModeViewModel;
     }
 
-    void UpdateMaxPageCount()
+    public void LoadFolder(DirectoryInfo di)
     {
-        MaxPageCount = (CurrentFolder.Files.Count / DataCountPerPage) + (CurrentFolder.Files.Count % DataCountPerPage == 0 ? 0 : 1);
+        if (GalleryFolders.Folders.Any(f => f.DirInfo.FullName == di.FullName))
+        {
+            var existFolder = GalleryFolders.Folders.First(f => f.DirInfo.FullName == di.FullName);
+            ThumbnailModeViewModel.OnSelectedFolderChanged(existFolder);
+        }
+        else
+        {
+            var newFolder = GalleryFolderModel.LoadFolder(di);
+            GalleryFolders.Folders.Add(newFolder);
+            ThumbnailModeViewModel.OnSelectedFolderChanged(newFolder);
+        }
     }
 
-    void UpdateDataCountPerPage()
+    public void LoadFolder(string dir)
     {
-        DataCountPerPage = Rows * Columns;
+        LoadFolder(new DirectoryInfo(dir));
     }
 
     protected override void OnPropertyChanged(PropertyChangedEventArgs e)
     {
-        if (e.PropertyName == nameof(DataCountPerPage))
+        if(e.PropertyName == nameof(IsThumbnailView))
         {
-            UpdateMaxPageCount();
-            CurrentFolder.UpdateViewRange(Columns, Rows, PageIndex);
-        }
-        else if (e.PropertyName == nameof(PageIndex))
-        {
-            OnPageIndexChanged();
-        }
-        else if (e.PropertyName == nameof(Columns) || e.PropertyName == nameof(Rows))
-        {
-            UpdateDataCountPerPage();
+            ContentDataContext = IsThumbnailView ? ThumbnailModeViewModel : LargeImageViewModel;
         }
         base.OnPropertyChanged(e);
-    }
-
-    public void OnSelectedFolderChanged(GalleryFolderModel newItem)
-    {
-        using (CurrentFolder.SearchedViewSource.DeferRefresh())
-        {
-            CurrentFolder.CopyFrom(newItem);
-            UpdateMaxPageCount();
-            if (PageIndex != 1)
-            {
-                PageIndex = 1;
-            }
-            else
-            {
-                OnPageIndexChanged();
-            }
-        }
-    }
-
-    public void OnPageIndexChanged()
-    {
-        CurrentFolder.UpdateViewRange(Columns, Rows, PageIndex);
     }
 
 }

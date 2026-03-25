@@ -9,7 +9,7 @@ using System.Collections.ObjectModel;
 
 namespace HamsterStudio.Gallery.Services;
 
-public partial class GalleriaFileMgmt : BindableBase
+internal partial class GalleriaFileMgmt : BindableBase
 {
     private readonly DataStorageMgmt _dataStorageMgmt;
 

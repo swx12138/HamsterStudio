@@ -42,25 +42,10 @@ namespace HamsterStudio.Gallery.Views
 
             if (DataContext is GalleryViewModel2 gvm2 && e.NewValue is GalleryFolderModel gf)
             {
-                gvm2.OnSelectedFolderChanged(gf);
+                gvm2.ThumbnailModeViewModel.OnSelectedFolderChanged(gf);
                 return;
             }
         }
 
-        private void Pagination_PageUpdated(object sender, HandyControl.Data.FunctionEventArgs<int> e)
-        {
-            if (DataContext is GalleryViewModel2 gvm2)
-            {
-                gvm2.OnPageIndexChanged();
-            }
-        }
-
-        private void TextBox_PreviewKeyDown(object sender, System.Windows.Input.KeyEventArgs e)
-        {
-            if(sender is TextBox tb && tb.Parent is FrameworkElement fe )
-            {
-                fe.Focus();
-            }
-        }
     }
 }

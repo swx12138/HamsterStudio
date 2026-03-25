@@ -101,9 +101,10 @@
             <wev:WallpaperEngineView DataContext="{Binding WallpaperEngineViewModel}" />
         </TabItem>
 
-        <!--<TabItem Header="{Binding GalleryViewModel.DisplayName}">
+        <TabItem Header="{Binding GalleryViewModel.DisplayName}">
             <gv:GalleryView DataContext="{Binding GalleryViewModel2}" />
-        </TabItem>-->
+        </TabItem>
+        -->
         <TabItem Header="{Binding ImageToolMainViewModel.DisplayName}">
             <hsit:ImageToolMainView DataContext="{Binding ImageToolMainViewModel}" />
         </TabItem>
