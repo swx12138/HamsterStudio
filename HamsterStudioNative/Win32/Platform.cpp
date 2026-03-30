@@ -36,14 +36,14 @@ Platform::Windows::PortableExecutable::PortableExecutable(std::filesystem::path 
 
     int n = ifs.read((char *)pFileBuffer, fileszie).gcount();
 
-    // 读DOS头
+    // 露脕DOS脥路
     PIMAGE_DOS_HEADER dosHeader = (PIMAGE_DOS_HEADER)pFileBuffer;
     if (dosHeader->e_magic != IMAGE_DOS_SIGNATURE)
     {
         throw std::runtime_error(filepath.string() + " is not a DOS .EXE file.");
     }
 
-    // 读NT头
+    // 露脕NT脥路
     PIMAGE_NT_HEADERS ntHeaders = (PIMAGE_NT_HEADERS)(pFileBuffer + dosHeader->e_lfanew);
     if (ntHeaders->Signature != IMAGE_NT_SIGNATURE)
     {

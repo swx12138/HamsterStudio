@@ -76,12 +76,12 @@ namespace HamsterStudio::Win32
 
         enum class ACCENT_STATE
         {
-            DISABLED = 0,                   // È«ºÚ
-            ENABLE_GRADIENT = 1,            // µ¥É«²»Í¸Ã÷
-            ENABLE_TRANSPARENTGRADIENT = 2, // È«Í¸Ã÷
-            ENABLE_BLURBEHIND = 3,          // Ä£ºı
-            ENABLE_ACRYLICBLURBEHIND = 4,   // ÑÇ¿ËÁ¦
-            INVALID_STATE = 5,              // È«ºÚ
+            DISABLED = 0,                   // å…¨é»‘
+            ENABLE_GRADIENT = 1,            // å•è‰²ä¸é€æ˜
+            ENABLE_TRANSPARENTGRADIENT = 2, // å…¨é€æ˜
+            ENABLE_BLURBEHIND = 3,          // æ¨¡ç³Š
+            ENABLE_ACRYLICBLURBEHIND = 4,   // äºšå…‹åŠ›
+            INVALID_STATE = 5,              // å…¨é»‘
             ACCENT_NORMAL = 150             // (Fake value) Emulate regular taskbar appearance
         };
 
@@ -96,7 +96,7 @@ namespace HamsterStudio::Win32
         static int Set(HWND hWnd, ACCENT_STATE mode, DWORD AlphaColor) {}
     };
 
-    // ÈÎÎñÀ¸
+    // ä»»åŠ¡æ 
     class TaskbarCtrl
     {
         using ACCENT_STATE = WindowComposition::ACCENT_STATE;
@@ -126,10 +126,10 @@ namespace HamsterStudio::Win32
         }
 
     private:
-        COLORREF m_crAlphaColor; // ÑÕÉ«
-        BYTE m_dwOpacity;        // ÑÕÉ«Í¸Ã÷¶È 0-255
-        ACCENT_STATE m_style;    // ÑùÊ½
-        BYTE m_dwOpacityAll;     // ÕûÌåÍ¸Ã÷¶È 0-255
+        COLORREF m_crAlphaColor; // é¢œè‰²
+        BYTE m_dwOpacity;        // é¢œè‰²é€æ˜åº¦ 0-255
+        ACCENT_STATE m_style;    // æ ·å¼
+        BYTE m_dwOpacityAll;     // æ•´ä½“é€æ˜åº¦ 0-255
         HWND m_hWnd;
     };
 
@@ -183,17 +183,17 @@ namespace HamsterStudio::Win32
 
 double HamsterStudio::Win32::GetWindowsZoom()
 {
-    // »ñÈ¡´°¿Úµ±Ç°ÏÔÊ¾µÄ¼àÊÓÆ÷
+    // è·å–çª—å£å½“å‰æ˜¾ç¤ºçš„ç›‘è§†å™¨
     HWND hWnd = GetDesktopWindow();
     HMONITOR hMonitor = MonitorFromWindow(hWnd, MONITOR_DEFAULTTONEAREST);
 
-    // »ñÈ¡¼àÊÓÆ÷Âß¼­¿í¶È
+    // è·å–ç›‘è§†å™¨é€»è¾‘å®½åº¦
     MONITORINFOEX monitorInfo;
     monitorInfo.cbSize = sizeof(monitorInfo);
     GetMonitorInfo(hMonitor, &monitorInfo);
     int cxLogical = (monitorInfo.rcMonitor.right - monitorInfo.rcMonitor.left);
 
-    // »ñÈ¡¼àÊÓÆ÷ÎïÀí¿í¶È
+    // è·å–ç›‘è§†å™¨ç‰©ç†å®½åº¦
     DEVMODE dm;
     dm.dmSize = sizeof(dm);
     dm.dmDriverExtra = 0;
@@ -287,7 +287,7 @@ bool HamsterStudio::Win32::IsInstanceExist(std::string_view const _uuid)
 
 long HamsterStudio::Win32::Drawing::Sheet(HDC hdc, sheet_t const &sht, const ::POINT &start, long h, long wl, long wr)
 {
-    // ¶¥²¿Ïß
+    // é¡¶éƒ¨çº¿
     ::MoveToEx(hdc, start.x, start.y, nullptr);
     ::LineTo(hdc, start.x + wl + wr, start.y);
 
@@ -295,12 +295,12 @@ long HamsterStudio::Win32::Drawing::Sheet(HDC hdc, sheet_t const &sht, const ::P
 
     if (!sht.title.empty())
     {
-        // µÚÒ»ÁĞ
+        // ç¬¬ä¸€åˆ—
         rc.left = start.x;
         rc.right = start.x + wl + wr;
         ::DrawTextA(hdc, sht.title.c_str(), -1, &rc, DT_VCENTER | DT_CENTER | DT_SINGLELINE);
 
-        // ĞĞµ×²¿Ïß
+        // è¡Œåº•éƒ¨çº¿
         ::MoveToEx(hdc, start.x, rc.bottom, nullptr);
         ::LineTo(hdc, rc.right, rc.bottom);
 
@@ -308,20 +308,20 @@ long HamsterStudio::Win32::Drawing::Sheet(HDC hdc, sheet_t const &sht, const ::P
         rc.bottom += h;
     }
 
-    // Ö÷Ìå
+    // ä¸»ä½“
     for (auto &e : sht.body)
     {
-        // µÚÒ»ÁĞ
+        // ç¬¬ä¸€åˆ—
         rc.left = start.x;
         rc.right = start.x + wl;
         ::DrawTextA(hdc, e.first.c_str(), -1, &rc, DT_VCENTER | DT_CENTER | DT_SINGLELINE);
 
-        // µÚ¶şÁĞ
+        // ç¬¬äºŒåˆ—
         rc.left = rc.right;
         rc.right = start.x + wl + wr;
         ::DrawTextA(hdc, e.second.c_str(), -1, &rc, DT_VCENTER | DT_CENTER | DT_SINGLELINE);
 
-        // ĞĞµ×²¿Ïß
+        // è¡Œåº•éƒ¨çº¿
         ::MoveToEx(hdc, start.x, rc.bottom, nullptr);
         ::LineTo(hdc, rc.right, rc.bottom);
 
@@ -338,12 +338,12 @@ long HamsterStudio::Win32::Drawing::Sheet(HDC hdc, sheet_t const &sht, const ::P
             nullptr);
         auto hOld = ::SelectObject(hdc, hFontSm);
 
-        // µÚÒ»ÁĞ
+        // ç¬¬ä¸€åˆ—
         rc.left = start.x;
         rc.right = start.x + wl + wr;
         ::DrawTextA(hdc, sht.tail.c_str(), -1, &rc, DT_VCENTER | DT_CENTER | DT_SINGLELINE);
 
-        // ĞĞµ×²¿Ïß
+        // è¡Œåº•éƒ¨çº¿
         ::MoveToEx(hdc, start.x, rc.bottom, nullptr);
         ::LineTo(hdc, rc.right, rc.bottom);
 
@@ -353,7 +353,7 @@ long HamsterStudio::Win32::Drawing::Sheet(HDC hdc, sheet_t const &sht, const ::P
         ::SelectObject(hdc, hOld);
     }
 
-    // ÊúÏß
+    // ç«–çº¿
     for (long e : std::vector<long>{0, wl, wl + wr})
     {
         ::MoveToEx(hdc, start.x + e, start.y + ((e == wl && !sht.title.empty()) ? h : 0), nullptr);

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <opencv2/opencv.hpp>
+#include <opencv2/core/mat.hpp>
 
 #include <cstdint>
 #include <vector>
@@ -26,9 +26,9 @@ namespace ImageProcessor
 		double vibrance = 0.0;
 	};
 
-	// OpenCVÍ¼Ïñ°ü×°Æ÷
+	// OpenCVå›¾åƒåŒ…è£…å™¨
 	struct ImageData {
-		cv::Mat mat;  // BGRA¸ñÊ½µÄOpenCV Mat
+		cv::Mat mat;  // BGRAæ ¼å¼çš„OpenCV Mat
 
 		ImageData() = default;
 		ImageData(uint8_t *pixels, int32_t width, int32_t height, int32_t stride)
@@ -53,7 +53,7 @@ namespace ImageProcessor
 		bool processImageMT(ImageData &image, const ImageAdjustments &adjustments, int threadCount = 0);
 		HistogramData calculateHistogram(const ImageData &image);
 
-		// ĞÔÄÜÍ³¼Æ
+		// æ€§èƒ½ç»Ÿè®¡
 		struct PerformanceStats {
 			double processingTimeMs = 0.0;
 			double pixelsPerSecond = 0.0;
@@ -63,22 +63,22 @@ namespace ImageProcessor
 		PerformanceStats getStats() const { return stats_; }
 
 	private:
-		// OpenCVºËĞÄ´¦Àíº¯Êı
+		// OpenCVæ ¸å¿ƒå¤„ç†å‡½æ•°
 		void applyExposure(cv::Mat &image, double exposure);
 		void applySaturation(cv::Mat &image, double saturation);
 		void applyVibrance(cv::Mat &image, double vibrance);
 		void applyTemperatureTint(cv::Mat &image, double temperature, double tint);
 		void applyToneAdjustments(cv::Mat &image, const ImageAdjustments &adj);
 
-		// Ö±·½Í¼¼ÆËãÓÅ»¯°æ±¾
+		// ç›´æ–¹å›¾è®¡ç®—ä¼˜åŒ–ç‰ˆæœ¬
 		HistogramData calculateHistogramOptimized(const cv::Mat &image);
 
-		// ²¢ĞĞ´¦Àí¸¨Öúº¯Êı
+		// å¹¶è¡Œå¤„ç†è¾…åŠ©å‡½æ•°
 		void processChunk(cv::Mat &chunk, const ImageAdjustments &adj);
 
 		PerformanceStats stats_;
 
-		// ²éÕÒ±í£¨¿ÉÑ¡±£Áô£©
+		// æŸ¥æ‰¾è¡¨ï¼ˆå¯é€‰ä¿ç•™ï¼‰
 		cv::Mat exposureLUT_;
 		cv::Mat temperatureLUT_;
 
@@ -89,7 +89,7 @@ namespace ImageProcessor
 	IMAGEPROCESSOR_API std::unique_ptr<ImageProcessor> createImageProcessor();
 
 	extern "C" {
-		// C½Ó¿Ú±£³Ö²»±ä
+		// Cæ¥å£ä¿æŒä¸å˜
 		IMAGEPROCESSOR_API void *image_processor_create();
 		IMAGEPROCESSOR_API void image_processor_destroy(void *processor);
 		IMAGEPROCESSOR_API bool image_processor_process(

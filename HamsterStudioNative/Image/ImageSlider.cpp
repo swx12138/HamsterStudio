@@ -34,12 +34,12 @@ int HamsterStudio::ImageSlider::ShowImage(std::string const &filename)
     auto img = cv::imread(filename);
     temp = cv::Mat::zeros(client_height, client_width, img.type());
 
-    // ±â¶È
+    // æ‰åº¦
     auto d = 1.0 * img.cols / img.rows;
     int nw = client_width, nh = client_height;
     if (d > cd) {
         nh = nw / d;
-    } // Í¼Æ¬±È´°¿Ú¸ü±â
+    } // å›¾ç‰‡æ¯”çª—å£æ›´æ‰
     else {
         nw = nh * d;
     }
@@ -69,12 +69,12 @@ int HamsterStudio::ImageSlider::run(int delay)
         // bool recur = args.has_key("recur");
         // bool rand_play = args.has_key("rand");
 
-        // cout << (recur ? "" : "·Ç") << "µİ¹é¶ÁÈ¡" << endl;
-        // cout << (rand_play ? "" : "·Ç") << "Ëæ»ú²¥·Å" << endl;
-        // cout << "²¥·Å¼ä¸ô:" << (delay > 0 ? to_string(delay) : "Ëæ»ú") << endl;
+        // cout << (recur ? "" : "é") << "é€’å½’è¯»å–" << endl;
+        // cout << (rand_play ? "" : "é") << "éšæœºæ’­æ”¾" << endl;
+        // cout << "æ’­æ”¾é—´éš”:" << (delay > 0 ? to_string(delay) : "éšæœº") << endl;
 
         // vector<string> files = util::fs::GetFiles(filesystem::current_path(), util::ImageFilterOpenCV, recur);
-        // cout << "¹²¼Æ¶ÁÈ¡ " << files.size() << " ¸öÎÄ¼ş." << endl;
+        // cout << "å…±è®¡è¯»å– " << files.size() << " ä¸ªæ–‡ä»¶." << endl;
 
         while (true) {
             // if (rand_play)
@@ -98,7 +98,7 @@ int HamsterStudio::ImageSlider::run(int delay)
         cout << ex.what() << endl;
     }
     catch (...) {
-        cout << "Î´ÖªÒì³£" << endl;
+        cout << "æœªçŸ¥å¼‚å¸¸" << endl;
     }
     return 0;
 }

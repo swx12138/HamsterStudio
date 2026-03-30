@@ -1,4 +1,4 @@
-﻿#include "PixelData.h"
+#include "PixelData.h"
 
 using namespace PixelDataNamespace;
 

@@ -120,7 +120,8 @@
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
-      <AdditionalIncludeDirectories>D:\Abracadabra\opencv-4.10.0-windows\opencv\build\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>D:\Code\HamsterStudio\submodules\spdlog\include;D:\Abracadabra\opencv-4.10.0-windows\opencv\build\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -142,7 +143,8 @@
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
-      <AdditionalIncludeDirectories>D:\Abracadabra\opencv-4.10.0-windows\opencv\build\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>D:\Code\HamsterStudio\submodules\spdlog\include;D:\Abracadabra\opencv-4.10.0-windows\opencv\build\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -165,7 +167,7 @@
     <ClInclude Include="Algorithm\Math.hpp" />
     <ClInclude Include="Algorithm\Search.hpp" />
     <ClInclude Include="Algorithm\Sort.hpp" />
-    <ClInclude Include="Framework\Container.hpp" />
+    <ClInclude Include="Framework\Communication.h" />
     <ClInclude Include="Framework\Debug.hpp" />
     <ClInclude Include="Framework\Event.hpp" />
     <ClInclude Include="Framework\Logger.hpp" />
@@ -190,6 +192,7 @@
   <ItemGroup>
     <ClCompile Include="Application.cpp" />
     <ClCompile Include="dllmain.cpp" />
+    <ClCompile Include="Framework\Communication.cpp" />
     <ClCompile Include="Image\Effects\BlackSoftEffect.hpp" />
     <ClCompile Include="Image\Effects\Effects.hpp" />
     <ClCompile Include="Image\ImageEditor.cpp" />

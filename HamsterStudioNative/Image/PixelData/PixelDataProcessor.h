@@ -21,7 +21,7 @@ namespace PixelDataProcessorNamespace {
 		Pointer nextProcessor_;
 	};
 
-	// 全局调色
+	// 鍏ㄥ眬璋冭壊
 	class GlobalPixelDataProcessor : public PixelDataProcessor {
 		double r_, g_, b_;
 	public:
@@ -30,7 +30,7 @@ namespace PixelDataProcessorNamespace {
 		virtual PixelData& Process(PixelData& pixel) const;
 	};
 
-	// 区分曝光范围调色
+	// 鍖哄垎鏇濆厜鑼冨洿璋冭壊
 	class ExposureRangeProcessor : public PixelDataProcessor {
 		double minHighlight_, maxDark_;
 	public:

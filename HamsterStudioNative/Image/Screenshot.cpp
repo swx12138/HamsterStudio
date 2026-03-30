@@ -12,22 +12,22 @@ cv::Mat getScreenshot()
 	int width = GetSystemMetrics(SM_CXSCREEN) * zoom;
 	int height = GetSystemMetrics(SM_CYSCREEN) * zoom;
 
-	// »ñÈ¡ÆÁÄ» DC
+	// è·å–å±å¹• DC
 	HDC screenDC = ::GetDC(NULL);
 	HDC compatibleDC = ::CreateCompatibleDC(screenDC);
 
-	// ´´½¨Î»Í¼
+	// åˆ›å»ºä½å›¾
 	HBITMAP hBitmap = ::CreateCompatibleBitmap(screenDC, width, height);
 	::SelectObject(compatibleDC, hBitmap);
 
-	// µÃµ½Î»Í¼µÄÊı¾İ
+	// å¾—åˆ°ä½å›¾çš„æ•°æ®
 	::BitBlt(compatibleDC, 0, 0, width, height, screenDC, 0, 0, SRCCOPY);
 
 	int cb = width * height * 4;
 	void *screenshotData = new char[cb];
 	::GetBitmapBits(hBitmap, cb, screenshotData);
 
-	// ´´½¨Í¼Ïñ
+	// åˆ›å»ºå›¾åƒ
 	cv::Mat screenshot(height, width, CV_8UC4, screenshotData);
 
 	return screenshot;
