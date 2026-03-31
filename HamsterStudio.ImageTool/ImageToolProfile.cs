@@ -9,6 +9,7 @@ public static class ImageToolProfile
     {
         services.AddTransient<ImageToolMainViewModel>();
         services.AddTransient<ExposureAdjustmentViewModel>();
+        services.AddTransient<ImageStitcherViewModel>();
     }
 
 }

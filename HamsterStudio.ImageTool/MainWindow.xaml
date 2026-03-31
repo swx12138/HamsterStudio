@@ -7,8 +7,8 @@
     xmlns:localv="clr-namespace:HamsterStudio.ImageTool.Views"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     Title="渋㐋"
-    Width="1920"
-    Height="960"
+    Width="1280"
+    Height="720"
     AllowDrop="True"
     Topmost="{Binding MainViewModel.Topmost}"
     WindowStartupLocation="CenterScreen"
@@ -21,5 +21,6 @@
         <KeyBinding Command="{Binding MainViewModel.Commands.CloseFilesCommand}" Gesture="Ctrl+W" />
         <KeyBinding Command="{Binding MainViewModel.Commands.ReselectFilesCommand}" Gesture="Ctrl+R" />
     </Window.InputBindings>
-    <localv:ImageToolMainView DataContext="{Binding MainViewModel}"/>
+    <!--<localv:ImageToolMainView DataContext="{Binding MainViewModel}"/>-->
+    <localv:ImageStitcherView DataContext="{Binding StitcherViewModel}"/>
 </Window>

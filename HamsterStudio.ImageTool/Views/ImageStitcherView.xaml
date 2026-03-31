@@ -1,0 +1,36 @@
+﻿<UserControl x:Class="HamsterStudio.ImageTool.Views.ImageStitcherView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:HamsterStudio.ImageTool.Views"
+             xmlns:localvm="clr-namespace:HamsterStudio.ImageTool.ViewModels"
+             xmlns:fs="clr-namespace:HamsterStudio.Barefeet.FileSystem;assembly=HamsterStudio.Barefeet"
+             xmlns:hc ="https://handyorg.github.io/handycontrol"
+             mc:Ignorable="d"  
+             d:DesignHeight="450" d:DesignWidth="800">
+    <UserControl.Resources>
+        <DataTemplate x:Key="SelectedFileTemplate">
+            <ContentPresenter Content="{Binding}" />
+        </DataTemplate>
+        <ItemsPanelTemplate x:Key="SelectedFilesPanelTemplate">
+            <UniformGrid Columns="{Binding GridColumns}" Rows="{Binding GridRows}" />
+        </ItemsPanelTemplate>
+        <DataTemplate x:Key="FileInfoListView" DataType="{x:Type fs:HamstertFileInfo}">
+            <StackPanel Orientation="Horizontal">
+                <Image Source="{Binding Uri}" Width="64" Height="64" />
+                <TextBlock Text="{Binding Uri}"/>
+            </StackPanel>
+        </DataTemplate>
+    </UserControl.Resources>
+    <DockPanel>
+        <TextBlock Text="{Binding DisplayName}" DockPanel.Dock="Top"/>
+        <ListView ItemsSource="{Binding SelectedFiles}" ItemTemplate="{StaticResource FileInfoListView}" DockPanel.Dock="Left" />
+        <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" >
+            <hc:NumericUpDown Value="{Binding GridColumns}"/>
+        </StackPanel>
+        <ItemsControl ItemsSource="{Binding SelectedFiles}" 
+                              ItemTemplate="{StaticResource SelectedFileTemplate}" 
+                              ItemsPanel="{StaticResource SelectedFilesPanelTemplate}" />
+    </DockPanel>
+</UserControl>

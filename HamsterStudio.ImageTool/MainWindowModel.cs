@@ -8,11 +8,13 @@ namespace HamsterStudio.ImageTool;
 partial class MainWindowModel : ViewModel
 {
     public ImageToolMainViewModel MainViewModel { get; }
+    public ImageStitcherViewModel StitcherViewModel { get; }
 
     public MainWindowModel() : base(null)
     {
         base.logger = App.ServiceProvider?.GetRequiredService<ILogger<MainWindowModel>>()!;
         MainViewModel = App.ServiceProvider?.GetRequiredService<ImageToolMainViewModel>()!;
+        StitcherViewModel = App.ServiceProvider?.GetRequiredService<ImageStitcherViewModel>()!;
     }
 
 }
