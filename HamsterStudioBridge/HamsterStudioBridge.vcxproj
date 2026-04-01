@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -21,9 +21,11 @@
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
-    <ProjectGuid>{0b1c897b-a6ad-40c4-b0bc-f5d57e9345a1}</ProjectGuid>
-    <RootNamespace>HamsterStudioNative</RootNamespace>
+    <ProjectGuid>{e3364da7-6600-45cd-ad17-7fea5983f5f7}</ProjectGuid>
+    <RootNamespace>HamsterStudioBridge</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+    <TargetFramework>net8.0</TargetFramework>
+    <WindowsTargetPlatformMinVersion>10.0.19041.0</WindowsTargetPlatformMinVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -44,6 +46,7 @@
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v143</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
+    <CLRSupport>NetCore</CLRSupport>
     <PreferredToolArchitecture>x64</PreferredToolArchitecture>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
@@ -52,6 +55,7 @@
     <PlatformToolset>v143</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
+    <CLRSupport>NetCore</CLRSupport>
     <PreferredToolArchitecture>x64</PreferredToolArchitecture>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
@@ -73,20 +77,18 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <TargetName>$(ProjectName)64</TargetName>
-    <CopyLocalProjectReference>true</CopyLocalProjectReference>
-    <CopyLocalDebugSymbols>true</CopyLocalDebugSymbols>
+    <TargetName>$(ProjectName)$(PlatformArchitecture)</TargetName>
+    <ManagedAssembly>true</ManagedAssembly>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <TargetName>$(ProjectName)64</TargetName>
-    <CopyLocalProjectReference>true</CopyLocalProjectReference>
-    <CopyLocalDebugSymbols>true</CopyLocalDebugSymbols>
+    <TargetName>$(ProjectName)$(PlatformArchitecture)</TargetName>
+    <ManagedAssembly>true</ManagedAssembly>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>WIN32;_DEBUG;HAMSTERSTUDIONATIVE_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_DEBUG;HAMSTERSTUDIOBRIDGE_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
     </ClCompile>
     <Link>
@@ -101,13 +103,11 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>WIN32;NDEBUG;HAMSTERSTUDIONATIVE_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;HAMSTERSTUDIOBRIDGE_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
-      <EnableCOMDATFolding>true</EnableCOMDATFolding>
-      <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
     </Link>
@@ -116,10 +116,10 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_DEBUG;HAMSTERSTUDIONATIVE_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_DEBUG;HAMSTERSTUDIOBRIDGE_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <LanguageStandard_C>stdc17</LanguageStandard_C>
+      <LanguageStandard_C>stdclatest</LanguageStandard_C>
       <AdditionalIncludeDirectories>D:\Abracadabra\opencv-4.10.0-windows\opencv\build\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
@@ -128,9 +128,6 @@
       <EnableUAC>false</EnableUAC>
       <AdditionalLibraryDirectories>D:\Abracadabra\opencv-4.10.0-windows\opencv\build\x64\vc16\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
-    <PostBuildEvent>
-      <Command>copy /b "D:\Abracadabra\opencv-4.10.0-windows\opencv\build\x64\vc16\bin\opencv_world4100d.dll" $(OutDir)</Command>
-    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -138,73 +135,40 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>NDEBUG;HAMSTERSTUDIONATIVE_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NDEBUG;HAMSTERSTUDIOBRIDGE_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <LanguageStandard_C>stdc17</LanguageStandard_C>
+      <LanguageStandard_C>stdclatest</LanguageStandard_C>
       <AdditionalIncludeDirectories>D:\Abracadabra\opencv-4.10.0-windows\opencv\build\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
-      <EnableCOMDATFolding>true</EnableCOMDATFolding>
-      <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
       <AdditionalLibraryDirectories>D:\Abracadabra\opencv-4.10.0-windows\opencv\build\x64\vc16\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
-    <PostBuildEvent>
-      <Command>copy /b "D:\Abracadabra\opencv-4.10.0-windows\opencv\build\x64\vc16\bin\opencv_world4100d.dll" $(OutDir)</Command>
-    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="Algorithm\Array.hpp" />
-    <ClInclude Include="Algorithm\Fibonacci.hpp" />
-    <ClInclude Include="Algorithm\Hash\Base64.hpp" />
-    <ClInclude Include="Algorithm\Hash\hash.hpp" />
-    <ClInclude Include="Algorithm\Hash\MD5.hpp" />
-    <ClInclude Include="Algorithm\Math.hpp" />
-    <ClInclude Include="Algorithm\Search.hpp" />
-    <ClInclude Include="Algorithm\Sort.hpp" />
-    <ClInclude Include="Framework\Container.hpp" />
-    <ClInclude Include="Framework\Debug.hpp" />
-    <ClInclude Include="Framework\Event.hpp" />
-    <ClInclude Include="Framework\Logger.hpp" />
-    <ClInclude Include="Framework\Print.hpp" />
-    <ClInclude Include="Framework\semaphore.hpp" />
-    <ClInclude Include="Framework\utilities.hpp" />
-    <ClInclude Include="Framework\WatchDog.hpp" />
-    <ClInclude Include="html.hpp" />
-    <ClInclude Include="Image\ImageEditor.h" />
-    <ClInclude Include="Image\Image.hpp" />
-    <ClInclude Include="Image\ImageSlider.h" />
-    <ClInclude Include="Image\PixelData\PixelData.h" />
-    <ClInclude Include="Image\PixelData\PixelDataProcessor.h" />
-    <ClInclude Include="Image\PixelData\PopularColors.hpp" />
-    <ClInclude Include="Image\Screenshot.h" />
-    <ClInclude Include="Image\Tools\GradientFiller.h" />
-    <ClInclude Include="Win32\Control.hpp" />
-    <ClInclude Include="Win32\Drawing.hpp" />
-    <ClInclude Include="Image\ImageProcessor.h" />
-    <ClInclude Include="Win32\Platform.h" />
-    <ClInclude Include="Win32\Win32.hpp" />
+    <ClCompile Include="ImageModuleWrapper.cpp" />
+    <ClCompile Include="Unmanaged\Image\ImageStitcher.cpp">
+      <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</CompileAsManaged>
+      <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</CompileAsManaged>
+    </ClCompile>
+    <ClCompile Include="Unmanaged\Image\Tools\GradientFiller.cpp">
+      <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</CompileAsManaged>
+      <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</CompileAsManaged>
+    </ClCompile>
+    <ClCompile Include="Unmanaged\Image\Tools\LayoutHelper.cpp">
+      <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</CompileAsManaged>
+      <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</CompileAsManaged>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Application.cpp" />
-    <ClCompile Include="dllmain.cpp" />
-    <ClCompile Include="Image\Tools\GradientFiller.cpp" />
-    <ClCompile Include="Image\Effects\BlackSoftEffect.hpp" />
-    <ClCompile Include="Image\Effects\Effects.hpp" />
-    <ClCompile Include="Image\ImageEditor.cpp" />
-    <ClCompile Include="Image\ImageProcessor.cpp" />
-    <ClCompile Include="Image\ImageSlider.cpp" />
-    <ClCompile Include="Image\ImageStitcher.cpp" />
-    <ClCompile Include="Image\ImageStitcher.h" />
-    <ClCompile Include="Image\PixelData\PixelData.cpp" />
-    <ClCompile Include="Image\PixelData\PixelDataProcessor.cpp" />
-    <ClCompile Include="Image\Screenshot.cpp" />
-    <ClCompile Include="Framework\StopWatch.hpp" />
-    <ClCompile Include="Win32\Platform.cpp" />
-    <ClCompile Include="Win32\Win32.cpp" />
+    <ClInclude Include="Unmanaged\Image\ImageStitcher.h" />
+    <ClInclude Include="Unmanaged\Image\PixelData\PopularColors.hpp" />
+    <ClInclude Include="Unmanaged\Image\Tools\GradientFiller.h" />
+    <ClInclude Include="Unmanaged\Image\Tools\LayoutHelper.h" />
+    <ClInclude Include="Unmanaged\Windows\ShellApi.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

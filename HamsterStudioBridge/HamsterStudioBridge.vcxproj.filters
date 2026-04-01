@@ -13,32 +13,38 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Native">
+      <UniqueIdentifier>{7b84eaa5-bb94-4c5a-a965-14e16ab1af99}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="main.cpp">
+    <ClCompile Include="ImageModuleWrapper.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="..\HamsterStudioNative\Image\ImageEditor.cpp">
+    <ClCompile Include="Unmanaged\Image\ImageStitcher.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="..\HamsterStudioNative\Image\PixelData\PixelData.cpp">
+    <ClCompile Include="Unmanaged\Image\Tools\GradientFiller.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="..\HamsterStudioNative\Image\PixelData\PixelDataProcessor.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="..\HamsterStudioNative\Image\ImageStitcher.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="..\HamsterStudioNative\Image\Tools\GradientFiller.cpp">
+    <ClCompile Include="Unmanaged\Image\Tools\LayoutHelper.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="genshin\genshin.hpp">
+    <ClInclude Include="Unmanaged\Image\ImageStitcher.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="..\HamsterStudioNative\Image\ImageEditor.h">
+    <ClInclude Include="Unmanaged\Image\Tools\GradientFiller.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Unmanaged\Image\PixelData\PopularColors.hpp">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Unmanaged\Windows\ShellApi.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Unmanaged\Image\Tools\LayoutHelper.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

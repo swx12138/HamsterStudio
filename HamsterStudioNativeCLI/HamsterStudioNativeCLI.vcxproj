@@ -151,6 +151,7 @@
     <ClCompile Include="..\HamsterStudioNative\Image\ImageStitcher.cpp" />
     <ClCompile Include="..\HamsterStudioNative\Image\PixelData\PixelData.cpp" />
     <ClCompile Include="..\HamsterStudioNative\Image\PixelData\PixelDataProcessor.cpp" />
+    <ClCompile Include="..\HamsterStudioNative\Image\Tools\GradientFiller.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>

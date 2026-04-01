@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "HamsterStudio.ImageTool": {
+      "commandName": "Project",
+      "nativeDebugging": true
+    }
+  }
+}
