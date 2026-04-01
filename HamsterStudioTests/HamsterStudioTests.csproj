@@ -1,4 +1,4 @@
-﻿<Project Sdk="MSTest.Sdk/3.6.4">
+<Project Sdk="MSTest.Sdk/3.6.4">
 
   <PropertyGroup>
     <TargetFramework>net8.0-windows</TargetFramework>
@@ -15,7 +15,12 @@
 
   <ItemGroup>
     <ProjectReference Include="..\HamsterStudio.ArchiveMaster\HamsterStudio.ArchiveMaster.csproj" />
+    <ProjectReference Include="..\HamsterStudioBridge\HamsterStudioBridge.vcxproj" />
     <ProjectReference Include="..\HamsterStudioGUI\HamsterStudioGUI.csproj" />
   </ItemGroup>
+
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+    <Exec Command="copy /b &quot;D:\Abracadabra\opencv-4.10.0-windows\opencv\build\x64\vc16\bin\opencv_world4100d.dll&quot; $(OutDir)&#xD;&#xA;copy /b &quot;D:\Abracadabra\opencv-4.10.0-windows\opencv\build\x64\vc16\bin\opencv_world4100.dll&quot; $(OutDir)" />
+  </Target>
 
 </Project>
