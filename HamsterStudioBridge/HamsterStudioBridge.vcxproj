@@ -158,7 +158,7 @@
       <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</CompileAsManaged>
       <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</CompileAsManaged>
     </ClCompile>
-    <ClCompile Include="Unmanaged\Image\Utils.cpp">
+    <ClCompile Include="Unmanaged\Image\Tools\LayoutHelper.cpp">
       <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</CompileAsManaged>
       <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</CompileAsManaged>
     </ClCompile>
@@ -167,7 +167,7 @@
     <ClInclude Include="Unmanaged\Image\ImageStitcher.h" />
     <ClInclude Include="Unmanaged\Image\PixelData\PopularColors.hpp" />
     <ClInclude Include="Unmanaged\Image\Tools\GradientFiller.h" />
-    <ClInclude Include="Unmanaged\Image\Utils.h" />
+    <ClInclude Include="Unmanaged\Image\Tools\LayoutHelper.h" />
     <ClInclude Include="Unmanaged\Windows\ShellApi.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

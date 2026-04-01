@@ -27,7 +27,7 @@
     <ClCompile Include="Unmanaged\Image\Tools\GradientFiller.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="Unmanaged\Image\Utils.cpp">
+    <ClCompile Include="Unmanaged\Image\Tools\LayoutHelper.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
@@ -44,7 +44,7 @@
     <ClInclude Include="Unmanaged\Windows\ShellApi.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="Unmanaged\Image\Utils.h">
+    <ClInclude Include="Unmanaged\Image\Tools\LayoutHelper.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
