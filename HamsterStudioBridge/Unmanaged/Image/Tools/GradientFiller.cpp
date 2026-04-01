@@ -108,7 +108,7 @@ void FillBilinearAVX2(cv::Mat& mat, cv::Scalar color_tl, cv::Scalar color_tr, cv
 	const float inv_height = 1.0f / (height - 1);
 
 	uchar* data = mat.data;
-	const int step = mat.step;
+	const auto step = mat.step;
 
 #pragma omp parallel for
 	for (int y = 0; y < height; ++y) {

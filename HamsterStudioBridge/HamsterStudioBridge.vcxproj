@@ -78,9 +78,11 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <TargetName>$(ProjectName)$(PlatformArchitecture)</TargetName>
+    <ManagedAssembly>true</ManagedAssembly>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <TargetName>$(ProjectName)$(PlatformArchitecture)</TargetName>
+    <ManagedAssembly>true</ManagedAssembly>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -147,11 +149,21 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\HamsterStudioNative\Image\Tools\GradientFiller.cpp" />
-    <ClCompile Include="main.cpp" />
+    <ClCompile Include="OpenCvWrapper.cpp" />
+    <ClCompile Include="Unmanaged\Image\ImageStitcher.cpp">
+      <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</CompileAsManaged>
+      <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</CompileAsManaged>
+    </ClCompile>
+    <ClCompile Include="Unmanaged\Image\Tools\GradientFiller.cpp">
+      <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</CompileAsManaged>
+      <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</CompileAsManaged>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\HamsterStudioNative\Image\Tools\GradientFiller.h" />
+    <ClInclude Include="Unmanaged\Image\ImageStitcher.h" />
+    <ClInclude Include="Unmanaged\Image\PixelData\PopularColors.hpp" />
+    <ClInclude Include="Unmanaged\Image\Tools\GradientFiller.h" />
+    <ClInclude Include="Unmanaged\Windows\ShellApi.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

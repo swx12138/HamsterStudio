@@ -18,16 +18,28 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="main.cpp">
+    <ClCompile Include="OpenCvWrapper.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="..\HamsterStudioNative\Image\Tools\GradientFiller.cpp">
-      <Filter>Native</Filter>
+    <ClCompile Include="Unmanaged\Image\ImageStitcher.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Unmanaged\Image\Tools\GradientFiller.cpp">
+      <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\HamsterStudioNative\Image\Tools\GradientFiller.h">
-      <Filter>Native</Filter>
+    <ClInclude Include="Unmanaged\Image\ImageStitcher.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Unmanaged\Image\Tools\GradientFiller.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Unmanaged\Image\PixelData\PopularColors.hpp">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Unmanaged\Windows\ShellApi.h">
+      <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -1,26 +1,26 @@
 #include "ImageStitcher.h"
 
-#include "./Tools/GradientFiller.h"
 #include "./PixelData/PopularColors.hpp"
+#include "./Tools/GradientFiller.h"
 
-#include <Windows.h>
+#include "../Windows/ShellApi.h"
 
-// --- Windows API Header ---
-#include <shlwapi.h> // 包含 StrCmpLogicalW
-#pragma comment(lib, "shlwapi.lib") // 链接 shlwapi.lib 库
+#include <ranges>
+
+using namespace ImageStitcherNamespace;
 
 // 定义支持的图片格式
 const std::set<std::string> ImageStitcher::supported_extensions = {
 	".jpg", ".jpeg", ".png", ".bmp", ".tiff", ".tif", ".webp"
 };
 
-ImageStitcher::ImageStitcher(std::filesystem::path const &image_folder, bool use_placeholder)
+ImageStitcher::ImageStitcher(std::filesystem::path const& image_folder, bool use_placeholder)
 	: image_folder_path_(image_folder),
 	use_placeholder_(use_placeholder)
 {
 	// 将视图内容收集到 vector 中以便排序和后续处理
 	std::vector<std::filesystem::path> all_filenames;
-	for (auto const &entry : std::filesystem::directory_iterator(image_folder_path_)) {
+	for (auto const& entry : std::filesystem::directory_iterator(image_folder_path_)) {
 		if (!entry.is_regular_file()) { continue; }
 
 		auto path = entry.path();
@@ -32,7 +32,7 @@ ImageStitcher::ImageStitcher(std::filesystem::path const &image_folder, bool use
 	}
 
 	std::sort(all_filenames.begin(), all_filenames.end(),
-		[] (const std::filesystem::path &a, const std::filesystem::path &b) {
+		[](const std::filesystem::path& a, const std::filesystem::path& b) {
 			return StrCmpLogicalW(a.filename().c_str(), b.filename().c_str()) < 0;
 		});
 
@@ -45,7 +45,7 @@ ImageStitcher::ImageStitcher(std::filesystem::path const &image_folder, bool use
 	}
 
 	// --- 4. 加载图片并按横竖方向分类 ---
-	for (const auto &filepath : all_filenames) {
+	for (const auto& filepath : all_filenames) {
 		auto img = LoadImageCV(filepath);
 		if (img.empty()) {
 			std::cerr << "警告: 无法加载图片: " << filepath << std::endl;
@@ -57,7 +57,7 @@ ImageStitcher::ImageStitcher(std::filesystem::path const &image_folder, bool use
 	std::cout << "加载完成。共计: " << images_.size() - use_placeholder_ << " 张。" << std::endl;
 }
 
-cv::Mat ImageStitcher::generateStitchedImage(std::filesystem::path const &output_path, ImageStitcheMode const mode)
+cv::Mat ImageStitcher::generateStitchedImage(std::filesystem::path const& output_path, ImageStitcheMode const mode)
 {
 	std::vector<cv::Mat> all_images_;
 
@@ -66,12 +66,12 @@ cv::Mat ImageStitcher::generateStitchedImage(std::filesystem::path const &output
 			all_images_.push_back(images_[0](cv::Rect(0, 0, Short, Long)));
 			std::ranges::copy_if(images_ | std::views::drop(1),
 				std::back_inserter(all_images_),
-				[] (const cv::Mat &img) { return img.rows > img.cols; });
+				[](const cv::Mat& img) { return img.rows > img.cols; });
 		}
 		else {
 			std::ranges::copy_if(images_,
 				std::back_inserter(all_images_),
-				[] (const cv::Mat &img) { return img.rows > img.cols; });
+				[](const cv::Mat& img) { return img.rows > img.cols; });
 		}
 	}
 	else if (mode == ImageStitcheMode::Landscape) {
@@ -79,18 +79,18 @@ cv::Mat ImageStitcher::generateStitchedImage(std::filesystem::path const &output
 			all_images_.push_back(images_[0](cv::Rect(0, 0, Long, Short)));
 			std::ranges::copy_if(images_ | std::views::drop(1),
 				std::back_inserter(all_images_),
-				[] (const cv::Mat &img) { return img.cols >= img.rows; });
+				[](const cv::Mat& img) { return img.cols >= img.rows; });
 		}
 		else {
 			std::ranges::copy_if(images_,
 				std::back_inserter(all_images_),
-				[] (const cv::Mat &img) { return img.cols >= img.rows; });
+				[](const cv::Mat& img) { return img.cols >= img.rows; });
 		}
 	}
 	else {
 		// 横屏图片在前，竖屏图片在后
 		std::vector<cv::Mat> _p;
-		for (auto const &img : images_) {
+		for (auto const& img : images_) {
 			if (img.cols >= img.rows) {
 				all_images_.push_back(img);
 			}
@@ -109,13 +109,6 @@ cv::Mat ImageStitcher::generateStitchedImage(std::filesystem::path const &output
 	cv::Mat stitched_image = stitch(all_images_,
 		mode != ImageStitcheMode::Portrait ? Long : Short,
 		mode != ImageStitcheMode::Landscape ? Long : Short);
-	if (!stitched_image.empty()) {
-		cv::imwrite(output_path.string(), stitched_image);
-		std::cout << "拼接完成，结果已保存到: " << output_path << std::endl;
-	}
-	else {
-		std::cerr << "拼接失败，未生成有效的图片。" << std::endl;
-	}
 	return stitched_image;
 }
 
@@ -142,7 +135,14 @@ std::pair<int, int> CalculateGridLayout(int image_count, int cell_width, int cel
 	}
 }
 
-cv::Mat ImageStitcher::stitch(const std::vector<cv::Mat> &images, int target_width, int target_height, int borderThickness)
+cv::Mat ImageStitcher::stitch(const std::vector<cv::Mat>& images, int target_width, int target_height, int borderThickness)
+{
+	std::vector<cv::Mat const*> ptrs{ images.size() };
+	std::transform(images.begin(), images.end(), ptrs.begin(), [](cv::Mat const& m) {return &m;});
+	return stitch(ptrs, target_width, target_height, borderThickness);
+}
+
+cv::Mat ImageStitcher::stitch(std::vector<cv::Mat const*> const& images, int target_width, int target_height, int borderThickness)
 {
 	if (images.empty()) {
 		std::cerr << "错误: 输入图片列表为空，无法进行拼接。" << std::endl;
@@ -189,13 +189,13 @@ cv::Mat ImageStitcher::stitch(const std::vector<cv::Mat> &images, int target_wid
 			target_width,
 			target_height
 		));
-		PasteImage(roi, images[i]);
+		PasteImage(roi, *images[i]);
 	}
 
 	return canvas;
 }
 
-void drawFilledRoundRect(cv::Mat &img, const cv::Point &topLeft, const cv::Size &rectSize, int cornerRadius, const cv::Scalar &color)
+void drawFilledRoundRect(cv::Mat& img, const cv::Point& topLeft, const cv::Size& rectSize, int cornerRadius, const cv::Scalar& color)
 {
 	// 绘制矩形(不包括圆角)
 	cv::rectangle(img,
@@ -236,7 +236,7 @@ void drawFilledRoundRect(cv::Mat &img, const cv::Point &topLeft, const cv::Size 
 		-1);
 }
 
-void ImageStitcher::PasteImage(cv::Mat &canvas, const cv::Mat &image)
+void ImageStitcher::PasteImage(cv::Mat& canvas, const cv::Mat& image)
 {
 	drawFilledRoundRect(canvas, cv::Point(0, 0), canvas.size(), std::min(canvas.cols, canvas.rows) / 20, PantoneColors::YearColor_2026_CloudDancer);
 
@@ -245,7 +245,7 @@ void ImageStitcher::PasteImage(cv::Mat &canvas, const cv::Mat &image)
 	double scale = std::min(scale_x, scale_y);
 
 	cv::Mat scaled_image;
-	cv::resize(image, scaled_image, cv::Size {}, scale, scale);
+	cv::resize(image, scaled_image, cv::Size{}, scale, scale);
 
 	int x_offset = (canvas.cols - scaled_image.cols) / 2;
 	int y_offset = (canvas.rows - scaled_image.rows) / 2;
@@ -267,12 +267,12 @@ cv::Mat ImageStitcher::PlaceHolderImage() {
 	return placeholder;
 }
 
-cv::Mat ImageStitcher::LoadImageCV(const std::filesystem::path &filepath) {
+cv::Mat ImageStitcher::LoadImageCV(const std::filesystem::path& filepath) {
 	try {
 		cv::Mat img = cv::imread(filepath.string());
 		return img;
 	}
-	catch (const std::exception &e) {
+	catch (const std::exception& e) {
 		std::wcerr << L"错误: 无法加载图片 " << filepath
 			<< L"，异常信息: " << e.what()
 			<< L"，准备重试。。。"
@@ -288,7 +288,7 @@ cv::Mat ImageStitcher::LoadImageCV(const std::filesystem::path &filepath) {
 		std::filesystem::remove(temp_filename);
 		return img;
 	}
-	catch (const std::exception &e) {
+	catch (const std::exception& e) {
 		std::wcerr << L"错误: 无法加载图片 " << filepath
 			<< L"，异常信息: " << e.what()
 			<< std::endl;

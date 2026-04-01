@@ -1,9 +1,14 @@
 
-#include "../HamsterStudioNative/Image/Tools/GradientFiller.h"
-
 #include <vcclr.h>
 
+#include "./Unmanaged/Image/Tools/GradientFiller.h"
+#include "./Unmanaged/Image/ImageStitcher.h"
+
+#include <thread>
+#include <future>
+
 using namespace System;
+using namespace System::Diagnostics;
 
 namespace HamsterStudioBridge
 {
@@ -30,6 +35,15 @@ namespace HamsterStudioBridge
 
 		};
 
+		public value struct Size2d {
+			int Width;
+			int Height;
+			
+			Size2d(int w, int h)
+				:Width(w),Height(h)
+			{ }
+		};
+
 		// 2. 创建包装类
 		public ref class ImageProcessor
 		{
@@ -53,6 +67,22 @@ namespace HamsterStudioBridge
 				// 注意：这里直接传引用，因为 nativeMat 已经是 C++ 对象指针
 				Image::Tools::GradientFiller::FillBilinear(*nativeMat, c_tl, c_tr, c_bl, c_br);
 			}
+
+			static bool GetStitchImages(array<IntPtr>^ inputs, IntPtr output, bool landspace, Size2d cellSize, int spacing)
+			{
+				std::vector<cv::Mat const*> mats{ static_cast<size_t>(inputs->Length) };
+				for (int i = 0;i < inputs->Length;i++) {
+					mats[i] = reinterpret_cast<cv::Mat*>(inputs[i].ToPointer());
+				}
+
+				auto mat = ImageStitcherNamespace::ImageStitcher::stitch(mats, cellSize.Width, cellSize.Height, spacing);
+
+				auto pOutputMat = reinterpret_cast<cv::Mat*>(output.ToPointer());
+				mat.copyTo(*pOutputMat);
+
+				return true;
+			}
+
 		};
 	}
 }

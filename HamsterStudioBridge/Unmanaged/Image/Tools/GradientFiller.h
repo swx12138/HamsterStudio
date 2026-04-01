@@ -1,6 +1,6 @@
 #pragma once
 
-#include<opencv2/core/mat.hpp>
+#include <opencv2/core/mat.hpp>
 
 #define GradientFillerNamespace Image::Tools::GradientFiller
 
