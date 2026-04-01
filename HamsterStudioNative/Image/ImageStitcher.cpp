@@ -1,6 +1,7 @@
 #include "ImageStitcher.h"
 
-#include "./Tools/GradientFiller.hpp"
+#include "./Tools/GradientFiller.h"
+#include "./PixelData/PopularColors.hpp"
 
 #include <Windows.h>
 
@@ -164,7 +165,7 @@ cv::Mat ImageStitcher::stitch(const std::vector<cv::Mat> &images, int target_wid
 	const int canvas_width = cols * target_width + (cols + 1) * borderThickness;
 	const int canvas_height = rows * target_height + (rows + 1) * borderThickness;
 	cv::Mat canvas = cv::Mat::zeros(canvas_height, canvas_width, CV_8UC3);
-	GradientFiller::fillBilinear(canvas,
+	Image::Tools::GradientFiller::FillBilinear(canvas,
 		PantoneColors::YearColor_2025_MochaMousse,
 		PantoneColors::YearColor_2024_PeachFuzz,
 		PantoneColors::YearColor_2023_VivaMagenta,
@@ -259,7 +260,7 @@ void ImageStitcher::PasteImage(cv::Mat &canvas, const cv::Mat &image)
 
 cv::Mat ImageStitcher::PlaceHolderImage() {
 	static cv::Mat placeholder = cv::Mat(Long, Long, CV_8UC3);
-	GradientFiller::fillSolidColor(placeholder, PantoneColors::YearColor_2026_CloudDancer);
+	Image::Tools::GradientFiller::FillSolidColor(placeholder, PantoneColors::YearColor_2026_CloudDancer);
 	//auto size = cv::Size(Long / 4, Short / 4);
 	//size.width = size.height = std::min(size.width, Long / 2 - 20);
 	//cv::ellipse(placeholder, cv::Point(Long / 2, Short / 2), size, 0, 0, 360, PantoneColors::YearColor_2020_ClassicBlue, -1);

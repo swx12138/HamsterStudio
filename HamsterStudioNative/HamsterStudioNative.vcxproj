@@ -181,6 +181,7 @@
     <ClInclude Include="Image\PixelData\PixelDataProcessor.h" />
     <ClInclude Include="Image\PixelData\PopularColors.hpp" />
     <ClInclude Include="Image\Screenshot.h" />
+    <ClInclude Include="Image\Tools\GradientFiller.h" />
     <ClInclude Include="Win32\Control.hpp" />
     <ClInclude Include="Win32\Drawing.hpp" />
     <ClInclude Include="Image\ImageProcessor.h" />
@@ -190,6 +191,7 @@
   <ItemGroup>
     <ClCompile Include="Application.cpp" />
     <ClCompile Include="dllmain.cpp" />
+    <ClCompile Include="Image\Tools\GradientFiller.cpp" />
     <ClCompile Include="Image\Effects\BlackSoftEffect.hpp" />
     <ClCompile Include="Image\Effects\Effects.hpp" />
     <ClCompile Include="Image\ImageEditor.cpp" />
@@ -200,7 +202,6 @@
     <ClCompile Include="Image\PixelData\PixelData.cpp" />
     <ClCompile Include="Image\PixelData\PixelDataProcessor.cpp" />
     <ClCompile Include="Image\Screenshot.cpp" />
-    <ClCompile Include="Image\Tools\GradientFiller.hpp" />
     <ClCompile Include="Framework\StopWatch.hpp" />
     <ClCompile Include="Win32\Platform.cpp" />
     <ClCompile Include="Win32\Win32.cpp" />

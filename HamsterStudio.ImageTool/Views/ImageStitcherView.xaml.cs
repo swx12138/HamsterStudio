@@ -30,10 +30,10 @@ namespace HamsterStudio.ImageTool.Views
 
         private void ImageSelector_ImageSelected(object sender, RoutedEventArgs e)
         {
-            if(sender is ImageSelector imageSelector && imageSelector.DataContext is HamstertFileInfo fileInfo)
-            {
-                fileInfo.PlacementNew(imageSelector.Uri.AbsolutePath);
-            }
+            //if(sender is ImageSelector imageSelector && imageSelector.DataContext is HamstertFileInfo fileInfo)
+            //{
+            //    fileInfo.PlacementNew(imageSelector.Uri.AbsolutePath);
+            //}
             return;
         }
     }

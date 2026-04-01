@@ -30,6 +30,9 @@
     <ClCompile Include="..\HamsterStudioNative\Image\ImageStitcher.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="..\HamsterStudioNative\Image\Tools\GradientFiller.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="genshin\genshin.hpp">

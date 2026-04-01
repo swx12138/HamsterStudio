@@ -161,7 +161,41 @@ int main_tojpeg(std::vector<std::string> const &args) {
 	return 0;
 }
 
+#include "../HamsterStudioNative/Image/Tools/GradientFiller.h"
+#include "../HamsterStudioNative/Image/PixelData/PopularColors.hpp"
+#include <format>
+
+int gradient_filler_test_main()
+{
+	cv::Mat mat(840, 840, CV_8UC3);
+
+	using namespace std::chrono;
+	using TimeUnit = microseconds;
+	TimeUnit min = TimeUnit::max(), max = TimeUnit::min(), sum = TimeUnit(0);
+	for (int i = 0;i < 1000;i++) {
+		auto start = system_clock::now();
+		Image::Tools::GradientFiller::FillBilinear(mat,
+			PantoneColors::YearColor_2025_MochaMousse,
+			PantoneColors::YearColor_2024_PeachFuzz,
+			PantoneColors::YearColor_2023_VivaMagenta,
+			PantoneColors::YearColor_2022_VeryPeri
+		);
+		auto used = duration_cast<TimeUnit>(system_clock::now() - start);
+		std::cout << "used " << used << "ms" << std::endl;
+		if (min > used) { min = used; }
+		if (max < used) { max = used; }
+		sum += used;
+	}
+
+	std::cout << std::format("min {}us, max {}us, average {}ms", 
+		min.count(), max.count(), sum.count() / 1000.0 / 1000) << std::endl;
+
+	return 0;
+}
+
 int main(int argc, char **argv) {
+	return gradient_filler_test_main();
+
 	std::vector<std::string> args(argv, argv + argc);
 	//return main_tojpeg(args);
 	return main_stitch(args);

@@ -41,39 +41,68 @@ public class ImageStitcher
 
     public static void FillBilinearFast(Mat mat, Scalar colorTl, Scalar colorTr, Scalar colorBl, Scalar colorBr)
     {
-        if (mat == null || mat.Empty()) return;
-
-        int rows = mat.Rows;
-        int cols = mat.Cols;
-
-        var fastMat = new Mat<Vec3b>(mat);
-
-        // 锁定内存，获取扫描线指针
-        var indexer = fastMat.GetIndexer();
-        for (int y = 0; y < rows; ++y)
+        ArgumentNullException.ThrowIfNull(mat);
+        if (!mat.IsContinuous())
         {
-            double t_y = (double)y / (rows - 1);
+            throw new ArgumentException("Mat must be continuous", nameof(mat));
+        }
 
-            for (int x = 0; x < cols; ++x)
+        // 预计算颜色分量
+        byte tl_b = (byte)colorTl[0], tl_g = (byte)colorTl[1], tl_r = (byte)colorTl[2];
+        byte tr_b = (byte)colorTr[0], tr_g = (byte)colorTr[1], tr_r = (byte)colorTr[2];
+        byte bl_b = (byte)colorBl[0], bl_g = (byte)colorBl[1], bl_r = (byte)colorBl[2];
+        byte br_b = (byte)colorBr[0], br_g = (byte)colorBr[1], br_r = (byte)colorBr[2];
+
+        double invHeight = 1.0 / (mat.Height - 1);
+        double invWidth = 1.0 / (mat.Width - 1);
+
+        Span<Vec3b> span = mat.AsSpan<Vec3b>();
+        int width = mat.Width;
+        int height = mat.Height;
+
+        // 预计算每行的t_y值
+        double[] t_y_cache = new double[height];
+        double[] inv_t_y_cache = new double[height];
+        for (int y = 0; y < height; y++)
+        {
+            t_y_cache[y] = y * invHeight;
+            inv_t_y_cache[y] = 1.0 - t_y_cache[y];
+        }
+
+        // 预计算每列的t_x值
+        double[] t_x_cache = new double[width];
+        double[] inv_t_x_cache = new double[width];
+        for (int x = 0; x < width; x++)
+        {
+            t_x_cache[x] = x * invWidth;
+            inv_t_x_cache[x] = 1.0 - t_x_cache[x];
+        }
+
+        for (int y = 0; y < height; y++)
+        {
+            double t_y = t_y_cache[y];
+            double inv_t_y = inv_t_y_cache[y];
+            int rowOffset = y * width;
+
+            for (int x = 0; x < width; x++)
             {
-                double t_x = (double)x / (cols - 1);
+                double t_x = t_x_cache[x];
+                double inv_t_x = inv_t_x_cache[x];
 
-                // 顶部插值
-                byte b1 = (byte)((1.0 - t_x) * colorTl[0] + t_x * colorTr[0]);
-                byte g1 = (byte)((1.0 - t_x) * colorTl[1] + t_x * colorTr[1]);
-                byte r1 = (byte)((1.0 - t_x) * colorTl[2] + t_x * colorTr[2]);
+                // 内联计算，避免重复的浮点运算
+                byte b1 = (byte)(inv_t_x * tl_b + t_x * tr_b);
+                byte g1 = (byte)(inv_t_x * tl_g + t_x * tr_g);
+                byte r1 = (byte)(inv_t_x * tl_r + t_x * tr_r);
 
-                // 底部插值
-                byte b2 = (byte)((1.0 - t_x) * colorBl[0] + t_x * colorBr[0]);
-                byte g2 = (byte)((1.0 - t_x) * colorBl[1] + t_x * colorBr[1]);
-                byte r2 = (byte)((1.0 - t_x) * colorBl[2] + t_x * colorBr[2]);
+                byte b2 = (byte)(inv_t_x * bl_b + t_x * br_b);
+                byte g2 = (byte)(inv_t_x * bl_g + t_x * br_g);
+                byte r2 = (byte)(inv_t_x * bl_r + t_x * br_r);
 
-                var color = indexer[y, x];
-                // 最终垂直插值
-                color.Item0 = (byte)((1.0 - t_y) * b1 + t_y * b2); // B
-                color.Item1 = (byte)((1.0 - t_y) * g1 + t_y * g2); // G
-                color.Item2 = (byte)((1.0 - t_y) * r1 + t_y * r2); // R
-                indexer[y, x] = color;
+                int index = rowOffset + x;
+                ref var pixel = ref span[index];
+                pixel.Item0 = (byte)(inv_t_y * b1 + t_y * b2);
+                pixel.Item1 = (byte)(inv_t_y * g1 + t_y * g2);
+                pixel.Item2 = (byte)(inv_t_y * r1 + t_y * r2);
             }
         }
     }
