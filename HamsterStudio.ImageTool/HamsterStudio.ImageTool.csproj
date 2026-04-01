@@ -2,11 +2,13 @@
 
     <PropertyGroup>
         <OutputType>WinExe</OutputType>
-        <TargetFramework>net8.0-windows</TargetFramework>
+        <TargetFramework>net8.0-windows10.0.22621.0</TargetFramework>
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
         <UseWPF>true</UseWPF>
         <ApplicationIcon>Assets\chuhua.ico</ApplicationIcon>
+        <PlatformTarget>x64</PlatformTarget>
+        <SupportedOSPlatformVersion>10.0.19041.0</SupportedOSPlatformVersion>
     </PropertyGroup>
 
     <ItemGroup>
@@ -17,5 +19,10 @@
         <ProjectReference Include="..\HamsterStudio.Controls\HamsterStudio.Controls.csproj" />
         <ProjectReference Include="..\HamsterStudio.HandyUtil\HamsterStudio.HandyUtil.csproj" />
         <ProjectReference Include="..\HamsterStudio.Toolkits\HamsterStudio.Toolkits.csproj" />
+        <ProjectReference Include="..\HamsterStudioBridge\HamsterStudioBridge.vcxproj" />
     </ItemGroup>
+
+    <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+      <Exec Command="copy /b &quot;D:\Abracadabra\opencv-4.10.0-windows\opencv\build\x64\vc16\bin\opencv_world4100d.dll&quot; $(OutDir)&#xD;&#xA;copy /b &quot;D:\Abracadabra\opencv-4.10.0-windows\opencv\build\x64\vc16\bin\opencv_world4100.dll&quot; $(OutDir)" />
+    </Target>
 </Project>

@@ -18,13 +18,16 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="OpenCvWrapper.cpp">
+    <ClCompile Include="ImageModuleWrapper.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="Unmanaged\Image\ImageStitcher.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="Unmanaged\Image\Tools\GradientFiller.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Unmanaged\Image\Utils.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
@@ -39,6 +42,9 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="Unmanaged\Windows\ShellApi.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Unmanaged\Image\Utils.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
