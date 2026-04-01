@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "HamsterStudioTests": {
+      "commandName": "Project",
+      "nativeDebugging": true
+    }
+  }
+}

@@ -39,15 +39,14 @@ public class GradientFillerTest
             ImageProcessor.FillBilinearWrapper(mat.CvPtr, ColorScalar.Red, ColorScalar.Green, ColorScalar.Blue, ColorScalar.WhiteSmoke);
             stopwatch.Stop();
 
-            Trace.TraceInformation($"used {stopwatch.Elapsed.TotalMicroseconds} ms");
+            Trace.TraceInformation($"used {stopwatch.Elapsed.TotalMicroseconds} us");
             total_used += stopwatch.Elapsed.TotalMicroseconds;
         }
         Trace.TraceInformation($"average used {total_used / 1000.0 / 1000} ms");
+        Assert.IsTrue(total_used < 10 * 1000 * 1000);
 
         Cv2.ImShow("view", mat);
-        Cv2.WaitKey();
-
-        Assert.IsTrue(total_used < 10 * 1000 * 1000);
+        Cv2.WaitKey();        
     }
 
 }

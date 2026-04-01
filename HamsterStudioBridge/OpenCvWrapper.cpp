@@ -42,6 +42,8 @@ namespace HamsterStudioBridge
 			Size2d(int w, int h)
 				:Width(w),Height(h)
 			{ }
+
+			static const Size2d Empty{ 0,0 };
 		};
 
 		// 2. 创建包装类
@@ -68,7 +70,7 @@ namespace HamsterStudioBridge
 				Image::Tools::GradientFiller::FillBilinear(*nativeMat, c_tl, c_tr, c_bl, c_br);
 			}
 
-			static bool GetStitchImages(array<IntPtr>^ inputs, IntPtr output, bool landspace, Size2d cellSize, int spacing)
+			static bool GetStitchImages(array<IntPtr>^ inputs, IntPtr output, Size2d cellSize, int spacing)
 			{
 				std::vector<cv::Mat const*> mats{ static_cast<size_t>(inputs->Length) };
 				for (int i = 0;i < inputs->Length;i++) {

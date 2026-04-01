@@ -119,7 +119,8 @@ void FillBilinearAVX2(cv::Mat& mat, cv::Scalar color_tl, cv::Scalar color_tr, cv
 		const __m256 vy_bottom = _mm256_set1_ps(t_y);
 		const __m256 vy_top = _mm256_set1_ps(inv_t_y);
 
-		uchar* row_ptr = data + y * step;
+		//uchar* row_ptr = data + y * step;
+		uchar* row_ptr = mat.ptr<uchar>(y);
 
 		// 一次处理8个像素（AVX2可以同时处理8个float）
 		int x = 0;
