@@ -3,6 +3,6 @@
 #include <Windows.h>
 
 // --- Windows API Header ---
-#include <shlwapi.h> // °üº¬ StrCmpLogicalW
-#pragma comment(lib, "shlwapi.lib") // Á´½Ó shlwapi.lib ¿â
+#include <shlwapi.h> // åŒ…å« StrCmpLogicalW
+#pragma comment(lib, "shlwapi.lib") // é“¾æ¥ shlwapi.lib åº“
 
