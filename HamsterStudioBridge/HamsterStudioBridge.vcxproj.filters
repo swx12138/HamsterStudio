@@ -21,31 +21,5 @@
     <ClCompile Include="ImageModuleWrapper.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="Unmanaged\Image\ImageStitcher.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="Unmanaged\Image\Tools\GradientFiller.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="Unmanaged\Image\Tools\LayoutHelper.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="Unmanaged\Image\ImageStitcher.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="Unmanaged\Image\Tools\GradientFiller.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="Unmanaged\Image\PixelData\PopularColors.hpp">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="Unmanaged\Windows\ShellApi.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="Unmanaged\Image\Tools\LayoutHelper.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
   </ItemGroup>
 </Project>

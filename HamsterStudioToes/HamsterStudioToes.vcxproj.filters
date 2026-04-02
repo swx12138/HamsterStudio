@@ -15,6 +15,9 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Image\ImageSlider.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
     <ClInclude Include="Algorithm\Hash\Base64.hpp">
       <Filter>头文件</Filter>
     </ClInclude>
@@ -39,7 +42,7 @@
     <ClInclude Include="Algorithm\Sort.hpp">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="Framework\Container.hpp">
+    <ClInclude Include="Framework\Communication.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="Framework\Debug.hpp">
@@ -48,13 +51,13 @@
     <ClInclude Include="Framework\Event.hpp">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="Framework\Logger.hpp">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="Framework\Print.hpp">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="Framework\semaphore.hpp">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Framework\StopWatch.hpp">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="Framework\utilities.hpp">
@@ -63,31 +66,10 @@
     <ClInclude Include="Framework\WatchDog.hpp">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="Win32\Drawing.hpp">
+    <ClInclude Include="Image\Effects\BlackSoftEffect.hpp">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="Image\ImageProcessor.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="Win32\Platform.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="Win32\Win32.hpp">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="Win32\Control.hpp">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="Image\Image.hpp">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="Image\ImageSlider.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="Image\Screenshot.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="Image\ImageEditor.h">
+    <ClInclude Include="Image\Effects\Effects.hpp">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="Image\PixelData\PixelData.h">
@@ -96,27 +78,72 @@
     <ClInclude Include="Image\PixelData\PixelDataProcessor.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="html.hpp">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="Image\PixelData\PopularColors.hpp">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="Image\Tools\GradientFiller.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="Image\Tools\LayoutHelper.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Image\Image.hpp">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Image\ImageEditor.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Image\ImageProcessor.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Image\ImageStitcher.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Image\Screenshot.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Windows\Control.hpp">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Windows\Drawing.hpp">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Windows\Platform.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Windows\Win32.hpp">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Windows\ShellApi.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Application.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="html.hpp">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Win32\Platform.cpp">
+    <ClCompile Include="Image\ImageStitcher.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="Win32\Win32.cpp">
+    <ClCompile Include="Framework\Communication.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="Application.cpp">
+    <ClCompile Include="Image\PixelData\PixelData.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="dllmain.cpp">
+    <ClCompile Include="Image\PixelData\PixelDataProcessor.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Image\Tools\GradientFiller.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Image\Tools\LayoutHelper.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Image\ImageEditor.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="Image\ImageProcessor.cpp">
@@ -128,31 +155,16 @@
     <ClCompile Include="Image\Screenshot.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="Image\ImageEditor.cpp">
+    <ClCompile Include="Windows\Platform.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="Image\PixelData\PixelData.cpp">
+    <ClCompile Include="Windows\Win32.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="Image\PixelData\PixelDataProcessor.cpp">
+    <ClCompile Include="Application.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="Image\ImageStitcher.h">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="Image\Effects\BlackSoftEffect.hpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="Image\Effects\Effects.hpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="Framework\StopWatch.hpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="Image\ImageStitcher.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="Image\Tools\GradientFiller.cpp">
+    <ClCompile Include="dllmain.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
