@@ -27,8 +27,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HamsterStudio.Gallery", "Ha
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Thirty", "Thirty", "{52EB6711-5ACA-471D-896D-4146B4B91649}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HandyControl_Net_GE45", "..\Github\HandyControl\src\Net_GE45\HandyControl_Net_GE45\HandyControl_Net_GE45.csproj", "{C4FE67E0-7C2B-8793-B184-87C67E92594B}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HamsterStudio.RedBook", "HamsterStudio.RedBook\HamsterStudio.RedBook.csproj", "{1717C195-164D-44EC-A351-E7477F0D7F09}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HamsterStudio.WebApi", "HamsterStudio.WebApi\HamsterStudio.WebApi.csproj", "{8696E5B4-06EE-417D-A80D-9854037F1E10}"
@@ -65,6 +63,8 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "HamsterStudioToes", "HamsterStudioToes\HamsterStudioToes.vcxproj", "{11561C22-1E71-420A-887A-51BE3C170CAF}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HamsterStudio.FileManager", "HamsterStudio.FileManager\HamsterStudio.FileManager.csproj", "{95FE3C95-1BF0-47AC-B000-0DD15ABDE6A5}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HandyControl_Net_GE45", "submodules\HandyControl\src\Net_GE45\HandyControl_Net_GE45\HandyControl_Net_GE45.csproj", "{1FD848D3-3A22-637B-66EA-11C55D270E17}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -190,18 +190,6 @@ Global
 		{666F42E1-E702-4E0D-9E5D-30E42300A05E}.Release|x64.Build.0 = Release|Any CPU
 		{666F42E1-E702-4E0D-9E5D-30E42300A05E}.Release|x86.ActiveCfg = Release|Any CPU
 		{666F42E1-E702-4E0D-9E5D-30E42300A05E}.Release|x86.Build.0 = Release|Any CPU
-		{C4FE67E0-7C2B-8793-B184-87C67E92594B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{C4FE67E0-7C2B-8793-B184-87C67E92594B}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{C4FE67E0-7C2B-8793-B184-87C67E92594B}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{C4FE67E0-7C2B-8793-B184-87C67E92594B}.Debug|x64.Build.0 = Debug|Any CPU
-		{C4FE67E0-7C2B-8793-B184-87C67E92594B}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{C4FE67E0-7C2B-8793-B184-87C67E92594B}.Debug|x86.Build.0 = Debug|Any CPU
-		{C4FE67E0-7C2B-8793-B184-87C67E92594B}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{C4FE67E0-7C2B-8793-B184-87C67E92594B}.Release|Any CPU.Build.0 = Release|Any CPU
-		{C4FE67E0-7C2B-8793-B184-87C67E92594B}.Release|x64.ActiveCfg = Release|Any CPU
-		{C4FE67E0-7C2B-8793-B184-87C67E92594B}.Release|x64.Build.0 = Release|Any CPU
-		{C4FE67E0-7C2B-8793-B184-87C67E92594B}.Release|x86.ActiveCfg = Release|Any CPU
-		{C4FE67E0-7C2B-8793-B184-87C67E92594B}.Release|x86.Build.0 = Release|Any CPU
 		{1717C195-164D-44EC-A351-E7477F0D7F09}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{1717C195-164D-44EC-A351-E7477F0D7F09}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1717C195-164D-44EC-A351-E7477F0D7F09}.Debug|x64.ActiveCfg = Debug|Any CPU
@@ -382,6 +370,18 @@ Global
 		{95FE3C95-1BF0-47AC-B000-0DD15ABDE6A5}.Release|x64.Build.0 = Release|Any CPU
 		{95FE3C95-1BF0-47AC-B000-0DD15ABDE6A5}.Release|x86.ActiveCfg = Release|Any CPU
 		{95FE3C95-1BF0-47AC-B000-0DD15ABDE6A5}.Release|x86.Build.0 = Release|Any CPU
+		{1FD848D3-3A22-637B-66EA-11C55D270E17}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1FD848D3-3A22-637B-66EA-11C55D270E17}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1FD848D3-3A22-637B-66EA-11C55D270E17}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{1FD848D3-3A22-637B-66EA-11C55D270E17}.Debug|x64.Build.0 = Debug|Any CPU
+		{1FD848D3-3A22-637B-66EA-11C55D270E17}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{1FD848D3-3A22-637B-66EA-11C55D270E17}.Debug|x86.Build.0 = Debug|Any CPU
+		{1FD848D3-3A22-637B-66EA-11C55D270E17}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1FD848D3-3A22-637B-66EA-11C55D270E17}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1FD848D3-3A22-637B-66EA-11C55D270E17}.Release|x64.ActiveCfg = Release|Any CPU
+		{1FD848D3-3A22-637B-66EA-11C55D270E17}.Release|x64.Build.0 = Release|Any CPU
+		{1FD848D3-3A22-637B-66EA-11C55D270E17}.Release|x86.ActiveCfg = Release|Any CPU
+		{1FD848D3-3A22-637B-66EA-11C55D270E17}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -394,7 +394,6 @@ Global
 		{CD16D444-8CEE-433C-89FD-203C3A830F0E} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
 		{4D06F1E1-23FC-4F26-8067-5483A9F58082} = {85879EA5-7D16-4A63-B0E8-76A6308EDA32}
 		{666F42E1-E702-4E0D-9E5D-30E42300A05E} = {85879EA5-7D16-4A63-B0E8-76A6308EDA32}
-		{C4FE67E0-7C2B-8793-B184-87C67E92594B} = {52EB6711-5ACA-471D-896D-4146B4B91649}
 		{1717C195-164D-44EC-A351-E7477F0D7F09} = {AE51203A-AD1A-4DF7-B4E6-220EF3A0A895}
 		{8696E5B4-06EE-417D-A80D-9854037F1E10} = {85879EA5-7D16-4A63-B0E8-76A6308EDA32}
 		{81872920-6B97-4FFB-A8C5-8D48B6892956} = {AE51203A-AD1A-4DF7-B4E6-220EF3A0A895}
@@ -410,14 +409,15 @@ Global
 		{E3364DA7-6600-45CD-AD17-7FEA5983F5F7} = {1ECB36EB-DA69-4571-AFD6-B77B2250E2FB}
 		{11561C22-1E71-420A-887A-51BE3C170CAF} = {1ECB36EB-DA69-4571-AFD6-B77B2250E2FB}
 		{95FE3C95-1BF0-47AC-B000-0DD15ABDE6A5} = {85879EA5-7D16-4A63-B0E8-76A6308EDA32}
+		{1FD848D3-3A22-637B-66EA-11C55D270E17} = {52EB6711-5ACA-471D-896D-4146B4B91649}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {2BEFE676-D503-4D35-A413-E099891E452B}
 	EndGlobalSection
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
-		..\Github\HandyControl\src\Shared\HandyControl_Shared\HandyControl_Shared.projitems*{c4fe67e0-7c2b-8793-b184-87c67e92594b}*SharedItemsImports = 5
-		..\Github\HandyControl\src\Shared\Microsoft.Expression.Drawing\Microsoft.Expression.Drawing.projitems*{c4fe67e0-7c2b-8793-b184-87c67e92594b}*SharedItemsImports = 5
-		..\Github\HandyControl\src\Shared\Microsoft.Expression.Interactions\Microsoft.Expression.Interactions.projitems*{c4fe67e0-7c2b-8793-b184-87c67e92594b}*SharedItemsImports = 5
-		..\Github\HandyControl\src\Shared\System.Windows.Interactivity\System.Windows.Interactivity.projitems*{c4fe67e0-7c2b-8793-b184-87c67e92594b}*SharedItemsImports = 5
+		submodules\HandyControl\src\Shared\HandyControl_Shared\HandyControl_Shared.projitems*{1fd848d3-3a22-637b-66ea-11c55d270e17}*SharedItemsImports = 5
+		submodules\HandyControl\src\Shared\Microsoft.Expression.Drawing\Microsoft.Expression.Drawing.projitems*{1fd848d3-3a22-637b-66ea-11c55d270e17}*SharedItemsImports = 5
+		submodules\HandyControl\src\Shared\Microsoft.Expression.Interactions\Microsoft.Expression.Interactions.projitems*{1fd848d3-3a22-637b-66ea-11c55d270e17}*SharedItemsImports = 5
+		submodules\HandyControl\src\Shared\System.Windows.Interactivity\System.Windows.Interactivity.projitems*{1fd848d3-3a22-637b-66ea-11c55d270e17}*SharedItemsImports = 5
 	EndGlobalSection
 EndGlobal

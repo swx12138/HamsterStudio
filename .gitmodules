@@ -1,3 +1,6 @@
 [submodule "submodules/spdlog"]
 	path = submodules/spdlog
 	url = https://github.com/gabime/spdlog.git
+[submodule "submodules/HandyControl"]
+	path = submodules/HandyControl
+	url = https://github.com/HandyOrg/HandyControl.git
