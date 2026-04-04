@@ -64,6 +64,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "UsingCpp", "UsingCpp", "{1E
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "HamsterStudioToes", "HamsterStudioToes\HamsterStudioToes.vcxproj", "{11561C22-1E71-420A-887A-51BE3C170CAF}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HamsterStudio.FileManager", "HamsterStudio.FileManager\HamsterStudio.FileManager.csproj", "{95FE3C95-1BF0-47AC-B000-0DD15ABDE6A5}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -368,6 +370,18 @@ Global
 		{11561C22-1E71-420A-887A-51BE3C170CAF}.Release|x64.Build.0 = Release|x64
 		{11561C22-1E71-420A-887A-51BE3C170CAF}.Release|x86.ActiveCfg = Release|Win32
 		{11561C22-1E71-420A-887A-51BE3C170CAF}.Release|x86.Build.0 = Release|Win32
+		{95FE3C95-1BF0-47AC-B000-0DD15ABDE6A5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{95FE3C95-1BF0-47AC-B000-0DD15ABDE6A5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{95FE3C95-1BF0-47AC-B000-0DD15ABDE6A5}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{95FE3C95-1BF0-47AC-B000-0DD15ABDE6A5}.Debug|x64.Build.0 = Debug|Any CPU
+		{95FE3C95-1BF0-47AC-B000-0DD15ABDE6A5}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{95FE3C95-1BF0-47AC-B000-0DD15ABDE6A5}.Debug|x86.Build.0 = Debug|Any CPU
+		{95FE3C95-1BF0-47AC-B000-0DD15ABDE6A5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{95FE3C95-1BF0-47AC-B000-0DD15ABDE6A5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{95FE3C95-1BF0-47AC-B000-0DD15ABDE6A5}.Release|x64.ActiveCfg = Release|Any CPU
+		{95FE3C95-1BF0-47AC-B000-0DD15ABDE6A5}.Release|x64.Build.0 = Release|Any CPU
+		{95FE3C95-1BF0-47AC-B000-0DD15ABDE6A5}.Release|x86.ActiveCfg = Release|Any CPU
+		{95FE3C95-1BF0-47AC-B000-0DD15ABDE6A5}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -395,6 +409,7 @@ Global
 		{AAE878CD-51F0-4F77-AFD4-BF73D2AEE5C8} = {85879EA5-7D16-4A63-B0E8-76A6308EDA32}
 		{E3364DA7-6600-45CD-AD17-7FEA5983F5F7} = {1ECB36EB-DA69-4571-AFD6-B77B2250E2FB}
 		{11561C22-1E71-420A-887A-51BE3C170CAF} = {1ECB36EB-DA69-4571-AFD6-B77B2250E2FB}
+		{95FE3C95-1BF0-47AC-B000-0DD15ABDE6A5} = {85879EA5-7D16-4A63-B0E8-76A6308EDA32}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {2BEFE676-D503-4D35-A413-E099891E452B}
