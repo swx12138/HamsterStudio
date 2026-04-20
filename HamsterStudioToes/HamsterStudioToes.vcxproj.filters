@@ -18,13 +18,7 @@
     <ClInclude Include="Image\ImageSlider.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="Algorithm\Hash\Base64.hpp">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="Algorithm\Hash\hash.hpp">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="Algorithm\Hash\MD5.hpp">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="Algorithm\Array.hpp">
@@ -33,19 +27,7 @@
     <ClInclude Include="Algorithm\Fibonacci.hpp">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="Algorithm\Math.hpp">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="Algorithm\Search.hpp">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="Algorithm\Sort.hpp">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="Framework\Communication.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="Framework\Debug.hpp">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="Framework\Event.hpp">
@@ -54,13 +36,7 @@
     <ClInclude Include="Framework\Print.hpp">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="Framework\semaphore.hpp">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="Framework\StopWatch.hpp">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="Framework\utilities.hpp">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="Framework\WatchDog.hpp">
@@ -123,12 +99,39 @@
     <ClInclude Include="html.hpp">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="Framework\Debug.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Algorithm\Hash\Base64.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Algorithm\Hash\MD5.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Algorithm\Math.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Algorithm\Sort.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Framework\Semaphore.hpp">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Tools\CmdLineArgsParser.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Framework\StringUtils.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Tools\Keygen.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Tools\BigInteger.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Image\ImageStitcher.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="Framework\Communication.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="Image\PixelData\PixelData.cpp">
@@ -165,6 +168,33 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="dllmain.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Framework\Debug.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Algorithm\Hash\Base64.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Algorithm\Hash\MD5.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Algorithm\Math.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Algorithm\Sort.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Tools\CmdLineArgsParser.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Framework\StringUtils.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Tools\Keygen.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Tools\BigInteger.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

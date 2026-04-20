@@ -1,7 +1,7 @@
 
 #pragma once
 
-namespace HamsterStudio
+namespace HamsterStudioToes
 {
 	template<typename _Ty>
 	class List {

@@ -145,20 +145,21 @@
   <ItemGroup>
     <ClInclude Include="Algorithm\Array.hpp" />
     <ClInclude Include="Algorithm\Fibonacci.hpp" />
-    <ClInclude Include="Algorithm\Hash\Base64.hpp" />
+    <ClInclude Include="Algorithm\Hash\Base64.h" />
     <ClInclude Include="Algorithm\Hash\hash.hpp" />
-    <ClInclude Include="Algorithm\Hash\MD5.hpp" />
-    <ClInclude Include="Algorithm\Math.hpp" />
+    <ClInclude Include="Algorithm\Hash\MD5.h" />
+    <ClInclude Include="Algorithm\Math.h" />
     <ClInclude Include="Algorithm\Search.hpp" />
-    <ClInclude Include="Algorithm\Sort.hpp" />
+    <ClInclude Include="Algorithm\Sort.h" />
+    <ClInclude Include="Tools\BigInteger.h" />
+    <ClInclude Include="Tools\Keygen.h" />
     <ClInclude Include="Application.h" />
-    <ClInclude Include="Framework\Communication.h" />
-    <ClInclude Include="Framework\Debug.hpp" />
+    <ClInclude Include="Tools\CmdLineArgsParser.h" />
+    <ClInclude Include="Framework\Debug.h" />
     <ClInclude Include="Framework\Event.hpp" />
     <ClInclude Include="Framework\Print.hpp" />
-    <ClInclude Include="Framework\semaphore.hpp" />
+    <ClInclude Include="Framework\Semaphore.hpp" />
     <ClInclude Include="Framework\StopWatch.hpp" />
-    <ClInclude Include="Framework\utilities.hpp" />
     <ClInclude Include="Framework\WatchDog.hpp" />
     <ClInclude Include="html.hpp" />
     <ClInclude Include="Image\Effects\BlackSoftEffect.hpp" />
@@ -174,6 +175,7 @@
     <ClInclude Include="Image\Screenshot.h" />
     <ClInclude Include="Image\Tools\GradientFiller.h" />
     <ClInclude Include="Image\Tools\LayoutHelper.h" />
+    <ClInclude Include="Framework\StringUtils.h" />
     <ClInclude Include="Windows\Control.hpp" />
     <ClInclude Include="Windows\Drawing.hpp" />
     <ClInclude Include="Windows\Platform.h" />
@@ -181,9 +183,17 @@
     <ClInclude Include="Windows\ShellApi.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Algorithm\Hash\Base64.cpp" />
+    <ClCompile Include="Algorithm\Hash\MD5.cpp" />
+    <ClCompile Include="Algorithm\Math.cpp" />
+    <ClCompile Include="Algorithm\Sort.cpp" />
+    <ClCompile Include="Tools\BigInteger.cpp" />
+    <ClCompile Include="Tools\Keygen.cpp" />
     <ClCompile Include="Application.cpp" />
+    <ClCompile Include="Tools\CmdLineArgsParser.cpp" />
     <ClCompile Include="dllmain.cpp" />
-    <ClCompile Include="Framework\Communication.cpp" />
+    <ClCompile Include="Framework\Debug.cpp" />
+    <ClCompile Include="Framework\StringUtils.cpp" />
     <ClCompile Include="Image\ImageEditor.cpp" />
     <ClCompile Include="Image\ImageProcessor.cpp" />
     <ClCompile Include="Image\ImageSlider.cpp" />

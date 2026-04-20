@@ -2,28 +2,33 @@
 #include <condition_variable>
 #include <mutex>
 
-class Semaphore
+namespace HamsterStudioToes
 {
-public:
-    Semaphore(size_t nMaxThread)
-        : nThreadMax(nMaxThread) {}
-
-    void alloc()
+    class Semaphore
     {
-        std::unique_lock<std::mutex> ul(mtx);
-        if (--nThreadMax < 0)
-            cv.wait(ul);
-    }
+    public:
+        Semaphore(size_t nMaxThread)
+            : nThreadMax(nMaxThread) {
+        }
 
-    void free()
-    {
-        std::unique_lock<std::mutex> ul(mtx);
-        if (++nThreadMax <= 0)
-            cv.notify_one();
-    }
+        void alloc()
+        {
+            std::unique_lock<std::mutex> ul(mtx);
+            if (--nThreadMax < 0)
+                cv.wait(ul);
+        }
 
-private:
-    int nThreadMax;
-    std::mutex mtx;
-    std::condition_variable cv;
-};
+        void free()
+        {
+            std::unique_lock<std::mutex> ul(mtx);
+            if (++nThreadMax <= 0)
+                cv.notify_one();
+        }
+
+    private:
+        int nThreadMax;
+        std::mutex mtx;
+        std::condition_variable cv;
+    };
+
+}

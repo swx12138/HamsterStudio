@@ -2,19 +2,30 @@
 
 #include <chrono>
 
-class StopWatch{
-	std::chrono::system_clock::time_point start_time;
-public:
-	explicit StopWatch() {
-		start_time = std::chrono::system_clock::now();
-	}
+namespace HamsterStudioToes
+{
+	/// <summary>
+	/// ¼ÆÊ±Æ÷
+	/// </summary>
+	class StopWatch {
+		using Clock = std::chrono::steady_clock;
+		using TimePoint = Clock::time_point;
 
-	void reset() {
-		start_time = std::chrono::system_clock::now();
-	}
+		TimePoint start_time;
+	public:
+		explicit StopWatch() {
+			start_time = Clock::now();
+		}
 
-	auto elapsed() const {
-		auto now = std::chrono::system_clock::now();
-		return now - start_time;
-	}
-};
+		void reset() {
+			start_time = Clock::now();
+		}
+
+		template<typename Duration = std::chrono::microseconds>
+		auto elapsed() const {
+			auto now = Clock::now();
+			return std::chrono::duration_cast<Duration>(now - start_time);
+		}
+	};
+
+}

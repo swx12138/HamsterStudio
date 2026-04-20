@@ -4,7 +4,7 @@
 #include <functional>
 #include <unordered_map>
 
-namespace Core
+namespace HamsterStudioToes
 {
     template <typename T>
     class PubSubEvent

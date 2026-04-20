@@ -2,22 +2,15 @@
 
 #include <cstdint>
 
-namespace Algorithm::Search
+namespace HamsterStudioToes::Search
 {
-    class ISearch
-    {
-    public:
-        using Postion = size_t;
-        const Postion NPos = UINT64_MAX;
-
-    public:
-        virtual Postion operator()(int target, int *arr, int len) = 0;
-    };
+    using Postion = size_t;
+    const Postion NPos = UINT64_MAX;
 
     /// <summary>
     /// 直接查找
     /// </summary>
-    class Linear : public ISearch
+    class LinearSearch
     {
     public:
         Postion operator()(int target, int *arr, int len)
@@ -38,12 +31,13 @@ namespace Algorithm::Search
             }
             return NPos;
         }
+
     };
 
     /// <summary>
     /// 二分查找
     /// </summary>
-    class Binary : public ISearch
+    class BinarySearch
     {
     public:
         Postion operator()(int target, int *arr, int len)
@@ -77,5 +71,7 @@ namespace Algorithm::Search
             }
             return NPos;
         }
+    
     };
+
 }

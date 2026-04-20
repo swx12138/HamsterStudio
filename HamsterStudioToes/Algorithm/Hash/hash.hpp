@@ -1,9 +1,9 @@
 #pragma once
 
-#include "Base64.hpp"
-#include "MD5.hpp"
+#include "./Base64.h"
+#include "./MD5.h"
 
-namespace Hash
+namespace HamsterStudioToes::Hash
 {
     enum class HashAlgorithm
     {

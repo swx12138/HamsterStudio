@@ -5,7 +5,7 @@
 /// <summary>
 /// print to where
 /// </summary>
-namespace HamsterStudio::IO
+namespace HamsterStudioToes
 {
     void Print(bool b)
     {
