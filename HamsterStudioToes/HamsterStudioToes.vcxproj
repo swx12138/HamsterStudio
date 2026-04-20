@@ -164,7 +164,6 @@
     <ClInclude Include="html.hpp" />
     <ClInclude Include="Image\Effects\BlackSoftEffect.hpp" />
     <ClInclude Include="Image\Effects\Effects.hpp" />
-    <ClInclude Include="Image\Image.hpp" />
     <ClInclude Include="Image\ImageEditor.h" />
     <ClInclude Include="Image\ImageProcessor.h" />
     <ClInclude Include="Image\ImageSlider.h" />
@@ -172,14 +171,14 @@
     <ClInclude Include="Image\PixelData\PixelData.h" />
     <ClInclude Include="Image\PixelData\PixelDataProcessor.h" />
     <ClInclude Include="Image\PixelData\PopularColors.hpp" />
-    <ClInclude Include="Image\Screenshot.h" />
+    <ClInclude Include="Tools\Screenshot.h" />
     <ClInclude Include="Image\Tools\GradientFiller.h" />
     <ClInclude Include="Image\Tools\LayoutHelper.h" />
     <ClInclude Include="Framework\StringUtils.h" />
-    <ClInclude Include="Windows\Control.hpp" />
-    <ClInclude Include="Windows\Drawing.hpp" />
+    <ClInclude Include="Windows\Control.h" />
+    <ClInclude Include="Windows\Drawing.h" />
     <ClInclude Include="Windows\Platform.h" />
-    <ClInclude Include="Windows\Win32.hpp" />
+    <ClInclude Include="Windows\Win32.h" />
     <ClInclude Include="Windows\ShellApi.h" />
   </ItemGroup>
   <ItemGroup>
@@ -200,7 +199,7 @@
     <ClCompile Include="Image\ImageStitcher.cpp" />
     <ClCompile Include="Image\PixelData\PixelData.cpp" />
     <ClCompile Include="Image\PixelData\PixelDataProcessor.cpp" />
-    <ClCompile Include="Image\Screenshot.cpp" />
+    <ClCompile Include="Tools\Screenshot.cpp" />
     <ClCompile Include="Image\Tools\GradientFiller.cpp" />
     <ClCompile Include="Image\Tools\LayoutHelper.cpp" />
     <ClCompile Include="Windows\Platform.cpp" />
