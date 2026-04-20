@@ -120,6 +120,7 @@
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>D:\Abracadabra\opencv-4.10.0-windows\opencv\build\x64\vc16\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>$(TargetDir)HamsterStudioToes$(PlatformArchitecture).lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>copy /b "D:\Abracadabra\opencv-4.10.0-windows\opencv\build\x64\vc16\bin\opencv_world4100d.dll" $(OutDir)</Command>
@@ -141,21 +142,16 @@
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>D:\Abracadabra\opencv-4.10.0-windows\opencv\build\x64\vc16\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>$(TargetDir)HamsterStudioToes$(PlatformArchitecture).lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>copy /b "D:\Abracadabra\opencv-4.10.0-windows\opencv\build\x64\vc16\bin\opencv_world4100.dll" $(OutDir)</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\HamsterStudioNative\Image\ImageEditor.cpp" />
-    <ClCompile Include="..\HamsterStudioNative\Image\ImageStitcher.cpp" />
-    <ClCompile Include="..\HamsterStudioNative\Image\PixelData\PixelData.cpp" />
-    <ClCompile Include="..\HamsterStudioNative\Image\PixelData\PixelDataProcessor.cpp" />
-    <ClCompile Include="..\HamsterStudioNative\Image\Tools\GradientFiller.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\HamsterStudioNative\Image\ImageEditor.h" />
     <ClInclude Include="genshin\genshin.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

@@ -50,6 +50,9 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HamsterStudio.Douyin", "HamsterStudio.Douyin\HamsterStudio.Douyin.csproj", "{DC831928-FF15-4D6C-AA2B-F3F9AC85BD23}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "HamsterStudioNativeCLI", "HamsterStudioNativeCLI\HamsterStudioNativeCLI.vcxproj", "{70F064D6-E53F-43AF-89BA-63B1BC888B1E}"
+	ProjectSection(ProjectDependencies) = postProject
+		{11561C22-1E71-420A-887A-51BE3C170CAF} = {11561C22-1E71-420A-887A-51BE3C170CAF}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HamsterStudio.Photogrammetry", "HamsterStudio.Photogrammetry\HamsterStudio.Photogrammetry.csproj", "{AAE878CD-51F0-4F77-AFD4-BF73D2AEE5C8}"
 EndProject
