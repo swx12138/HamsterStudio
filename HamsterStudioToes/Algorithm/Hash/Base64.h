@@ -4,7 +4,7 @@
 #include <cctype>
 #include <vector>
 
-#include "../../Framework/Debug.h"
+#include "../../Tools/Debug.h"
 
 namespace HamsterStudioToes::Base64
 {

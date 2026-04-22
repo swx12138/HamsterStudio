@@ -30,16 +30,16 @@
     <ClInclude Include="Algorithm\Search.hpp">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="Framework\Event.hpp">
+    <ClInclude Include="Tools\Event.hpp">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="Framework\Print.hpp">
+    <ClInclude Include="Tools\Print.hpp">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="Framework\StopWatch.hpp">
+    <ClInclude Include="Tools\StopWatch.hpp">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="Framework\WatchDog.hpp">
+    <ClInclude Include="Tools\WatchDog.hpp">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="Image\Effects\BlackSoftEffect.hpp">
@@ -96,7 +96,7 @@
     <ClInclude Include="Tools\HtmlDocument.hpp">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="Framework\Debug.h">
+    <ClInclude Include="Tools\Debug.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="Algorithm\Hash\Base64.h">
@@ -111,13 +111,13 @@
     <ClInclude Include="Algorithm\Sort.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="Framework\Semaphore.hpp">
+    <ClInclude Include="Tools\Semaphore.hpp">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="Tools\CmdLineArgsParser.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="Framework\StringUtils.h">
+    <ClInclude Include="Tools\StringUtils.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="Tools\Keygen.h">
@@ -176,7 +176,7 @@
     <ClCompile Include="dllmain.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="Framework\Debug.cpp">
+    <ClCompile Include="Tools\Debug.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="Algorithm\Hash\Base64.cpp">
@@ -194,7 +194,7 @@
     <ClCompile Include="Tools\CmdLineArgsParser.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="Framework\StringUtils.cpp">
+    <ClCompile Include="Tools\StringUtils.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="Tools\Keygen.cpp">

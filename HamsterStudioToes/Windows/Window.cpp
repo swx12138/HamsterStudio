@@ -123,3 +123,11 @@ LRESULT HamsterStudioToesAppNamespace::Window::MainWindowProc(HWND hHostWnd, UIN
 	}
 	return ::DefWindowProcA(hHostWnd, message, wParam, lParam);
 }
+
+int HamsterStudioToesAppNamespace::CreateWindowTestMain()
+{
+	using namespace HamsterStudioToesAppNamespace;
+	Application app{ ::GetModuleHandleA(NULL), NULL, ::GetCommandLineA(), "HamsterStudioToesApp" };
+	Window window{ app, SW_SHOW, Window::ProcedureContext(nullptr), DefaultWindowSize, "HamsterStudioToes" };
+	return window.RunMessageLoop();
+}

@@ -50,4 +50,6 @@ namespace HamsterStudioToesAppNamespace
 
 	};
 
+	int CreateWindowTestMain();
+
 }

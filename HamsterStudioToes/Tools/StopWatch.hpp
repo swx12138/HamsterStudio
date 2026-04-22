@@ -4,9 +4,6 @@
 
 namespace HamsterStudioToes
 {
-	/// <summary>
-	/// ¼ÆÊ±Æ÷
-	/// </summary>
 	class StopWatch {
 		using Clock = std::chrono::steady_clock;
 		using TimePoint = Clock::time_point;

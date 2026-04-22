@@ -45,7 +45,8 @@ void HamsterStudioToes::Debug::ErrorExit(std::vector<int> safeCodes)
 	wprintf_s(L"Error: %ws\n", (LPCTSTR)lpMsgBuf);
 
 	LocalFree(lpMsgBuf);
-	if (safeCodes.empty() || std::find(safeCodes.begin(), safeCodes.end(), dw) == safeCodes.end()) {
+
+	if (dw != 0 && (safeCodes.empty() || std::find(safeCodes.begin(), safeCodes.end(), dw) == safeCodes.end())) {
 		ExitProcess(dw);
 	}
 }
