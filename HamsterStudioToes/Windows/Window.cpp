@@ -63,7 +63,7 @@ int HamsterStudioToesAppNamespace::Window::RunMessageLoop() const
 			break;
 		}
 	} while (1);
-	return msg.wParam;
+	return static_cast<int>(msg.wParam);
 }
 
 inline HamsterStudioToesAppNamespace::WindowSize HamsterStudioToesAppNamespace::Window::GetWindowSize() const
