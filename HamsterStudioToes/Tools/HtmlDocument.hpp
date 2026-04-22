@@ -7,11 +7,10 @@
 #include <array>
 #include <type_traits>
 
-#define HTML_DOCUMENT_NAMESPACE utils::html
+#define HTML_DOCUMENT_NAMESPACE HamsterStudioToes::HtmlDocument
 
 namespace HTML_DOCUMENT_NAMESPACE
 {
-
 	class HtmlElementProperty {
 	public:
 		virtual	operator std::string() const = 0;

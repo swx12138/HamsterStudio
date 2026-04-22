@@ -2,6 +2,7 @@
 
 #include <stdexcept>
 #include <string>
+#include <vector>
 
 namespace HamsterStudioToes::Debug
 {
@@ -12,4 +13,6 @@ namespace HamsterStudioToes::Debug
 	};
 
 	void Assert(bool condition, std::string const& message = "");
+
+	void ErrorExit(std::vector<int> safeCodes);
 }

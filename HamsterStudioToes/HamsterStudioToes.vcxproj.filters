@@ -84,16 +84,16 @@
     <ClInclude Include="Windows\Platform.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="Windows\Win32.h">
+    <ClInclude Include="Windows\Win32Utils.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="Windows\ShellApi.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="Application.h">
+    <ClInclude Include="Windows\Application.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="html.hpp">
+    <ClInclude Include="Tools\HtmlDocument.hpp">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="Framework\Debug.h">
@@ -124,6 +124,18 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="Tools\BigInteger.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Windows\Tools\GdiplusEnv.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Windows\Tools\WindowComposition.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Windows\Tools\TaskbarCtrl.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Windows\Window.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
@@ -158,10 +170,7 @@
     <ClCompile Include="Windows\Platform.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="Windows\Win32.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="Application.cpp">
+    <ClCompile Include="Windows\Win32Utils.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="dllmain.cpp">
@@ -192,6 +201,21 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="Tools\BigInteger.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Windows\Tools\GdiplusEnv.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Windows\Tools\WindowComposition.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Windows\Tools\TaskbarCtrl.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Windows\Application.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Windows\Window.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

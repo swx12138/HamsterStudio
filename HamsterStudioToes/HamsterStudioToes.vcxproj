@@ -153,7 +153,7 @@
     <ClInclude Include="Algorithm\Sort.h" />
     <ClInclude Include="Tools\BigInteger.h" />
     <ClInclude Include="Tools\Keygen.h" />
-    <ClInclude Include="Application.h" />
+    <ClInclude Include="Windows\Application.h" />
     <ClInclude Include="Tools\CmdLineArgsParser.h" />
     <ClInclude Include="Framework\Debug.h" />
     <ClInclude Include="Framework\Event.hpp" />
@@ -161,7 +161,7 @@
     <ClInclude Include="Framework\Semaphore.hpp" />
     <ClInclude Include="Framework\StopWatch.hpp" />
     <ClInclude Include="Framework\WatchDog.hpp" />
-    <ClInclude Include="html.hpp" />
+    <ClInclude Include="Tools\HtmlDocument.hpp" />
     <ClInclude Include="Image\Effects\BlackSoftEffect.hpp" />
     <ClInclude Include="Image\Effects\Effects.hpp" />
     <ClInclude Include="Image\ImageEditor.h" />
@@ -178,17 +178,21 @@
     <ClInclude Include="Windows\Control.h" />
     <ClInclude Include="Windows\Drawing.h" />
     <ClInclude Include="Windows\Platform.h" />
-    <ClInclude Include="Windows\Win32.h" />
+    <ClInclude Include="Windows\Tools\GdiplusEnv.h" />
+    <ClInclude Include="Windows\Tools\TaskbarCtrl.h" />
+    <ClInclude Include="Windows\Tools\WindowComposition.h" />
+    <ClInclude Include="Windows\Win32Utils.h" />
     <ClInclude Include="Windows\ShellApi.h" />
+    <ClInclude Include="Windows\Window.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Algorithm\Hash\Base64.cpp" />
     <ClCompile Include="Algorithm\Hash\MD5.cpp" />
     <ClCompile Include="Algorithm\Math.cpp" />
     <ClCompile Include="Algorithm\Sort.cpp" />
+    <ClCompile Include="Windows\Application.cpp" />
     <ClCompile Include="Tools\BigInteger.cpp" />
     <ClCompile Include="Tools\Keygen.cpp" />
-    <ClCompile Include="Application.cpp" />
     <ClCompile Include="Tools\CmdLineArgsParser.cpp" />
     <ClCompile Include="dllmain.cpp" />
     <ClCompile Include="Framework\Debug.cpp" />
@@ -203,7 +207,11 @@
     <ClCompile Include="Image\Tools\GradientFiller.cpp" />
     <ClCompile Include="Image\Tools\LayoutHelper.cpp" />
     <ClCompile Include="Windows\Platform.cpp" />
-    <ClCompile Include="Windows\Win32.cpp" />
+    <ClCompile Include="Windows\Tools\GdiplusEnv.cpp" />
+    <ClCompile Include="Windows\Tools\TaskbarCtrl.cpp" />
+    <ClCompile Include="Windows\Tools\WindowComposition.cpp" />
+    <ClCompile Include="Windows\Win32Utils.cpp" />
+    <ClCompile Include="Windows\Window.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
