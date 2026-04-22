@@ -155,7 +155,7 @@
     <ClInclude Include="Tools\Keygen.h" />
     <ClInclude Include="Windows\Application.h" />
     <ClInclude Include="Tools\CmdLineArgsParser.h" />
-    <ClInclude Include="Tools\Debug.h" />
+    <ClInclude Include="Tools\Diagnostics.h" />
     <ClInclude Include="Tools\Event.hpp" />
     <ClInclude Include="Tools\Print.hpp" />
     <ClInclude Include="Tools\Semaphore.hpp" />
@@ -195,7 +195,7 @@
     <ClCompile Include="Tools\Keygen.cpp" />
     <ClCompile Include="Tools\CmdLineArgsParser.cpp" />
     <ClCompile Include="dllmain.cpp" />
-    <ClCompile Include="Tools\Debug.cpp" />
+    <ClCompile Include="Tools\Diagnostics.cpp" />
     <ClCompile Include="Tools\StringUtils.cpp" />
     <ClCompile Include="Image\ImageEditor.cpp" />
     <ClCompile Include="Image\ImageProcessor.cpp" />

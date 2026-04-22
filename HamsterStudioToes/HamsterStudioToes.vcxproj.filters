@@ -96,7 +96,7 @@
     <ClInclude Include="Tools\HtmlDocument.hpp">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="Tools\Debug.h">
+    <ClInclude Include="Tools\Diagnostics.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="Algorithm\Hash\Base64.h">
@@ -176,7 +176,7 @@
     <ClCompile Include="dllmain.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="Tools\Debug.cpp">
+    <ClCompile Include="Tools\Diagnostics.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="Algorithm\Hash\Base64.cpp">
