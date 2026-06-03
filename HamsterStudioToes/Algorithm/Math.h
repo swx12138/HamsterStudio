@@ -2,6 +2,7 @@
 
 #include <string>
 #include <functional>
+#include <numeric>
 
 namespace HamsterStudioToes::Math
 {
@@ -52,5 +53,27 @@ namespace HamsterStudioToes::Math
     private:
         uint8_t _level;
     };
+
+    template<typename _Ty>
+    inline double Normalize(std::vector<_Ty> const& rng, double maxv = 0)
+    {
+        if (abs(maxv - 0) <= DBL_EPSILON)
+        {
+            if constexpr (sizeof(_Ty) == 1) {
+                maxv = 0xff;
+            }
+            else if constexpr (sizeof(_Ty) == 2) {
+                maxv = 0xffff;
+            }
+            else if constexpr (sizeof(_Ty) == 4) {
+                maxv = 0xffffffff;
+            }
+            else if constexpr (sizeof(_Ty) == 8) {
+                maxv = 0xffffffffffffffff;
+            }
+        }
+        auto sum = std::reduce(rng.begin(), rng.end(), 0.0, [](double val, uint8_t dat) { return val + dat / 255.0;});
+        return  sum / rng.size();
+    }
 
 }
