@@ -12,6 +12,11 @@ WaveMediaNamespace::WaveFormat::WaveFormat(std::filesystem::path const& path) no
 
 WaveMediaNamespace::WaveFormat::~WaveFormat() noexcept
 {
+	if (_wave.Data.Data != nullptr)
+	{
+		delete[] _wave.Data.Data;
+		_wave.Data.Data = nullptr;
+	}
 }
 
 std::vector<uint8_t> WaveMediaNamespace::WaveFormat::Read(int nReadCount) const
