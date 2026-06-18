@@ -138,6 +138,18 @@
     <ClInclude Include="Windows\Window.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="Media\MPEGLayer3.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Media\Wave.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Tools\NumberUtils.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Tools\StreamReader.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Image\ImageStitcher.cpp">
@@ -216,6 +228,18 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="Windows\Window.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Media\MPEGLayer3.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Media\Wave.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Tools\NumberUtils.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Tools\StreamReader.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

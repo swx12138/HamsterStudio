@@ -151,8 +151,12 @@
     <ClInclude Include="Algorithm\Math.h" />
     <ClInclude Include="Algorithm\Search.hpp" />
     <ClInclude Include="Algorithm\Sort.h" />
+    <ClInclude Include="Media\MPEGLayer3.h" />
+    <ClInclude Include="Media\Wave.h" />
     <ClInclude Include="Tools\BigInteger.h" />
     <ClInclude Include="Tools\Keygen.h" />
+    <ClInclude Include="Tools\NumberUtils.h" />
+    <ClInclude Include="Tools\StreamReader.h" />
     <ClInclude Include="Windows\Application.h" />
     <ClInclude Include="Tools\CmdLineArgsParser.h" />
     <ClInclude Include="Tools\Diagnostics.h" />
@@ -190,6 +194,10 @@
     <ClCompile Include="Algorithm\Hash\MD5.cpp" />
     <ClCompile Include="Algorithm\Math.cpp" />
     <ClCompile Include="Algorithm\Sort.cpp" />
+    <ClCompile Include="Media\MPEGLayer3.cpp" />
+    <ClCompile Include="Media\Wave.cpp" />
+    <ClCompile Include="Tools\NumberUtils.cpp" />
+    <ClCompile Include="Tools\StreamReader.cpp" />
     <ClCompile Include="Windows\Application.cpp" />
     <ClCompile Include="Tools\BigInteger.cpp" />
     <ClCompile Include="Tools\Keygen.cpp" />
