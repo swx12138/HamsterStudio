@@ -114,7 +114,7 @@
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <LanguageStandard_C>stdclatest</LanguageStandard_C>
-      <AdditionalIncludeDirectories>D:\Abracadabra\opencv-4.10.0-windows\opencv\build\include;D:\Code\HamsterStudio\submodules\spdlog\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>D:\DevLibs\opencv\build\include;D:\Code\HamsterStudio\submodules\spdlog\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
@@ -133,7 +133,7 @@
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <LanguageStandard_C>stdclatest</LanguageStandard_C>
-      <AdditionalIncludeDirectories>D:\Abracadabra\opencv-4.10.0-windows\opencv\build\include;D:\Code\HamsterStudio\submodules\spdlog\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>D:\DevLibs\opencv\build\include;D:\Code\HamsterStudio\submodules\spdlog\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
@@ -151,6 +151,7 @@
     <ClInclude Include="Algorithm\Math.h" />
     <ClInclude Include="Algorithm\Search.hpp" />
     <ClInclude Include="Algorithm\Sort.h" />
+    <ClInclude Include="Image\Image.h" />
     <ClInclude Include="Media\MPEGLayer3.h" />
     <ClInclude Include="Media\Wave.h" />
     <ClInclude Include="Tools\BigInteger.h" />
@@ -194,6 +195,7 @@
     <ClCompile Include="Algorithm\Hash\MD5.cpp" />
     <ClCompile Include="Algorithm\Math.cpp" />
     <ClCompile Include="Algorithm\Sort.cpp" />
+    <ClCompile Include="Image\Image.cpp" />
     <ClCompile Include="Media\MPEGLayer3.cpp" />
     <ClCompile Include="Media\Wave.cpp" />
     <ClCompile Include="Tools\NumberUtils.cpp" />
