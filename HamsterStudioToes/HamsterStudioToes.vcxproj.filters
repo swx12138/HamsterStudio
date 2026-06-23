@@ -150,7 +150,16 @@
     <ClInclude Include="Tools\StreamReader.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="Tools\BaitingMaster.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
     <ClInclude Include="Image\Image.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Shapes\Rectangle.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Shapes\ShapeIf.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
@@ -246,6 +255,9 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="Image\Image.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Tools\BaitingMaster.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
