@@ -1,0 +1,21 @@
+[req]
+distinguished_name = req_distinguished_name
+x509_extensions = v3_req
+prompt = no
+
+[req_distinguished_name]
+CN = My Dev CA for LocalHost
+O = HamsterStudio
+OU = Certificate Authority
+
+[v3_req]
+keyUsage = digitalSignature, keyEncipherment, dataEncipherment
+extendedKeyUsage = serverAuth
+subjectAltName = @alt_names
+basicConstraints = CA:FALSE
+
+[alt_names]
+DNS.1 = localhost
+DNS.2 = *.localhost
+IP.3 = 127.0.0.1
+IP.4 = ::1
