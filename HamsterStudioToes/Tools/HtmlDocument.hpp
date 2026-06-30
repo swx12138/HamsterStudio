@@ -6,8 +6,37 @@
 #include <memory>
 #include <array>
 #include <type_traits>
+#include <utility>
+#include <cstddef>
 
 #define HTML_DOCUMENT_NAMESPACE HamsterStudioToes::HtmlDocument
+
+namespace HTML_DOCUMENT_NAMESPACE
+{
+	namespace Detail
+	{
+		/// <summary>
+		/// 对 HTML 文本中的特殊字符进行转义，防止注入与格式破损。
+		/// </summary>
+		inline std::string HtmlEncode(std::string_view text)
+		{
+			std::string result;
+			result.reserve(text.size());
+			for (auto ch : text)
+			{
+				switch (ch)
+				{
+				case '&':  result.append("&amp;");  break;
+				case '<':  result.append("&lt;");   break;
+				case '>':  result.append("&gt;");   break;
+				case '"':  result.append("&quot;"); break;
+				default:   result.push_back(ch);    break;
+				}
+			}
+			return result;
+		}
+	}
+}
 
 namespace HTML_DOCUMENT_NAMESPACE
 {
@@ -30,11 +59,14 @@ namespace HTML_DOCUMENT_NAMESPACE
 			: _key(key), _value(value)
 		{ }
 
-		virtual void Print(std::ostream &os) const {
-			os << _key << "=\"" << _value << "\"";
+		KeyValueProperty(KeyValueProperty &&other) noexcept
+			: _key(std::move(other._key)), _value(std::move(other._value)) { }
+
+		virtual void Print(std::ostream &os) const override {
+			os << _key << "=\"" << Detail::HtmlEncode(_value) << "\"";
 		}
 
-		virtual	operator std::string() const
+		virtual	operator std::string() const override
 		{
 			std::ostringstream oss;
 			oss << *this;
@@ -51,7 +83,15 @@ namespace HTML_DOCUMENT_NAMESPACE
 		std::vector<HtmlElementPointer> Children;
 
 	public:
-		virtual ~HtmlElement() { }
+		HtmlElement() = default;
+
+		HtmlElement(HtmlElement &&other) noexcept
+			: TagName(std::move(other.TagName))
+			, Properties(std::move(other.Properties))
+			, Children(std::move(other.Children))
+		{ }
+
+		virtual ~HtmlElement() = default;
 
 		template<typename _Ty, typename ...Args>
 		auto AddProperty(Args && ...args) {
@@ -84,9 +124,9 @@ namespace HTML_DOCUMENT_NAMESPACE
 			}
 			os << ">";
 
-			// element body
+			// element body — 直接流式输出子元素，避免临时 string 分配
 			for (auto const &child : Children) {
-				os << child->operator std::string();
+				os << *child;
 			}
 
 			// end element
@@ -135,15 +175,18 @@ namespace HTML_DOCUMENT_NAMESPACE
 		std::string _text;
 	public:
 		explicit PureTextElement(std::string text)
-			:_text(text) { }
+			: _text(std::move(text)) { }
 
-		friend std::ostream &operator << (std::ostream &os, PureTextElement const &self) {
-			os << self._text;
-			return os;
+		PureTextElement(PureTextElement &&other) noexcept
+			: _text(std::move(other._text)) { }
+
+		virtual	operator std::string() const override {
+			return Detail::HtmlEncode(_text);
 		}
 
-		virtual	operator std::string() const {
-			return  _text;
+	protected:
+		virtual void Print(std::ostream &os) const override {
+			os << Detail::HtmlEncode(_text);
 		}
 	};
 
@@ -156,73 +199,80 @@ namespace HTML_DOCUMENT_NAMESPACE
 
 	template <size_t Cols>
 	class TableElement : public HtmlElement {
-		class TableBodyElement : public HtmlElement {
-			// th
-			class HeaderElement : public HtmlElement {
-			public:
-				explicit HeaderElement(std::string const &header) {
-					TagName = "th";
-					auto _ = AddChild<PureTextElement>(header);
-				}
-			};
-
-			// td
-			class DataElement : public HtmlElement {
-			public:
-				explicit DataElement(std::string const &header) {
-					TagName = "td";
-					auto _ = AddChild<PureTextElement>(header);
-				}
-			};
-
-			// tr
-			template<typename Ty>
-			class RowElement : public HtmlElement {
-			public:
-				explicit RowElement(std::array<std::string, Cols> const &headers) {
-					TagName = "tr";
-
-					static_assert(std::is_same_v<DataElement, Ty> || std::is_same_v<HeaderElement, Ty>,
-						"must be DataElement or HeaderElement");
-					for (int i = 0; i < Cols; i++) {
-						auto _ = AddChild<Ty>(headers[i]);
-					}
-				}
-			};
-
+		// ── 单元格类型 ──
+		class HeaderCell : public HtmlElement {
 		public:
-			explicit TableBodyElement(std::array<std::string, Cols> const &headers) {
-				TagName = "tbody";
-				auto _ = AddChild<RowElement<HeaderElement>>(headers);
-			}
-
-		public:
-			void AppendDataRow(std::array<std::string, Cols> const &cells) {
-				auto _ = AddChild<RowElement<DataElement>>(cells);
+			explicit HeaderCell(std::string const &text) {
+				TagName = "th";
+				AddChild<PureTextElement>(text);
 			}
 		};
 
-		std::shared_ptr<TableBodyElement> TableBody;
-	public:
-		explicit TableElement(std::array<std::string, Cols> const &headers)
-		{
-			TagName = "table";
-			TableBody = std::make_shared < TableBodyElement>(headers);
-			Children.emplace_back(TableBody);
-		}
+		class DataCell : public HtmlElement {
+		public:
+			explicit DataCell(std::string const &text) {
+				TagName = "td";
+				AddChild<PureTextElement>(text);
+			}
+		};
+
+		// ── 行类型 ──
+		template<typename TCell>
+		class Row : public HtmlElement {
+		public:
+			static_assert(std::is_same_v<TCell, HeaderCell> || std::is_same_v<TCell, DataCell>,
+				"TCell must be HeaderCell or DataCell");
+
+			explicit Row(std::array<std::string, Cols> const &cells) {
+				TagName = "tr";
+				for (size_t i = 0; i < Cols; ++i) {
+					AddChild<TCell>(cells[i]);
+				}
+			}
+		};
+
+		// ── 表体 ──
+		class TableBody : public HtmlElement {
+		public:
+			explicit TableBody(std::array<std::string, Cols> const &headers) {
+				TagName = "tbody";
+				AddChild<Row<HeaderCell>>(headers);
+			}
+
+			void AppendRow(std::array<std::string, Cols> const &cells) {
+				AddChild<Row<DataCell>>(cells);
+			}
+		};
+
+		std::shared_ptr<TableBody> _body;
 
 	public:
+		explicit TableElement(std::array<std::string, Cols> const &headers) {
+			TagName = "table";
+			_body = std::make_shared<TableBody>(headers);
+			Children.emplace_back(_body);
+		}
 
 		void AppendDataRow(std::array<std::string, Cols> const &cells) {
-			TableBody->AppendDataRow(cells);
+			_body->AppendRow(cells);
 		}
-
 	};
 
 	class MetaElement : public HtmlElement {
 	public:
 		explicit MetaElement() {
 			TagName = "meta";
+		}
+
+		explicit MetaElement(std::string_view charset) {
+			TagName = "meta";
+			AddProperty<KeyValueProperty>("charset", charset);
+		}
+
+		explicit MetaElement(std::string_view name, std::string_view content) {
+			TagName = "meta";
+			AddProperty<KeyValueProperty>("name", name);
+			AddProperty<KeyValueProperty>("content", content);
 		}
 	};
 
