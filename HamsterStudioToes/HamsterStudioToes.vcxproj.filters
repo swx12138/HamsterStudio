@@ -18,7 +18,7 @@
     <ClInclude Include="Image\ImageSlider.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="Algorithm\Hash\hash.hpp">
+    <ClInclude Include="Hash\hash.hpp">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="Algorithm\Array.hpp">
@@ -99,10 +99,10 @@
     <ClInclude Include="Tools\Diagnostics.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="Algorithm\Hash\Base64.h">
+    <ClInclude Include="Hash\Base64.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="Algorithm\Hash\MD5.h">
+    <ClInclude Include="Hash\MessageDigest.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="Algorithm\Math.h">
@@ -206,10 +206,10 @@
     <ClCompile Include="Tools\Diagnostics.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="Algorithm\Hash\Base64.cpp">
+    <ClCompile Include="Hash\Base64.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="Algorithm\Hash\MD5.cpp">
+    <ClCompile Include="Hash\MessageDigest.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="Algorithm\Math.cpp">

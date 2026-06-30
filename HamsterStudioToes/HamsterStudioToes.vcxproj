@@ -149,9 +149,9 @@
   <ItemGroup>
     <ClInclude Include="Algorithm\Array.hpp" />
     <ClInclude Include="Algorithm\Fibonacci.hpp" />
-    <ClInclude Include="Algorithm\Hash\Base64.h" />
-    <ClInclude Include="Algorithm\Hash\hash.hpp" />
-    <ClInclude Include="Algorithm\Hash\MD5.h" />
+    <ClInclude Include="Hash\Base64.h" />
+    <ClInclude Include="Hash\hash.hpp" />
+    <ClInclude Include="Hash\MessageDigest.h" />
     <ClInclude Include="Algorithm\Math.h" />
     <ClInclude Include="Algorithm\Search.hpp" />
     <ClInclude Include="Algorithm\Sort.h" />
@@ -199,8 +199,8 @@
     <ClInclude Include="Windows\Window.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Algorithm\Hash\Base64.cpp" />
-    <ClCompile Include="Algorithm\Hash\MD5.cpp" />
+    <ClCompile Include="Hash\Base64.cpp" />
+    <ClCompile Include="Hash\MessageDigest.cpp" />
     <ClCompile Include="Algorithm\Math.cpp" />
     <ClCompile Include="Algorithm\Sort.cpp" />
     <ClCompile Include="Image\Tools\PasteImageUtils.cpp" />
