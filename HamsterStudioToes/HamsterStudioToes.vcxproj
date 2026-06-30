@@ -114,7 +114,7 @@
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <LanguageStandard_C>stdclatest</LanguageStandard_C>
-      <AdditionalIncludeDirectories>D:\Develop\Libraries\opencv\build_cuda\install\$(Configuration)\include;D:\Code\HamsterStudio\submodules\spdlog\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>D:\Develop\Libraries\opencv\build_cuda\install\$(Configuration)\include;D:\Develop\Libraries\opencv\build\include;D:\Code\HamsterStudio\submodules\spdlog\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
       <OpenMPSupport>true</OpenMPSupport>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
@@ -135,7 +135,7 @@
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <LanguageStandard_C>stdclatest</LanguageStandard_C>
-      <AdditionalIncludeDirectories>D:\Develop\Libraries\opencv\build_cuda\install\$(Configuration)\include;D:\Code\HamsterStudio\submodules\spdlog\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>D:\Develop\Libraries\opencv\build_cuda\install\$(Configuration)\include;D:\Develop\Libraries\opencv\build\include;D:\Code\HamsterStudio\submodules\spdlog\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
       <OpenMPSupport>true</OpenMPSupport>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
@@ -156,6 +156,7 @@
     <ClInclude Include="Algorithm\Search.hpp" />
     <ClInclude Include="Algorithm\Sort.h" />
     <ClInclude Include="Image\Image.h" />
+    <ClInclude Include="Image\Tools\PasteImageUtils.h" />
     <ClInclude Include="Shapes\Rectangle.h" />
     <ClInclude Include="Shapes\ShapeIf.h" />
     <ClInclude Include="Tools\BaitingMaster.h" />
@@ -202,6 +203,7 @@
     <ClCompile Include="Algorithm\Hash\MD5.cpp" />
     <ClCompile Include="Algorithm\Math.cpp" />
     <ClCompile Include="Algorithm\Sort.cpp" />
+    <ClCompile Include="Image\Tools\PasteImageUtils.cpp" />
     <ClCompile Include="Tools\BaitingMaster.cpp" />
     <ClCompile Include="Image\Image.cpp" />
     <ClCompile Include="Media\MPEGLayer3.cpp" />

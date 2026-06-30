@@ -162,6 +162,9 @@
     <ClInclude Include="Shapes\ShapeIf.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="Image\Tools\PasteImageUtils.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Image\ImageStitcher.cpp">
@@ -258,6 +261,9 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="Tools\BaitingMaster.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Image\Tools\PasteImageUtils.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
