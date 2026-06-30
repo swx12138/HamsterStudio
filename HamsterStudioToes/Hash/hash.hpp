@@ -1,7 +1,7 @@
 #pragma once
 
 #include "./Base64.h"
-#include "./MD5.h"
+#include "./MessageDigest.h"
 
 namespace HamsterStudioToes::Hash
 {
@@ -19,7 +19,11 @@ namespace HamsterStudioToes::Hash
             return Base64::Encode(data);
             break;
         case HashAlgorithm::MD5:
-            return MD5::ToString(MD5 ::MD5(data));
+        {
+            MD5 md5;
+            md5.update(data.data(), data.size());
+            return md5.final();
+        }
             break;
         default:
             break;
