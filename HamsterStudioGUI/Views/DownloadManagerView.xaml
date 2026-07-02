@@ -1,0 +1,194 @@
+<UserControl x:Class="HamsterStudioGUI.Views.DownloadManagerView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:models="clr-namespace:HamsterStudio.Web.Models;assembly=HamsterStudio.Web"
+             xmlns:converters="clr-namespace:HamsterStudioGUI.Converters"
+             d:DesignHeight="450"
+             d:DesignWidth="800"
+             mc:Ignorable="d">
+
+    <UserControl.Resources>
+        <converters:BoolToVisibilityConverter x:Key="BoolToVisibility" />
+        <converters:ZeroToVisibilityConverter x:Key="ZeroToVisibility" />
+        <BooleanToVisibilityConverter x:Key="BuiltInBoolToVis" />
+
+        <!-- 任务包行模板 -->
+        <DataTemplate x:Key="PackageTemplate" DataType="{x:Type models:DownloadPackage}">
+            <Border Padding="6" BorderBrush="#E0E0E0" BorderThickness="0,0,0,1">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="20" />
+                        <ColumnDefinition Width="2*" MinWidth="140" />
+                        <ColumnDefinition Width="3*" MinWidth="100" />
+                        <ColumnDefinition Width="70" />
+                        <ColumnDefinition Width="55" />
+                        <ColumnDefinition Width="100" />
+                        <ColumnDefinition Width="100" />
+                    </Grid.ColumnDefinitions>
+
+                    <!-- 名称 + 来源 -->
+                    <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="2,0">
+                        <TextBlock FontSize="13" FontWeight="SemiBold"
+                                   Text="{Binding Name}" TextTrimming="CharacterEllipsis" />
+                        <TextBlock FontSize="11" Foreground="#888"
+                                   Text="{Binding Source, StringFormat='来源: {0}'}" />
+                    </StackPanel>
+
+                    <!-- 进度条 -->
+                    <StackPanel Grid.Column="2" VerticalAlignment="Center" Margin="2,0">
+                        <ProgressBar Height="12" Minimum="0" Maximum="1" Value="{Binding Progress, Mode=OneWay}">
+                            <ProgressBar.Style>
+                                <Style TargetType="ProgressBar">
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding Status}" Value="Failed">
+                                            <Setter Property="Foreground" Value="#E74C3C" />
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding Status}" Value="Completed">
+                                            <Setter Property="Foreground" Value="#27AE60" />
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding Status}" Value="PartialFailed">
+                                            <Setter Property="Foreground" Value="#F39C12" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </ProgressBar.Style>
+                        </ProgressBar>
+                        <TextBlock FontSize="10" Foreground="#666"
+                                   Text="{Binding Progress, StringFormat={}{0:P1}}" />
+                    </StackPanel>
+
+                    <!-- 速度 -->
+                    <TextBlock Grid.Column="3" VerticalAlignment="Center"
+                               HorizontalAlignment="Center" FontSize="11"
+                               Text="{Binding SpeedText}" />
+
+                    <!-- ETA -->
+                    <TextBlock Grid.Column="4" VerticalAlignment="Center"
+                               HorizontalAlignment="Center" FontSize="11"
+                               Text="{Binding EtaText}" />
+
+                    <!-- 状态 -->
+                    <TextBlock Grid.Column="5" VerticalAlignment="Center"
+                               HorizontalAlignment="Center" FontSize="11"
+                               Text="{Binding StatusText}" />
+
+                    <!-- 操作按钮 -->
+                    <StackPanel Grid.Column="6" VerticalAlignment="Center"
+                                HorizontalAlignment="Right" Orientation="Horizontal">
+                        <Button Width="26" Height="22" Margin="1,0" ToolTip="取消"
+                                Command="{Binding DataContext.CancelPackageCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                CommandParameter="{Binding Id}">
+                            <TextBlock FontSize="12" Text="✕" />
+                        </Button>
+                    </StackPanel>
+                </Grid>
+            </Border>
+        </DataTemplate>
+
+        <!-- 子任务行模板 -->
+        <DataTemplate x:Key="TaskTemplate" DataType="{x:Type models:DownloadTask}">
+            <Border Padding="24,3,6,3" Background="#FAFAFA" BorderBrush="#EEE" BorderThickness="0,0,0,1">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="2*" MinWidth="140" />
+                        <ColumnDefinition Width="3*" MinWidth="100" />
+                        <ColumnDefinition Width="70" />
+                        <ColumnDefinition Width="55" />
+                        <ColumnDefinition Width="100" />
+                    </Grid.ColumnDefinitions>
+
+                    <!-- 文件名 + 标签 -->
+                    <StackPanel Grid.Column="0" VerticalAlignment="Center" Margin="2,0">
+                        <TextBlock FontSize="12" Text="{Binding FileName}" TextTrimming="CharacterEllipsis" />
+                        <TextBlock FontSize="10" Foreground="#AAA" Text="{Binding Label}">
+                            <TextBlock.Style>
+                                <Style TargetType="TextBlock">
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding Label}" Value="">
+                                            <Setter Property="Visibility" Value="Collapsed" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
+                        </TextBlock>
+                    </StackPanel>
+
+                    <!-- 进度条 -->
+                    <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="2,0">
+                        <ProgressBar Height="8" Minimum="0" Maximum="1" Value="{Binding Progress, Mode=OneWay}" />
+                        <TextBlock FontSize="10" Foreground="#888" Text="{Binding SizeText}" />
+                    </StackPanel>
+
+                    <!-- 速度 -->
+                    <TextBlock Grid.Column="2" VerticalAlignment="Center"
+                               HorizontalAlignment="Center" FontSize="10"
+                               Text="{Binding SpeedText}" />
+
+                    <!-- ETA -->
+                    <TextBlock Grid.Column="3" VerticalAlignment="Center"
+                               HorizontalAlignment="Center" FontSize="10"
+                               Text="{Binding EtaText}" />
+
+                    <!-- 状态 -->
+                    <TextBlock Grid.Column="4" VerticalAlignment="Center"
+                               HorizontalAlignment="Center" FontSize="10"
+                               Text="{Binding StatusText}" />
+                </Grid>
+            </Border>
+        </DataTemplate>
+    </UserControl.Resources>
+
+    <DockPanel>
+        <!-- ── 工具栏 ── -->
+        <Border DockPanel.Dock="Top" Padding="8" Background="#F5F5F5">
+            <DockPanel>
+                <StackPanel DockPanel.Dock="Left" Orientation="Horizontal">
+                    <Button Margin="4,0" Padding="8,4"
+                            Command="{Binding PauseAllCommand}">⏸ 全部暂停</Button>
+                    <Button Margin="4,0" Padding="8,4"
+                            Command="{Binding ResumeAllCommand}">▶ 全部恢复</Button>
+                    <Button Margin="4,0" Padding="8,4"
+                            Command="{Binding ClearCompletedCommand}">🗑 清除已完成</Button>
+                </StackPanel>
+                <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
+                    <TextBlock VerticalAlignment="Center" Text="筛选: " />
+                    <ComboBox Width="100" SelectedIndex="0"
+                              SelectionChanged="FilterComboBox_SelectionChanged">
+                        <ComboBoxItem Tag="">全部</ComboBoxItem>
+                        <ComboBoxItem Tag="Downloading">下载中</ComboBoxItem>
+                        <ComboBoxItem Tag="Queued">排队中</ComboBoxItem>
+                        <ComboBoxItem Tag="Completed">已完成</ComboBoxItem>
+                        <ComboBoxItem Tag="Failed">失败</ComboBoxItem>
+                    </ComboBox>
+                </StackPanel>
+            </DockPanel>
+        </Border>
+
+        <!-- ── 下载列表 ── -->
+        <ScrollViewer VerticalScrollBarVisibility="Auto">
+            <ItemsControl ItemsSource="{Binding FilteredPackages}">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate DataType="{x:Type models:DownloadPackage}">
+                        <StackPanel>
+                            <ContentPresenter Content="{Binding}"
+                                              ContentTemplate="{StaticResource PackageTemplate}" />
+
+                            <ItemsControl ItemsSource="{Binding Tasks}"
+                                          ItemTemplate="{StaticResource TaskTemplate}"
+                                          Visibility="{Binding IsSingleTask, Converter={StaticResource BoolToVisibility}, ConverterParameter=invert}" />
+                        </StackPanel>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </ScrollViewer>
+
+        <!-- ── 空状态 ── -->
+        <TextBlock DockPanel.Dock="Bottom"
+                   Margin="20" HorizontalAlignment="Center"
+                   FontSize="16" Foreground="#CCC"
+                   Text="暂无下载任务"
+                   Visibility="{Binding FilteredPackages.Count, Converter={StaticResource ZeroToVisibility}}" />
+    </DockPanel>
+</UserControl>
