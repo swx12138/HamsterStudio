@@ -18,7 +18,7 @@ public abstract class RangeBasedDownloadStrategy(int maxConnections, ILogger? lo
         return contentLength;
     }
 
-    private static readonly SemaphoreSlim throttler = new(Environment.ProcessorCount);
+    private readonly SemaphoreSlim _chunkThrottle = new(maxConnections);
 
     public bool ShowInfo { get; set; } = true;
     public virtual string Info => $"[分块下载] 最大连接数{maxConnections}。";
@@ -56,17 +56,17 @@ public abstract class RangeBasedDownloadStrategy(int maxConnections, ILogger? lo
                 .Select(rds => rds.DownloadAsync(uri, requestStrategy, contentCopyStrategy))
                 .ToList();
 
-            // 5. 使用信号量限制并发数
+            // 5. 使用信号量限制并发数（实例级，由 maxConnections 控制）
             var throttledTasks = downloadTasks.Select(async task =>
             {
-                await throttler.WaitAsync();
+                await _chunkThrottle.WaitAsync();
                 try
                 {
                     return await task;
                 }
                 finally
                 {
-                    throttler.Release();
+                    _chunkThrottle.Release();
                 }
             });
 
