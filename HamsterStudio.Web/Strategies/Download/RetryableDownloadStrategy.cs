@@ -1,4 +1,5 @@
-﻿using HamsterStudio.Barefeet.Logging;
+﻿using HamsterStudio.Barefeet.Constants;
+using HamsterStudio.Barefeet.Logging;
 using HamsterStudio.Web.Strategies.Request;
 using HamsterStudio.Web.Strategies.StreamCopy;
 using Microsoft.Extensions.Logging;
@@ -7,7 +8,11 @@ using System.Net;
 namespace HamsterStudio.Web.Strategies.Download;
 
 // 扩展点示例（符合OCP）
-public class RetryableDownloadStrategy(IDownloadStrategy innerStrategy, ILogger? logger = null, int maxRetries = 5, TimeSpan? initialDelay = null) : IDownloadStrategy
+public class RetryableDownloadStrategy(
+    IDownloadStrategy innerStrategy,
+    ILogger? logger = null,
+    int maxRetries = DownloadConstants.MaxRetries,
+    TimeSpan? initialDelay = null) : IDownloadStrategy
 {
     private readonly TimeSpan _initialDelay = initialDelay ?? TimeSpan.FromSeconds(1);
     private int attempt = 0;

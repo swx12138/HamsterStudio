@@ -74,7 +74,7 @@ public class MihoyoCommunityController(CommonDownloader downloader, DirectoryMgm
             }
 
             var fullname = Path.Combine(destPath, request.FormatFilenmae(iter));
-            _ = await downloader.EasyDownloadFileAsync(new Uri(request.Urls[iter]), fullname);
+            _ = await downloader.EasyDownloadFileAsync(new Uri(request.Urls[iter]), fullname, 0, true);
             downloaded.Add(fullname);
         }
 

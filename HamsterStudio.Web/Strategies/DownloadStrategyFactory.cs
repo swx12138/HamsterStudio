@@ -1,5 +1,4 @@
-﻿using HamsterStudio.Barefeet.Logging;
-using HamsterStudio.Web.Strategies.Download;
+﻿using HamsterStudio.Web.Strategies.Download;
 using Microsoft.Extensions.Logging;
 
 namespace HamsterStudio.Web.Strategies;

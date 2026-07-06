@@ -1,10 +1,4 @@
-﻿using HamsterStudio.Barefeet.Logging;
-using HamsterStudio.Web.Strategies.Request;
-using HamsterStudio.Web.Strategies.StreamCopy;
-using System.Diagnostics;
-using System.Net;
-
-namespace HamsterStudio.Web.Strategies.Download;
+﻿namespace HamsterStudio.Web.Strategies.Download;
 
 // 多线程下载策略（按最大连接数）
 public class ThreadedDownloadStrategy(int maxConnections) : RangeBasedDownloadStrategy(maxConnections)

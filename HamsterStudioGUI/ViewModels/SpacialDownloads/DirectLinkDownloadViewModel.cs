@@ -26,7 +26,7 @@ public partial class DirectLinkDownloadViewModel(ILogger<DirectLinkDownloadViewM
         try
         {
             string fullPath = Path.Combine(DirectoryMgmt.StorageHome, FileName);
-            await _CommonDownloader.Value.EasyDownloadFileAsync(UrlReslover.ResloveUrlProtocol(Url), fullPath);
+            await _CommonDownloader.Value.EasyDownloadFileAsync(UrlReslover.ResloveUrlProtocol(Url), fullPath, 0, true);
         }
         catch (Exception ex)
         {

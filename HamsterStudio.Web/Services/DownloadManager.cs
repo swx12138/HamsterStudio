@@ -1,3 +1,4 @@
+using HamsterStudio.Barefeet.Constants;
 using HamsterStudio.Web.Models;
 using HamsterStudio.Web.Strategies;
 using Microsoft.Extensions.Logging;
@@ -10,14 +11,12 @@ namespace HamsterStudio.Web.Services;
 /// 下载管理器实现，负责下载任务包的调度、并发控制和生命周期管理。
 /// 包级并发：默认同时下载 2 个任务包。
 /// </summary>
-public class DownloadManager : IDownloadManager
+public class DownloadManager(CommonDownloader downloader, ILogger<DownloadManager> logger,
+                       int maxConcurrentPackages = DownloadConstants.DefaultMaxConcurrentPackages) : IDownloadManager
 {
-    private readonly CommonDownloader _downloader;
-    private readonly ILogger<DownloadManager> _logger;
 
     // 包级并发控制
-    private readonly SemaphoreSlim _packageSemaphore;
-    private const int DefaultMaxConcurrentPackages = 2;
+    private readonly SemaphoreSlim _packageSemaphore = new SemaphoreSlim(maxConcurrentPackages);
 
     // 取消令牌：按 taskId 管理
     private readonly ConcurrentDictionary<string, CancellationTokenSource> _taskCts = new();
@@ -27,20 +26,12 @@ public class DownloadManager : IDownloadManager
 
     public ObservableCollection<DownloadPackage> Packages { get; } = [];
 
-    public DownloadManager(CommonDownloader downloader, ILogger<DownloadManager> logger,
-                           int maxConcurrentPackages = DefaultMaxConcurrentPackages)
-    {
-        _downloader = downloader;
-        _logger = logger;
-        _packageSemaphore = new SemaphoreSlim(maxConcurrentPackages);
-    }
-
     // ──────────── 入队 ────────────
 
     public async Task<DownloadPackage> EnqueueAsync(DownloadPackage package)
     {
         Packages.Insert(0, package); // 最新的在最上面
-        _logger.LogInformation($"任务包入队: {package.Name} ({package.TotalCount} 个文件)");
+        logger.LogInformation($"任务包入队: {package.Name} ({package.TotalCount} 个文件)");
         _ = ProcessPackageAsync(package); // 后台执行
         return await Task.FromResult(package);
     }
@@ -81,7 +72,7 @@ public class DownloadManager : IDownloadManager
                 PauseTaskInternal(packageId, task);
             }
         }
-        _logger.LogInformation($"任务包暂停: {pkg.Name}");
+        logger.LogInformation($"任务包暂停: {pkg.Name}");
     }
 
     public void ResumePackage(string packageId)
@@ -96,7 +87,7 @@ public class DownloadManager : IDownloadManager
                 ResumeTaskInternal(packageId, pkg, task);
             }
         }
-        _logger.LogInformation($"任务包恢复: {pkg.Name}");
+        logger.LogInformation($"任务包恢复: {pkg.Name}");
     }
 
     public void CancelPackage(string packageId)
@@ -108,7 +99,7 @@ public class DownloadManager : IDownloadManager
         {
             CancelTaskInternal(task);
         }
-        _logger.LogInformation($"任务包取消: {pkg.Name}");
+        logger.LogInformation($"任务包取消: {pkg.Name}");
     }
 
     public void RetryFailedTasks(string packageId)
@@ -193,7 +184,7 @@ public class DownloadManager : IDownloadManager
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, $"任务包处理异常: {package.Name}");
+            logger.LogError(ex, $"任务包处理异常: {package.Name}");
         }
         finally
         {
@@ -248,7 +239,7 @@ public class DownloadManager : IDownloadManager
                         maxConnections: 1 // 单任务不并发分块
                     );
 
-                    var status = await _downloader.DownloadFileAsync(
+                    var status = await downloader.DownloadFileAsync(
                         task.Url,
                         task.SavePath,
                         requestStrategy: null,
@@ -279,7 +270,7 @@ public class DownloadManager : IDownloadManager
                 {
                     task.RetryCount++;
                     task.ErrorMessage = ex.Message;
-                    _logger.LogWarning(ex, $"下载失败 ({task.RetryCount}/{DownloadTask.MaxRetryCount}): {task.FileName}");
+                    logger.LogWarning(ex, $"下载失败 ({task.RetryCount}/{DownloadTask.MaxRetryCount}): {task.FileName}");
 
                     if (task.RetryCount > DownloadTask.MaxRetryCount)
                     {

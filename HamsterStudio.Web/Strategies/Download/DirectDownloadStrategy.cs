@@ -1,6 +1,4 @@
-﻿using HamsterStudio.Barefeet.Logging;
-using HamsterStudio.Web.DataModels;
-using HamsterStudio.Web.Strategies.Request;
+﻿using HamsterStudio.Web.Strategies.Request;
 using HamsterStudio.Web.Strategies.StreamCopy;
 using System.Net;
 

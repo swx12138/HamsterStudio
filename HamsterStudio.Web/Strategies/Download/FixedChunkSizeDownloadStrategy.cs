@@ -5,7 +5,7 @@ namespace HamsterStudio.Web.Strategies.Download;
 // 固定分块大小下载策略
 public class FixedChunkSizeDownloadStrategy(long chunkSize, int maxConnections) : RangeBasedDownloadStrategy(maxConnections)
 {
-    public string ChunkSizeInfo { get; } = $"默认分块大小{chunkSize.ToReadableFileSize()}。";
+    public string ChunkSizeInfo { get; } = $"分块大小{chunkSize.ToReadableFileSize()}。";
     public override string Info => base.Info + ChunkSizeInfo;
 
     /// <summary>
