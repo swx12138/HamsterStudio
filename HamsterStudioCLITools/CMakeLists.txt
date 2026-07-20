@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.20)
 project(HamsterStudioCLITools VERSION 1.0.0 LANGUAGES CXX)
 
 # 默认安装路径
-set(CMAKE_INSTALL_PREFIX "D:/Develop/Tools" CACHE PATH "Install path" FORCE)
+# set(CMAKE_INSTALL_PREFIX "D:/Develop/Tools" CACHE PATH "Install path" FORCE)
 
 # ============================================================
 # C++ Standard
@@ -20,10 +20,13 @@ find_package(OpenMP REQUIRED)
 # OpenCV
 # ============================================================
 # 优先查找 CUDA 版本
-find_package(OpenCV QUIET
-    PATHS "D:/Develop/Libraries/opencv/build_cuda/install"
-    NO_DEFAULT_PATH
-)
+# 注意：CUDA 版本的 OpenCVConfig.cmake 在 Release/Debug 子目录下（而非顶层），
+#       需要指向具体子目录。Visual Studio 多配置生成器下统一用 Release。
+# 消除 OpenCV 旧版 FindCUDA 模块的 CMP0146 警告
+if(CMAKE_VERSION VERSION_GREATER_EQUAL "3.27")
+    cmake_policy(SET CMP0146 OLD)
+endif()
+find_package(OpenCV REQUIRED)
 if(OpenCV_FOUND)
     # 检查是否真的有 CUDA 模块
     list(FIND OpenCV_LIBS "opencv_cudawarping" _cuda_idx)

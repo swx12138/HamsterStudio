@@ -19,6 +19,7 @@
 
 #include <ranges>
 #include <iostream>
+#include <fstream>
 #include <io.h>    // _setmode
 #include <fcntl.h> // _O_U16TEXT
 
@@ -32,6 +33,36 @@ static constexpr inline bool IsSupportedExtension(const std::filesystem::path &f
     constexpr std::string_view supported_extensions[] = {".jpg", ".jpeg", ".png", ".bmp", ".tiff", ".tif", ".webp"};
     return std::any_of(std::begin(supported_extensions), std::end(supported_extensions), [=](std::string_view ext)
                        { return file_path.extension() == ext; });
+}
+
+// 使用 ifstream + imdecode 替代 cv::imread，以正确处理 Windows 上的 Unicode 路径
+static cv::Mat Imread(std::filesystem::path const &file_path, int flags = cv::IMREAD_COLOR)
+{
+    // Diagnostics::Trace::TraceInfo(L"正在加载图片: " + file_path.generic_wstring());
+    std::ifstream file(file_path, std::ios::binary | std::ios::ate);
+    if (!file.is_open())
+        return cv::Mat();
+    auto size = file.tellg();
+    file.seekg(0, std::ios::beg);
+    std::vector<uint8_t> buffer(static_cast<size_t>(size));
+    if (!file.read(reinterpret_cast<char *>(buffer.data()), size))
+        return cv::Mat();
+    return cv::imdecode(buffer, flags);
+}
+
+// 使用 imencode + ofstream 替代 cv::imwrite，以正确处理 Windows 上的 Unicode 路径
+static bool Imwrite(std::filesystem::path const &file_path, cv::Mat const &img,
+                    std::vector<int> const &params = {})
+{
+    // Diagnostics::Trace::TraceInfo(L"正在保存图片: " + file_path.generic_wstring());
+    std::vector<uint8_t> buffer;
+    auto const ext = file_path.extension().string();
+    if (!cv::imencode(ext, img, buffer, params))
+        return false;
+    std::ofstream file(file_path, std::ios::binary);
+    if (!file.is_open())
+        return false;
+    return static_cast<bool>(file.write(reinterpret_cast<char const *>(buffer.data()), buffer.size()));
 }
 
 #undef min
@@ -168,7 +199,7 @@ cv::Mat stitch(std::vector<std::filesystem::path> const &image_paths, StretchMod
             target_size.height));
 
         // 逐张加载，用完即释
-        cv::Mat img = cv::imread(image_paths[i].string(), cv::IMREAD_COLOR);
+        cv::Mat img = Imread(image_paths[i], cv::IMREAD_COLOR);
         if (!img.empty())
             ImagePaster::Paste(&roi, &img, stretchMode);
     }
@@ -291,7 +322,7 @@ cv::Mat stitchCUDA(std::vector<std::filesystem::path> const &image_paths, Stretc
             target_size.width, target_size.height);
 
         // 逐张加载到 CPU，上传 GPU，用完即释
-        cv::Mat img = cv::imread(image_paths[i].string(), cv::IMREAD_COLOR);
+        cv::Mat img = Imread(image_paths[i], cv::IMREAD_COLOR);
         if (img.empty())
             continue;
 
@@ -330,6 +361,7 @@ ImageNamespace::Image ImageNamespace::stitch(std::vector<void *> mats, StretchMo
 
 int ImageNamespace::stitch_cli_main(std::vector<std::string> const &args)
 {
+    // Diagnostics::Trace::TraceInfo(L"HamsterStudioToes Image Stitcher CLI Tool");
 #ifdef _CUDA_OPENCV
     if (int deviceCount = cv::cuda::getCudaEnabledDeviceCount(); deviceCount == 0)
     {
@@ -371,7 +403,7 @@ int ImageNamespace::stitch_cli_main(std::vector<std::string> const &args)
     std::vector<fs::path> portrait_paths, landscape_paths;
     for (auto const &path : image_paths)
     {
-        cv::Mat img = cv::imread(path.string(), cv::IMREAD_REDUCED_COLOR_8);
+        cv::Mat img = Imread(path, cv::IMREAD_REDUCED_COLOR_8);
         if (img.empty())
             continue;
         if (img.rows > img.cols)
@@ -392,10 +424,10 @@ int ImageNamespace::stitch_cli_main(std::vector<std::string> const &args)
     Diagnostics::Trace::TraceInfo(std::format(L"加载完成。共计: {} 张 (横屏: {}, 竖屏: {})。",
                                               total_count, landscape_paths.size(), portrait_paths.size()));
 
-    auto name = image_folder_path.filename().string();
-    if (name == "\u53c2\u8003")
+    auto name = image_folder_path.filename().wstring();
+    if (name == L"\u53c2\u8003")
     {
-        name = image_folder_path.parent_path().filename().string();
+        name = image_folder_path.parent_path().filename().wstring();
     }
 
     constexpr ImageShape DefaultShape{2560, 1600, 3};
@@ -410,7 +442,7 @@ int ImageNamespace::stitch_cli_main(std::vector<std::string> const &args)
         }
 
         // 仅加载首张以计算目标宽高比
-        cv::Mat first = cv::imread(paths[0].string(), cv::IMREAD_COLOR);
+        cv::Mat first = Imread(paths[0], cv::IMREAD_COLOR);
         if (first.empty())
         {
             Diagnostics::Trace::TraceWarning(L"无法读取首张图片，跳过拼接。");
@@ -437,13 +469,15 @@ int ImageNamespace::stitch_cli_main(std::vector<std::string> const &args)
 #endif
         if (!result.empty())
         {
-            cv::imwrite(out_path.string(), result);
-            Diagnostics::Trace::TraceInfo(L"已保存: " + out_path.generic_wstring());
+           if(Imwrite(out_path, result))
+                Diagnostics::Trace::TraceInfo(L"已保存: " + out_path.generic_wstring());
+            else
+                Diagnostics::Trace::TraceError(L"保存失败: " + out_path.generic_wstring());
         }
     };
 
-    auto portrait_file = image_folder_path / ("result_" + name + "_portrait.jpg");
-    auto landscape_file = image_folder_path / ("result_" + name + "_landscape.jpg");
+    auto portrait_file = image_folder_path / (L"result_" + name + L"_portrait.jpg");
+    auto landscape_file = image_folder_path / (L"result_" + name + L"_landscape.jpg");
 
     auto portrait_task = [&]
     { do_stitch(portrait_paths, ImageStitcheMode::Portrait, portrait_file); };
@@ -480,7 +514,7 @@ int ImageNamespace::stitch_cli_main(std::vector<std::string> const &args)
         // 横屏在前，竖屏在后
         auto all_paths = landscape_paths;
         all_paths.insert(all_paths.end(), portrait_paths.begin(), portrait_paths.end());
-        auto allinone_file = image_folder_path / ("result_" + name + "_all.jpg");
+        auto allinone_file = image_folder_path / (L"result_" + name + L"_all.jpg");
         do_stitch(all_paths, ImageStitcheMode::None, allinone_file);
     }
     else
@@ -491,7 +525,7 @@ int ImageNamespace::stitch_cli_main(std::vector<std::string> const &args)
     }
 
     auto elapsed_ms = std::chrono::duration_cast<std::chrono::milliseconds>(watch.elapsed()).count();
-    Diagnostics::Trace::TraceInfo(std::format("Total processing time: {} ms", elapsed_ms));
+    Diagnostics::Trace::TraceInfo(std::format(L"Total processing time: {} ms", elapsed_ms));
     system("pause");
     return 0;
 }
