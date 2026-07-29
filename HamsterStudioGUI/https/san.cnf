@@ -4,7 +4,7 @@ x509_extensions = v3_req
 prompt = no
 
 [req_distinguished_name]
-CN = My Dev CA for LocalHost
+CN = My Dev CA for NanJing
 O = HamsterStudio
 OU = Certificate Authority
 
@@ -15,6 +15,12 @@ subjectAltName = @alt_names
 basicConstraints = CA:FALSE
 
 [alt_names]
+# 内网 IP
+IP.1 = 192.168.0.101
+IP.2 = 192.168.1.123
+IP.3 = 192.168.2.141
+
+# localhost 支持
 DNS.1 = localhost
 DNS.2 = *.localhost
 IP.3 = 127.0.0.1
