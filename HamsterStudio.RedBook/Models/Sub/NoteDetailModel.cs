@@ -38,5 +38,5 @@ public class NoteDetailModel
     public List<TagModel> TagList { get; set; } = [];
 
     [JsonPropertyName("video")]
-    public VideoInfoModel VideoInfo { get; set; } = new();
+    public VideoDetailModel VideoInfo { get; set; } = new();
 }
