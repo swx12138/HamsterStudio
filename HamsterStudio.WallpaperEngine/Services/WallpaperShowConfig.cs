@@ -86,7 +86,7 @@ public partial class WallpaperShowConfig : FileDroppableBase, IDisposable
 #if RELEASE
         try
         {
-            var dat = File.ReadAllBytes(Path.Combine(TempDdir, "wallpapers.dat"));
+            var dat = File.ReadAllBytes(Path.Combine(directoryMgmt.TemporaryHome, "wallpapers.dat"));
             var arr = BinaryDataSerializer.Deserialize<List<ImageModelDim>>(dat);
             if (arr != null)
             {

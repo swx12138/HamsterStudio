@@ -14,6 +14,6 @@ namespace HamsterStudio.Bilibili.Models.Sub
         public long CurrentMin { get; set; } = 0;
 
         [JsonPropertyName("next_exp")]
-        public string NextExp { get; set; } = string.Empty;
+        public object? NextExp { get; set; }
     }
 }

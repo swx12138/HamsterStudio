@@ -29,7 +29,14 @@ internal class DashDownloader(CommonDownloader downloader, FileMgmt fileMgmt, Au
 
     public async Task<(string a, string v)> DownloadStream(VideoStreamInfo streamInfo, int acceptQuality, string bvid)
     {
-        string vBaseUrl = SelectVideoBaseUrl(acceptQuality, streamInfo);
+        var (vBaseUrl, vWidth, vHeight, vBandwidth, vFrameRate) = SelectVideoBaseUrl(acceptQuality, streamInfo);
+        var (aBaseUrl, aBandwidth) = SelectAudioBaseUrl(streamInfo);
+
+        var totalBandwidth = FileSizeDescriptor.ToReadableFileSize(vBandwidth + aBandwidth);
+        var vSize = FileSizeDescriptor.ToReadableFileSize(vBandwidth);
+        var aSize = FileSizeDescriptor.ToReadableFileSize(aBandwidth);
+        Logger?.LogInformation($"Select stream: {vWidth}x{vHeight}@{vFrameRate}, baudwidth: {totalBandwidth}({vSize} + {aSize})");
+
         string vName = vBaseUrl.Filename();
         string vPath = Path.Combine(fileMgmt.TemporaryHome, vName);
         //var vrequ = new DownloadRequest(, , );
@@ -40,7 +47,6 @@ internal class DashDownloader(CommonDownloader downloader, FileMgmt fileMgmt, Au
             throw new Exception($"Failed to download video stream from {vBaseUrl}");
         }
 
-        string aBaseUrl = SelectAudioBaseUrl(streamInfo);
         string aName = aBaseUrl.Filename();
         string aPath = Path.Combine(fileMgmt.TemporaryHome, aName);
         status = await downloader.DownloadFileAsync(new Uri(aBaseUrl), aPath, strategy, ContentCopyStrategy, DownloadStrategy);
@@ -48,10 +54,10 @@ internal class DashDownloader(CommonDownloader downloader, FileMgmt fileMgmt, Au
         {
             throw new Exception($"Failed to download audio stream from {aBaseUrl}");
         }
-
+        
         return (aPath, vPath);
 
-        string SelectVideoBaseUrl(int acceptQuality, VideoStreamInfo vsi)
+        static (string,long,long,long, string) SelectVideoBaseUrl(int acceptQuality, VideoStreamInfo vsi)
         {
             var lst = vsi.Dash.Video.Where(x => x.Id == acceptQuality)
                 .OrderBy(x => x.Bandwidth);
@@ -60,15 +66,16 @@ internal class DashDownloader(CommonDownloader downloader, FileMgmt fileMgmt, Au
                 lst = vsi.Dash.Video.OrderBy(x => x.Bandwidth);
             }
 
-            Logger?.LogInformation($"Video dash info : {lst?.Last()!.Width}*{lst?.Last()!.Height} bandw:{lst?.Last()!.Bandwidth}");
-            return lst?.Last().BaseUrl ?? string.Empty;
+            var best = lst?.Last();
+            //Logger?.LogInformation($"Video dash info : {lst?.Last()!.Width}*{lst?.Last()!.Height} bandw:{lst?.Last()!.Bandwidth}");
+            return (best?.BaseUrl ?? string.Empty, best?.Width ?? 0, best?.Height ?? 0, best?.Bandwidth ?? 0, best?.FrameRate ?? string.Empty);
         }
 
-        string SelectAudioBaseUrl(VideoStreamInfo vsi)
+        static (string, long) SelectAudioBaseUrl(VideoStreamInfo vsi)
         {
             var dash = vsi.Dash.Flac?.Audio ?? vsi.Dash.Audio.OrderBy(x => x.Bandwidth).Last();
-            Logger?.LogInformation($"Audio dash info : {dash.Bandwidth}");
-            return dash.BaseUrl ?? string.Empty;
+            //Logger?.LogInformation($"Audio dash info : {dash.Bandwidth}");
+            return (dash.BaseUrl ?? string.Empty, dash.Bandwidth);
         }
     }
 
@@ -99,7 +106,7 @@ internal class DashDownloader(CommonDownloader downloader, FileMgmt fileMgmt, Au
             $"-metadata copyright=\"{meta.copyright}\" " +
             $"\"{outp}\"";
         ShellApi.System(cmd);
-        Logger?.LogInformation($"Av merge succeed.");
+        //Logger?.LogInformation($"Av merge succeed.");
     }
 
 }
