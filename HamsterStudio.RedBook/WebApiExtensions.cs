@@ -11,6 +11,7 @@ public static class WebApiExtensions
     {
         services.AddSingleton<IRedBookParser, RedBookNoteParser>();
         services.AddSingleton<NoteDownloadService>();
+        services.AddSingleton<NoteDatabaseService>();
         services.AddSingleton<FileMgmt>();
         services.AddSingleton<PreTokenCollector>();
         services.AddSingleton(sp => new Lazy<PreTokenCollector>(() => sp.GetService<PreTokenCollector>()!));
