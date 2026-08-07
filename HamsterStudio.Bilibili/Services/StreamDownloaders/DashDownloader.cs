@@ -10,7 +10,7 @@ namespace HamsterStudio.Bilibili.Services.StreamDownloaders;
 
 internal class DashDownloader(CommonDownloader downloader, FileMgmt fileMgmt, AuthenticRequestStrategy strategy, StreamDownloaderChaeine? inner, ILogger? logger) : StreamDownloaderChaeine(inner, logger)
 {
-    public override async Task<DownloadStatus> Download(VideoStreamInfo videoStreamInfo, AvMeta meta, HamstertFileInfo target)
+    public override async Task<DownloadStatus> Download(VideoStreamInfo videoStreamInfo, AvMetaModel meta, HamstertFileInfo target)
     {
         if (videoStreamInfo.Dash.Video != null && videoStreamInfo.Dash.Audio != null)
         {
@@ -72,7 +72,7 @@ internal class DashDownloader(CommonDownloader downloader, FileMgmt fileMgmt, Au
         }
     }
 
-    public async Task<DownloadStatus> MergeStreamToMp4(AvMeta meta, (string aPath, string vPath) avPath, HamstertFileInfo target, bool? DeleteAvCache = true)
+    public async Task<DownloadStatus> MergeStreamToMp4(AvMetaModel meta, (string aPath, string vPath) avPath, HamstertFileInfo target, bool? DeleteAvCache = true)
     {
         if (File.Exists(target.FullName))
         {
@@ -90,7 +90,7 @@ internal class DashDownloader(CommonDownloader downloader, FileMgmt fileMgmt, Au
         return DownloadStatus.Success;
     }
 
-    public async Task MergeAv(string vname, string aname, AvMeta meta, string outp)
+    public async Task MergeAv(string vname, string aname, AvMetaModel meta, string outp)
     {
         string cmd = $"chcp 65001 & ffmpeg -i \"{vname}\" -i \"{aname}\" -c:v copy -c:a copy " +
             $"-metadata title=\"{meta.title}\" " +

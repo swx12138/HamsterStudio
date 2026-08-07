@@ -1,4 +1,5 @@
-﻿using System.Text.Json.Serialization;
+﻿using HamsterStudio.Bilibili.Models.Sub;
+using System.Text.Json.Serialization;
 
 namespace HamsterStudio.Bilibili.Models;
 
@@ -7,107 +8,8 @@ public class ReplayV2DataModel
     [JsonPropertyName("page")]
     public PageModel Page { get; set; } = new();
 
-    [JsonPropertyName("config")]
-    public ConfigModel Config { get; set; } = new();
-
     [JsonPropertyName("replies")]
     public RepliesItemModel[] Replies { get; set; } = [];
-
-    [JsonPropertyName("upper")]
-    public UpperModel Upper { get; set; } = new();
-
-    [JsonPropertyName("top")]
-    public object? Top { get; set; }
-
-    [JsonPropertyName("vote")]
-    public int Vote { get; set; }
-
-    [JsonPropertyName("blacklist")]
-    public int Blacklist { get; set; }
-
-    [JsonPropertyName("assist")]
-    public int Assist { get; set; }
-
-    [JsonPropertyName("mode")]
-    public int Mode { get; set; }
-
-    [JsonPropertyName("control")]
-    public ControlModel Control { get; set; } = new();
-
-    [JsonPropertyName("folder")]
-    public FolderModel Folder { get; set; } = new();
-}
-
-public class ControlModel
-{
-    [JsonPropertyName("input_disable")]
-    public bool InputDisable { get; set; }
-
-    [JsonPropertyName("root_input_text")]
-    public string RootInputText { get; set; } = string.Empty;
-
-    [JsonPropertyName("child_input_text")]
-    public string ChildInputText { get; set; } = string.Empty;
-
-    [JsonPropertyName("giveup_input_text")]
-    public string GiveupInputText { get; set; } = string.Empty;
-
-    [JsonPropertyName("screenshot_icon_state")]
-    public int ScreenshotIconState { get; set; }
-
-    [JsonPropertyName("upload_picture_icon_state")]
-    public int UploadPictureIconState { get; set; }
-
-    [JsonPropertyName("answer_guide_text")]
-    public string AnswerGuideText { get; set; } = string.Empty;
-
-    [JsonPropertyName("answer_guide_icon_url")]
-    public string AnswerGuideIconUrl { get; set; } = string.Empty;
-
-    [JsonPropertyName("answer_guide_ios_url")]
-    public string AnswerGuideIosUrl { get; set; } = string.Empty;
-
-    [JsonPropertyName("answer_guide_android_url")]
-    public string AnswerGuideAndroidUrl { get; set; } = string.Empty;
-
-    [JsonPropertyName("bg_text")]
-    public string BgText { get; set; } = string.Empty;
-
-    [JsonPropertyName("empty_page")]
-    public object? EmptyPage { get; set; }
-
-    [JsonPropertyName("show_type")]
-    public int ShowType { get; set; }
-
-    [JsonPropertyName("show_text")]
-    public string ShowText { get; set; } = string.Empty;
-
-    [JsonPropertyName("web_selection")]
-    public bool WebSelection { get; set; }
-
-    [JsonPropertyName("disable_jump_emote")]
-    public bool DisableJumpEmote { get; set; }
-
-    [JsonPropertyName("enable_charged")]
-    public bool EnableCharged { get; set; }
-
-    [JsonPropertyName("enable_cm_biz_helper")]
-    public bool EnableCmBizHelper { get; set; }
-
-    [JsonPropertyName("preload_resources")]
-    public object? PreloadResources { get; set; }
-}
-
-public class UpperModel
-{
-    [JsonPropertyName("mid")]
-    public int Mid { get; set; }
-
-    [JsonPropertyName("top")]
-    public object? Top { get; set; }
-
-    [JsonPropertyName("vote")]
-    public object? Vote { get; set; }
 }
 
 public class RepliesItemModel
@@ -356,128 +258,6 @@ public class AvatarItemModel
     public string Mid { get; set; } = string.Empty;
 }
 
-public class FallbackLayersModel
-{
-    [JsonPropertyName("layers")]
-    public LayersItemModel[] Layers { get; set; } = [];
-
-    [JsonPropertyName("is_critical_group")]
-    public bool IsCriticalGroup { get; set; }
-}
-
-public class LayersItemModel
-{
-    [JsonPropertyName("visible")]
-    public bool Visible { get; set; }
-
-    [JsonPropertyName("general_spec")]
-    public GeneralSpecModel GeneralSpec { get; set; } = new();
-
-    [JsonPropertyName("layer_config")]
-    public LayerConfigModel LayerConfig { get; set; } = new();
-
-    [JsonPropertyName("resource")]
-    public ResourceModel Resource { get; set; } = new();
-}
-
-public class ResourceModel
-{
-    [JsonPropertyName("res_type")]
-    public int ResType { get; set; }
-
-    [JsonPropertyName("res_image")]
-    public ResImageModel ResImage { get; set; } = new();
-}
-
-public class ResImageModel
-{
-    [JsonPropertyName("image_src")]
-    public ImageSrcModel ImageSrc { get; set; } = new();
-}
-
-public class ImageSrcModel
-{
-    [JsonPropertyName("src_type")]
-    public int SrcType { get; set; }
-
-    [JsonPropertyName("placeholder")]
-    public int Placeholder { get; set; }
-
-    [JsonPropertyName("remote")]
-    public RemoteModel Remote { get; set; } = new();
-}
-
-public class RemoteModel
-{
-    [JsonPropertyName("url")]
-    public string Url { get; set; } = string.Empty;
-
-    [JsonPropertyName("bfs_style")]
-    public string BfsStyle { get; set; } = string.Empty;
-}
-
-public class LayerConfigModel
-{
-    [JsonPropertyName("tags")]
-    public TagsModel Tags { get; set; } = new();
-
-    [JsonPropertyName("is_critical")]
-    public bool IsCritical { get; set; }
-}
-
-public class TagsModel
-{
-    [JsonPropertyName("AVATAR_LAYER")]
-    public AVATARLAYERModel AVATARLAYER { get; set; } = new();
-
-    [JsonPropertyName("GENERAL_CFG")]
-    public GENERALCFGModel GENERALCFG { get; set; } = new();
-}
-
-public class GENERALCFGModel
-{
-    [JsonPropertyName("config_type")]
-    public int ConfigType { get; set; }
-
-    [JsonPropertyName("general_config")]
-    public GeneralConfigModel GeneralConfig { get; set; } = new();
-}
-
-public class GeneralConfigModel
-{
-    [JsonPropertyName("web_css_style")]
-    public WebCssStyleModel WebCssStyle { get; set; } = new();
-}
-
-public class WebCssStyleModel
-{
-    [JsonPropertyName("borderRadius")]
-    public string BorderRadius { get; set; } = string.Empty;
-}
-
-public class AVATARLAYERModel
-{
-
-}
-
-public class GeneralSpecModel
-{
-    [JsonPropertyName("pos_spec")]
-    public PosSpecModel PosSpec { get; set; } = new();
-
-    [JsonPropertyName("size_spec")]
-    public SizeSpecModel SizeSpec { get; set; } = new();
-
-    [JsonPropertyName("render_spec")]
-    public RenderSpecModel RenderSpec { get; set; } = new();
-}
-
-public class RenderSpecModel
-{
-    [JsonPropertyName("opacity")]
-    public int Opacity { get; set; }
-}
-
 public class SizeSpecModel
 {
     [JsonPropertyName("width")]
@@ -485,81 +265,6 @@ public class SizeSpecModel
 
     [JsonPropertyName("height")]
     public int Height { get; set; }
-}
-
-public class PosSpecModel
-{
-    [JsonPropertyName("coordinate_pos")]
-    public int CoordinatePos { get; set; }
-
-    [JsonPropertyName("axis_x")]
-    public double AxisX { get; set; }
-
-    [JsonPropertyName("axis_y")]
-    public double AxisY { get; set; }
-}
-
-public class UserSailingV2Model
-{
-    [JsonPropertyName("card_bg")]
-    public CardBgModel CardBg { get; set; } = new();
-}
-
-public class CardBgModel
-{
-    [JsonPropertyName("id")]
-    public long Id { get; set; }
-
-    [JsonPropertyName("name")]
-    public string Name { get; set; } = string.Empty;
-
-    [JsonPropertyName("image")]
-    public string Image { get; set; } = string.Empty;
-
-    [JsonPropertyName("jump_url")]
-    public string JumpUrl { get; set; } = string.Empty;
-
-    [JsonPropertyName("fan")]
-    public FanModel Fan { get; set; } = new();
-
-    [JsonPropertyName("type")]
-    public string Type { get; set; } = string.Empty;
-}
-
-public class UserSailingModel
-{
-    [JsonPropertyName("pendant")]
-    public object? Pendant { get; set; }
-
-    [JsonPropertyName("cardbg")]
-    public CardbgModel Cardbg { get; set; } = new();
-
-    [JsonPropertyName("cardbg_with_focus")]
-    public object? CardbgWithFocus { get; set; }
-}
-
-public class CardbgModel
-{
-    [JsonPropertyName("id")]
-    public long Id { get; set; }
-
-    [JsonPropertyName("name")]
-    public string Name { get; set; } = string.Empty;
-
-    [JsonPropertyName("image")]
-    public string Image { get; set; } = string.Empty;
-
-    [JsonPropertyName("jump_url")]
-    public string JumpUrl { get; set; } = string.Empty;
-
-    [JsonPropertyName("fan")]
-    public FanModel Fan { get; set; } = new();
-
-    [JsonPropertyName("type")]
-    public string Type { get; set; } = string.Empty;
-
-    [JsonPropertyName("image_group")]
-    public object? ImageGroup { get; set; }
 }
 
 public class NameplateModel
@@ -583,37 +288,10 @@ public class NameplateModel
     public string Condition { get; set; } = string.Empty;
 }
 
-public class LevelInfoModel
-{
-    [JsonPropertyName("current_level")]
-    public int CurrentLevel { get; set; }
-
-    [JsonPropertyName("current_min")]
-    public int CurrentMin { get; set; }
-
-    [JsonPropertyName("current_exp")]
-    public int CurrentExp { get; set; }
-
-    [JsonPropertyName("next_exp")]
-    public int NextExp { get; set; }
-}
-
 public class SeniorModel
 {
     [JsonPropertyName("status")]
     public int Status { get; set; }
-}
-
-public class ConfigModel
-{
-    [JsonPropertyName("showtopic")]
-    public int Showtopic { get; set; }
-
-    [JsonPropertyName("show_up_flag")]
-    public bool ShowUpFlag { get; set; }
-
-    [JsonPropertyName("read_only")]
-    public bool ReadOnly { get; set; }
 }
 
 public class PageModel

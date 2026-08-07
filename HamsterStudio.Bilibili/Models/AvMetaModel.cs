@@ -1,6 +1,6 @@
 ﻿namespace HamsterStudio.Bilibili.Models
 {
-    public struct AvMeta
+    public struct AvMetaModel
     {
         public string title;
         public string artist;

@@ -8,7 +8,7 @@ namespace HamsterStudio.Bilibili.Services.StreamDownloaders;
 
 internal class DurlDownloader(CommonDownloader downloader, AuthenticRequestStrategy strategy, StreamDownloaderChaeine? inner, ILogger? logger) : StreamDownloaderChaeine(inner, logger)
 {
-    public override async Task<DownloadStatus> Download(VideoStreamInfo videoStreamInfo, AvMeta meta, HamstertFileInfo target)
+    public override async Task<DownloadStatus> Download(VideoStreamInfo videoStreamInfo, AvMetaModel meta, HamstertFileInfo target)
     {
         if (videoStreamInfo.Durl != null)
         {

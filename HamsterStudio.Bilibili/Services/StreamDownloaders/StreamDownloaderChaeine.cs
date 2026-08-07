@@ -15,7 +15,7 @@ internal abstract class StreamDownloaderChaeine(StreamDownloaderChaeine? inner, 
     protected FileStreamHttpContentCopyStrategy ContentCopyStrategy { get; } = new();
     protected FixedChunkSizeDownloadStrategy DownloadStrategy { get; } = new(FileSizeDescriptor.FileSize_32M, 3);
 
-    public virtual async Task<DownloadStatus> Download(VideoStreamInfo streamInfo, AvMeta meta, HamstertFileInfo target)
+    public virtual async Task<DownloadStatus> Download(VideoStreamInfo streamInfo, AvMetaModel meta, HamstertFileInfo target)
     {
         if (inner != null)
         {

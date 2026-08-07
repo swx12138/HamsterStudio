@@ -2,6 +2,8 @@
 using HamsterStudio.Bilibili.Models;
 using HamsterStudio.Bilibili.Services;
 using HamsterStudio.Bilibili.Services.Restful;
+using System.Diagnostics;
+using System.Text;
 using System.Web;
 
 namespace HamsterStudioTests.Bilibili
@@ -9,6 +11,7 @@ namespace HamsterStudioTests.Bilibili
     [TestClass]
     public sealed class TestBilibili
     {
+        public TestContext TestContext { get; set; }
         string cookies = File.ReadAllText(@"E:\HamsterStudioHome\Bilibili\cookies.txt");
         readonly IBilibiliApiService bapi = WebApiExtensions.CreateServ();
 
@@ -21,10 +24,12 @@ namespace HamsterStudioTests.Bilibili
             var videoInfo = videoInfoResp.Data;
             Assert.IsNotNull(videoInfo, "Video info should not be null.");
 
-            Console.WriteLine($"Title: {videoInfo.Title}");
-            Console.WriteLine($"Description: {videoInfo.Desc}");
-            Console.WriteLine($"Description V2: {videoInfo.DescV2}");
-            Console.WriteLine($"View Count: {videoInfo.Stat.View}");
+            StringBuilder sb = new StringBuilder();
+
+            sb.AppendLine($"Title: {videoInfo.Title}");
+            sb.AppendLine($"Description: {videoInfo.Desc}");
+            sb.AppendLine($"Description V2: {videoInfo.DescV2}");
+            sb.AppendLine($"View Count: {videoInfo.Stat.View}");
 
             var streamInfoResp = await bapi.GetVideoStreamInfoAsync(videoInfo.Pages.First().Cid, videoInfo.Bvid, cookies);
             Assert.IsTrue(streamInfoResp.Code == 0, $"Error: {streamInfoResp.Message}");
@@ -32,12 +37,13 @@ namespace HamsterStudioTests.Bilibili
             var streamInfo = streamInfoResp.Data;
             Assert.IsNotNull(streamInfo, "Stream info should not be null.");
 
-            Console.WriteLine($"Stream Count: {streamInfo.Dash.Video.Count}");
+            sb.AppendLine($"Stream Count: {streamInfo.Dash.Video.Count}");
             foreach (var desc in streamInfo.AcceptDescription)
             {
-                Console.WriteLine($"Stream Description: {desc}");
+                sb.AppendLine($"Stream Description: {desc}");
             }
-            Console.WriteLine($"First Stream URL: {streamInfo.Dash.Video.First().BaseUrl}");
+            sb.AppendLine($"First Stream URL: {streamInfo.Dash.Video.First().BaseUrl}");
+            TestContext.WriteLine(sb.ToString());
         }
 
         [TestMethod]
@@ -49,10 +55,10 @@ namespace HamsterStudioTests.Bilibili
             var watchLaterData = watchLaterResp.Data;
             Assert.IsNotNull(watchLaterData, "Watch Later data should not be null.");
 
-            Console.WriteLine($"Watch Later Count: {watchLaterData.List.Count}");
+            TestContext.WriteLine($"Watch Later Count: {watchLaterData.List.Count}");
             foreach (var item in watchLaterData.List)
             {
-                Console.WriteLine($"Watch Later Item:【{item.Bvid}】{item.Title}");
+                TestContext.WriteLine($"Watch Later Item:【{item.Bvid}】{item.Title}");
             }
         }
 
