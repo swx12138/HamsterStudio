@@ -20,14 +20,12 @@ namespace HamsterStudio.WallpaperEngine.Services;
 [ObservableObject]
 public partial class WallpaperShowConfig : FileDroppableBase, IDisposable
 {
-    private static readonly string TempDdir = Path.Combine(
-        Environment.GetFolderPath(
-            Environment.SpecialFolder.LocalApplicationData),
-        SystemConsts.ApplicationName);
+    //private static readonly string TempDdir;
 
     private static IDesktopWallpaper DesktopWallpaper = (IDesktopWallpaper)new DesktopWallpaper();
     private readonly ImageMetaInfoReadService _imageMetaInfoReadService;
     private List<ImageModelDim> _AlternateWallpappers = [];
+    private readonly DirectoryMgmt directoryMgmt_;
 
     public List<DesktopWallpaperInfo> MonitorIds { get; private set; } = [];
 
@@ -49,10 +47,12 @@ public partial class WallpaperShowConfig : FileDroppableBase, IDisposable
 
     private ILogger? _logger = null;
 
-    public WallpaperShowConfig(ImageMetaInfoReadService imageMetaInfoReadService, ILogger? logger)
+    public WallpaperShowConfig(ImageMetaInfoReadService imageMetaInfoReadService, ILogger? logger, DirectoryMgmt directoryMgmt)
     {
         _logger = logger;
         Stopwatch stopwatch = Stopwatch.StartNew();
+
+        directoryMgmt_ = directoryMgmt;
 
         MonitorIds = [.. Enumerable.Range(0, (int)DesktopWallpaper.GetMonitorDevicePathCount())
             .Select(i => new DesktopWallpaperInfo(DesktopWallpaper,(uint)i,logger))
@@ -187,7 +187,7 @@ public partial class WallpaperShowConfig : FileDroppableBase, IDisposable
         try
         {
             var dat = BinaryDataSerializer.Serialize(_AlternateWallpappers.Where(x => x.Mark).ToList());
-            File.WriteAllBytes(Path.Combine(TempDdir, "wallpapers.dat"), dat);
+            File.WriteAllBytes(Path.Combine(directoryMgmt_.TemporaryHome, "wallpapers.dat"), dat);
             _logger?.LogDebug($"Saved wallpapper dat.");
         }
         catch

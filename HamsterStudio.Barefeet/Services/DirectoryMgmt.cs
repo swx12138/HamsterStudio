@@ -34,7 +34,7 @@ public class DirectoryMgmt : AbstractDirectoryMgmt
     public override string TemporaryHome { get; } = Path.Combine(
         Environment.GetFolderPath(
             Environment.SpecialFolder.LocalApplicationData),
-        SystemConsts.ApplicationName);
+        SystemConsts.ApplicationLocalDataFolder);
 
     public DirectoryMgmt(string storageHome, ILogger? logger) : base(logger)
     {
