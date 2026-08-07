@@ -374,3 +374,4 @@ FodyWeavers.xsd
 /scripts
 /HamsterStudioNativeCLI/vscode-extension-samples-main.zip
 HamsterStudioCLITools/build/
+.vscode/

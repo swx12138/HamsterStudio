@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 17
-VisualStudioVersion = 17.13.35806.99
+# Visual Studio Version 18
+VisualStudioVersion = 18.8.12023.21
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HamsterStudioGUI", "HamsterStudioGUI\HamsterStudioGUI.csproj", "{CDD9356D-9D4B-4265-BE32-987D4184D0C3}"
 EndProject
@@ -68,6 +68,10 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HamsterStudio.FileManager", "HamsterStudio.FileManager\HamsterStudio.FileManager.csproj", "{95FE3C95-1BF0-47AC-B000-0DD15ABDE6A5}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HandyControl_Net_GE45", "submodules\HandyControl\src\Net_GE45\HandyControl_Net_GE45\HandyControl_Net_GE45.csproj", "{1FD848D3-3A22-637B-66EA-11C55D270E17}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HamsterStudioForAndroid", "HamsterStudioForAndroid\HamsterStudioForAndroid.csproj", "{4AB79DB3-FF5C-4212-B317-F5295CD0D58A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HamsterStudio.DownloadManagement", "HamsterStudio.DownloadManagement\HamsterStudio.DownloadManagement.csproj", "{DE250328-5422-479F-BAC3-920E21B56320}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -385,6 +389,36 @@ Global
 		{1FD848D3-3A22-637B-66EA-11C55D270E17}.Release|x64.Build.0 = Release|Any CPU
 		{1FD848D3-3A22-637B-66EA-11C55D270E17}.Release|x86.ActiveCfg = Release|Any CPU
 		{1FD848D3-3A22-637B-66EA-11C55D270E17}.Release|x86.Build.0 = Release|Any CPU
+		{4AB79DB3-FF5C-4212-B317-F5295CD0D58A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4AB79DB3-FF5C-4212-B317-F5295CD0D58A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4AB79DB3-FF5C-4212-B317-F5295CD0D58A}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
+		{4AB79DB3-FF5C-4212-B317-F5295CD0D58A}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{4AB79DB3-FF5C-4212-B317-F5295CD0D58A}.Debug|x64.Build.0 = Debug|Any CPU
+		{4AB79DB3-FF5C-4212-B317-F5295CD0D58A}.Debug|x64.Deploy.0 = Debug|Any CPU
+		{4AB79DB3-FF5C-4212-B317-F5295CD0D58A}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{4AB79DB3-FF5C-4212-B317-F5295CD0D58A}.Debug|x86.Build.0 = Debug|Any CPU
+		{4AB79DB3-FF5C-4212-B317-F5295CD0D58A}.Debug|x86.Deploy.0 = Debug|Any CPU
+		{4AB79DB3-FF5C-4212-B317-F5295CD0D58A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4AB79DB3-FF5C-4212-B317-F5295CD0D58A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4AB79DB3-FF5C-4212-B317-F5295CD0D58A}.Release|Any CPU.Deploy.0 = Release|Any CPU
+		{4AB79DB3-FF5C-4212-B317-F5295CD0D58A}.Release|x64.ActiveCfg = Release|Any CPU
+		{4AB79DB3-FF5C-4212-B317-F5295CD0D58A}.Release|x64.Build.0 = Release|Any CPU
+		{4AB79DB3-FF5C-4212-B317-F5295CD0D58A}.Release|x64.Deploy.0 = Release|Any CPU
+		{4AB79DB3-FF5C-4212-B317-F5295CD0D58A}.Release|x86.ActiveCfg = Release|Any CPU
+		{4AB79DB3-FF5C-4212-B317-F5295CD0D58A}.Release|x86.Build.0 = Release|Any CPU
+		{4AB79DB3-FF5C-4212-B317-F5295CD0D58A}.Release|x86.Deploy.0 = Release|Any CPU
+		{DE250328-5422-479F-BAC3-920E21B56320}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DE250328-5422-479F-BAC3-920E21B56320}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DE250328-5422-479F-BAC3-920E21B56320}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{DE250328-5422-479F-BAC3-920E21B56320}.Debug|x64.Build.0 = Debug|Any CPU
+		{DE250328-5422-479F-BAC3-920E21B56320}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{DE250328-5422-479F-BAC3-920E21B56320}.Debug|x86.Build.0 = Debug|Any CPU
+		{DE250328-5422-479F-BAC3-920E21B56320}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DE250328-5422-479F-BAC3-920E21B56320}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DE250328-5422-479F-BAC3-920E21B56320}.Release|x64.ActiveCfg = Release|Any CPU
+		{DE250328-5422-479F-BAC3-920E21B56320}.Release|x64.Build.0 = Release|Any CPU
+		{DE250328-5422-479F-BAC3-920E21B56320}.Release|x86.ActiveCfg = Release|Any CPU
+		{DE250328-5422-479F-BAC3-920E21B56320}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -413,6 +447,7 @@ Global
 		{11561C22-1E71-420A-887A-51BE3C170CAF} = {1ECB36EB-DA69-4571-AFD6-B77B2250E2FB}
 		{95FE3C95-1BF0-47AC-B000-0DD15ABDE6A5} = {85879EA5-7D16-4A63-B0E8-76A6308EDA32}
 		{1FD848D3-3A22-637B-66EA-11C55D270E17} = {52EB6711-5ACA-471D-896D-4146B4B91649}
+		{DE250328-5422-479F-BAC3-920E21B56320} = {85879EA5-7D16-4A63-B0E8-76A6308EDA32}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {2BEFE676-D503-4D35-A413-E099891E452B}
