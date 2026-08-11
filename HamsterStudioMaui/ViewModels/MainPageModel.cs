@@ -1,13 +1,15 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using HamsterStudio.Barefeet.Extensions;
 using HamsterStudio.Bilibili.Services.Restful;
 using HamsterStudio.RedBook.Services.XhsRestful;
 using HamsterStudio.Web.DataModels;
 using HamsterStudio.Web.Services.Restful;
 using HamsterStudioMaui.Services;
 using Refit;
+using System.ComponentModel;
 using System.Diagnostics;
+using System.Net.NetworkInformation;
+using System.Net.Sockets;
 using System.Windows.Input;
 
 namespace HamsterStudioMaui.ViewModels;
@@ -16,6 +18,9 @@ partial class MainPageModel : ObservableObject
 {
     [ObservableProperty]
     private string shareInfo = string.Empty;
+
+    [ObservableProperty]
+    private string _localIpAddress = GetLocalIpAddress();
 
     [ObservableProperty]
     private string _hostName = "192.168.0.101";
@@ -81,6 +86,25 @@ partial class MainPageModel : ObservableObject
         }
     }
 
+    private static string GetLocalIpAddress()
+    {
+        foreach (var netInterface in NetworkInterface.GetAllNetworkInterfaces())
+        {
+            if (netInterface.OperationalStatus == OperationalStatus.Up &&
+                netInterface.NetworkInterfaceType != NetworkInterfaceType.Loopback)
+            {
+                foreach (var addr in netInterface.GetIPProperties().UnicastAddresses)
+                {
+                    if (addr.Address.AddressFamily == AddressFamily.InterNetwork)
+                    {
+                        return addr.Address.ToString();
+                    }
+                }
+            }
+        }
+        return "127.0.0.1";
+    }
+
     private async Task SaveFiles(ServerRespModel resp)
     {
 #if ANDROID
@@ -93,6 +117,11 @@ partial class MainPageModel : ObservableObject
                 foreach (var static_file_url in resp.Data.StaticFiles)
                 {
                     string filename = Path.GetFileName(static_file_url);
+                    if (Platforms.Android.Utils.FileUtils.ExistsInDCIM(filename))
+                    {
+                        Log += $"\n[跳过] {filename} 已存在";
+                        continue;
+                    }
                     var stream = await staticFilesClient.GetStaticFile(static_file_url);
                     string result = Platforms.Android.Utils.FileUtils.WriteFileToDCIM(filename, stream);
                     Log += "\n" + result;
@@ -102,6 +131,15 @@ partial class MainPageModel : ObservableObject
             }); // 让UI线程继续运行，不阻塞
         }
 #endif
+    }
+
+    protected override void OnPropertyChanged(PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName == "HostName")
+        {
+            Trace.TraceInformation($"[{e.PropertyName}] -> {HostName}");
+        }
+        base.OnPropertyChanged(e);
     }
 
 }

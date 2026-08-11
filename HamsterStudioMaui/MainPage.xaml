@@ -6,6 +6,8 @@
     <ScrollView>
         <VerticalStackLayout Padding="30,0" Spacing="25">
 
+            <Label Text="{Binding LocalIpAddress, StringFormat='本机IP: {0}'}" FontSize="18" FontAttributes="Bold" />
+
             <Entry Text="{Binding ShareInfo}" />
 
             <Button Command="{Binding ExtractCommand}" Text="Don't Touch" />
