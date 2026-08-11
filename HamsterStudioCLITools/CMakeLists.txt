@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.20)
 project(HamsterStudioCLITools VERSION 1.0.0 LANGUAGES CXX)
 
 # 默认安装路径
-# set(CMAKE_INSTALL_PREFIX "D:/Develop/Tools" CACHE PATH "Install path" FORCE)
+set(CMAKE_INSTALL_PREFIX "D:/Develop/Tools" CACHE PATH "Install path" FORCE)
 
 # ============================================================
 # C++ Standard
@@ -10,6 +10,7 @@ project(HamsterStudioCLITools VERSION 1.0.0 LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
+
 
 # ============================================================
 # OpenMP (用于 BaitingMaster 的并行加速)
@@ -26,6 +27,7 @@ find_package(OpenMP REQUIRED)
 if(CMAKE_VERSION VERSION_GREATER_EQUAL "3.27")
     cmake_policy(SET CMP0146 OLD)
 endif()
+
 find_package(OpenCV REQUIRED)
 if(OpenCV_FOUND)
     # 检查是否真的有 CUDA 模块
@@ -164,8 +166,17 @@ target_link_libraries(hamster-bait PRIVATE HamsterStudioToes)
 target_compile_options(hamster-bait PRIVATE /utf-8)
 
 # ============================================================
+# 可执行文件 3: hamster-cat (Windows 版 cat 命令)
+# ============================================================
+add_executable(hamster-cat
+    src/cat/cat.cpp
+)
+target_link_libraries(hamster-cat PRIVATE HamsterStudioToes)
+target_compile_options(hamster-cat PRIVATE /utf-8)
+
+# ============================================================
 # 安装规则
 # ============================================================
-install(TARGETS hamster-stitch hamster-bait
+install(TARGETS hamster-stitch hamster-bait hamster-cat
     RUNTIME DESTINATION hamster-cli
 )
