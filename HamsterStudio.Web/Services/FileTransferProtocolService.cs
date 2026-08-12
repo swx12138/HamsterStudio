@@ -1,6 +1,8 @@
 ﻿using HamsterStudio.Barefeet.Services;
+using HamsterStudio.Web.DataModels;
 using HamsterStudio.Web.Services.ftp;
 using Microsoft.Extensions.Logging;
+using System.Text.Json;
 
 namespace HamsterStudio.Web.Services;
 
@@ -30,12 +32,20 @@ public class FileTransferProtocolService(DirectoryMgmt directoryMgmt, ILogger<Fi
     /// <summary>
     /// 监听端口
     /// </summary>
-    public int Port { get; set; } = 2122;
+    public int Port { get; set; } = 5002;
 
     /// <summary>
     /// FTP 根目录
     /// </summary>
     public string RootDirectory { get; set; } = Path.Combine(directoryMgmt.StorageHome, "FtpRoot");
+
+    /// <summary>
+    /// 允许登录的用户列表
+    /// </summary>
+    public List<FtpUser> Users { get; } = new()
+    {
+        FtpUser.Create("admin", "admin123"),
+    };
 
     /// <summary>
     /// 服务器是否正在运行
@@ -55,7 +65,12 @@ public class FileTransferProtocolService(DirectoryMgmt directoryMgmt, ILogger<Fi
 
         try
         {
-            _server = new FtpServer(HostName, Port, RootDirectory, logger);
+            if (Users.Count == 0)
+            {
+                throw new InvalidOperationException("未配置任何 FTP 用户，请先添加用户到 Users 列表");
+            }
+
+            _server = new AuthenticatedFtpServer(HostName, Port, RootDirectory, logger, Users);
             if (!_server.Start())
             {
                 logger.LogError($"FTP 服务器启动失败: {HostName}:{Port}，端口可能被占用");
@@ -64,7 +79,7 @@ public class FileTransferProtocolService(DirectoryMgmt directoryMgmt, ILogger<Fi
                 throw new InvalidOperationException($"无法绑定到 {HostName}:{Port}，端口可能已被占用");
             }
 
-            logger.LogInformation($"FTP 服务器已启动: {HostName}:{Port}，根目录: {RootDirectory}");
+            logger.LogInformation($"FTP 服务器已启动: ftp://{HostName}:{Port}，根目录: {RootDirectory}");
             return FileTransferProtocolStatusCode.ServerReady;
         }
         catch (Exception ex)
@@ -103,5 +118,32 @@ public class FileTransferProtocolService(DirectoryMgmt directoryMgmt, ILogger<Fi
     {
         Stop();
         GC.SuppressFinalize(this);
+    }
+
+    public void RefreshUserList()
+    {
+        Users.Clear();
+
+        var filePath = Path.Combine(directoryMgmt.TemporaryHome, "FtpUserList.json");
+        if (!File.Exists(filePath))
+        {
+            logger.LogWarning("FTP 用户配置文件不存在: {Path}", filePath);
+            return;
+        }
+
+        var text = File.ReadAllText(filePath);
+        var config = JsonSerializer.Deserialize<FtpUserConfiguration>(text);
+        if (config == null)
+        {
+            logger.LogError("FTP 用户配置文件反序列化失败: {Path}", filePath);
+            return;
+        }
+
+        logger.LogInformation("已加载 FTP 用户配置: {Name}", config.Name);
+        foreach (var user in config.Users)
+        {
+            Users.Add(FtpUser.Create(user.Name, user.Password, user.Home));
+        }
+        logger.LogInformation("共 {Count} 个用户", Users.Count);
     }
 }

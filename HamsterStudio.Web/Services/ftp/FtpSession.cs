@@ -9,7 +9,7 @@ namespace HamsterStudio.Web.Services.ftp;
 /// <summary>
 /// FTP 会话状态
 /// </summary>
-enum FtpSessionState
+public enum FtpSessionState
 {
     Connected,
     NeedPassword,
@@ -40,9 +40,9 @@ enum FtpDataMode
 /// </summary>
 public class FtpSession : TcpSession
 {
-    private readonly string _rootDirectory;
-    private string _currentDirectory;
-    private FtpSessionState _state = FtpSessionState.Connected;
+    protected readonly string _rootDirectory;
+    protected string _currentDirectory;
+    protected FtpSessionState _state = FtpSessionState.Connected;
     private FtpTransferType _transferType = FtpTransferType.Binary;
     private FtpDataMode _dataMode = FtpDataMode.None;
 
@@ -56,10 +56,10 @@ public class FtpSession : TcpSession
     // 重命名源路径
     private string? _renameFromPath;
 
-    private readonly ILogger _logger;
+    protected readonly ILogger _logger;
 
     // 当前用户名
-    private string? _userName;
+    protected string? _userName;
 
     // 缓存的客户端地址（OnDisconnected 时 Socket 可能已释放）
     private string _remoteEndPoint = "(未知)";
@@ -88,7 +88,7 @@ public class FtpSession : TcpSession
     protected override void OnReceived(byte[] buffer, long offset, long size)
     {
         var raw = Encoding.ASCII.GetString(buffer, (int)offset, (int)size);
-        _logger.LogInformation("FTP CMD: {Command}", raw.TrimEnd('\r', '\n'));
+        //_logger.LogInformation("FTP CMD: {Command}", raw.TrimEnd('\r', '\n'));
 
         var command = raw.TrimEnd('\r', '\n');
         var spaceIndex = command.IndexOf(' ');
@@ -154,23 +154,22 @@ public class FtpSession : TcpSession
 
     #region 认证命令
 
-    private void HandleUser(string userName)
+    protected virtual void HandleUser(string userName)
     {
         _userName = userName;
         _state = FtpSessionState.NeedPassword;
         SendResponse(331, $"User {userName} okay, need password.");
     }
 
-    private void HandlePass(string password)
+    protected virtual void HandlePass(string password)
     {
-        // 简化认证：接受任意密码，或者允许匿名登录
         if (string.IsNullOrEmpty(_userName))
         {
             SendResponse(503, "Login with USER first.");
             return;
         }
 
-        // TODO: 替换为实际的用户认证逻辑
+        // 基类默认接受任意密码，派生类应重写此方法实现认证
         _state = FtpSessionState.LoggedIn;
         _logger.LogInformation("FTP: 用户 {UserName} 登录成功", _userName);
         SendResponse(230, "User logged in, proceed.");
@@ -635,7 +634,7 @@ public class FtpSession : TcpSession
 
     #region 辅助方法
 
-    private void RequireLogin()
+    protected void RequireLogin()
     {
         if (_state != FtpSessionState.LoggedIn)
             throw new InvalidOperationException("Not logged in.");
@@ -644,7 +643,7 @@ public class FtpSession : TcpSession
     /// <summary>
     /// 发送 FTP 响应
     /// </summary>
-    private void SendResponse(int code, string message)
+    protected void SendResponse(int code, string message)
     {
         var response = $"{code} {message}\r\n";
         _logger.LogInformation("FTP RES: {Response}", response.TrimEnd('\r', '\n'));

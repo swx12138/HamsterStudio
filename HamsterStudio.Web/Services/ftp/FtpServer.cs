@@ -10,8 +10,8 @@ namespace HamsterStudio.Web.Services.ftp;
 /// </summary>
 public class FtpServer : TcpServer
 {
-    private readonly string _rootDirectory;
-    private readonly ILogger _logger;
+    protected readonly string _rootDirectory;
+    protected readonly ILogger _logger;
 
     /// <summary>
     /// 获取 FTP 服务器的根目录
