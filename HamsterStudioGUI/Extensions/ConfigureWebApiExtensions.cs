@@ -1,12 +1,8 @@
-﻿using HamsterStudio.Barefeet.Logging;
-using HamsterStudio.Barefeet.Services;
-using HamsterStudio.Gallery;
-using HamsterStudio.Gallery.Services;
+﻿using HamsterStudio.Barefeet.Services;
 using HamsterStudio.ImageTool;
 using HamsterStudio.Photogrammetry;
 using HamsterStudio.Toolkits.Services;
 using HamsterStudio.Toolkits.Services.ImageMetaInfoReader;
-using HamsterStudio.Web.Services;
 using HamsterStudio.WebApi;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
@@ -26,8 +22,6 @@ public static class ConfigureWebApiExtensions
 
         services.AddSingleton(sp => new DirectoryMgmt(home, sp.GetService<ILogger>()));
         services.AddSingleton<DataStorageMgmt>();
-
-        services.AddSingleton<HttpClientProvider>();
 
         PhotogrammetryProfile.RegisterServices(services);
         ImageToolProfile.RegisterServices(services);
