@@ -1,4 +1,6 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using HamsterStudioMaui.Services;
+using HamsterStudioMaui.ViewModels;
+using Microsoft.Extensions.Logging;
 
 namespace HamsterStudioMaui;
 
@@ -18,6 +20,9 @@ public static class MauiProgram
 #if DEBUG
 		builder.Logging.AddDebug();
 #endif
+
+		builder.Services.AddSingleton<OfflineProcessService>();
+		builder.Services.AddTransient<MainPageModel>();
 
 		return builder.Build();
 	}

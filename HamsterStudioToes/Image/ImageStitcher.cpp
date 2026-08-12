@@ -451,7 +451,7 @@ int ImageNamespace::stitch_cli_main(std::vector<std::string> const &args)
 
         ImageShape target{DefaultShape.width, DefaultShape.height, DefaultShape.channels};
         if (mode == ImageStitcheMode::Portrait)
-            target.width = static_cast<int>(DefaultShape.width * first.cols / first.rows);
+            target.width = static_cast<int>(DefaultShape.height * first.cols / first.rows);
         else if (mode == ImageStitcheMode::Landscape)
             target.height = static_cast<int>(DefaultShape.width * first.rows / first.cols);
         first.release();

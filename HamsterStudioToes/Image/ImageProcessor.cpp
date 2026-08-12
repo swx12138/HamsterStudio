@@ -102,7 +102,7 @@ bool ImageProcessorNamespace::ImageProcessor::processImageMT(ImageData &image, c
 	const int rows = mat.rows;
 	const int cols = mat.cols;
 
-#pragma omp parallel for collapse(2) if(rows * cols > 10000)
+#pragma omp parallel for if(rows * cols > 10000)
 	for (int y = 0; y < rows; y += tileSize) {
 		for (int x = 0; x < cols; x += tileSize) {
 			int tileHeight = std::min(tileSize, rows - y);

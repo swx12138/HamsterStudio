@@ -10,7 +10,6 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Net.NetworkInformation;
 using System.Net.Sockets;
-using System.Windows.Input;
 
 namespace HamsterStudioMaui.ViewModels;
 
@@ -43,26 +42,71 @@ partial class MainPageModel : ObservableObject
     private bool saveToPhone = false;
 
     [ObservableProperty]
-    private bool serverOffline = true;
-
-    public ICommand ExtractCommand { get; }
+    private bool _serverOffline = true;
 
     private readonly ProcessChain ProcessChain;
     private readonly IStaticFilesClient staticFilesClient;
+    private readonly Lazy<OfflineProcessService> offlineProcessService;
 
-    public MainPageModel()
+    public MainPageModel() : this(null!) { }
+
+    public MainPageModel(OfflineProcessService? offlineProcessService)
     {
+        this.offlineProcessService = new Lazy<OfflineProcessService>(() =>
+            offlineProcessService ?? Application.Current?.Handler?.MauiContext?.Services.GetRequiredService<OfflineProcessService>()
+            ?? throw new InvalidOperationException("OfflineProcessService not available"));
+
         // TBD:考虑移到AebApiClients里面
         string server = $"http://{HostName}:{Port}";
         ProcessChain = new XiaohongshuProcess(RestService.For<IRedBookClient>(server),
             new BilibiliProcess(RestService.For<IBilibiliClient>(server), null));
         staticFilesClient = RestService.For<IStaticFilesClient>(server);
-        ExtractCommand = new AsyncRelayCommand(ExtractShareLinkAsyncasync);
     }
 
-    private async Task ExtractShareLinkAsyncasync()
+    [RelayCommand]
+    private async Task Extract()
     {
-        Log = string.Empty;
+        Log = $"Extracting...";
+        if (ServerOffline)
+        {
+            await ExtractShareLinkOfflineAsync();
+        }
+        else {
+            await ExtractShareLinkAsync();
+        }
+    }
+
+    private async Task ExtractShareLinkOfflineAsync()
+    {
+        Log += "\n[离线模式] 暂不可用...";
+        return;
+
+        try
+        {
+            Log += "\n[离线模式] 正在处理...";
+            var resp = await offlineProcessService.Value.ProcessAsync(ShareInfo);
+            if (resp == null || resp.Status != 0)
+            {
+                Log += $"\n处理失败：{resp?.Message ?? "未知错误"}";
+                return;
+            }
+
+            Log += $"\nAuthor:{resp.Data.AuthorNickName}\nTitle:{resp.Data.Title}\nDesc:{resp.Data.Description}";
+
+            await SaveFiles(resp);
+        }
+        catch (Exception ex)
+        {
+            Log += "\n" + ex.Message + "\n" + ex.StackTrace;
+        }
+        finally
+        {
+            ShareInfo = string.Empty;
+        }
+    }
+
+    private async Task ExtractShareLinkAsync()
+    {
         try
         {
             var resp = await ProcessChain.Process(ShareInfo);
@@ -113,7 +157,7 @@ partial class MainPageModel : ObservableObject
             await Task.Run(async () =>
             {
                 var results = new List<string>();
-                Log += "\n -*- Downloading static files...";
+                Log += "\n -*- Saving static files...";
                 foreach (var static_file_url in resp.Data.StaticFiles)
                 {
                     string filename = Path.GetFileName(static_file_url);
@@ -122,10 +166,25 @@ partial class MainPageModel : ObservableObject
                         Log += $"\n[跳过] {filename} 已存在";
                         continue;
                     }
-                    var stream = await staticFilesClient.GetStaticFile(static_file_url);
-                    string result = Platforms.Android.Utils.FileUtils.WriteFileToDCIM(filename, stream);
-                    Log += "\n" + result;
-                    results.Add(result);
+
+                    Stream stream;
+                    if (File.Exists(static_file_url))
+                    {
+                        // 离线模式：本地文件直接读取
+                        stream = File.OpenRead(static_file_url);
+                    }
+                    else
+                    {
+                        // 在线模式：从服务器下载
+                        stream = await staticFilesClient.GetStaticFile(static_file_url);
+                    }
+
+                    using (stream)
+                    {
+                        string result = Platforms.Android.Utils.FileUtils.WriteFileToDCIM(filename, stream);
+                        Log += "\n" + result;
+                        results.Add(result);
+                    }
                 }
                 Platforms.Android.Utils.FileUtils.NotifyGalleryOfNewImage([.. results]);
             }); // 让UI线程继续运行，不阻塞
