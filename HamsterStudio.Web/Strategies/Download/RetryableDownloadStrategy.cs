@@ -24,7 +24,7 @@ public class RetryableDownloadStrategy(
         IRequestStrategy requestStrategy,
         IHttpContentCopyStrategy contentCopyStrategy)
     {
-        Exception lastError = null;
+        Exception? lastError = null;
         for (attempt = 0; attempt <= maxRetries; attempt++)
         {
             try

@@ -17,7 +17,7 @@ namespace HamsterStudio.Gallery.ViewModels;
 
 public partial class GalleryViewModel : KnownViewModel
 {
-    public FileManagerViewModel FileManager { get; }
+    public FileManagerViewModel? FileManager { get; }
 
     [ObservableProperty]
     private Visibility _galleriesVisible = Visibility.Visible;
@@ -26,11 +26,7 @@ public partial class GalleryViewModel : KnownViewModel
     private Visibility _galleryVisible = Visibility.Visible;
 
     [ObservableProperty]
-    private ThemeMgmt _themeMgmt;
-
-    public ICommand OpenCommand { get; }
-    public ICommand ClearCommand { get; }
-    public ICommand PlayCommand { get; }
+    private ThemeMgmt? _themeMgmt = null;
 
     public GalleryViewModel(ILogger<GalleryViewModel> logger) : base(logger)
     {
@@ -42,18 +38,16 @@ public partial class GalleryViewModel : KnownViewModel
 
         ThemeMgmt = themeMgmt;
         FileManager = fileManager;
-
-        OpenCommand = new RelayCommand(OnOpenCmd);
-        ClearCommand = new RelayCommand(OnClearCommand);
-        PlayCommand = new AsyncRelayCommand(OnPlayCmd);
     }
 
-    private void OnClearCommand()
+    [RelayCommand]
+    private void OnClear()
     {
-        FileManager.FileGroups.Clear();
+        FileManager?.FileGroups.Clear();
     }
 
-    private void OnOpenCmd()
+    [RelayCommand]
+    private void OnOpen()
     {
         OpenFolderDialog dialog = new();
         dialog.Title = "选择文件夹";
@@ -63,13 +57,14 @@ public partial class GalleryViewModel : KnownViewModel
             return;
         }
 
-        FileManager.ReadFolder(dialog.FolderName);
-        logger?.LogTrace($"现在一共有{FileManager.FileGroups.Count}个分组，。");
+        FileManager?.ReadFolder(dialog.FolderName);
+        logger?.LogTrace($"现在一共有{FileManager?.FileGroups.Count}个分组，。");
     }
 
-    private async Task OnPlayCmd()
+    [RelayCommand]
+    private async Task OnPlay()
     {
-        if (FileManager.FileCount <= 0)
+        if (FileManager?.FileCount <= 0)
         {
             logger?.LogWarning("No file to be shown.");
             return;
@@ -115,7 +110,7 @@ public partial class GalleryViewModel : KnownViewModel
                     }
                 });
 
-                var filename = FileManager.FileGroups.SelectMany(x => x.Files).Choice().FullName;
+                var filename = FileManager?.FileGroups.SelectMany(x => x.Files).Choice().FullName!;
                 ImageSource imgSource = new BitmapImage(new Uri(filename)) { CacheOption = BitmapCacheOption.OnLoad };
                 imgSource.Freeze();
 

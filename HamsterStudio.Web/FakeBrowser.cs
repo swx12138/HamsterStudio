@@ -72,7 +72,7 @@ namespace HamsterStudio.Web
             }
             catch (Exception ex)
             {
-                _logger?.LogDebug(nameof(HandleResponse), ex);
+                _logger?.LogDebug($"[{nameof(HandleResponse)}] {ex.Message}\n\n{ex.StackTrace}");
                 throw;
             }
         }

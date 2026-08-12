@@ -41,7 +41,7 @@ public partial class FileGroupViewModel : KnownViewModel
     {
         DisplayName = groupName;
 
-        BuildCurrentPageView();
+        _CurrentPageView = BuildCurrentPageView();
 
         ViewCommand = new RelayCommand(() =>
         {
@@ -115,10 +115,10 @@ public partial class FileGroupViewModel : KnownViewModel
         }
     }
 
-    private void BuildCurrentPageView()
+    private ICollectionView BuildCurrentPageView()
     {
-        CurrentPageView = CollectionViewSource.GetDefaultView(Files);
-        CurrentPageView.Filter = (obj) =>
+        var view = CollectionViewSource.GetDefaultView(Files);
+        view.Filter = (obj) =>
         {
             if (obj is HamstertFileInfo fileInfo)
             {
@@ -129,14 +129,15 @@ public partial class FileGroupViewModel : KnownViewModel
             }
             return false;
         };
+        return view;
     }
 
     public void UpdateFiles(string[] files)
     {
         var fileInfos = files.Select(x =>
         {
-            HamstertFileInfo info = null;
-            var rmcmd = new RelayCommand(() =>
+            HamstertFileInfo info = new HamstertFileInfo(x) { RemoveCommand = null };
+            info.RemoveCommand = new RelayCommand(() =>
             {
                 Files.Remove(info);
                 CurrentPageView?.Refresh();
@@ -147,7 +148,6 @@ public partial class FileGroupViewModel : KnownViewModel
                 }
 
             });
-            info = new HamstertFileInfo(x) { RemoveCommand = rmcmd };
             return info;
         });
 

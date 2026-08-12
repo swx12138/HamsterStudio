@@ -28,7 +28,7 @@ public class JpegImageMetaInfoReader : IImageMetaInfoReader
                 throw new FormatException("Not a JPEG format.");
             }
             var rawLen = new byte[2];
-            ifs.Read(rawLen, 0, rawLen.Length);
+            _ = ifs.Read(rawLen, 0, rawLen.Length);
             int length = (BitConverter.ToUInt16(rawLen.Reverse().ToArray()) - 2); // 减2是因为表示长度的两个字节也在内
             if (rawTag[1] != 0xc0 && rawTag[1] != 0xc2) // C0是标准SOF，C2不知道哪来的
             {
@@ -36,7 +36,7 @@ public class JpegImageMetaInfoReader : IImageMetaInfoReader
                 if (rawTag[1] == 0xdb) // DQT
                 {
                     var next = new byte[3];
-                    ifs.Read(next, 0, next.Length);
+                    _ = ifs.Read(next, 0, next.Length);
                     if (next[0] == 0x24 && next[1] == 0x03 &&
                         (length + 2 - next[2] == 0)) // 不知道为啥要这么做
                     {
@@ -51,7 +51,7 @@ public class JpegImageMetaInfoReader : IImageMetaInfoReader
             }
 
             var sofRaw = new byte[length];
-            ifs.Read(sofRaw, 0, sofRaw.Length);
+            _ = ifs.Read(sofRaw, 0, sofRaw.Length);
 
             byte sample = sofRaw[0];
             ushort height = BitConverter.ToUInt16(sofRaw.Skip(1).Take(2).Reverse().ToArray());

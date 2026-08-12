@@ -1,6 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using HamsterStudio.Barefeet.FileSystem;
-using System.Windows.Input;
 
 namespace HamsterStudio.Gallery.Models;
 
@@ -10,7 +10,11 @@ internal partial class HamstertFileInfoDisplayModel(string filename) : HamstertF
     [ObservableProperty]
     private bool _selected = false;
 
-    public ICommand OpenLargeImageViewCommand { get; }
+    [RelayCommand]
+    public void OpenLargeImageView()
+    {
+
+    }
 
 
 }

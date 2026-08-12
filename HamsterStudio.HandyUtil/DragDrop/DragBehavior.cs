@@ -39,7 +39,7 @@ public class DragBehavior : Behavior<FrameworkElement>
         if (Math.Abs(diff.X) > SystemParameters.MinimumHorizontalDragDistance ||
             Math.Abs(diff.Y) > SystemParameters.MinimumVerticalDragDistance)
         {
-            StartDrag(sender as UIElement);
+            StartDrag((sender as UIElement)!);
             _dragStartPoint = null;
         }
     }

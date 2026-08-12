@@ -45,7 +45,7 @@ public class WebpImageMetaInfoReader : IImageMetaInfoReader
             }
 
             var data = new byte[dataSize];
-            ifs.Read(data, 0, data.Length);
+            _ = ifs.Read(data, 0, data.Length);
 
             var flags = data[0];
             var width = LiittleEndian12bit(data.Skip(4).Take(3).ToArray()) + 1;

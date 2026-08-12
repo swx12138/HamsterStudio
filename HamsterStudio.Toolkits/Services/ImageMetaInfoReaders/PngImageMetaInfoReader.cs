@@ -15,12 +15,12 @@ public class PngImageMetaInfoReader : IImageMetaInfoReader
         ifs.Seek(8, SeekOrigin.Begin);
 
         var blkSizeRaw = new byte[4];
-        ifs.Read(blkSizeRaw, 0, blkSizeRaw.Length);
+        _ = ifs.Read(blkSizeRaw, 0, blkSizeRaw.Length);
 
 
         var blkSize = ImageUtils.FromBigEndian(blkSizeRaw, 0);
         var blkData = new byte[blkSize];
-        ifs.Read(blkData, 0, blkData.Length);
+        _ = ifs.Read(blkData, 0, blkData.Length);
 
         var blkTypeCode = ImageUtils.FromBigEndian(blkData, 0);
         if (blkTypeCode == 0x49484452) // IHDR

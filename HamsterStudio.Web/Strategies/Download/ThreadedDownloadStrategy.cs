@@ -6,12 +6,12 @@ public class ThreadedDownloadStrategy(int maxConnections) : RangeBasedDownloadSt
     public override List<ChunkRange> CalculateChunks(long totalSize)
     {
         var chunks = new List<ChunkRange>();
-        long chunkSize = totalSize / maxConnections;
+        long chunkSize = totalSize / MaxConnections;
 
-        for (int i = 0; i < maxConnections; i++)
+        for (int i = 0; i < MaxConnections; i++)
         {
             long start = i * chunkSize;
-            long end = i == maxConnections - 1 ?
+            long end = i == MaxConnections - 1 ?
                 totalSize - 1 :
                 start + chunkSize - 1;
 

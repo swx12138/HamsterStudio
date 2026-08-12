@@ -42,7 +42,7 @@ partial class MainPageModel : ObservableObject
     private bool saveToPhone = false;
 
     [ObservableProperty]
-    private bool _serverOffline = true;
+    private bool _serverOffline = false;
 
     private readonly ProcessChain ProcessChain;
     private readonly IStaticFilesClient staticFilesClient;

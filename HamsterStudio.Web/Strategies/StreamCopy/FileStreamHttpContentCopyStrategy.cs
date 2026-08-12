@@ -1,5 +1,4 @@
-﻿using HamsterStudio.Barefeet.Logging;
-using HamsterStudio.Web.FileSystem;
+﻿using HamsterStudio.Web.FileSystem;
 using Microsoft.Extensions.Logging;
 
 namespace HamsterStudio.Web.Strategies.StreamCopy;
@@ -13,7 +12,7 @@ public class FileStreamHttpContentCopyStrategy(string? tempfile = null, bool del
         string filePath = tempfile ?? Path.GetTempFileName();
         logger?.LogTrace($"Created {filePath} for temp");
 
-        FileStream fileStream = null;
+        FileStream? fileStream = null;
         bool success = false;
 
         try

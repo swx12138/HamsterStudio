@@ -34,7 +34,7 @@ public class ImageMetaInfoReadService
 
         using FileStream ifs = File.OpenRead(path);
         var headerRaw = new byte[12];
-        ifs.Read(headerRaw, 0, headerRaw.Length);
+        _= ifs.Read(headerRaw, 0, 12);
         foreach (var reader in ImageMetaInfoReaders)
         {
             if (reader.Accept(headerRaw))

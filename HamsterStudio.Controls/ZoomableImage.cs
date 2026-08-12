@@ -148,12 +148,6 @@ public class ZoomableImage : Control
 
     public ZoomableImage()
     {
-        InitializeTransforms();
-        InitializeCommands();
-    }
-
-    private void InitializeTransforms()
-    {
         _scaleTransform = new ScaleTransform();
         _translateTransform = new TranslateTransform();
 
@@ -162,6 +156,8 @@ public class ZoomableImage : Control
         _transformGroup.Children.Add(_translateTransform);
 
         _matrixTransform = new MatrixTransform();
+
+        InitializeCommands();
     }
 
     #endregion

@@ -18,7 +18,7 @@ public class AutoScrollBehavior : Behavior<DataGrid>
             itemsSource.CollectionChanged += OnCollectionChanged;
     }
 
-    private void OnCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+    private void OnCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
     {
         if (e.Action == NotifyCollectionChangedAction.Add)
         {
@@ -37,14 +37,14 @@ public class AutoScrollBehavior : Behavior<DataGrid>
             var child = VisualTreeHelper.GetChild(parent, i);
             if (child is T result)
                 return result;
-            result = FindVisualChild<T>(child);
-            if (result != null)
-                return result;
+            var result2 = FindVisualChild<T>(child);
+            if (result2 != null)
+                return result2;
         }
         return null;
     }
 
-    private DispatcherTimer _scrollTimer;
+    private DispatcherTimer? _scrollTimer;
 
     private void InitializeTimer()
     {
@@ -61,8 +61,8 @@ public class AutoScrollBehavior : Behavior<DataGrid>
     {
         if (e.Action == NotifyCollectionChangedAction.Add)
         {
-            _scrollTimer.Stop();
-            _scrollTimer.Start();
+            _scrollTimer?.Stop();
+            _scrollTimer?.Start();
         }
     }
 

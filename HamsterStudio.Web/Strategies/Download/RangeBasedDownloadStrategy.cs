@@ -9,6 +9,8 @@ namespace HamsterStudio.Web.Strategies.Download;
 // 公共基础类（提取重复逻辑）
 public abstract class RangeBasedDownloadStrategy(int maxConnections, ILogger? logger = null) : IDownloadStrategy
 {
+    public int MaxConnections => maxConnections;
+
     public async Task<long> GetContentLengthAsync(Uri url, IRequestStrategy requestStrategy)
     {
         using var message = new HttpRequestMessage(HttpMethod.Head, url);

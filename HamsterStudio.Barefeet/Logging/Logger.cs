@@ -3,6 +3,7 @@ using NLog.Targets;
 
 namespace HamsterStudio.Barefeet.Logging
 {
+    [Obsolete("will be remove later")]
     public class Logger0
     {
         public static Logger0 Shared { get; } = new Logger0();
