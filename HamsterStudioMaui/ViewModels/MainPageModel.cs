@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.Input;
 using HamsterStudio.Bilibili.Services.Restful;
 using HamsterStudio.RedBook.Services.XhsRestful;
 using HamsterStudio.Web.DataModels;
+using HamsterStudio.Web.Services;
 using HamsterStudio.Web.Services.Restful;
 using HamsterStudioMaui.Services;
 using Refit;
@@ -48,9 +49,7 @@ partial class MainPageModel : ObservableObject
     private readonly IStaticFilesClient staticFilesClient;
     private readonly Lazy<OfflineProcessService> offlineProcessService;
 
-    public MainPageModel() : this(null!) { }
-
-    public MainPageModel(OfflineProcessService? offlineProcessService)
+    public MainPageModel(OfflineProcessService? offlineProcessService, FileTransferProtocolService ftpSrv)
     {
         this.offlineProcessService = new Lazy<OfflineProcessService>(() =>
             offlineProcessService ?? Application.Current?.Handler?.MauiContext?.Services.GetRequiredService<OfflineProcessService>()
@@ -61,6 +60,9 @@ partial class MainPageModel : ObservableObject
         ProcessChain = new XiaohongshuProcess(RestService.For<IRedBookClient>(server),
             new BilibiliProcess(RestService.For<IBilibiliClient>(server), null));
         staticFilesClient = RestService.For<IStaticFilesClient>(server);
+
+        //ftpSrv.RefreshUserList();
+        ftpSrv.Start();
     }
 
     [RelayCommand]
@@ -132,21 +134,43 @@ partial class MainPageModel : ObservableObject
 
     private static string GetLocalIpAddress()
     {
+        string? fallback = null;
+
         foreach (var netInterface in NetworkInterface.GetAllNetworkInterfaces())
         {
-            if (netInterface.OperationalStatus == OperationalStatus.Up &&
-                netInterface.NetworkInterfaceType != NetworkInterfaceType.Loopback)
+            if (netInterface.OperationalStatus != OperationalStatus.Up)
+                continue;
+            if (netInterface.NetworkInterfaceType == NetworkInterfaceType.Loopback)
+                continue;
+
+            foreach (var addr in netInterface.GetIPProperties().UnicastAddresses)
             {
-                foreach (var addr in netInterface.GetIPProperties().UnicastAddresses)
+                if (addr.Address.AddressFamily != AddressFamily.InterNetwork)
+                    continue;
+
+                var ip = addr.Address.ToString();
+                fallback ??= ip;
+
+                // 优先返回局域网地址
+                if (ip.StartsWith("192.168.") ||
+                    ip.StartsWith("10.") ||
+                    (ip.StartsWith("172.") && IsPrivate172(ip)))
                 {
-                    if (addr.Address.AddressFamily == AddressFamily.InterNetwork)
-                    {
-                        return addr.Address.ToString();
-                    }
+                    return ip;
                 }
             }
         }
-        return "127.0.0.1";
+
+        return fallback ?? "127.0.0.1";
+    }
+
+    private static bool IsPrivate172(string ip)
+    {
+        // 172.16.0.0 ~ 172.31.255.255
+        var parts = ip.Split('.');
+        if (parts.Length == 4 && int.TryParse(parts[1], out int second))
+            return second >= 16 && second <= 31;
+        return false;
     }
 
     private async Task SaveFiles(ServerRespModel resp)
