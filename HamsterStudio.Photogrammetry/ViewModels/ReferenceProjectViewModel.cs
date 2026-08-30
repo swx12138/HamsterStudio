@@ -2,6 +2,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using HamsterStudio.Barefeet.MVVM;
 using HamsterStudio.Photogrammetry.Models;
+using HamsterStudio.Toolkits;
 using Microsoft.Extensions.Logging;
 using Microsoft.Win32;
 using System.Collections.ObjectModel;
@@ -20,6 +21,8 @@ namespace HamsterStudio.Photogrammetry.ViewModels;
 /// </summary>
 public partial class ReferenceProjectViewModel : KnownViewModel
 {
+    private const string AllScenesFilter = "全部";
+
     [ObservableProperty]
     private string _name = ReferenceProjectModel.EmptyProjectName;
 
@@ -46,6 +49,25 @@ public partial class ReferenceProjectViewModel : KnownViewModel
     [ObservableProperty]
     private ReferenceItemViewModel? _selectedReference;
 
+    /// <summary>
+    /// 项目场景列表。
+    /// </summary>
+    public ObservableCollection<string> Scenes { get; } = [];
+
+    /// <summary>
+    /// 场景筛选下拉项（“全部”+各场景）。
+    /// </summary>
+    public ObservableCollection<string> SceneFilterOptions { get; } = [AllScenesFilter];
+
+    /// <summary>
+    /// 当前场景筛选，等于 AllScenesFilter 表示不筛选。
+    /// </summary>
+    [ObservableProperty]
+    private string _selectedSceneFilter = AllScenesFilter;
+
+    [ObservableProperty]
+    private string _newSceneName = string.Empty;
+
     public ICollectionView FilteredReferences { get; }
 
     public ReferenceProjectViewModel(ILogger<ReferenceProjectViewModel> logger) : base(logger)
@@ -54,6 +76,8 @@ public partial class ReferenceProjectViewModel : KnownViewModel
 
         FilteredReferences = CollectionViewSource.GetDefaultView(References);
         FilteredReferences.Filter = FilterPredicate;
+
+        Scenes.CollectionChanged += (_, _) => SyncSceneFilterOptions();
     }
 
     partial void OnSearchTextChanged(string value) => FilteredReferences.Refresh();
@@ -61,6 +85,8 @@ public partial class ReferenceProjectViewModel : KnownViewModel
     partial void OnDemandFilterIndexChanged(int value) => FilteredReferences.Refresh();
 
     partial void OnShotFilterIndexChanged(int value) => FilteredReferences.Refresh();
+
+    partial void OnSelectedSceneFilterChanged(string value) => FilteredReferences.Refresh();
 
     private bool FilterPredicate(object obj)
     {
@@ -85,6 +111,12 @@ public partial class ReferenceProjectViewModel : KnownViewModel
                 return false;
         }
 
+        if (SelectedSceneFilter != AllScenesFilter
+            && !item.Scenes.Contains(SelectedSceneFilter))
+        {
+            return false;
+        }
+
         if (!string.IsNullOrWhiteSpace(SearchText)
             && !item.FileName.Contains(SearchText, StringComparison.OrdinalIgnoreCase))
         {
@@ -94,18 +126,13 @@ public partial class ReferenceProjectViewModel : KnownViewModel
         return true;
     }
 
-    private static readonly HashSet<string> ImageExtensions = new(StringComparer.OrdinalIgnoreCase)
-    {
-        ".jpg", ".jpeg", ".png", ".bmp", ".gif", ".tif", ".tiff", ".webp",
-    };
-
     [RelayCommand]
     private void AddReferences()
     {
         var dialog = new OpenFileDialog
         {
             Title = "选择参考图",
-            Filter = "图片文件|*.jpg;*.jpeg;*.png;*.bmp;*.gif;*.tif;*.tiff;*.webp|所有文件|*.*",
+            Filter = ImageUtils.KnownImageExtsFilter,
             Multiselect = true,
         };
 
@@ -122,7 +149,7 @@ public partial class ReferenceProjectViewModel : KnownViewModel
     /// </summary>
     public void DropFiles(string[] files)
     {
-        AddFiles(files.Where(f => ImageExtensions.Contains(System.IO.Path.GetExtension(f))));
+        AddFiles(files.Where(f => ImageUtils.KnownImageExts.Contains(Path.GetExtension(f))));
     }
 
     private void AddFiles(IEnumerable<string> files)
@@ -133,6 +160,51 @@ public partial class ReferenceProjectViewModel : KnownViewModel
         }
 
         SelectedReference ??= References.LastOrDefault();
+    }
+
+    [RelayCommand]
+    private void AddScene()
+    {
+        var scene = NewSceneName?.Trim();
+        if (string.IsNullOrWhiteSpace(scene) || Scenes.Contains(scene))
+        {
+            return;
+        }
+
+        Scenes.Add(scene);
+        NewSceneName = string.Empty;
+    }
+
+    [RelayCommand]
+    private void RemoveScene(string? scene)
+    {
+        if (scene is null)
+        {
+            return;
+        }
+
+        foreach (var item in References)
+        {
+            item.Scenes.Remove(scene);
+        }
+
+        Scenes.Remove(scene);
+    }
+
+    private void SyncSceneFilterOptions()
+    {
+        var selected = SelectedSceneFilter;
+
+        SceneFilterOptions.Clear();
+        SceneFilterOptions.Add(AllScenesFilter);
+        foreach (var scene in Scenes)
+        {
+            SceneFilterOptions.Add(scene);
+        }
+
+        SelectedSceneFilter = SceneFilterOptions.Contains(selected) ? selected : AllScenesFilter;
+
+        FilteredReferences.Refresh();
     }
 
     [RelayCommand]
@@ -213,8 +285,8 @@ public partial class ReferenceProjectViewModel : KnownViewModel
         var dialog = new SaveFileDialog
         {
             Title = "保存参考图项目",
-            Filter = "JSON 文件|*.json|所有文件|*.*",
-            FileName = $"{Name}.json",
+            Filter = "参考项目文件|*.hpck_proj|所有文件|*.*",
+            FileName = $"{Name}.hpck_proj",
         };
 
         if (dialog.ShowDialog() != true)
@@ -318,6 +390,7 @@ public partial class ReferenceProjectViewModel : KnownViewModel
     {
         Name = Name,
         Description = Description,
+        Scenes = Scenes.ToList(),
         References = References.Select(x => x.ToModel()).ToList(),
     };
 
@@ -325,6 +398,13 @@ public partial class ReferenceProjectViewModel : KnownViewModel
     {
         Name = model.Name;
         Description = model.Description;
+
+        Scenes.Clear();
+        foreach (var scene in model.Scenes)
+        {
+            Scenes.Add(scene);
+        }
+
         References.Clear();
         foreach (var reference in model.References)
         {

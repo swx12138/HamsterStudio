@@ -14,6 +14,9 @@ public class ReferenceProjectModel
 
     [JsonPropertyName("refs")]
     public List<ReferenceModel> References { get; set; } = [];
+
+    [JsonPropertyName("scenes")]
+    public List<string> Scenes { get; set; } = [];
 }
 
 public enum ReferenceDemandDegree
@@ -32,4 +35,7 @@ public class ReferenceModel
     [JsonPropertyName("shot")]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     public bool IsShot { get; set; }
+
+    [JsonPropertyName("scenes")]
+    public List<string> Scenes { get; set; } = [];
 }

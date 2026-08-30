@@ -31,9 +31,48 @@
                          Text="{Binding Description, UpdateSourceTrigger=PropertyChanged}"
                          TextWrapping="Wrap" />
 
+                <TextBlock FontWeight="SemiBold" Text="场景" />
+                <Grid Margin="0,2,0,6">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <TextBox Grid.Column="0"
+                             Text="{Binding NewSceneName, UpdateSourceTrigger=PropertyChanged}" />
+                    <Button Grid.Column="1"
+                            Margin="6,0,0,0"
+                            Command="{Binding AddSceneCommand}"
+                            Content="添加场景" />
+                </Grid>
+                <ItemsControl Margin="0,0,0,8" ItemsSource="{Binding Scenes}">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <WrapPanel />
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Border Margin="0,0,4,4"
+                                    Padding="6,2"
+                                    Background="#f0f0f0"
+                                    CornerRadius="3">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock VerticalAlignment="Center" Text="{Binding}" />
+                                    <Button Margin="4,0,0,0"
+                                            Padding="4,0"
+                                            Command="{Binding DataContext.RemoveSceneCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                            CommandParameter="{Binding}"
+                                            Content="×" />
+                                </StackPanel>
+                            </Border>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+
                 <Grid Margin="0,0,0,10">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
                         <ColumnDefinition Width="Auto" />
                         <ColumnDefinition Width="Auto" />
                     </Grid.ColumnDefinitions>
@@ -58,6 +97,12 @@
                         <ComboBoxItem Content="未拍摄" />
                         <ComboBoxItem Content="已拍摄" />
                     </ComboBox>
+                    <ComboBox Grid.Column="3"
+                              Width="88"
+                              Margin="8,0,0,0"
+                              ToolTip="按场景筛选"
+                              ItemsSource="{Binding SceneFilterOptions}"
+                              SelectedItem="{Binding SelectedSceneFilter}" />
                 </Grid>
 
                 <StackPanel Orientation="Horizontal">
@@ -106,6 +151,13 @@
                                     <CheckBox Margin="0,6,0,0"
                                               Content="已拍摄"
                                               IsChecked="{Binding IsShot}" />
+                                    <hc:CheckComboBox Width="130"
+                                                      Margin="0,6,0,0"
+                                                      HorizontalAlignment="Left"
+                                                      Style="{StaticResource CheckComboBoxExtend}"
+                                                      hc:InfoElement.Placeholder="选择场景"
+                                                      ItemsSource="{Binding DataContext.Scenes, ElementName=ReferenceList}"
+                                                      hc:ListBoxAttach.SelectedItems="{Binding SelectedScenes, Mode=TwoWay}" />
                                 </StackPanel>
 
                                 <StackPanel Grid.Column="2" VerticalAlignment="Center">

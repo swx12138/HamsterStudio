@@ -2,6 +2,8 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using HamsterStudio.Barefeet.MVVM;
 using HamsterStudio.Photogrammetry.Models;
 using Microsoft.Extensions.Logging;
+using System.Collections;
+using System.Collections.ObjectModel;
 using System.IO;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
@@ -52,12 +54,37 @@ public partial class ReferenceItemViewModel : ViewModel
         set => DemandDegree = value == 1 ? ReferenceDemandDegree.Must : ReferenceDemandDegree.Normal;
     }
 
+    /// <summary>
+    /// 该参考图所属的场景集合。
+    /// </summary>
+    public ObservableCollection<string> Scenes { get; } = [];
+
+    /// <summary>
+    /// 供 CheckComboBox 双向绑定多选场景的 IList 包装。
+    /// </summary>
+    public IList SelectedScenes
+    {
+        get => Scenes;
+        set
+        {
+            Scenes.Clear();
+            foreach (var scene in value.Cast<string>())
+            {
+                if (!Scenes.Contains(scene))
+                {
+                    Scenes.Add(scene);
+                }
+            }
+        }
+    }
+
     public ReferenceItemViewModel() : this(null)
     {
     }
 
     public ReferenceItemViewModel(ILogger<ReferenceItemViewModel>? logger) : base(logger)
     {
+        Scenes.CollectionChanged += (_, _) => OnPropertyChanged(nameof(SelectedScenes));
     }
 
     partial void OnPathChanged(string value)
@@ -94,12 +121,23 @@ public partial class ReferenceItemViewModel : ViewModel
         DemandDegree = DemandDegree,
         Path = Path,
         IsShot = IsShot,
+        Scenes = Scenes.ToList(),
     };
 
-    public static ReferenceItemViewModel FromModel(ReferenceModel model) => new()
+    public static ReferenceItemViewModel FromModel(ReferenceModel model)
     {
-        DemandDegree = model.DemandDegree,
-        Path = model.Path,
-        IsShot = model.IsShot,
-    };
+        var item = new ReferenceItemViewModel
+        {
+            DemandDegree = model.DemandDegree,
+            Path = model.Path,
+            IsShot = model.IsShot,
+        };
+
+        foreach (var scene in model.Scenes)
+        {
+            item.Scenes.Add(scene);
+        }
+
+        return item;
+    }
 }
