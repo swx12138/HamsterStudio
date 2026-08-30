@@ -12,5 +12,6 @@ public static class PhotogrammetryProfile
         services.AddTransient<ViewModels.PhotogrammetryMainViewModel>();
         services.AddTransient<ViewModels.DepthOfFieldCalculatorViewModel>();
         services.AddTransient<ViewModels.EquivalentExposureCalculatorViewModel>();
+        services.AddTransient<ViewModels.ReferenceProjectViewModel>();
     }
 }
