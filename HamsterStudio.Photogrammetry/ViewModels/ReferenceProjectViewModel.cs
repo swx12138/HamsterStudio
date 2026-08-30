@@ -37,6 +37,12 @@ public partial class ReferenceProjectViewModel : KnownViewModel
     [ObservableProperty]
     private int _demandFilterIndex;
 
+    /// <summary>
+    /// 拍摄状态筛选：0=全部，1=未拍摄，2=已拍摄。
+    /// </summary>
+    [ObservableProperty]
+    private int _shotFilterIndex;
+
     [ObservableProperty]
     private ReferenceItemViewModel? _selectedReference;
 
@@ -54,6 +60,8 @@ public partial class ReferenceProjectViewModel : KnownViewModel
 
     partial void OnDemandFilterIndexChanged(int value) => FilteredReferences.Refresh();
 
+    partial void OnShotFilterIndexChanged(int value) => FilteredReferences.Refresh();
+
     private bool FilterPredicate(object obj)
     {
         if (obj is not ReferenceItemViewModel item)
@@ -69,6 +77,14 @@ public partial class ReferenceProjectViewModel : KnownViewModel
                 return false;
         }
 
+        switch (ShotFilterIndex)
+        {
+            case 1 when item.IsShot:
+                return false;
+            case 2 when !item.IsShot:
+                return false;
+        }
+
         if (!string.IsNullOrWhiteSpace(SearchText)
             && !item.FileName.Contains(SearchText, StringComparison.OrdinalIgnoreCase))
         {
@@ -77,6 +93,11 @@ public partial class ReferenceProjectViewModel : KnownViewModel
 
         return true;
     }
+
+    private static readonly HashSet<string> ImageExtensions = new(StringComparer.OrdinalIgnoreCase)
+    {
+        ".jpg", ".jpeg", ".png", ".bmp", ".gif", ".tif", ".tiff", ".webp",
+    };
 
     [RelayCommand]
     private void AddReferences()
@@ -93,7 +114,20 @@ public partial class ReferenceProjectViewModel : KnownViewModel
             return;
         }
 
-        foreach (var file in dialog.FileNames)
+        AddFiles(dialog.FileNames);
+    }
+
+    /// <summary>
+    /// 处理拖放进来的文件，仅保留图片。
+    /// </summary>
+    public void DropFiles(string[] files)
+    {
+        AddFiles(files.Where(f => ImageExtensions.Contains(System.IO.Path.GetExtension(f))));
+    }
+
+    private void AddFiles(IEnumerable<string> files)
+    {
+        foreach (var file in files)
         {
             References.Add(new ReferenceItemViewModel { Path = file });
         }
@@ -110,6 +144,60 @@ public partial class ReferenceProjectViewModel : KnownViewModel
         }
 
         References.Remove(item);
+    }
+
+    [RelayCommand]
+    private void MoveUp(ReferenceItemViewModel? item)
+    {
+        if (item is null)
+        {
+            return;
+        }
+
+        var index = References.IndexOf(item);
+        if (index <= 0)
+        {
+            return;
+        }
+
+        References.Move(index, index - 1);
+        FilteredReferences.Refresh();
+    }
+
+    [RelayCommand]
+    private void MoveDown(ReferenceItemViewModel? item)
+    {
+        if (item is null)
+        {
+            return;
+        }
+
+        var index = References.IndexOf(item);
+        if (index < 0 || index >= References.Count - 1)
+        {
+            return;
+        }
+
+        References.Move(index, index + 1);
+        FilteredReferences.Refresh();
+    }
+
+    [RelayCommand]
+    private void MoveToFirst(ReferenceItemViewModel? item)
+    {
+        if (item is null)
+        {
+            return;
+        }
+
+        var index = References.IndexOf(item);
+        if (index <= 0)
+        {
+            return;
+        }
+
+        References.Move(index, 0);
+        FilteredReferences.Refresh();
     }
 
     [RelayCommand]

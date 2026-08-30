@@ -3,11 +3,15 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:hc="https://handyorg.github.io/handycontrol"
+             xmlns:behaviors="clr-namespace:HamsterStudio.Photogrammetry.Behaviors"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              d:DesignHeight="450"
              d:DesignWidth="800"
              mc:Ignorable="d">
     <Grid>
+        <hc:Interaction.Behaviors>
+            <behaviors:ReferenceProjectDropBehavior />
+        </hc:Interaction.Behaviors>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="380" MinWidth="300" />
             <ColumnDefinition Width="*" />
@@ -31,6 +35,7 @@
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*" />
                         <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="Auto" />
                     </Grid.ColumnDefinitions>
                     <hc:SearchBar Grid.Column="0"
                                   hc:InfoElement.Placeholder="按文件名搜索"
@@ -38,10 +43,20 @@
                     <ComboBox Grid.Column="1"
                               Width="72"
                               Margin="8,0,0,0"
+                              ToolTip="按需求程度筛选"
                               SelectedIndex="{Binding DemandFilterIndex}">
                         <ComboBoxItem Content="全部" />
                         <ComboBoxItem Content="普通" />
                         <ComboBoxItem Content="必须" />
+                    </ComboBox>
+                    <ComboBox Grid.Column="2"
+                              Width="72"
+                              Margin="8,0,0,0"
+                              ToolTip="按拍摄状态筛选"
+                              SelectedIndex="{Binding ShotFilterIndex}">
+                        <ComboBoxItem Content="全部" />
+                        <ComboBoxItem Content="未拍摄" />
+                        <ComboBoxItem Content="已拍摄" />
                     </ComboBox>
                 </Grid>
 
@@ -88,9 +103,33 @@
                                         <ComboBoxItem Content="普通" />
                                         <ComboBoxItem Content="必须" />
                                     </ComboBox>
+                                    <CheckBox Margin="0,6,0,0"
+                                              Content="已拍摄"
+                                              IsChecked="{Binding IsShot}" />
                                 </StackPanel>
 
                                 <StackPanel Grid.Column="2" VerticalAlignment="Center">
+                                    <StackPanel Margin="0,0,0,6" HorizontalAlignment="Center" Orientation="Horizontal">
+                                        <Button Width="30"
+                                                Margin="0,0,2,0"
+                                                Padding="0"
+                                                ToolTip="上移"
+                                                Command="{Binding DataContext.MoveUpCommand, ElementName=ReferenceList}"
+                                                CommandParameter="{Binding}"
+                                                Content="↑" />
+                                        <Button Width="30"
+                                                Margin="0,0,2,0"
+                                                Padding="0"
+                                                ToolTip="下移"
+                                                Command="{Binding DataContext.MoveDownCommand, ElementName=ReferenceList}"
+                                                CommandParameter="{Binding}"
+                                                Content="↓" />
+                                        <Button Padding="6,0"
+                                                ToolTip="放首位"
+                                                Command="{Binding DataContext.MoveToFirstCommand, ElementName=ReferenceList}"
+                                                CommandParameter="{Binding}"
+                                                Content="置顶" />
+                                    </StackPanel>
                                     <Button Margin="0,0,0,4"
                                             Padding="8,2"
                                             Command="{Binding DataContext.ShowFullscreenCommand, ElementName=ReferenceList}"
@@ -115,9 +154,17 @@
 
         <!-- 右侧：图片查看器（滚轮缩放、拖拽平移、工具栏缩放） -->
         <Grid Grid.Column="1" Background="#ff1e1e1e">
-            <hc:ImageViewer Background="#ff1e1e1e"
+            <hc:ImageViewer x:Name="Viewer"
+                            Background="#ff1e1e1e"
                             ShowToolBar="True"
                             Uri="{Binding SelectedReference.ImageUri}" />
+
+            <Button Margin="8"
+                    Padding="10,4"
+                    HorizontalAlignment="Right"
+                    VerticalAlignment="Top"
+                    Click="ResetViewer_Click"
+                    Content="还原" />
 
             <TextBlock HorizontalAlignment="Center"
                        VerticalAlignment="Center"

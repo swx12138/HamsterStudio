@@ -28,4 +28,8 @@ public class ReferenceModel
 
     [JsonPropertyName("path")]
     public string Path { get; set; } = string.Empty;
+
+    [JsonPropertyName("shot")]
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    public bool IsShot { get; set; }
 }

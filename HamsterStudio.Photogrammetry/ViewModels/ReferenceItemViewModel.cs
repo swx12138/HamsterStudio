@@ -25,6 +25,9 @@ public partial class ReferenceItemViewModel : ViewModel
     [NotifyPropertyChangedFor(nameof(DemandDegreeIndex))]
     private ReferenceDemandDegree _demandDegree = ReferenceDemandDegree.Normal;
 
+    [ObservableProperty]
+    private bool _isShot;
+
     /// <summary>
     /// 文件名（用于搜索与显示）。
     /// </summary>
@@ -90,11 +93,13 @@ public partial class ReferenceItemViewModel : ViewModel
     {
         DemandDegree = DemandDegree,
         Path = Path,
+        IsShot = IsShot,
     };
 
     public static ReferenceItemViewModel FromModel(ReferenceModel model) => new()
     {
         DemandDegree = model.DemandDegree,
         Path = model.Path,
+        IsShot = model.IsShot,
     };
 }
