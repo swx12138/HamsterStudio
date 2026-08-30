@@ -1,6 +1,7 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using HamsterStudio.Barefeet.MVVM;
+using HamsterStudio.Barefeet.Services;
 using HamsterStudio.Photogrammetry.Models;
 using HamsterStudio.Toolkits;
 using Microsoft.Extensions.Logging;
@@ -22,6 +23,10 @@ namespace HamsterStudio.Photogrammetry.ViewModels;
 public partial class ReferenceProjectViewModel : KnownViewModel
 {
     private const string AllScenesFilter = "全部";
+
+    private const string LastProjectPathKey = "Photogrammetry.LastProjectPath";
+
+    private readonly DataStorageMgmt _dataStorageMgmt;
 
     [ObservableProperty]
     private string _name = ReferenceProjectModel.EmptyProjectName;
@@ -70,14 +75,18 @@ public partial class ReferenceProjectViewModel : KnownViewModel
 
     public ICollectionView FilteredReferences { get; }
 
-    public ReferenceProjectViewModel(ILogger<ReferenceProjectViewModel> logger) : base(logger)
+    public ReferenceProjectViewModel(DataStorageMgmt dataStorageMgmt, ILogger<ReferenceProjectViewModel> logger) : base(logger)
     {
+        _dataStorageMgmt = dataStorageMgmt;
+
         DisplayName = "参考图";
 
         FilteredReferences = CollectionViewSource.GetDefaultView(References);
         FilteredReferences.Filter = FilterPredicate;
 
         Scenes.CollectionChanged += (_, _) => SyncSceneFilterOptions();
+
+        LoadLastProject();
     }
 
     partial void OnSearchTextChanged(string value) => FilteredReferences.Refresh();
@@ -298,6 +307,7 @@ public partial class ReferenceProjectViewModel : KnownViewModel
         {
             var json = JsonSerializer.Serialize(ToModel(), JsonOptions);
             File.WriteAllText(dialog.FileName, json);
+            RememberLastProjectPath(dialog.FileName);
             logger?.LogInformation("已保存参考图项目到 {Path}", dialog.FileName);
         }
         catch (Exception ex)
@@ -313,7 +323,7 @@ public partial class ReferenceProjectViewModel : KnownViewModel
         var dialog = new OpenFileDialog
         {
             Title = "打开参考图项目",
-            Filter = "JSON 文件|*.json|所有文件|*.*",
+            Filter = "参考项目文件|*.hpck_proj;*.json|所有文件|*.*",
         };
 
         if (dialog.ShowDialog() != true)
@@ -331,12 +341,51 @@ public partial class ReferenceProjectViewModel : KnownViewModel
             }
 
             ApplyModel(project);
+            RememberLastProjectPath(dialog.FileName);
             logger?.LogInformation("已加载参考图项目 {Path}", dialog.FileName);
         }
         catch (Exception ex)
         {
             logger?.LogError(ex, "加载参考图项目失败");
             MessageBox.Show($"加载失败：{ex.Message}", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+        }
+    }
+
+    private void LoadLastProject()
+    {
+        try
+        {
+            var path = _dataStorageMgmt.Get<string>(LastProjectPathKey);
+            if (string.IsNullOrWhiteSpace(path) || !File.Exists(path))
+            {
+                return;
+            }
+
+            var project = JsonSerializer.Deserialize<ReferenceProjectModel>(File.ReadAllText(path), JsonOptions);
+            if (project is null)
+            {
+                return;
+            }
+
+            ApplyModel(project);
+            logger?.LogInformation("已自动打开上次工程 {Path}", path);
+        }
+        catch (Exception ex)
+        {
+            logger?.LogWarning("自动打开上次工程失败：{Message}", ex.Message);
+        }
+    }
+
+    private void RememberLastProjectPath(string path)
+    {
+        try
+        {
+            _dataStorageMgmt.Set(LastProjectPathKey, path);
+            _dataStorageMgmt.Persist();
+        }
+        catch (Exception ex)
+        {
+            logger?.LogWarning("记录最近工程路径失败：{Message}", ex.Message);
         }
     }
 

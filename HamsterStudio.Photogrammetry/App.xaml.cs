@@ -1,4 +1,7 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using HamsterStudio.Barefeet.Services;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using System.IO;
 using System.Windows;
 
 namespace HamsterStudio.Photogrammetry
@@ -19,6 +22,14 @@ namespace HamsterStudio.Photogrammetry
 
         protected override void OnStartup(StartupEventArgs e)
         {
+            var home = Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+                "HamsterStudio",
+                "Photogrammetry");
+
+            Services.AddSingleton(sp => new DirectoryMgmt(home, sp.GetService<ILogger>()));
+            Services.AddSingleton<DataStorageMgmt>();
+
             PhotogrammetryProfile.RegisterServices(Services);
             ServiceProvider = Services.BuildServiceProvider();
             base.OnStartup(e);
