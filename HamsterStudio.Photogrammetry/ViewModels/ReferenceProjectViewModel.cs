@@ -28,6 +28,8 @@ public partial class ReferenceProjectViewModel : KnownViewModel
 
     private readonly DataStorageMgmt _dataStorageMgmt;
 
+    private string? _currentProjectPath;
+
     [ObservableProperty]
     private string _name = ReferenceProjectModel.EmptyProjectName;
 
@@ -289,26 +291,51 @@ public partial class ReferenceProjectViewModel : KnownViewModel
     }
 
     [RelayCommand]
+    private void NewProject()
+    {
+        _currentProjectPath = null;
+
+        Name = ReferenceProjectModel.EmptyProjectName;
+        Description = string.Empty;
+        SearchText = string.Empty;
+        DemandFilterIndex = 0;
+        ShotFilterIndex = 0;
+        NewSceneName = string.Empty;
+
+        References.Clear();
+        SelectedReference = null;
+        Scenes.Clear();
+    }
+
+    [RelayCommand]
     private void Save()
     {
-        var dialog = new SaveFileDialog
-        {
-            Title = "保存参考图项目",
-            Filter = "参考项目文件|*.hpck_proj|所有文件|*.*",
-            FileName = $"{Name}.hpck_proj",
-        };
+        var path = _currentProjectPath;
 
-        if (dialog.ShowDialog() != true)
+        if (string.IsNullOrWhiteSpace(path))
         {
-            return;
+            var dialog = new SaveFileDialog
+            {
+                Title = "保存参考图项目",
+                Filter = "参考项目文件|*.hpck_proj|所有文件|*.*",
+                FileName = $"{Name}.hpck_proj",
+            };
+
+            if (dialog.ShowDialog() != true)
+            {
+                return;
+            }
+
+            path = dialog.FileName;
         }
 
         try
         {
             var json = JsonSerializer.Serialize(ToModel(), JsonOptions);
-            File.WriteAllText(dialog.FileName, json);
-            RememberLastProjectPath(dialog.FileName);
-            logger?.LogInformation("已保存参考图项目到 {Path}", dialog.FileName);
+            File.WriteAllText(path, json);
+            _currentProjectPath = path;
+            RememberLastProjectPath(path);
+            logger?.LogInformation("已保存参考图项目到 {Path}", path);
         }
         catch (Exception ex)
         {
@@ -341,6 +368,7 @@ public partial class ReferenceProjectViewModel : KnownViewModel
             }
 
             ApplyModel(project);
+            _currentProjectPath = dialog.FileName;
             RememberLastProjectPath(dialog.FileName);
             logger?.LogInformation("已加载参考图项目 {Path}", dialog.FileName);
         }
@@ -368,6 +396,7 @@ public partial class ReferenceProjectViewModel : KnownViewModel
             }
 
             ApplyModel(project);
+            _currentProjectPath = path;
             logger?.LogInformation("已自动打开上次工程 {Path}", path);
         }
         catch (Exception ex)

@@ -13,7 +13,7 @@
             <behaviors:ReferenceProjectDropBehavior />
         </hc:Interaction.Behaviors>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="380" MinWidth="300" />
+            <ColumnDefinition Width="480" />
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
 
@@ -105,12 +105,13 @@
                               SelectedItem="{Binding SelectedSceneFilter}" />
                 </Grid>
 
-                <StackPanel Orientation="Horizontal">
-                    <Button Margin="0,0,6,0" Command="{Binding AddReferencesCommand}" Content="添加参考图" />
-                    <Button Margin="0,0,6,0" Command="{Binding ClearCommand}" Content="清空" />
-                    <Button Margin="0,0,6,0" Command="{Binding LoadCommand}" Content="打开项目" />
-                    <Button Command="{Binding SaveCommand}" Content="保存项目" />
-                </StackPanel>
+                <WrapPanel>
+                    <Button Margin="0,0,6,4" Command="{Binding NewProjectCommand}" Content="新建项目" />
+                    <Button Margin="0,0,6,4" Command="{Binding AddReferencesCommand}" Content="添加参考图" />
+                    <Button Margin="0,0,6,4" Command="{Binding ClearCommand}" Content="清空" />
+                    <Button Margin="0,0,6,4" Command="{Binding LoadCommand}" Content="打开项目" />
+                    <Button Margin="0,0,6,4" Command="{Binding SaveCommand}" Content="保存项目" />
+                </WrapPanel>
             </StackPanel>
 
             <ListBox x:Name="ReferenceList"
