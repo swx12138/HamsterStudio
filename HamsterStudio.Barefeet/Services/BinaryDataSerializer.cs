@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO.Compression;
-using System.Linq;
+﻿using System.IO.Compression;
 using System.Text;
 using System.Text.Json;
-using System.Threading.Tasks;
 
 namespace HamsterStudio.Barefeet.Services;
 

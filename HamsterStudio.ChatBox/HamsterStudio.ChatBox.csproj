@@ -1,0 +1,27 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UseWPF>true</UseWPF>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="OllamaSharp" Version="5.4.30" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\HamsterStudio.Barefeet\HamsterStudio.Barefeet.csproj" />
+    <ProjectReference Include="..\HamsterStudio.HandyUtil\HamsterStudio.HandyUtil.csproj" />
+    <ProjectReference Include="..\HamsterStudio.Toolkits\HamsterStudio.Toolkits.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="Prompts\base.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+</Project>

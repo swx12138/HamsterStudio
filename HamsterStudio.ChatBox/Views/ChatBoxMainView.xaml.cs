@@ -1,0 +1,40 @@
+﻿using System.Windows.Controls;
+using System.Windows.Input;
+using HamsterStudio.ChatBox.ViewModels;
+
+namespace HamsterStudio.ChatBox.Views;
+
+/// <summary>
+/// ChatBoxMainView.xaml 的交互逻辑
+/// </summary>
+public partial class ChatBoxMainView : UserControl
+{
+    public ChatBoxMainView()
+    {
+        InitializeComponent();
+    }
+
+    private void InputBox_PreviewKeyDown(object sender, KeyEventArgs e)
+    {
+        // 回车发送，Shift+回车换行
+        if (e.Key == Key.Enter && Keyboard.Modifiers != ModifierKeys.Shift)
+        {
+            if (DataContext is ChatBoxMainViewModel viewModel && viewModel.SendCommand.CanExecute(null))
+            {
+                viewModel.SendCommand.Execute(null);
+                e.Handled = true;
+            }
+        }
+    }
+
+    private void MessagesScroll_ScrollChanged(object sender, ScrollChangedEventArgs e)
+    {
+        if (e.ExtentHeightChange == 0)
+            return;
+
+        // 用户在底部附近时才自动滚动到底部，避免打断向上翻阅
+        var wasAtBottom = e.VerticalOffset + e.ViewportHeight >= e.ExtentHeight - e.ExtentHeightChange - 24;
+        if (wasAtBottom)
+            MessagesScroll.ScrollToEnd();
+    }
+}
