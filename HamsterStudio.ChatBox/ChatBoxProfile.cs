@@ -11,6 +11,7 @@ namespace HamsterStudio.ChatBox
         {
             services.AddSingleton(new HttpClient());
             services.AddSingleton<ChatService>();
+            services.AddSingleton<ChatSessionService>();
             services.AddSingleton<ChatBoxMainViewModel>();
         }
     }

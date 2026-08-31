@@ -33,6 +33,10 @@
                     Padding="10,4" Margin="6,0,0,0" />
             <Button DockPanel.Dock="Right" Content="刷新模型" Command="{Binding RefreshModelsCommand}"
                     Padding="10,4" Margin="6,0,0,0" />
+            <Button DockPanel.Dock="Right" Content="导入" Click="ImportChat_Click"
+                    Padding="10,4" Margin="6,0,0,0" />
+            <Button DockPanel.Dock="Right" Content="导出" Click="ExportChat_Click"
+                    Padding="10,4" Margin="6,0,0,0" />
 
             <TextBlock DockPanel.Dock="Left" Text="后端:" VerticalAlignment="Center" Margin="0,0,6,0" />
             <ComboBox DockPanel.Dock="Left" Width="110" VerticalAlignment="Center"
@@ -40,7 +44,7 @@
                       SelectedItem="{Binding SelectedProvider}" />
 
             <TextBlock DockPanel.Dock="Left" Text="模型:" VerticalAlignment="Center" Margin="12,0,6,0" />
-            <ComboBox VerticalAlignment="Center" Width="220"
+            <ComboBox VerticalAlignment="Center" HorizontalAlignment="Left" Width="220"
                       ItemsSource="{Binding Models}"
                       IsEditable="True"
                       Text="{Binding SelectedModel, UpdateSourceTrigger=PropertyChanged}" />

@@ -29,6 +29,32 @@ public partial class ChatBoxMainView : UserControl
             viewModel.AttachImages(dialog.FileNames);
     }
 
+    private void ExportChat_Click(object sender, RoutedEventArgs e)
+    {
+        var dialog = new Microsoft.Win32.SaveFileDialog
+        {
+            Title = "导出对话",
+            Filter = "ChatBox 对话文件|*.hchat",
+            DefaultExt = ".hchat",
+            FileName = $"chat_{DateTime.Now:yyyyMMdd_HHmmss}.hchat",
+        };
+
+        if (dialog.ShowDialog() == true && DataContext is ChatBoxMainViewModel viewModel)
+            viewModel.ExportChat(dialog.FileName);
+    }
+
+    private void ImportChat_Click(object sender, RoutedEventArgs e)
+    {
+        var dialog = new Microsoft.Win32.OpenFileDialog
+        {
+            Title = "导入对话",
+            Filter = "ChatBox 对话文件|*.hchat|所有文件|*.*",
+        };
+
+        if (dialog.ShowDialog() == true && DataContext is ChatBoxMainViewModel viewModel)
+            viewModel.ImportChat(dialog.FileName);
+    }
+
     private void InputBox_PreviewKeyDown(object sender, KeyEventArgs e)
     {
         // 回车发送，Shift+回车换行

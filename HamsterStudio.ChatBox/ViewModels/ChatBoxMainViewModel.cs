@@ -13,6 +13,7 @@ namespace HamsterStudio.ChatBox.ViewModels;
 public partial class ChatBoxMainViewModel : ViewModel
 {
     private readonly ChatService _chatService;
+    private readonly ChatSessionService _chatSessionService;
     private CancellationTokenSource? _cts;
     private CancellationTokenSource? _pullCts;
 
@@ -40,7 +41,7 @@ public partial class ChatBoxMainViewModel : ViewModel
     private bool _isPulling;
 
     [ObservableProperty]
-    private string _baseUrl = "http://127.0.0.1:11434";
+    private string _baseUrl = "http://localhost:11434";
 
     [ObservableProperty]
     private string _apiKey = string.Empty;
@@ -51,9 +52,10 @@ public partial class ChatBoxMainViewModel : ViewModel
     [ObservableProperty]
     private string _systemPrompt = LoadSystemPrompt();
 
-    public ChatBoxMainViewModel(ChatService chatService, ILogger<ChatBoxMainViewModel>? logger) : base(logger)
+    public ChatBoxMainViewModel(ChatService chatService, ChatSessionService chatSessionService, ILogger<ChatBoxMainViewModel>? logger) : base(logger)
     {
         _chatService = chatService;
+        _chatSessionService = chatSessionService;
     }
 
     private ChatProviderSettings BuildSettings() => new()
@@ -265,6 +267,63 @@ public partial class ChatBoxMainViewModel : ViewModel
         catch
         {
             return null;
+        }
+    }
+
+    /// <summary>导出当前对话到指定 .hchat 文件。</summary>
+    public void ExportChat(string path)
+    {
+        try
+        {
+            var document = new ChatSessionDocument
+            {
+                SystemPrompt = SystemPrompt,
+                Messages = Messages
+                    .Where(m => !(m.Role == ChatRole.Assistant && string.IsNullOrEmpty(m.Content)))
+                    .Select(m => new ChatMessageDto
+                    {
+                        Role = m.Role,
+                        Content = m.Content,
+                        Images = m.Images.Count > 0 ? m.Images.ToList() : null,
+                    })
+                    .ToList(),
+            };
+
+            _chatSessionService.Save(document, path);
+            StatusText = $"已导出 {document.Messages.Count} 条消息";
+        }
+        catch (Exception ex)
+        {
+            StatusText = $"导出失败：{ex.Message}";
+        }
+    }
+
+    /// <summary>从指定 .hchat 文件导入对话。</summary>
+    public void ImportChat(string path)
+    {
+        try
+        {
+            var document = _chatSessionService.Load(path);
+            if (document is null)
+            {
+                StatusText = "导入失败：文件内容无效";
+                return;
+            }
+
+            Messages.Clear();
+            if (!string.IsNullOrWhiteSpace(document.SystemPrompt))
+                SystemPrompt = document.SystemPrompt;
+
+            foreach (var message in document.Messages)
+            {
+                Messages.Add(new ChatMessageViewModel(message.Role, message.Content, message.Images));
+            }
+
+            StatusText = $"已导入 {document.Messages.Count} 条消息";
+        }
+        catch (Exception ex)
+        {
+            StatusText = $"导入失败：{ex.Message}";
         }
     }
 
