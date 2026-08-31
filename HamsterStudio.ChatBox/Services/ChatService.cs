@@ -7,8 +7,8 @@ namespace HamsterStudio.ChatBox.Services;
 /// <summary>聊天服务：根据配置把请求路由到 Ollama 或 OpenAI 兼容后端。</summary>
 public class ChatService
 {
-    private readonly IChatProvider _ollama;
-    private readonly IChatProvider _openAi;
+    private readonly OllamaChatProvider _ollama;
+    private readonly OpenAiChatProvider _openAi;
     private readonly ILogger<ChatService>? _logger;
 
     public ChatService(HttpClient http, ILogger<ChatService>? logger)
@@ -33,4 +33,12 @@ public class ChatService
 
     public IAsyncEnumerable<string> ChatAsync(ChatProviderSettings settings, IReadOnlyList<ChatMessage> messages, CancellationToken cancellationToken = default)
         => Resolve(settings.Kind).ChatAsync(settings, messages, cancellationToken);
+
+    public IAsyncEnumerable<ModelPullProgress> PullModelAsync(ChatProviderSettings settings, string model, CancellationToken cancellationToken = default)
+    {
+        if (settings.Kind != ChatProviderKind.Ollama)
+            throw new NotSupportedException("仅 Ollama 后端支持模型下载");
+
+        return _ollama.PullModelAsync(settings, model, cancellationToken);
+    }
 }

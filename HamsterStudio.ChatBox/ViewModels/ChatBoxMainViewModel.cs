@@ -14,6 +14,7 @@ public partial class ChatBoxMainViewModel : ViewModel
 {
     private readonly ChatService _chatService;
     private CancellationTokenSource? _cts;
+    private CancellationTokenSource? _pullCts;
 
     public ObservableCollection<ChatMessageViewModel> Messages { get; } = [];
     public ObservableCollection<string> Models { get; } = [];
@@ -34,6 +35,9 @@ public partial class ChatBoxMainViewModel : ViewModel
 
     [ObservableProperty]
     private bool _isBusy;
+
+    [ObservableProperty]
+    private bool _isPulling;
 
     [ObservableProperty]
     private string _baseUrl = "http://127.0.0.1:11434";
@@ -76,10 +80,19 @@ public partial class ChatBoxMainViewModel : ViewModel
 
     partial void OnInputTextChanged(string value) => SendCommand.NotifyCanExecuteChanged();
 
+    partial void OnSelectedModelChanged(string value) => PullModelCommand.NotifyCanExecuteChanged();
+
     partial void OnIsBusyChanged(bool value)
     {
         SendCommand.NotifyCanExecuteChanged();
         StopCommand.NotifyCanExecuteChanged();
+        PullModelCommand.NotifyCanExecuteChanged();
+    }
+
+    partial void OnIsPullingChanged(bool value)
+    {
+        PullModelCommand.NotifyCanExecuteChanged();
+        CancelPullCommand.NotifyCanExecuteChanged();
     }
 
     private bool CanSend() => !IsBusy && (!string.IsNullOrWhiteSpace(InputText) || PendingImageDataUrls.Count > 0);
@@ -100,7 +113,7 @@ public partial class ChatBoxMainViewModel : ViewModel
         InputText = string.Empty;
 
         var images = PendingImageDataUrls.Count > 0 ? PendingImageDataUrls.ToList() : null;
-        Messages.Add(new ChatMessageViewModel(ChatRole.User, text, images));
+        Messages.Add(new ChatMessageViewModel(ChatRole.User, text ?? string.Empty, images));
         PendingImageDataUrls.Clear();
 
         var assistant = new ChatMessageViewModel(ChatRole.Assistant, string.Empty);
@@ -156,6 +169,56 @@ public partial class ChatBoxMainViewModel : ViewModel
 
     [RelayCommand(CanExecute = nameof(CanStop))]
     private void Stop() => _cts?.Cancel();
+
+    private bool CanPull() => !IsBusy && !IsPulling && !string.IsNullOrWhiteSpace(SelectedModel);
+
+    [RelayCommand(CanExecute = nameof(CanPull))]
+    private async Task PullModelAsync()
+    {
+        var model = SelectedModel?.Trim();
+        if (string.IsNullOrEmpty(model) || IsBusy || IsPulling)
+            return;
+
+        if (string.IsNullOrWhiteSpace(BaseUrl))
+        {
+            StatusText = "请先在“连接设置”中填写服务地址";
+            return;
+        }
+
+        _pullCts = new CancellationTokenSource();
+        IsPulling = true;
+        StatusText = $"开始下载模型 {model} …";
+
+        try
+        {
+            await foreach (var progress in _chatService.PullModelAsync(BuildSettings(), model, _pullCts.Token))
+            {
+                StatusText = $"下载 {model}：{progress.Percent:0.0}% — {progress.Status}";
+            }
+
+            StatusText = $"模型 {model} 下载完成";
+            await RefreshModelsAsync();
+        }
+        catch (OperationCanceledException)
+        {
+            StatusText = "已取消下载";
+        }
+        catch (Exception ex)
+        {
+            StatusText = $"下载失败：{ex.Message}";
+        }
+        finally
+        {
+            IsPulling = false;
+            _pullCts.Dispose();
+            _pullCts = null;
+        }
+    }
+
+    private bool CanCancelPull() => IsPulling;
+
+    [RelayCommand(CanExecute = nameof(CanCancelPull))]
+    private void CancelPull() => _pullCts?.Cancel();
 
     [RelayCommand]
     private void Clear()

@@ -9,6 +9,7 @@
              d:DesignHeight="600" d:DesignWidth="900">
     <UserControl.Resources>
         <conv:Base64DataUrlToImageConverter x:Key="Base64ToImage" />
+        <BooleanToVisibilityConverter x:Key="BoolToVis" />
     </UserControl.Resources>
     <Grid Margin="8">
         <Grid.RowDefinitions>
@@ -24,6 +25,11 @@
             <Button DockPanel.Dock="Right" Content="停止" Command="{Binding StopCommand}"
                     Padding="10,4" Margin="6,0,0,0" />
             <Button DockPanel.Dock="Right" Content="清空" Command="{Binding ClearCommand}"
+                    Padding="10,4" Margin="6,0,0,0" />
+            <Button DockPanel.Dock="Right" Content="取消下载" Command="{Binding CancelPullCommand}"
+                    Padding="10,4" Margin="6,0,0,0"
+                    Visibility="{Binding IsPulling, Converter={StaticResource BoolToVis}}" />
+            <Button DockPanel.Dock="Right" Content="下载模型" Command="{Binding PullModelCommand}"
                     Padding="10,4" Margin="6,0,0,0" />
             <Button DockPanel.Dock="Right" Content="刷新模型" Command="{Binding RefreshModelsCommand}"
                     Padding="10,4" Margin="6,0,0,0" />

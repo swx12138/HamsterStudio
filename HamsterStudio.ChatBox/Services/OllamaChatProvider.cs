@@ -39,6 +39,21 @@ public class OllamaChatProvider : IChatProvider
         }
     }
 
+    public async IAsyncEnumerable<ModelPullProgress> PullModelAsync(
+        ChatProviderSettings settings,
+        string model,
+        [EnumeratorCancellation] CancellationToken cancellationToken = default)
+    {
+        using var ollama = new OllamaApiClient(settings.BaseUrl);
+
+        await foreach (var status in ollama.PullModelAsync(model, cancellationToken))
+        {
+            if (status is null)
+                continue;
+            yield return new ModelPullProgress(status.Status, status.Percent);
+        }
+    }
+
     private static OllamaSharpMessage ToOllamaMessage(ChatMessage message) => new(
         message.Role switch
         {
