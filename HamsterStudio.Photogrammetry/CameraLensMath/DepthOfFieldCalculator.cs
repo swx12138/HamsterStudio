@@ -1,12 +1,12 @@
 ﻿using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 
-namespace HamsterStudio.Photogrammetry.Services;
+namespace HamsterStudio.Photogrammetry.CameraLensMath;
 
 /// <summary>
 /// 景深计算器
 /// </summary>
-public class DepthOfFieldCalculator
+public static class DepthOfFieldCalculator
 {
     // 定义一个枚举来表示常见的相机画幅，方便用户选择
     public enum CameraFormat

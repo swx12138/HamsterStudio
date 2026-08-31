@@ -1,4 +1,4 @@
-﻿using HamsterStudio.Barefeet.Services;
+using HamsterStudio.Barefeet.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System.IO;

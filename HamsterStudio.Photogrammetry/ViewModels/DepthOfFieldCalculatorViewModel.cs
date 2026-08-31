@@ -1,6 +1,8 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using HamsterStudio.Barefeet.MVVM;
+using HamsterStudio.Photogrammetry.CameraLensMath;
 using HamsterStudio.Photogrammetry.Services;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -33,13 +35,15 @@ public partial class DepthOfFieldCalculatorViewModel : ViewModel
 
     [Browsable(false)]
     public ICommand? DestroyThisViewModelCommand { get; set; }
+    private LensCalculateService lensCalculateService_;
 
-    public DepthOfFieldCalculatorViewModel(ILogger<DepthOfFieldCalculatorViewModel>? logger) : base(logger)
+    public DepthOfFieldCalculatorViewModel(ILogger<DepthOfFieldCalculatorViewModel>? logger, LensCalculateService lensCalculateService) : base(logger)
     {
-        result = DepthOfFieldCalculator.Calculate(FocalLength, Aperture, FocusDistance);
+        lensCalculateService_ = lensCalculateService;
+        result = lensCalculateService_.GetDoF(FocalLength, Aperture, FocusDistance);
     }
 
-    public DepthOfFieldCalculatorViewModel() : this(null)
+    public DepthOfFieldCalculatorViewModel() : this(null, App.ServiceProvider!.GetRequiredService<LensCalculateService>())
     {
     }
 
@@ -52,7 +56,7 @@ public partial class DepthOfFieldCalculatorViewModel : ViewModel
     {
         if (e.PropertyName is nameof(FocalLength) or nameof(Aperture) or nameof(FocusDistance))
         {
-            Result = DepthOfFieldCalculator.Calculate(FocalLength, Aperture, FocusDistance);
+            Result = lensCalculateService_.GetDoF(FocalLength, Aperture, FocusDistance);
         }
         base.OnPropertyChanged(e);
     }

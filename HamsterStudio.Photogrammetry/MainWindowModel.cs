@@ -1,4 +1,4 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.ComponentModel;
 using HamsterStudio.Photogrammetry.ViewModels;
 using Microsoft.Extensions.DependencyInjection;
 

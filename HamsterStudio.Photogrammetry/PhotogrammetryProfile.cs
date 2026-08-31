@@ -1,3 +1,4 @@
+using HamsterStudio.Photogrammetry.Services;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace HamsterStudio.Photogrammetry;
@@ -6,9 +7,9 @@ public static class PhotogrammetryProfile
 {
     public static void RegisterServices(IServiceCollection services)
     {
-        // ×¢²á¾°Éî¼ÆËãÆ÷·şÎñ
-        services.AddSingleton<Services.DepthOfFieldCalculator>();
-        // ×¢²áÊÓÍ¼Ä£ĞÍ
+        // æ³¨å†Œæ™¯æ·±è®¡ç®—å™¨æœåŠ¡
+        services.AddSingleton<LensCalculateService>();
+        // æ³¨å†Œè§†å›¾æ¨¡å‹
         services.AddTransient<ViewModels.PhotogrammetryMainViewModel>();
         services.AddTransient<ViewModels.DepthOfFieldCalculatorViewModel>();
         services.AddTransient<ViewModels.EquivalentExposureCalculatorViewModel>();
