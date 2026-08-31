@@ -5,6 +5,7 @@ using OllamaSharpChatDone = OllamaSharp.Models.Chat.ChatDoneResponseStream;
 using OllamaSharpChatRequest = OllamaSharp.Models.Chat.ChatRequest;
 using OllamaSharpChatRole = OllamaSharp.Models.Chat.ChatRole;
 using OllamaSharpMessage = OllamaSharp.Models.Chat.Message;
+using OllamaSharpThinkValue = OllamaSharp.Models.Chat.ThinkValue;
 
 namespace HamsterStudio.ChatBox.Services;
 
@@ -37,6 +38,7 @@ public class OllamaChatProvider : IChatProvider
             Model = settings.Model,
             Stream = true,
             Messages = messages.Select(ToOllamaMessage).ToArray(),
+            Think = MapThink(settings.ThinkLevel),
         };
 
         await foreach (var response in ollama.ChatAsync(request, cancellationToken))
@@ -66,6 +68,14 @@ public class OllamaChatProvider : IChatProvider
             yield return new ModelPullProgress(status.Status, status.Percent);
         }
     }
+
+    private static OllamaSharpThinkValue? MapThink(ThinkLevel level) => level switch
+    {
+        ThinkLevel.Low => new OllamaSharpThinkValue("low"),
+        ThinkLevel.Medium => new OllamaSharpThinkValue("medium"),
+        ThinkLevel.High => new OllamaSharpThinkValue("high"),
+        _ => (OllamaSharpThinkValue?)null,
+    };
 
     private static OllamaSharpMessage ToOllamaMessage(ChatMessage message) => new(
         message.Role switch

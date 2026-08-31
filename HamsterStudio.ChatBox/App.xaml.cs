@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using System.Windows;
 
 namespace HamsterStudio.ChatBox
@@ -14,7 +15,13 @@ namespace HamsterStudio.ChatBox
 
         public App()
         {
-            Services.AddLogging();
+            Services.AddLogging(builder =>
+            {
+                builder
+                    .ClearProviders()               // 清除默认提供程序
+                    .AddDebug()                     // 输出到调试器（VS/VS Code 输出窗口）
+                    .SetMinimumLevel(LogLevel.Debug);
+            });
         }
 
         protected override void OnStartup(StartupEventArgs e)

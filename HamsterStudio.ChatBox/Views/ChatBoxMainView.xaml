@@ -46,10 +46,15 @@
                       SelectedItem="{Binding SelectedProvider}" />
 
             <TextBlock DockPanel.Dock="Left" Text="模型:" VerticalAlignment="Center" Margin="12,0,6,0" />
-            <ComboBox VerticalAlignment="Center" HorizontalAlignment="Left" Width="220"
+            <ComboBox DockPanel.Dock="Left" VerticalAlignment="Center" Width="220"
                       ItemsSource="{Binding Models}"
                       IsEditable="True"
                       Text="{Binding SelectedModel, UpdateSourceTrigger=PropertyChanged}" />
+
+            <TextBlock DockPanel.Dock="Left" Text="思考:" VerticalAlignment="Center" Margin="12,0,6,0" />
+            <ComboBox DockPanel.Dock="Left" Width="90" VerticalAlignment="Center"
+                      ItemsSource="{Binding ThinkLevels}"
+                      SelectedItem="{Binding SelectedThinkLevel}" />
         </DockPanel>
 
         <!-- 连接设置 -->
@@ -80,7 +85,7 @@
                     <ItemsControl.ItemTemplate>
                         <DataTemplate DataType="{x:Type vm:ChatMessageViewModel}">
                             <Grid Margin="0,4">
-                                <Border x:Name="Bubble" MaxWidth="620" Padding="12,8" CornerRadius="10"
+                                <Border x:Name="Bubble" MaxWidth="998" Padding="12,8" CornerRadius="10"
                                         HorizontalAlignment="Left"
                                         Background="#FFFFFF" BorderBrush="#E0E0E0" BorderThickness="1">
                                     <StackPanel>

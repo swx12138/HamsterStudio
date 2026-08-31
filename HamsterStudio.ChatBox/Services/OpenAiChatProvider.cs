@@ -60,13 +60,23 @@ public class OpenAiChatProvider(HttpClient http) : IChatProvider
         TaskCompletionSource<ChatTokenUsage?> usage,
         [EnumeratorCancellation] CancellationToken cancellationToken)
     {
-        var payload = new
+        var payload = new Dictionary<string, object?>
         {
-            model = settings.Model,
-            messages = messages.Select(m => new { role = m.RoleText, content = BuildContent(m) }).ToArray(),
-            stream = true,
-            stream_options = new { include_usage = true },
+            ["model"] = settings.Model,
+            ["messages"] = messages.Select(m => new { role = m.RoleText, content = BuildContent(m) }).ToArray(),
+            ["stream"] = true,
+            ["stream_options"] = new { include_usage = true },
         };
+
+        if (settings.ThinkLevel != ThinkLevel.Off)
+        {
+            payload["reasoning_effort"] = settings.ThinkLevel switch
+            {
+                ThinkLevel.Low => "low",
+                ThinkLevel.Medium => "medium",
+                _ => "high",
+            };
+        }
 
         using var request = BuildRequest(settings, HttpMethod.Post, "chat/completions");
         request.Content = JsonContent.Create(payload);
@@ -114,8 +124,8 @@ public class OpenAiChatProvider(HttpClient http) : IChatProvider
         using var doc = JsonDocument.Parse(data);
         var root = doc.RootElement;
 
-        // usage 信息（需要 stream_options.include_usage）
-        if (root.TryGetProperty("usage", out var usageEl))
+        // usage 信息（需要 stream_options.include_usage）；流式中间 chunk 的 usage 常为 null
+        if (root.TryGetProperty("usage", out var usageEl) && usageEl.ValueKind == JsonValueKind.Object)
         {
             var prompt = usageEl.TryGetProperty("prompt_tokens", out var p) ? p.GetInt64() : 0L;
             var completion = usageEl.TryGetProperty("completion_tokens", out var c) ? c.GetInt64() : 0L;
@@ -123,11 +133,13 @@ public class OpenAiChatProvider(HttpClient http) : IChatProvider
         }
 
         // 增量文本（默认单 choice）
-        if (root.TryGetProperty("choices", out var choices))
+        if (root.TryGetProperty("choices", out var choices) && choices.ValueKind == JsonValueKind.Array)
         {
             foreach (var choice in choices.EnumerateArray())
             {
-                if (choice.TryGetProperty("delta", out var delta) &&
+                if (choice.ValueKind == JsonValueKind.Object &&
+                    choice.TryGetProperty("delta", out var delta) &&
+                    delta.ValueKind == JsonValueKind.Object &&
                     delta.TryGetProperty("content", out var content) &&
                     content.GetString() is { } text &&
                     !string.IsNullOrEmpty(text))

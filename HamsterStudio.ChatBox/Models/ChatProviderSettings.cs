@@ -8,6 +8,15 @@ public enum ChatProviderKind
     DeepSeek,
 }
 
+/// <summary>思考（推理）强度。</summary>
+public enum ThinkLevel
+{
+    Off,
+    Low,
+    Medium,
+    High,
+}
+
 /// <summary>聊天后端的连接配置。</summary>
 public record ChatProviderSettings
 {
@@ -20,4 +29,7 @@ public record ChatProviderSettings
     public string ApiKey { get; init; } = string.Empty;
 
     public string Model { get; init; } = string.Empty;
+
+    /// <summary>思考（推理）强度，Off 表示不启用。</summary>
+    public ThinkLevel ThinkLevel { get; init; } = ThinkLevel.Off;
 }

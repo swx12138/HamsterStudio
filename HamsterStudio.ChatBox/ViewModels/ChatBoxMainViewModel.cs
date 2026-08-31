@@ -24,9 +24,13 @@ public partial class ChatBoxMainViewModel : ViewModel
     public ObservableCollection<string> PendingImagePaths { get; } = [];
 
     public IReadOnlyList<ChatProviderKind> ProviderKinds { get; } = Enum.GetValues<ChatProviderKind>();
+    public IReadOnlyList<ThinkLevel> ThinkLevels { get; } = Enum.GetValues<ThinkLevel>();
 
     [ObservableProperty]
     private ChatProviderKind _selectedProvider = ChatProviderKind.Ollama;
+
+    [ObservableProperty]
+    private ThinkLevel _selectedThinkLevel = ThinkLevel.Off;
 
     [ObservableProperty]
     private string _selectedModel = string.Empty;
@@ -75,6 +79,7 @@ public partial class ChatBoxMainViewModel : ViewModel
         BaseUrl = BaseUrl?.Trim() ?? string.Empty,
         ApiKey = ApiKey?.Trim() ?? string.Empty,
         Model = SelectedModel?.Trim() ?? string.Empty,
+        ThinkLevel = SelectedThinkLevel,
     };
 
     partial void OnSelectedProviderChanged(ChatProviderKind value)
@@ -83,7 +88,7 @@ public partial class ChatBoxMainViewModel : ViewModel
         {
             ChatProviderKind.Ollama => ("http://localhost:11434", string.Empty, "llama3.2"),
             ChatProviderKind.OpenAI => ("https://api.openai.com/v1", string.Empty, "gpt-4o-mini"),
-            ChatProviderKind.DeepSeek => ("https://api.deepseek.com", string.Empty, "deepseek-chat"),
+            ChatProviderKind.DeepSeek => ("https://api.deepseek.com", LoadDeepSeekKey(), "deepseek-chat"),
             _ => (string.Empty, string.Empty, string.Empty),
         };
 
@@ -221,6 +226,7 @@ public partial class ChatBoxMainViewModel : ViewModel
             if (builder.Length == 0)
                 assistant.Content = $"[请求失败] {ex.Message}";
             assistant.IsFailed = true;
+            logger?.LogError(ex.Message + "\n" + ex.StackTrace);
         }
         finally
         {
@@ -271,6 +277,7 @@ public partial class ChatBoxMainViewModel : ViewModel
         catch (Exception ex)
         {
             StatusText = $"下载失败：{ex.Message}";
+            logger?.LogError(ex.Message + "\n" + ex.StackTrace);
         }
         finally
         {
@@ -336,6 +343,7 @@ public partial class ChatBoxMainViewModel : ViewModel
         catch (Exception ex)
         {
             StatusText = $"导出失败：{ex.Message}";
+            logger?.LogError(ex.Message + "\n" + ex.StackTrace);
         }
     }
 
@@ -365,6 +373,7 @@ public partial class ChatBoxMainViewModel : ViewModel
         catch (Exception ex)
         {
             StatusText = $"导入失败：{ex.Message}";
+            logger?.LogError(ex.Message + "\n" + ex.StackTrace);
         }
     }
 
@@ -394,6 +403,7 @@ public partial class ChatBoxMainViewModel : ViewModel
         catch (Exception ex)
         {
             StatusText = $"获取模型列表失败：{ex.Message}";
+            logger?.LogError(ex.Message + "\n" + ex.StackTrace);
         }
     }
 
@@ -408,6 +418,22 @@ public partial class ChatBoxMainViewModel : ViewModel
         catch
         {
             // 忽略提示词加载失败
+        }
+
+        return string.Empty;
+    }
+
+    private static string LoadDeepSeekKey()
+    {
+        try
+        {
+            var path = Path.Combine(AppContext.BaseDirectory, "Prompts", "deepsek.sk");
+            if (File.Exists(path))
+                return File.ReadAllText(path);
+        }
+        catch
+        {
+            // 忽略SK加载失败
         }
 
         return string.Empty;
