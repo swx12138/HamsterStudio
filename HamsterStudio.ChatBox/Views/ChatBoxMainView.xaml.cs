@@ -1,6 +1,8 @@
-﻿using System.Windows.Controls;
+﻿using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Input;
 using HamsterStudio.ChatBox.ViewModels;
+using HamsterStudio.Toolkits;
 
 namespace HamsterStudio.ChatBox.Views;
 
@@ -12,6 +14,19 @@ public partial class ChatBoxMainView : UserControl
     public ChatBoxMainView()
     {
         InitializeComponent();
+    }
+
+    private void AttachImages_Click(object sender, RoutedEventArgs e)
+    {
+        var dialog = new Microsoft.Win32.OpenFileDialog
+        {
+            Title = "选择图片",
+            Multiselect = true,
+            Filter = ImageUtils.KnownImageExtsFilter,
+        };
+
+        if (dialog.ShowDialog() == true && DataContext is ChatBoxMainViewModel viewModel)
+            viewModel.AttachImages(dialog.FileNames);
     }
 
     private void InputBox_PreviewKeyDown(object sender, KeyEventArgs e)

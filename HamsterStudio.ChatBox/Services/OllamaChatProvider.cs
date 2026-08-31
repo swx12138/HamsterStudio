@@ -47,5 +47,13 @@ public class OllamaChatProvider : IChatProvider
             ChatRole.Assistant => OllamaSharpChatRole.Assistant,
             _ => OllamaSharpChatRole.User,
         },
-        message.Content);
+        message.Content,
+        message.Images?.Select(ToOllamaBase64).ToArray());
+
+    private static string? ToOllamaBase64(string dataUrl)
+    {
+        const string marker = "base64,";
+        var idx = dataUrl.IndexOf(marker, StringComparison.Ordinal);
+        return idx >= 0 ? dataUrl[(idx + marker.Length)..] : dataUrl;
+    }
 }

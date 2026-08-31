@@ -17,12 +17,16 @@ public partial class ChatMessageViewModel : ObservableObject
         _ => "系统",
     };
 
+    /// <summary>图片 data URL 列表（多模态）。</summary>
+    public IReadOnlyList<string> Images { get; }
+
     [ObservableProperty]
     private string _content;
 
-    public ChatMessageViewModel(ChatRole role, string content)
+    public ChatMessageViewModel(ChatRole role, string content, IReadOnlyList<string>? images = null)
     {
         Role = role;
         _content = content;
+        Images = images ?? Array.Empty<string>();
     }
 }

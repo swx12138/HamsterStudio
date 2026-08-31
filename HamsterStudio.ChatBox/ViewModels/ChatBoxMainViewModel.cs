@@ -17,6 +17,10 @@ public partial class ChatBoxMainViewModel : ViewModel
 
     public ObservableCollection<ChatMessageViewModel> Messages { get; } = [];
     public ObservableCollection<string> Models { get; } = [];
+
+    /// <summary>待发送的图片 data URL 列表（多模态）。</summary>
+    public ObservableCollection<string> PendingImageDataUrls { get; } = [];
+
     public IReadOnlyList<ChatProviderKind> ProviderKinds { get; } = Enum.GetValues<ChatProviderKind>();
 
     [ObservableProperty]
@@ -78,13 +82,13 @@ public partial class ChatBoxMainViewModel : ViewModel
         StopCommand.NotifyCanExecuteChanged();
     }
 
-    private bool CanSend() => !IsBusy && !string.IsNullOrWhiteSpace(InputText);
+    private bool CanSend() => !IsBusy && (!string.IsNullOrWhiteSpace(InputText) || PendingImageDataUrls.Count > 0);
 
     [RelayCommand(CanExecute = nameof(CanSend))]
     private async Task SendAsync()
     {
         var text = InputText?.Trim();
-        if (string.IsNullOrEmpty(text) || IsBusy)
+        if ((string.IsNullOrEmpty(text) && PendingImageDataUrls.Count == 0) || IsBusy)
             return;
 
         if (string.IsNullOrWhiteSpace(BaseUrl))
@@ -95,7 +99,10 @@ public partial class ChatBoxMainViewModel : ViewModel
 
         InputText = string.Empty;
 
-        Messages.Add(new ChatMessageViewModel(ChatRole.User, text));
+        var images = PendingImageDataUrls.Count > 0 ? PendingImageDataUrls.ToList() : null;
+        Messages.Add(new ChatMessageViewModel(ChatRole.User, text, images));
+        PendingImageDataUrls.Clear();
+
         var assistant = new ChatMessageViewModel(ChatRole.Assistant, string.Empty);
         Messages.Add(assistant);
 
@@ -107,7 +114,7 @@ public partial class ChatBoxMainViewModel : ViewModel
         {
             if (message.Role == ChatRole.Assistant && string.IsNullOrEmpty(message.Content))
                 continue;
-            history.Add(new ChatMessage(message.Role, message.Content));
+            history.Add(new ChatMessage(message.Role, message.Content, message.Images));
         }
 
         _cts = new CancellationTokenSource();
@@ -155,6 +162,47 @@ public partial class ChatBoxMainViewModel : ViewModel
     {
         Messages.Clear();
         StatusText = "已清空对话";
+    }
+
+    /// <summary>选择图片后，将其转为 data URL 加入待发送队列。</summary>
+    public void AttachImages(IEnumerable<string> paths)
+    {
+        foreach (var path in paths)
+        {
+            var dataUrl = BuildDataUrl(path);
+            if (dataUrl is not null)
+                PendingImageDataUrls.Add(dataUrl);
+        }
+
+        SendCommand.NotifyCanExecuteChanged();
+    }
+
+    [RelayCommand]
+    private void RemovePendingImage(string dataUrl)
+    {
+        PendingImageDataUrls.Remove(dataUrl);
+        SendCommand.NotifyCanExecuteChanged();
+    }
+
+    private static string? BuildDataUrl(string path)
+    {
+        try
+        {
+            var bytes = File.ReadAllBytes(path);
+            var mime = Path.GetExtension(path).ToLowerInvariant() switch
+            {
+                ".png" => "image/png",
+                ".gif" => "image/gif",
+                ".webp" => "image/webp",
+                ".bmp" => "image/bmp",
+                _ => "image/jpeg",
+            };
+            return $"data:{mime};base64,{Convert.ToBase64String(bytes)}";
+        }
+        catch
+        {
+            return null;
+        }
     }
 
     [RelayCommand]

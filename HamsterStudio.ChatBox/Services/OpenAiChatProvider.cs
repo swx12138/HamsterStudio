@@ -56,7 +56,7 @@ public class OpenAiChatProvider(HttpClient http) : IChatProvider
         var payload = new
         {
             model = settings.Model,
-            messages = messages.Select(m => new { role = m.RoleText, content = m.Content }).ToArray(),
+            messages = messages.Select(m => new { role = m.RoleText, content = BuildContent(m) }).ToArray(),
             stream = true,
         };
 
@@ -97,6 +97,26 @@ public class OpenAiChatProvider(HttpClient http) : IChatProvider
             if (!string.IsNullOrEmpty(text))
                 yield return text;
         }
+    }
+
+    private static object BuildContent(ChatMessage message)
+    {
+        // OpenAI 视觉接口仅在 user 消息中支持 content 数组格式
+        if (message.Images is { Count: > 0 } && message.Role == ChatRole.User)
+        {
+            var parts = new List<object>
+            {
+                new { type = "text", text = message.Content },
+            };
+            parts.AddRange(message.Images.Select(dataUrl => new
+            {
+                type = "image_url",
+                image_url = new { url = dataUrl },
+            }));
+            return parts;
+        }
+
+        return message.Content;
     }
 
     private static string ExtractDeltaContent(string data)

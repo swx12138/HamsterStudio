@@ -4,8 +4,12 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:vm="clr-namespace:HamsterStudio.ChatBox.ViewModels"
+             xmlns:conv="clr-namespace:HamsterStudio.ChatBox.Converters"
              mc:Ignorable="d" 
              d:DesignHeight="600" d:DesignWidth="900">
+    <UserControl.Resources>
+        <conv:Base64DataUrlToImageConverter x:Key="Base64ToImage" />
+    </UserControl.Resources>
     <Grid Margin="8">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />   <!-- 工具栏 -->
@@ -72,6 +76,19 @@
                                                    FontSize="11" Foreground="#999999" Margin="0,0,0,2" />
                                         <TextBlock x:Name="ContentText" Text="{Binding Content}"
                                                    TextWrapping="Wrap" FontSize="14" LineHeight="20" />
+                                        <ItemsControl ItemsSource="{Binding Images}">
+                                            <ItemsControl.ItemsPanel>
+                                                <ItemsPanelTemplate>
+                                                    <WrapPanel />
+                                                </ItemsPanelTemplate>
+                                            </ItemsControl.ItemsPanel>
+                                            <ItemsControl.ItemTemplate>
+                                                <DataTemplate>
+                                                    <Image Source="{Binding Converter={StaticResource Base64ToImage}}"
+                                                           MaxWidth="200" MaxHeight="200" Margin="0,4,4,0" Stretch="Uniform" />
+                                                </DataTemplate>
+                                            </ItemsControl.ItemTemplate>
+                                        </ItemsControl>
                                     </StackPanel>
                                 </Border>
                             </Grid>
@@ -96,21 +113,57 @@
 
         <!-- 输入区 -->
         <Grid Grid.Row="4">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*" />
-                <ColumnDefinition Width="Auto" />
-            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
 
-            <TextBox x:Name="InputBox" Grid.Column="0"
-                     Text="{Binding InputText, UpdateSourceTrigger=PropertyChanged}"
-                     AcceptsReturn="True" TextWrapping="Wrap"
-                     MinHeight="56" MaxHeight="160" Padding="8"
-                     VerticalScrollBarVisibility="Auto"
-                     VerticalContentAlignment="Top"
-                     PreviewKeyDown="InputBox_PreviewKeyDown" />
+            <!-- 待发送图片预览 -->
+            <ItemsControl Grid.Row="0" ItemsSource="{Binding PendingImageDataUrls}"
+                          HorizontalAlignment="Left">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <WrapPanel />
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Border Margin="0,0,4,4" BorderBrush="#CCCCCC" BorderThickness="1" CornerRadius="4"
+                                Background="#F4F4F4" ToolTip="点击移除">
+                            <Grid>
+                                <Image Source="{Binding Converter={StaticResource Base64ToImage}}"
+                                       MaxWidth="80" MaxHeight="80" Stretch="Uniform" />
+                                <Button Content="✕" Width="20" Height="20" Padding="0"
+                                        HorizontalAlignment="Right" VerticalAlignment="Top"
+                                        Command="{Binding DataContext.RemovePendingImageCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                        CommandParameter="{Binding}" />
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
 
-            <Button Grid.Column="1" Content="发送" Command="{Binding SendCommand}"
-                    Width="76" Margin="8,0,0,0" VerticalAlignment="Stretch" />
+            <Grid Grid.Row="1" Margin="0,4,0,0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+
+                <Button Grid.Column="0" Content="🖼 图片" Click="AttachImages_Click"
+                        Padding="10,0" Margin="0,0,8,0" VerticalAlignment="Stretch" />
+
+                <TextBox x:Name="InputBox" Grid.Column="1"
+                         Text="{Binding InputText, UpdateSourceTrigger=PropertyChanged}"
+                         AcceptsReturn="True" TextWrapping="Wrap"
+                         MinHeight="56" MaxHeight="160" Padding="8"
+                         VerticalScrollBarVisibility="Auto"
+                         VerticalContentAlignment="Top"
+                         PreviewKeyDown="InputBox_PreviewKeyDown" />
+
+                <Button Grid.Column="2" Content="发送" Command="{Binding SendCommand}"
+                        Width="76" Margin="8,0,0,0" VerticalAlignment="Stretch" />
+            </Grid>
         </Grid>
     </Grid>
 </UserControl>
