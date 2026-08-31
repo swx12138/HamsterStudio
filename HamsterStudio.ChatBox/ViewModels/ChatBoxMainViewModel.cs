@@ -67,6 +67,24 @@ public partial class ChatBoxMainViewModel : ViewModel
     /// <summary>token 统计文本（↑输入 ↓输出）。</summary>
     public string TokenUsageText => $"↑{PromptTokens:N0}  ↓{CompletionTokens:N0}";
 
+    [ObservableProperty]
+    private string _dualTopic = string.Empty;
+
+    [ObservableProperty]
+    private string _dualArgumentA = string.Empty;
+
+    [ObservableProperty]
+    private string _dualArgumentB = string.Empty;
+
+    [ObservableProperty]
+    private string _dualModelA = string.Empty;
+
+    [ObservableProperty]
+    private string _dualModelB = string.Empty;
+
+    [ObservableProperty]
+    private int _dualRounds = 3;
+
     public ChatBoxMainViewModel(ChatService chatService, ChatSessionService chatSessionService, ILogger<ChatBoxMainViewModel>? logger) : base(logger)
     {
         _chatService = chatService;
@@ -98,6 +116,8 @@ public partial class ChatBoxMainViewModel : ViewModel
 
     partial void OnInputTextChanged(string value) => SendCommand.NotifyCanExecuteChanged();
 
+    partial void OnDualTopicChanged(string value) => StartDualChatCommand.NotifyCanExecuteChanged();
+
     partial void OnSelectedModelChanged(string value) => PullModelCommand.NotifyCanExecuteChanged();
 
     partial void OnIsBusyChanged(bool value)
@@ -106,6 +126,7 @@ public partial class ChatBoxMainViewModel : ViewModel
         StopCommand.NotifyCanExecuteChanged();
         PullModelCommand.NotifyCanExecuteChanged();
         RetryCommand.NotifyCanExecuteChanged();
+        StartDualChatCommand.NotifyCanExecuteChanged();
     }
 
     partial void OnIsPullingChanged(bool value)
@@ -220,6 +241,123 @@ public partial class ChatBoxMainViewModel : ViewModel
         else
         {
             StatusText = "已更新消息";
+        }
+    }
+
+    private bool CanStartDual() => !IsBusy && !string.IsNullOrWhiteSpace(DualTopic);
+
+    [RelayCommand(CanExecute = nameof(CanStartDual))]
+    private async Task StartDualChatAsync()
+    {
+        var topic = DualTopic?.Trim();
+        if (string.IsNullOrEmpty(topic) || IsBusy)
+            return;
+
+        var rounds = Math.Clamp(DualRounds, 1, 10);
+
+        _cts = new CancellationTokenSource();
+        IsBusy = true;
+        StatusText = "双 AI 对话中…";
+
+        try
+        {
+            var promptA = BuildDualPrompt(topic, DualArgumentA, rounds);
+            var promptB = BuildDualPrompt(topic, DualArgumentB, rounds);
+
+            var settingsA = BuildSettings() with { Model = string.IsNullOrWhiteSpace(DualModelA) ? SelectedModel : DualModelA.Trim() };
+            var settingsB = BuildSettings() with { Model = string.IsNullOrWhiteSpace(DualModelB) ? SelectedModel : DualModelB.Trim() };
+
+            // 话题作为用户消息展示
+            Messages.Add(new ChatMessageViewModel(ChatRole.User, topic));
+
+            // 共享对话历史（不含系统角色）
+            var history = new List<ChatMessage> { new(ChatRole.User, topic) };
+
+            for (var round = 0; round < rounds; round++)
+            {
+                if (_cts.IsCancellationRequested)
+                    break;
+
+                var replyA = await GenerateReplyAsync(settingsA, promptA, history, "AI A", _cts.Token);
+                if (replyA is null)
+                    break;
+                history.Add(new ChatMessage(ChatRole.Assistant, replyA));
+
+                if (_cts.IsCancellationRequested)
+                    break;
+
+                var replyB = await GenerateReplyAsync(settingsB, promptB, history, "AI B", _cts.Token);
+                if (replyB is null)
+                    break;
+                history.Add(new ChatMessage(ChatRole.Assistant, replyB));
+            }
+
+            StatusText = _cts.IsCancellationRequested ? "已停止" : "双 AI 对话结束";
+        }
+        catch (OperationCanceledException)
+        {
+            StatusText = "已停止";
+        }
+        catch (Exception ex)
+        {
+            StatusText = $"双 AI 对话失败：{ex.Message}";
+            logger?.LogError(ex.Message + "\n" + ex.StackTrace);
+        }
+        finally
+        {
+            IsBusy = false;
+            _cts.Dispose();
+            _cts = null;
+        }
+    }
+
+    private static string BuildDualPrompt(string topic, string argument, int rounds)
+    {
+        var position = string.IsNullOrWhiteSpace(argument) ? "（未指定，请基于主题自行确定立场）" : argument.Trim();
+        return $"你正在参加一场辩论。\n辩论主题：{topic}\n你的立场与论据：{position}\n\n请围绕你的立场展开论述，并回应对方观点。辩论共进行 {rounds} 轮，每轮发言简明扼要、避免重复。";
+    }
+
+    /// <summary>生成一条 AI 回复（流式），返回完整文本；无回复返回 null，失败抛异常。</summary>
+    private async Task<string?> GenerateReplyAsync(ChatProviderSettings settings, string systemRole, List<ChatMessage> history, string authorName, CancellationToken cancellationToken)
+    {
+        var request = new List<ChatMessage> { new(ChatRole.System, systemRole) };
+        request.AddRange(history);
+
+        var assistant = new ChatMessageViewModel(ChatRole.Assistant, string.Empty, authorName: authorName);
+        Messages.Add(assistant);
+
+        var builder = new StringBuilder();
+        try
+        {
+            var result = _chatService.ChatAsync(settings, request, cancellationToken);
+
+            await foreach (var chunk in result.Chunks)
+            {
+                builder.Append(chunk);
+                assistant.Content = builder.ToString();
+            }
+
+            var usage = await result.Usage;
+            if (usage is not null)
+            {
+                PromptTokens += usage.PromptTokens;
+                CompletionTokens += usage.CompletionTokens;
+            }
+
+            if (builder.Length == 0)
+            {
+                assistant.Content = "（无回复）";
+                return null;
+            }
+
+            return builder.ToString();
+        }
+        catch
+        {
+            if (builder.Length == 0)
+                assistant.Content = "[请求失败]";
+            assistant.IsFailed = true;
+            throw;
         }
     }
 

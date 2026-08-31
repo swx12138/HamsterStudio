@@ -6,11 +6,13 @@ namespace HamsterStudio.ChatBox.ViewModels;
 /// <summary>用于界面展示的一条消息。</summary>
 public partial class ChatMessageViewModel : ObservableObject
 {
+    private readonly string? _authorName;
+
     public ChatRole Role { get; }
 
     public bool IsUser => Role == ChatRole.User;
 
-    public string Author => Role switch
+    public string Author => _authorName ?? Role switch
     {
         ChatRole.User => "我",
         ChatRole.Assistant => "AI",
@@ -35,10 +37,11 @@ public partial class ChatMessageViewModel : ObservableObject
     [ObservableProperty]
     private string _content;
 
-    public ChatMessageViewModel(ChatRole role, string content, IReadOnlyList<string>? images = null)
+    public ChatMessageViewModel(ChatRole role, string content, IReadOnlyList<string>? images = null, string? authorName = null)
     {
         Role = role;
         _content = content;
         Images = images ?? Array.Empty<string>();
+        _authorName = authorName;
     }
 }

@@ -52,30 +52,81 @@
                       Text="{Binding SelectedModel, UpdateSourceTrigger=PropertyChanged}" />
 
             <TextBlock DockPanel.Dock="Left" Text="思考:" VerticalAlignment="Center" Margin="12,0,6,0" />
-            <ComboBox DockPanel.Dock="Left" Width="90" VerticalAlignment="Center"
+            <ComboBox DockPanel.Dock="Left" Width="90" VerticalAlignment="Center" HorizontalAlignment="Left"
                       ItemsSource="{Binding ThinkLevels}"
                       SelectedItem="{Binding SelectedThinkLevel}" />
         </DockPanel>
 
-        <!-- 连接设置 -->
-        <Expander Grid.Row="1" Header="连接设置" Margin="0,0,0,6" IsExpanded="False">
-            <Grid Margin="0,6,0,0">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto" />
-                    <ColumnDefinition Width="*" />
-                    <ColumnDefinition Width="Auto" />
-                    <ColumnDefinition Width="*" />
-                </Grid.ColumnDefinitions>
+        <!-- 连接设置 & 双 AI 对话 -->
+        <StackPanel Grid.Row="1" Margin="0,0,0,6">
+            <Expander Header="连接设置" IsExpanded="False">
+                <Grid Margin="0,6,0,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
 
-                <TextBlock Grid.Column="0" Text="服务地址:" VerticalAlignment="Center" />
-                <TextBox Grid.Column="1" Margin="6,0,12,0" VerticalContentAlignment="Center"
-                         Text="{Binding BaseUrl, UpdateSourceTrigger=PropertyChanged}" />
+                    <TextBlock Grid.Column="0" Text="服务地址:" VerticalAlignment="Center" />
+                    <TextBox Grid.Column="1" Margin="6,0,12,0" VerticalContentAlignment="Center"
+                             Text="{Binding BaseUrl, UpdateSourceTrigger=PropertyChanged}" />
 
-                <TextBlock Grid.Column="2" Text="API Key:" VerticalAlignment="Center" />
-                <TextBox Grid.Column="3" Margin="6,0,0,0" VerticalContentAlignment="Center"
-                         Text="{Binding ApiKey, UpdateSourceTrigger=PropertyChanged}" />
-            </Grid>
-        </Expander>
+                    <TextBlock Grid.Column="2" Text="API Key:" VerticalAlignment="Center" />
+                    <TextBox Grid.Column="3" Margin="6,0,0,0" VerticalContentAlignment="Center"
+                             Text="{Binding ApiKey, UpdateSourceTrigger=PropertyChanged}" />
+                </Grid>
+            </Expander>
+
+            <Expander Header="双 AI 对话" IsExpanded="False" Margin="0,4,0,0">
+                <Grid Margin="0,6,0,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+
+                    <TextBlock Grid.Row="0" Grid.Column="0" Text="话题:" VerticalAlignment="Top" />
+                    <TextBox Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="3" Margin="6,0,0,4"
+                             Text="{Binding DualTopic, UpdateSourceTrigger=PropertyChanged}"
+                             AcceptsReturn="True" TextWrapping="Wrap" MinHeight="48"
+                             VerticalScrollBarVisibility="Auto" />
+
+                    <TextBlock Grid.Row="1" Grid.Column="0" Text="AI A 论据:" VerticalAlignment="Top" />
+                    <TextBox Grid.Row="1" Grid.Column="1" Margin="6,0,4,4" MinHeight="40"
+                             Text="{Binding DualArgumentA, UpdateSourceTrigger=PropertyChanged}"
+                             AcceptsReturn="True" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto" />
+                    <TextBlock Grid.Row="1" Grid.Column="2" Text="模型:" VerticalAlignment="Center" />
+                    <ComboBox Grid.Row="1" Grid.Column="3" Margin="6,0,0,4"
+                              ItemsSource="{Binding Models}"
+                              IsEditable="True"
+                              Text="{Binding DualModelA, UpdateSourceTrigger=PropertyChanged}" />
+
+                    <TextBlock Grid.Row="2" Grid.Column="0" Text="AI B 论据:" VerticalAlignment="Top" />
+                    <TextBox Grid.Row="2" Grid.Column="1" Margin="6,0,4,4" MinHeight="40"
+                             Text="{Binding DualArgumentB, UpdateSourceTrigger=PropertyChanged}"
+                             AcceptsReturn="True" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto" />
+                    <TextBlock Grid.Row="2" Grid.Column="2" Text="模型:" VerticalAlignment="Center" />
+                    <ComboBox Grid.Row="2" Grid.Column="3" Margin="6,0,0,4"
+                              ItemsSource="{Binding Models}"
+                              IsEditable="True"
+                              Text="{Binding DualModelB, UpdateSourceTrigger=PropertyChanged}" />
+
+                    <TextBlock Grid.Row="3" Grid.Column="0" Text="轮数:" VerticalAlignment="Center" />
+                    <TextBox Grid.Row="3" Grid.Column="1" Width="60" HorizontalAlignment="Left" Margin="6,0,4,0"
+                             Text="{Binding DualRounds, UpdateSourceTrigger=PropertyChanged}" />
+                    <Button Grid.Row="3" Grid.Column="3" Content="开始对话" HorizontalAlignment="Right"
+                            Command="{Binding StartDualChatCommand}" Padding="10,4" />
+                </Grid>
+            </Expander>
+        </StackPanel>
 
         <!-- 消息列表 -->
         <Border Grid.Row="2" BorderBrush="#DDDDDD" BorderThickness="1" CornerRadius="6" Background="#FAFAFA">
