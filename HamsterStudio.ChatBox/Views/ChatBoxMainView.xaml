@@ -85,7 +85,7 @@
                     <ItemsControl.ItemTemplate>
                         <DataTemplate DataType="{x:Type vm:ChatMessageViewModel}">
                             <Grid Margin="0,4">
-                                <Border x:Name="Bubble" MaxWidth="998" Padding="12,8" CornerRadius="10"
+                                <Border x:Name="Bubble" MaxWidth="888" Padding="12,8" CornerRadius="10"
                                         HorizontalAlignment="Left"
                                         Background="#FFFFFF" BorderBrush="#E0E0E0" BorderThickness="1">
                                     <StackPanel>

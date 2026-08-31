@@ -24,6 +24,14 @@ public partial class ChatMessageViewModel : ObservableObject
     [ObservableProperty]
     private bool _isFailed;
 
+    /// <summary>是否处于编辑状态。</summary>
+    [ObservableProperty]
+    private bool _isEditing;
+
+    /// <summary>编辑中的文本。</summary>
+    [ObservableProperty]
+    private string _editText = string.Empty;
+
     [ObservableProperty]
     private string _content;
 

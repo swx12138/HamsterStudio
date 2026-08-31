@@ -172,9 +172,61 @@ public partial class ChatBoxMainViewModel : ViewModel
         await SendCoreAsync(text, images);
     }
 
-    private async Task SendCoreAsync(string text, IReadOnlyList<string>? images)
+    [RelayCommand]
+    private void EditMessage(ChatMessageViewModel? message)
     {
-        Messages.Add(new ChatMessageViewModel(ChatRole.User, text, images));
+        if (message is null || IsBusy)
+            return;
+
+        message.EditText = message.Content;
+        message.IsEditing = true;
+    }
+
+    [RelayCommand]
+    private void CancelEdit(ChatMessageViewModel? message)
+    {
+        if (message is not null)
+            message.IsEditing = false;
+    }
+
+    [RelayCommand]
+    private async Task SaveEditAsync(ChatMessageViewModel? message)
+    {
+        if (message is null || IsBusy)
+            return;
+
+        var newContent = message.EditText?.Trim() ?? string.Empty;
+        message.IsEditing = false;
+
+        if (string.IsNullOrWhiteSpace(newContent))
+            return;
+
+        message.Content = newContent;
+
+        var index = Messages.IndexOf(message);
+        if (index < 0)
+            return;
+
+        // 截断该消息之后的所有消息
+        while (Messages.Count > index + 1)
+            Messages.RemoveAt(Messages.Count - 1);
+
+        if (message.Role == ChatRole.User)
+        {
+            // 从该 user 消息重新生成
+            var images = message.Images.Count > 0 ? message.Images.ToList() : null;
+            await SendCoreAsync(message.Content, images, addUserMessage: false);
+        }
+        else
+        {
+            StatusText = "已更新消息";
+        }
+    }
+
+    private async Task SendCoreAsync(string text, IReadOnlyList<string>? images, bool addUserMessage = true)
+    {
+        if (addUserMessage)
+            Messages.Add(new ChatMessageViewModel(ChatRole.User, text, images));
 
         var assistant = new ChatMessageViewModel(ChatRole.Assistant, string.Empty);
         Messages.Add(assistant);
