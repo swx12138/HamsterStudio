@@ -15,9 +15,12 @@ public class PhotogrammetryMainViewModel : KnownViewModel
     public ObservableCollection<EquivalentExposureCalculatorViewModel> EquivalentExposureCalculatorViewModels { get; } = [];
     public ICommand AddEquivalentExposureCalculatorViewModelCommand { get; }
 
+    public ReferenceProjectViewModel ReferenceProjectViewModel { get; }
+
     public PhotogrammetryMainViewModel(IServiceProvider provider, ILoggerFactory factory) : base(null)
     {
         DisplayName = "键盘摄影";
+        ReferenceProjectViewModel = provider.GetRequiredService<ReferenceProjectViewModel>();
 
         AddDepthOfFieldCalculatorViewModelsCommand = new RelayCommand(() =>
         {

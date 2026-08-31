@@ -69,5 +69,8 @@
                 </ScrollViewer>
             </DockPanel>
         </TabItem>
+        <TabItem Header="参考图">
+            <local:ReferenceProjectView DataContext="{Binding ReferenceProjectViewModel}" />
+        </TabItem>
     </TabControl>
 </UserControl>

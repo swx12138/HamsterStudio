@@ -175,8 +175,26 @@ target_link_libraries(hamster-cat PRIVATE HamsterStudioToes)
 target_compile_options(hamster-cat PRIVATE /utf-8)
 
 # ============================================================
+# 可执行文件 4: hamster-tojpg (图片转 JPEG 命令)
+# ============================================================
+add_executable(hamster-tojpg
+    src/tojpg/tojpeg.cpp
+)
+target_link_libraries(hamster-tojpg PRIVATE HamsterStudioToes)
+target_compile_options(hamster-tojpg PRIVATE /utf-8)
+
+# ============================================================
+# 可执行文件 5: hamster-tovid (图片合成视频命令)
+# ============================================================
+add_executable(hamster-tovid
+    src/tovid/main.cpp
+)
+target_link_libraries(hamster-tovid PRIVATE HamsterStudioToes)
+target_compile_options(hamster-tovid PRIVATE /utf-8)
+
+# ============================================================
 # 安装规则
 # ============================================================
-install(TARGETS hamster-stitch hamster-bait hamster-cat
-    RUNTIME DESTINATION hamster-cli
+install(TARGETS hamster-stitch hamster-bait hamster-cat hamster-tojpg hamster-tovid
+    RUNTIME DESTINATION ../Tools/hamster-cli
 )
