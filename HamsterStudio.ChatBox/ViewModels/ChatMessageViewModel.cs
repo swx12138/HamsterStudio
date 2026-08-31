@@ -17,7 +17,7 @@ public partial class ChatMessageViewModel : ObservableObject
         _ => "系统",
     };
 
-    /// <summary>图片 data URL 列表（多模态）。</summary>
+    /// <summary>图片文件路径列表（多模态）。</summary>
     public IReadOnlyList<string> Images { get; }
 
     /// <summary>请求是否失败（失败时显示重试按钮）。</summary>

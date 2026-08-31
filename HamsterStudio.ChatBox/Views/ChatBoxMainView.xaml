@@ -6,9 +6,10 @@
              xmlns:vm="clr-namespace:HamsterStudio.ChatBox.ViewModels"
              xmlns:conv="clr-namespace:HamsterStudio.ChatBox.Converters"
              mc:Ignorable="d" 
-             d:DesignHeight="600" d:DesignWidth="900">
+             Loaded="UserControl_Loaded"
+             d:DesignHeight="720" d:DesignWidth="1280">
     <UserControl.Resources>
-        <conv:Base64DataUrlToImageConverter x:Key="Base64ToImage" />
+        <conv:FilePathToImageConverter x:Key="FilePathToImage" />
         <conv:MarkdownToFlowDocumentConverter x:Key="MarkdownToFlowDocument" />
         <BooleanToVisibilityConverter x:Key="BoolToVis" />
     </UserControl.Resources>
@@ -103,8 +104,10 @@
                                             </ItemsControl.ItemsPanel>
                                             <ItemsControl.ItemTemplate>
                                                 <DataTemplate>
-                                                    <Image Source="{Binding Converter={StaticResource Base64ToImage}}"
-                                                           MaxWidth="200" MaxHeight="200" Margin="0,4,4,0" Stretch="Uniform" />
+                                                    <Image Source="{Binding Converter={StaticResource FilePathToImage}}"
+                                                           MaxWidth="200" MaxHeight="200" Margin="0,4,4,0" Stretch="Uniform"
+                                                           Cursor="Hand"
+                                                           MouseLeftButtonUp="MessageImage_MouseLeftButtonUp" />
                                                 </DataTemplate>
                                             </ItemsControl.ItemTemplate>
                                         </ItemsControl>
@@ -134,8 +137,10 @@
         </Border>
 
         <!-- 状态栏 -->
-        <TextBlock Grid.Row="3" Text="{Binding StatusText}" FontSize="11" Foreground="#888888"
-                   Margin="2,4,2,4" TextTrimming="CharacterEllipsis" />
+        <DockPanel Grid.Row="3" Margin="2,4,2,4">
+            <TextBlock DockPanel.Dock="Right" Text="{Binding TokenUsageText}" FontSize="11" Foreground="#666666" />
+            <TextBlock Text="{Binding StatusText}" FontSize="11" Foreground="#888888" TextTrimming="CharacterEllipsis" />
+        </DockPanel>
 
         <!-- 输入区 -->
         <Grid Grid.Row="4">
@@ -145,7 +150,7 @@
             </Grid.RowDefinitions>
 
             <!-- 待发送图片预览 -->
-            <ItemsControl Grid.Row="0" ItemsSource="{Binding PendingImageDataUrls}"
+            <ItemsControl Grid.Row="0" ItemsSource="{Binding PendingImagePaths}"
                           HorizontalAlignment="Left">
                 <ItemsControl.ItemsPanel>
                     <ItemsPanelTemplate>
@@ -157,7 +162,7 @@
                         <Border Margin="0,0,4,4" BorderBrush="#CCCCCC" BorderThickness="1" CornerRadius="4"
                                 Background="#F4F4F4" ToolTip="点击移除">
                             <Grid>
-                                <Image Source="{Binding Converter={StaticResource Base64ToImage}}"
+                                <Image Source="{Binding Converter={StaticResource FilePathToImage}}"
                                        MaxWidth="80" MaxHeight="80" Stretch="Uniform" />
                                 <Button Content="✕" Width="20" Height="20" Padding="0"
                                         HorizontalAlignment="Right" VerticalAlignment="Top"

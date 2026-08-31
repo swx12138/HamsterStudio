@@ -2,6 +2,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using HamsterStudio.Barefeet.MVVM;
 using HamsterStudio.Barefeet.Services;
+using HamsterStudio.HandyUtil;
 using HamsterStudio.Photogrammetry.Models;
 using HamsterStudio.Toolkits;
 using Microsoft.Extensions.Logging;
@@ -439,29 +440,12 @@ public partial class ReferenceProjectViewModel : KnownViewModel
     [RelayCommand]
     private void ShowFullscreen(ReferenceItemViewModel? item)
     {
-        if (item is null || string.IsNullOrWhiteSpace(item.Path) || !File.Exists(item.Path))
+        if (item is null )
         {
             return;
         }
 
-        var viewer = new HandyControl.Controls.ImageViewer
-        {
-            Uri = new Uri(item.Path, UriKind.Absolute),
-            ShowToolBar = true,
-        };
-
-        var window = new Window
-        {
-            Content = viewer,
-            Title = item.FileName,
-            Width = 1280,
-            Height = 720,
-            WindowState = WindowState.Maximized,
-            WindowStartupLocation = WindowStartupLocation.CenterScreen,
-            Background = Brushes.Black,
-        };
-
-        window.Show();
+        ImagePreview.Show(item.Path);
     }
 
     public ReferenceProjectModel ToModel() => new()

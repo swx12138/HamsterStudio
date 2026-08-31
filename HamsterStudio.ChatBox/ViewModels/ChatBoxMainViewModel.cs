@@ -20,8 +20,8 @@ public partial class ChatBoxMainViewModel : ViewModel
     public ObservableCollection<ChatMessageViewModel> Messages { get; } = [];
     public ObservableCollection<string> Models { get; } = [];
 
-    /// <summary>待发送的图片 data URL 列表（多模态）。</summary>
-    public ObservableCollection<string> PendingImageDataUrls { get; } = [];
+    /// <summary>待发送的图片文件路径列表（多模态）。</summary>
+    public ObservableCollection<string> PendingImagePaths { get; } = [];
 
     public IReadOnlyList<ChatProviderKind> ProviderKinds { get; } = Enum.GetValues<ChatProviderKind>();
 
@@ -51,6 +51,17 @@ public partial class ChatBoxMainViewModel : ViewModel
 
     [ObservableProperty]
     private string _systemPrompt = LoadSystemPrompt();
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(TokenUsageText))]
+    private long _promptTokens;
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(TokenUsageText))]
+    private long _completionTokens;
+
+    /// <summary>token 统计文本（↑输入 ↓输出）。</summary>
+    public string TokenUsageText => $"↑{PromptTokens:N0}  ↓{CompletionTokens:N0}";
 
     public ChatBoxMainViewModel(ChatService chatService, ChatSessionService chatSessionService, ILogger<ChatBoxMainViewModel>? logger) : base(logger)
     {
@@ -98,13 +109,13 @@ public partial class ChatBoxMainViewModel : ViewModel
         CancelPullCommand.NotifyCanExecuteChanged();
     }
 
-    private bool CanSend() => !IsBusy && (!string.IsNullOrWhiteSpace(InputText) || PendingImageDataUrls.Count > 0);
+    private bool CanSend() => !IsBusy && (!string.IsNullOrWhiteSpace(InputText) || PendingImagePaths.Count > 0);
 
     [RelayCommand(CanExecute = nameof(CanSend))]
     private Task SendAsync()
     {
         var text = InputText?.Trim();
-        if ((string.IsNullOrEmpty(text) && PendingImageDataUrls.Count == 0) || IsBusy)
+        if ((string.IsNullOrEmpty(text) && PendingImagePaths.Count == 0) || IsBusy)
             return Task.CompletedTask;
 
         if (string.IsNullOrWhiteSpace(BaseUrl))
@@ -113,9 +124,9 @@ public partial class ChatBoxMainViewModel : ViewModel
             return Task.CompletedTask;
         }
 
-        var images = PendingImageDataUrls.Count > 0 ? PendingImageDataUrls.ToList() : null;
+        var images = PendingImagePaths.Count > 0 ? PendingImagePaths.ToList() : null;
         InputText = string.Empty;
-        PendingImageDataUrls.Clear();
+        PendingImagePaths.Clear();
 
         return SendCoreAsync(text ?? string.Empty, images);
     }
@@ -181,10 +192,19 @@ public partial class ChatBoxMainViewModel : ViewModel
         var builder = new StringBuilder();
         try
         {
-            await foreach (var chunk in _chatService.ChatAsync(BuildSettings(), history, _cts.Token))
+            var result = _chatService.ChatAsync(BuildSettings(), history, _cts.Token);
+
+            await foreach (var chunk in result.Chunks)
             {
                 builder.Append(chunk);
                 assistant.Content = builder.ToString();
+            }
+
+            var usage = await result.Usage;
+            if (usage is not null)
+            {
+                PromptTokens += usage.PromptTokens;
+                CompletionTokens += usage.CompletionTokens;
             }
 
             if (builder.Length == 0)
@@ -272,45 +292,23 @@ public partial class ChatBoxMainViewModel : ViewModel
         StatusText = "已清空对话";
     }
 
-    /// <summary>选择图片后，将其转为 data URL 加入待发送队列。</summary>
+    /// <summary>选择图片后，将文件路径加入待发送队列（内存中只保存路径）。</summary>
     public void AttachImages(IEnumerable<string> paths)
     {
         foreach (var path in paths)
         {
-            var dataUrl = BuildDataUrl(path);
-            if (dataUrl is not null)
-                PendingImageDataUrls.Add(dataUrl);
+            if (File.Exists(path))
+                PendingImagePaths.Add(path);
         }
 
         SendCommand.NotifyCanExecuteChanged();
     }
 
     [RelayCommand]
-    private void RemovePendingImage(string dataUrl)
+    private void RemovePendingImage(string path)
     {
-        PendingImageDataUrls.Remove(dataUrl);
+        PendingImagePaths.Remove(path);
         SendCommand.NotifyCanExecuteChanged();
-    }
-
-    private static string? BuildDataUrl(string path)
-    {
-        try
-        {
-            var bytes = File.ReadAllBytes(path);
-            var mime = Path.GetExtension(path).ToLowerInvariant() switch
-            {
-                ".png" => "image/png",
-                ".gif" => "image/gif",
-                ".webp" => "image/webp",
-                ".bmp" => "image/bmp",
-                _ => "image/jpeg",
-            };
-            return $"data:{mime};base64,{Convert.ToBase64String(bytes)}";
-        }
-        catch
-        {
-            return null;
-        }
     }
 
     /// <summary>导出当前对话到指定 .hchat 文件。</summary>
@@ -385,7 +383,7 @@ public partial class ChatBoxMainViewModel : ViewModel
             var models = await _chatService.GetModelsAsync(BuildSettings());
 
             Models.Clear();
-            foreach (var model in models)
+            foreach (var model in models.Order())
                 Models.Add(model);
 
             if (Models.Count > 0 && !Models.Contains(SelectedModel))

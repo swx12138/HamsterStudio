@@ -1,6 +1,7 @@
 using System.Runtime.CompilerServices;
 using HamsterStudio.ChatBox.Models;
 using OllamaSharp;
+using OllamaSharpChatDone = OllamaSharp.Models.Chat.ChatDoneResponseStream;
 using OllamaSharpChatRequest = OllamaSharp.Models.Chat.ChatRequest;
 using OllamaSharpChatRole = OllamaSharp.Models.Chat.ChatRole;
 using OllamaSharpMessage = OllamaSharp.Models.Chat.Message;
@@ -17,10 +18,17 @@ public class OllamaChatProvider : IChatProvider
         return models.Select(m => m.Name).ToList();
     }
 
-    public async IAsyncEnumerable<string> ChatAsync(
+    public ChatStreamResult ChatAsync(ChatProviderSettings settings, IReadOnlyList<ChatMessage> messages, CancellationToken cancellationToken = default)
+    {
+        var usage = new TaskCompletionSource<ChatTokenUsage?>(TaskCreationOptions.RunContinuationsAsynchronously);
+        return new ChatStreamResult(StreamAsync(settings, messages, usage, cancellationToken), usage.Task);
+    }
+
+    private async IAsyncEnumerable<string> StreamAsync(
         ChatProviderSettings settings,
         IReadOnlyList<ChatMessage> messages,
-        [EnumeratorCancellation] CancellationToken cancellationToken = default)
+        TaskCompletionSource<ChatTokenUsage?> usage,
+        [EnumeratorCancellation] CancellationToken cancellationToken)
     {
         using var ollama = new OllamaApiClient(settings.BaseUrl);
 
@@ -33,10 +41,15 @@ public class OllamaChatProvider : IChatProvider
 
         await foreach (var response in ollama.ChatAsync(request, cancellationToken))
         {
+            if (response is OllamaSharpChatDone done)
+                usage.TrySetResult(new ChatTokenUsage(done.PromptEvalCount, done.EvalCount));
+
             var text = response?.Message?.Content;
             if (!string.IsNullOrEmpty(text))
                 yield return text;
         }
+
+        usage.TrySetResult(null);
     }
 
     public async IAsyncEnumerable<ModelPullProgress> PullModelAsync(
@@ -63,12 +76,5 @@ public class OllamaChatProvider : IChatProvider
             _ => OllamaSharpChatRole.User,
         },
         message.Content,
-        message.Images?.Select(ToOllamaBase64).ToArray());
-
-    private static string? ToOllamaBase64(string dataUrl)
-    {
-        const string marker = "base64,";
-        var idx = dataUrl.IndexOf(marker, StringComparison.Ordinal);
-        return idx >= 0 ? dataUrl[(idx + marker.Length)..] : dataUrl;
-    }
+        message.Images?.Select(ImageFileHelper.ReadAsBase64).ToArray());
 }

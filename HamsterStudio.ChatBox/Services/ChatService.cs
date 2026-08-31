@@ -31,7 +31,7 @@ public class ChatService
     public Task<IReadOnlyList<string>> GetModelsAsync(ChatProviderSettings settings, CancellationToken cancellationToken = default)
         => Resolve(settings.Kind).GetModelsAsync(settings, cancellationToken);
 
-    public IAsyncEnumerable<string> ChatAsync(ChatProviderSettings settings, IReadOnlyList<ChatMessage> messages, CancellationToken cancellationToken = default)
+    public ChatStreamResult ChatAsync(ChatProviderSettings settings, IReadOnlyList<ChatMessage> messages, CancellationToken cancellationToken = default)
         => Resolve(settings.Kind).ChatAsync(settings, messages, cancellationToken);
 
     public IAsyncEnumerable<ModelPullProgress> PullModelAsync(ChatProviderSettings settings, string model, CancellationToken cancellationToken = default)

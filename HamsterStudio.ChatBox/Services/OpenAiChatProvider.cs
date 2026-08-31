@@ -48,16 +48,24 @@ public class OpenAiChatProvider(HttpClient http) : IChatProvider
         return result;
     }
 
-    public async IAsyncEnumerable<string> ChatAsync(
+    public ChatStreamResult ChatAsync(ChatProviderSettings settings, IReadOnlyList<ChatMessage> messages, CancellationToken cancellationToken = default)
+    {
+        var usage = new TaskCompletionSource<ChatTokenUsage?>(TaskCreationOptions.RunContinuationsAsynchronously);
+        return new ChatStreamResult(StreamAsync(settings, messages, usage, cancellationToken), usage.Task);
+    }
+
+    private async IAsyncEnumerable<string> StreamAsync(
         ChatProviderSettings settings,
         IReadOnlyList<ChatMessage> messages,
-        [EnumeratorCancellation] CancellationToken cancellationToken = default)
+        TaskCompletionSource<ChatTokenUsage?> usage,
+        [EnumeratorCancellation] CancellationToken cancellationToken)
     {
         var payload = new
         {
             model = settings.Model,
             messages = messages.Select(m => new { role = m.RoleText, content = BuildContent(m) }).ToArray(),
             stream = true,
+            stream_options = new { include_usage = true },
         };
 
         using var request = BuildRequest(settings, HttpMethod.Post, "chat/completions");
@@ -73,7 +81,7 @@ public class OpenAiChatProvider(HttpClient http) : IChatProvider
         {
             var line = await reader.ReadLineAsync(cancellationToken);
             if (line is null)
-                yield break;
+                break;
             if (string.IsNullOrWhiteSpace(line))
                 continue;
             if (!line.StartsWith("data:", StringComparison.Ordinal))
@@ -81,12 +89,12 @@ public class OpenAiChatProvider(HttpClient http) : IChatProvider
 
             var data = line["data:".Length..].Trim();
             if (data == "[DONE]")
-                yield break;
+                break;
 
-            string text;
+            string? text;
             try
             {
-                text = ExtractDeltaContent(data);
+                text = ParseChunk(data, usage);
             }
             catch (JsonException)
             {
@@ -97,6 +105,39 @@ public class OpenAiChatProvider(HttpClient http) : IChatProvider
             if (!string.IsNullOrEmpty(text))
                 yield return text;
         }
+
+        usage.TrySetResult(null);
+    }
+
+    private static string? ParseChunk(string data, TaskCompletionSource<ChatTokenUsage?> usage)
+    {
+        using var doc = JsonDocument.Parse(data);
+        var root = doc.RootElement;
+
+        // usage 信息（需要 stream_options.include_usage）
+        if (root.TryGetProperty("usage", out var usageEl))
+        {
+            var prompt = usageEl.TryGetProperty("prompt_tokens", out var p) ? p.GetInt64() : 0L;
+            var completion = usageEl.TryGetProperty("completion_tokens", out var c) ? c.GetInt64() : 0L;
+            usage.TrySetResult(new ChatTokenUsage(prompt, completion));
+        }
+
+        // 增量文本（默认单 choice）
+        if (root.TryGetProperty("choices", out var choices))
+        {
+            foreach (var choice in choices.EnumerateArray())
+            {
+                if (choice.TryGetProperty("delta", out var delta) &&
+                    delta.TryGetProperty("content", out var content) &&
+                    content.GetString() is { } text &&
+                    !string.IsNullOrEmpty(text))
+                {
+                    return text;
+                }
+            }
+        }
+
+        return null;
     }
 
     private static object BuildContent(ChatMessage message)
@@ -108,34 +149,14 @@ public class OpenAiChatProvider(HttpClient http) : IChatProvider
             {
                 new { type = "text", text = message.Content },
             };
-            parts.AddRange(message.Images.Select(dataUrl => new
+            parts.AddRange(message.Images.Select(path => new
             {
                 type = "image_url",
-                image_url = new { url = dataUrl },
+                image_url = new { url = ImageFileHelper.ReadAsDataUrl(path) },
             }));
             return parts;
         }
 
         return message.Content;
-    }
-
-    private static string ExtractDeltaContent(string data)
-    {
-        var builder = new StringBuilder();
-        using var doc = JsonDocument.Parse(data);
-        if (doc.RootElement.TryGetProperty("choices", out var choices))
-        {
-            foreach (var choice in choices.EnumerateArray())
-            {
-                if (choice.TryGetProperty("delta", out var delta) &&
-                    delta.TryGetProperty("content", out var content) &&
-                    content.GetString() is { } text)
-                {
-                    builder.Append(text);
-                }
-            }
-        }
-
-        return builder.ToString();
     }
 }

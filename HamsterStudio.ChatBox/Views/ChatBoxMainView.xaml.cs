@@ -1,7 +1,9 @@
 ﻿using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Media;
 using HamsterStudio.ChatBox.ViewModels;
+using HamsterStudio.HandyUtil;
 using HamsterStudio.Toolkits;
 
 namespace HamsterStudio.ChatBox.Views;
@@ -55,6 +57,12 @@ public partial class ChatBoxMainView : UserControl
             viewModel.ImportChat(dialog.FileName);
     }
 
+    private void MessageImage_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+    {
+        if (sender is Image image && image.DataContext is string path)
+            ImagePreview.Show(path);
+    }
+
     private void InputBox_PreviewKeyDown(object sender, KeyEventArgs e)
     {
         // 回车发送，Shift+回车换行
@@ -77,5 +85,13 @@ public partial class ChatBoxMainView : UserControl
         var wasAtBottom = e.VerticalOffset + e.ViewportHeight >= e.ExtentHeight - e.ExtentHeightChange - 24;
         if (wasAtBottom)
             MessagesScroll.ScrollToEnd();
+    }
+
+    private void UserControl_Loaded(object sender, RoutedEventArgs e)
+    {
+        if(DataContext is ChatBoxMainViewModel viewModel)
+        {
+            viewModel.RefreshModelsCommand?.Execute(null);
+        }
     }
 }
