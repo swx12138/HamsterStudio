@@ -1,0 +1,90 @@
+<UserControl x:Class="HamsterStudio.Photogrammetry.Views.Functions.AngleOfViewCalculatorView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:hc="https://handyorg.github.io/handycontrol"
+             xmlns:func="clr-namespace:HamsterStudio.Photogrammetry.Views.Functions"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             d:DesignHeight="450"
+             d:DesignWidth="800"
+             mc:Ignorable="d">
+    <DockPanel HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+        <StackPanel DockPanel.Dock="Top" Orientation="Horizontal">
+            <StackPanel.Resources>
+                <Style TargetType="Button">
+                    <Setter Property="Margin" Value="5" />
+                </Style>
+            </StackPanel.Resources>
+            <Button Command="{Binding ClearEntriesCommand}" Content="清空" />
+        </StackPanel>
+
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="440" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+
+            <DockPanel Grid.Column="0">
+                <GroupBox Margin="6" Padding="4" DockPanel.Dock="Top" Header="方向设置">
+                    <hc:PropertyGrid SelectedObject="{Binding}" ShowSortButton="False" />
+                </GroupBox>
+
+                <StackPanel DockPanel.Dock="Top" Margin="6,0,6,4">
+                    <TextBlock FontWeight="SemiBold" Text="焦距" />
+                    <Grid Margin="0,2,0,4">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <TextBox Grid.Column="0"
+                                 Text="{Binding NewFocalLength, UpdateSourceTrigger=PropertyChanged}" />
+                        <Button Grid.Column="1"
+                                Margin="6,0,0,0"
+                                Command="{Binding AddEntryCommand}"
+                                Content="添加焦距" />
+                    </Grid>
+                </StackPanel>
+
+                <ScrollViewer>
+                    <ItemsControl Margin="6,0,6,8" ItemsSource="{Binding EntriesView}">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <WrapPanel />
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border Margin="0,0,6,6"
+                                        Padding="8,4"
+                                        Background="#f0f0f0"
+                                        CornerRadius="3">
+                                    <StackPanel Orientation="Horizontal">
+                                        <Rectangle Width="12"
+                                                   Height="12"
+                                                   Margin="0,0,6,0"
+                                                   VerticalAlignment="Center"
+                                                   Fill="{Binding Brush}" />
+                                        <TextBlock VerticalAlignment="Center" Text="{Binding DisplayText}" />
+                                        <Button Margin="6,0,0,0"
+                                                Padding="4,0"
+                                                Command="{Binding DataContext.RemoveEntryCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                                CommandParameter="{Binding}"
+                                                Content="×" />
+                                    </StackPanel>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </ScrollViewer>
+            </DockPanel>
+
+            <Border Grid.Column="1"
+                    Margin="6"
+                    BorderBrush="#ba1143"
+                    BorderThickness="1"
+                    CornerRadius="6">
+                <func:AoVComparisonCanvas ItemsSource="{Binding EntriesView}" />
+            </Border>
+        </Grid>
+    </DockPanel>
+</UserControl>

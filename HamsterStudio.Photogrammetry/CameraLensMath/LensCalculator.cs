@@ -1,7 +1,7 @@
 
 namespace HamsterStudio.Photogrammetry.CameraLensMath;
 
-public enum Orientation { Diagonal, Horizontal, Vertical };
+public enum Orientation { Horizontal, Vertical, Diagonal };
 
 public static class LensCalculator
 {
@@ -28,10 +28,12 @@ public static class LensCalculator
     /// <returns>对角线视角（度）</returns>
     public static double GetDiagonalAngleOfView(double focalLength, double sensorWidth, double sensorHeight)
     {
-        if (focalLength <= 0)
+        if (!double.IsFinite(focalLength) || focalLength <= 0)
             throw new ArgumentOutOfRangeException(nameof(focalLength), "焦距必须大于0。");
-        if (sensorWidth <= 0 || sensorHeight <= 0)
-            throw new ArgumentOutOfRangeException("传感器尺寸必须为正数。");
+        if (!double.IsFinite(sensorWidth) || sensorWidth <= 0)
+            throw new ArgumentOutOfRangeException(nameof(sensorWidth), "传感器宽度必须为正数。");
+        if (!double.IsFinite(sensorHeight) || sensorHeight <= 0)
+            throw new ArgumentOutOfRangeException(nameof(sensorHeight), "传感器高度必须为正数。");
 
         double diagonal = Math.Sqrt(sensorWidth * sensorWidth + sensorHeight * sensorHeight);
         double angleRad = 2 * Math.Atan(diagonal / (2 * focalLength));
@@ -51,8 +53,10 @@ public static class LensCalculator
     /// </summary>
     public static double GetHorizontalAngleOfView(double focalLength, double sensorWidth)
     {
-        if (focalLength <= 0 || sensorWidth <= 0)
-            throw new ArgumentOutOfRangeException("焦距和传感器宽度必须为正数。");
+        if (!double.IsFinite(focalLength) || focalLength <= 0)
+            throw new ArgumentOutOfRangeException(nameof(focalLength), "焦距必须大于0。");
+        if (!double.IsFinite(sensorWidth) || sensorWidth <= 0)
+            throw new ArgumentOutOfRangeException(nameof(sensorWidth), "传感器宽度必须为正数。");
         double angleRad = 2 * Math.Atan(sensorWidth / (2 * focalLength));
         return angleRad * (180.0 / Math.PI);
     }
@@ -70,8 +74,10 @@ public static class LensCalculator
     /// </summary>
     public static double GetVerticalAngleOfView(double focalLength, double sensorHeight)
     {
-        if (focalLength <= 0 || sensorHeight <= 0)
-            throw new ArgumentOutOfRangeException("焦距和传感器高度必须为正数。");
+        if (!double.IsFinite(focalLength) || focalLength <= 0)
+            throw new ArgumentOutOfRangeException(nameof(focalLength), "焦距必须大于0。");
+        if (!double.IsFinite(sensorHeight) || sensorHeight <= 0)
+            throw new ArgumentOutOfRangeException(nameof(sensorHeight), "传感器高度必须为正数。");
         double angleRad = 2 * Math.Atan(sensorHeight / (2 * focalLength));
         return angleRad * (180.0 / Math.PI);
     }

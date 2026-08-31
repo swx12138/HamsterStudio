@@ -17,10 +17,13 @@ public class PhotogrammetryMainViewModel : KnownViewModel
 
     public ReferenceProjectViewModel ReferenceProjectViewModel { get; }
 
+    public AngleOfViewCalculatorViewModel AngleOfViewCalculatorViewModel { get; }
+
     public PhotogrammetryMainViewModel(IServiceProvider provider, ILoggerFactory factory) : base(null)
     {
         DisplayName = "键盘摄影";
         ReferenceProjectViewModel = provider.GetRequiredService<ReferenceProjectViewModel>();
+        AngleOfViewCalculatorViewModel = provider.GetRequiredService<AngleOfViewCalculatorViewModel>();
 
         AddDepthOfFieldCalculatorViewModelsCommand = new RelayCommand(() =>
         {
