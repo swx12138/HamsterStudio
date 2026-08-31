@@ -9,6 +9,7 @@
              d:DesignHeight="600" d:DesignWidth="900">
     <UserControl.Resources>
         <conv:Base64DataUrlToImageConverter x:Key="Base64ToImage" />
+        <conv:MarkdownToFlowDocumentConverter x:Key="MarkdownToFlowDocument" />
         <BooleanToVisibilityConverter x:Key="BoolToVis" />
     </UserControl.Resources>
     <Grid Margin="8">
@@ -85,7 +86,15 @@
                                         <TextBlock x:Name="AuthorText" Text="{Binding Author}"
                                                    FontSize="11" Foreground="#999999" Margin="0,0,0,2" />
                                         <TextBlock x:Name="ContentText" Text="{Binding Content}"
-                                                   TextWrapping="Wrap" FontSize="14" LineHeight="20" />
+                                                   TextWrapping="Wrap" FontSize="14" LineHeight="20"
+                                                   Visibility="Collapsed" />
+                                        <FlowDocumentScrollViewer x:Name="MarkdownViewer"
+                                                                  Document="{Binding Content, Converter={StaticResource MarkdownToFlowDocument}}"
+                                                                  VerticalScrollBarVisibility="Auto"
+                                                                  HorizontalScrollBarVisibility="Disabled"
+                                                                  MaxHeight="720"
+                                                                  BorderThickness="0"
+                                                                  Background="Transparent" />
                                         <ItemsControl ItemsSource="{Binding Images}">
                                             <ItemsControl.ItemsPanel>
                                                 <ItemsPanelTemplate>
@@ -99,6 +108,11 @@
                                                 </DataTemplate>
                                             </ItemsControl.ItemTemplate>
                                         </ItemsControl>
+                                        <Button Content="重试"
+                                                Command="{Binding DataContext.RetryCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                CommandParameter="{Binding}"
+                                                Visibility="{Binding IsFailed, Converter={StaticResource BoolToVis}}"
+                                                HorizontalAlignment="Left" Padding="10,3" Margin="0,6,0,0" />
                                     </StackPanel>
                                 </Border>
                             </Grid>
@@ -109,6 +123,8 @@
                                     <Setter TargetName="Bubble" Property="BorderBrush" Value="#4C8BF5" />
                                     <Setter TargetName="AuthorText" Property="Foreground" Value="#D8E6FF" />
                                     <Setter TargetName="ContentText" Property="Foreground" Value="White" />
+                                    <Setter TargetName="ContentText" Property="Visibility" Value="Visible" />
+                                    <Setter TargetName="MarkdownViewer" Property="Visibility" Value="Collapsed" />
                                 </DataTrigger>
                             </DataTemplate.Triggers>
                         </DataTemplate>

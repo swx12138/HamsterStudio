@@ -89,6 +89,7 @@ public partial class ChatBoxMainViewModel : ViewModel
         SendCommand.NotifyCanExecuteChanged();
         StopCommand.NotifyCanExecuteChanged();
         PullModelCommand.NotifyCanExecuteChanged();
+        RetryCommand.NotifyCanExecuteChanged();
     }
 
     partial void OnIsPullingChanged(bool value)
@@ -100,23 +101,64 @@ public partial class ChatBoxMainViewModel : ViewModel
     private bool CanSend() => !IsBusy && (!string.IsNullOrWhiteSpace(InputText) || PendingImageDataUrls.Count > 0);
 
     [RelayCommand(CanExecute = nameof(CanSend))]
-    private async Task SendAsync()
+    private Task SendAsync()
     {
         var text = InputText?.Trim();
         if ((string.IsNullOrEmpty(text) && PendingImageDataUrls.Count == 0) || IsBusy)
-            return;
+            return Task.CompletedTask;
 
         if (string.IsNullOrWhiteSpace(BaseUrl))
         {
             StatusText = "请先在“连接设置”中填写服务地址";
-            return;
+            return Task.CompletedTask;
         }
 
-        InputText = string.Empty;
-
         var images = PendingImageDataUrls.Count > 0 ? PendingImageDataUrls.ToList() : null;
-        Messages.Add(new ChatMessageViewModel(ChatRole.User, text ?? string.Empty, images));
+        InputText = string.Empty;
         PendingImageDataUrls.Clear();
+
+        return SendCoreAsync(text ?? string.Empty, images);
+    }
+
+    private bool CanRetry() => !IsBusy;
+
+    [RelayCommand(CanExecute = nameof(CanRetry))]
+    private async Task RetryAsync(ChatMessageViewModel? failedMessage)
+    {
+        if (failedMessage is null || IsBusy)
+            return;
+
+        var failedIndex = Messages.IndexOf(failedMessage);
+        if (failedIndex < 0)
+            return;
+
+        // 找到该失败消息之前最近的一条用户消息
+        ChatMessageViewModel? userMessage = null;
+        for (var i = failedIndex - 1; i >= 0; i--)
+        {
+            if (Messages[i].Role == ChatRole.User)
+            {
+                userMessage = Messages[i];
+                break;
+            }
+        }
+
+        if (userMessage is null)
+            return;
+
+        var text = userMessage.Content;
+        var images = userMessage.Images.Count > 0 ? userMessage.Images.ToList() : null;
+
+        // 移除失败消息与其对应的用户消息，重新发送
+        Messages.Remove(failedMessage);
+        Messages.Remove(userMessage);
+
+        await SendCoreAsync(text, images);
+    }
+
+    private async Task SendCoreAsync(string text, IReadOnlyList<string>? images)
+    {
+        Messages.Add(new ChatMessageViewModel(ChatRole.User, text, images));
 
         var assistant = new ChatMessageViewModel(ChatRole.Assistant, string.Empty);
         Messages.Add(assistant);
@@ -158,6 +200,7 @@ public partial class ChatBoxMainViewModel : ViewModel
             StatusText = $"请求失败：{ex.Message}";
             if (builder.Length == 0)
                 assistant.Content = $"[请求失败] {ex.Message}";
+            assistant.IsFailed = true;
         }
         finally
         {
@@ -360,7 +403,7 @@ public partial class ChatBoxMainViewModel : ViewModel
     {
         try
         {
-            var path = Path.Combine(AppContext.BaseDirectory, "Prompts", "base.txt");
+            var path = Path.Combine(AppContext.BaseDirectory, "Prompts", "base.md");
             if (File.Exists(path))
                 return File.ReadAllText(path);
         }

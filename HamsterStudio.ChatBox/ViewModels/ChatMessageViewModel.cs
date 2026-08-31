@@ -20,6 +20,10 @@ public partial class ChatMessageViewModel : ObservableObject
     /// <summary>图片 data URL 列表（多模态）。</summary>
     public IReadOnlyList<string> Images { get; }
 
+    /// <summary>请求是否失败（失败时显示重试按钮）。</summary>
+    [ObservableProperty]
+    private bool _isFailed;
+
     [ObservableProperty]
     private string _content;
 
