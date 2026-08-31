@@ -11,6 +11,8 @@
  *   -o, --output <路径>    输出视频路径 (默认: output.mp4)
  *   -f, --fps <值>         视频帧率，每张图片 1 帧 (默认: 6)
  *   -c, --codec <名称>     编码器 fourcc: mp4v/avc1/h264/x264/mjpg/xvid (默认: h264)
+ *      --deflicker         启用去闪烁（默认开启）
+ *      --no-deflicker      关闭去闪烁
  *   -h, --help             显示此帮助信息
  *      --version           显示版本信息
  *
@@ -44,6 +46,9 @@ static constexpr const char* kVersion = "1.0.0";
 static constexpr int kMaxWidth = 3840;
 static constexpr int kMaxHeight = 2160;
 
+// 去闪烁时域平滑窗口（奇数）
+static constexpr int kDeflickerWindow = 9;
+
 // 将宽字符串转换为 UTF-8，用于控制台输出（配合 CP_UTF8 代码页）
 static std::string ToUtf8(std::wstring_view w)
 {
@@ -68,6 +73,8 @@ static void PrintUsage()
   -o, --output <路径>    输出视频路径 (默认: output.mp4)
   -f, --fps <值>         视频帧率，每张图片 1 帧 (默认: 6)
   -c, --codec <名称>     编码器 fourcc: mp4v/avc1/h264/x264/mjpg/xvid (默认: h264)
+      --deflicker        启用去闪烁（默认开启）
+      --no-deflicker     关闭去闪烁
   -h, --help             显示此帮助信息
       --version          显示版本信息
 
@@ -176,6 +183,55 @@ static cv::Mat FitToSize(const cv::Mat& img, cv::Size target)
     return canvas;
 }
 
+// 时域移动平均（用于平滑帧间亮度，避免增益突变）
+static std::vector<double> MovingAverage(const std::vector<double>& v, int window)
+{
+    int n = static_cast<int>(v.size());
+    if (n == 0)
+        return {};
+    window = std::max(1, window);
+    if ((window & 1) == 0)
+        ++window;  // 确保奇数，方便取对称邻域
+    int half = window / 2;
+    std::vector<double> out(n);
+    for (int i = 0; i < n; ++i)
+    {
+        double sum = 0.0;
+        int cnt = 0;
+        for (int j = i - half; j <= i + half; ++j)
+        {
+            if (j >= 0 && j < n)
+            {
+                sum += v[j];
+                ++cnt;
+            }
+        }
+        out[i] = sum / cnt;
+    }
+    return out;
+}
+
+// 根据帧亮度序列计算每帧的增益（去闪烁）
+static std::vector<double> ComputeDeflickerGains(const std::vector<double>& luminance, bool deflicker)
+{
+    std::vector<double> gains(luminance.size(), 1.0);
+    if (!deflicker || luminance.size() <= 1)
+        return gains;
+
+    auto smoothed = MovingAverage(luminance, kDeflickerWindow);
+    double target = 0.0;
+    for (double x : smoothed)
+        target += x;
+    target /= smoothed.size();
+
+    for (size_t i = 0; i < luminance.size(); ++i)
+    {
+        double g = target / std::max(smoothed[i], 1e-6);
+        gains[i] = std::clamp(g, 0.5, 2.0);
+    }
+    return gains;
+}
+
 // 在扩展名前插入后缀，如 output.mp4 → output_landscape.mp4
 static fs::path MakeGroupOutput(const fs::path& base, std::wstring_view suffix)
 {
@@ -186,12 +242,17 @@ static fs::path MakeGroupOutput(const fs::path& base, std::wstring_view suffix)
 
 // 将一组图片合成为一个视频（图片缩放时保持宽高比，居中填充黑边）
 static bool WriteVideo(const std::vector<fs::path>& paths,
+                       const std::vector<double>& luminance,
                        const fs::path& output_path,
                        cv::Size target,
                        double fps, int fourcc, const std::string& codec,
-                       int group_index)
+                       bool deflicker, int group_index)
 {
     std::cout << std::format("视频尺寸: {}x{} (帧率: {})\n", target.width, target.height, fps);
+
+    std::vector<double> gains = ComputeDeflickerGains(luminance, deflicker);
+    if (deflicker && gains.size() > 1)
+        std::cout << "已启用去闪烁 (deflicker)\n";
 
     // 先写入当前目录下的临时 ASCII 文件名，再重命名为最终路径，
     // 以避免 cv::VideoWriter 对 Unicode 输出路径支持不佳的问题
@@ -207,19 +268,25 @@ static bool WriteVideo(const std::vector<fs::path>& paths,
 
     std::cout << "正在合成视频...\n";
     size_t written = 0;
-    for (const auto& image_path : paths)
+    for (size_t i = 0; i < paths.size(); ++i)
     {
-        cv::Mat img = toes::Imread(image_path);
+        cv::Mat img = toes::Imread(paths[i]);
         if (img.empty())
         {
-            std::cerr << "警告: 跳过无法加载的图片: " << ToUtf8(image_path.native()) << "\n";
+            std::cerr << "警告: 跳过无法加载的图片: " << ToUtf8(paths[i].native()) << "\n";
             continue;
+        }
+        if (deflicker && !gains.empty())
+        {
+            cv::Mat corrected;
+            img.convertTo(corrected, -1, gains[i], 0.0);
+            img = corrected;
         }
         if (img.size() != target)
             img = FitToSize(img, target);
         writer.write(img);
         ++written;
-        std::cout << std::format("  [{}/{}] {}\n", written, paths.size(), ToUtf8(image_path.filename().native()));
+        std::cout << std::format("  [{}/{}] {}\n", written, paths.size(), ToUtf8(paths[i].filename().native()));
     }
 
     writer.release();
@@ -260,6 +327,7 @@ int wmain(int argc, wchar_t** argv)
     fs::path output_path = "output.mp4";
     double fps = 6.0;
     std::string codec = "h264";
+    bool deflicker = true;
 
     for (size_t i = 0; i < args.size(); ++i)
     {
@@ -322,6 +390,14 @@ int wmain(int argc, wchar_t** argv)
             }
             codec = ToUtf8(args[i]);
         }
+        else if (args[i] == L"--deflicker")
+        {
+            deflicker = true;
+        }
+        else if (args[i] == L"--no-deflicker")
+        {
+            deflicker = false;
+        }
         else if (!args[i].empty() && args[i][0] == L'-')
         {
             std::cerr << "错误: 未知选项: " << ToUtf8(args[i]) << "\n";
@@ -358,8 +434,9 @@ int wmain(int argc, wchar_t** argv)
         return 1;
     }
 
-    // 按横竖方向分组（宽 >= 高 视为横图，否则为竖图），并记录每组最大宽高
+    // 按横竖方向分组（宽 >= 高 视为横图，否则为竖图），并记录每组最大宽高与每帧亮度
     std::vector<fs::path> landscape, portrait;
+    std::vector<double> landscape_lum, portrait_lum;
     int landscape_max_w = 0, landscape_max_h = 0;
     int portrait_max_w = 0, portrait_max_h = 0;
     for (const auto& image_path : images)
@@ -370,15 +447,19 @@ int wmain(int argc, wchar_t** argv)
             std::cerr << "警告: 跳过无法加载的图片: " << ToUtf8(image_path.native()) << "\n";
             continue;
         }
+        cv::Scalar mean = cv::mean(probe);
+        double lum = (mean[0] + mean[1] + mean[2]) / 3.0;
         if (probe.cols >= probe.rows)
         {
             landscape.push_back(image_path);
+            landscape_lum.push_back(lum);
             landscape_max_w = std::max(landscape_max_w, probe.cols);
             landscape_max_h = std::max(landscape_max_h, probe.rows);
         }
         else
         {
             portrait.push_back(image_path);
+            portrait_lum.push_back(lum);
             portrait_max_w = std::max(portrait_max_w, probe.cols);
             portrait_max_h = std::max(portrait_max_h, probe.rows);
         }
@@ -401,13 +482,13 @@ int wmain(int argc, wchar_t** argv)
     {
         fs::path out = MakeGroupOutput(output_path, L"_landscape");
         std::cout << std::format("\n[横图] {} 张 → {}\n", landscape.size(), ToUtf8(out.native()));
-        ok &= WriteVideo(landscape, out, ComputeTargetSize({ landscape_max_w, landscape_max_h }), fps, fourcc, codec, group_index++);
+        ok &= WriteVideo(landscape, landscape_lum, out, ComputeTargetSize({ landscape_max_w, landscape_max_h }), fps, fourcc, codec, deflicker, group_index++);
     }
     if (!portrait.empty())
     {
         fs::path out = MakeGroupOutput(output_path, L"_portrait");
         std::cout << std::format("\n[竖图] {} 张 → {}\n", portrait.size(), ToUtf8(out.native()));
-        ok &= WriteVideo(portrait, out, ComputeTargetSize({ portrait_max_w, portrait_max_h }), fps, fourcc, codec, group_index++);
+        ok &= WriteVideo(portrait, portrait_lum, out, ComputeTargetSize({ portrait_max_w, portrait_max_h }), fps, fourcc, codec, deflicker, group_index++);
     }
 
     return ok ? 0 : 1;

@@ -1,5 +1,8 @@
 #pragma unmanaged
 
+// 禁用 Windows.h 的 min/max 宏，避免与 std::min/std::max 冲突
+#define NOMINMAX
+
 #include "ImageStitcher.h"
 
 #include <opencv2/opencv.hpp>
@@ -24,9 +27,6 @@ using namespace ImageUtilsNamespace;
 using namespace HamsterStudioToes;
 
 #include "./Tools/ImageUtils.hpp"
-
-#undef min
-#undef max
 
 /*
  * 跟之前的区别时是旧的函数会自动计算布局和排序，修改布局为输入，按照数组顺序排序
