@@ -44,6 +44,34 @@ public partial class ChatMessageViewModel : ObservableObject
     [ObservableProperty]
     private string _content;
 
+    /// <summary>回复用时。</summary>
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(MetaText))]
+    private TimeSpan? _elapsed;
+
+    /// <summary>字数（字符数）。</summary>
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(MetaText))]
+    private int _wordCount;
+
+    /// <summary>消息下方的元信息：用时与字数。</summary>
+    public string MetaText
+    {
+        get
+        {
+            var parts = new List<string>();
+            if (Elapsed is { } elapsed)
+                parts.Add($"用时 {FormatElapsed(elapsed)}");
+            if (WordCount > 0)
+                parts.Add($"{WordCount} 字");
+            return string.Join(" · ", parts);
+        }
+    }
+
+    private static string FormatElapsed(TimeSpan t) => t.TotalSeconds < 60
+        ? $"{t.TotalSeconds:0.0} 秒"
+        : $"{(int)t.TotalMinutes} 分 {t.Seconds} 秒";
+
     public ChatMessageViewModel(ChatRole role, string content, IReadOnlyList<string>? images = null, string? authorName = null, string? thinking = null)
     {
         Role = role;

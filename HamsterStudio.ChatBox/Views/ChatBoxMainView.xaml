@@ -8,245 +8,251 @@
              mc:Ignorable="d" 
              Loaded="UserControl_Loaded"
              d:DesignHeight="720" d:DesignWidth="1280">
-    <UserControl.Resources>
-        <conv:FilePathToImageConverter x:Key="FilePathToImage" />
-        <conv:MarkdownToFlowDocumentConverter x:Key="MarkdownToFlowDocument" />
-        <BooleanToVisibilityConverter x:Key="BoolToVis" />
-    </UserControl.Resources>
-    <Grid Margin="8">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto" />   <!-- 工具栏 -->
-            <RowDefinition Height="Auto" />   <!-- 连接设置 -->
-            <RowDefinition Height="*" />      <!-- 消息列表 -->
-            <RowDefinition Height="Auto" />   <!-- 状态栏 -->
-            <RowDefinition Height="Auto" />   <!-- 输入区 -->
-        </Grid.RowDefinitions>
+  <UserControl.Resources>
+    <conv:FilePathToImageConverter x:Key="FilePathToImage" />
+    <conv:MarkdownToFlowDocumentConverter x:Key="MarkdownToFlowDocument" />
+    <BooleanToVisibilityConverter x:Key="BoolToVis" />
+  </UserControl.Resources>
+  <Grid Margin="8">
+    <Grid.RowDefinitions>
+      <RowDefinition Height="Auto" />
+      <!-- 工具栏 -->
+      <RowDefinition Height="Auto" />
+      <!-- 连接设置 -->
+      <RowDefinition Height="*" />
+      <!-- 消息列表 -->
+      <RowDefinition Height="Auto" />
+      <!-- 状态栏 -->
+      <RowDefinition Height="Auto" />
+      <!-- 输入区 -->
+    </Grid.RowDefinitions>
 
-        <!-- 工具栏 -->
-        <DockPanel Grid.Row="0" Margin="0,0,0,6">
-            <Button DockPanel.Dock="Right" Content="停止" Command="{Binding StopCommand}"
+    <!-- 工具栏 -->
+    <DockPanel Grid.Row="0" Margin="0,0,0,6">
+      <Button DockPanel.Dock="Right" Content="停止" Command="{Binding StopCommand}"
                     Padding="10,4" Margin="6,0,0,0" />
-            <Button DockPanel.Dock="Right" Content="清空" Command="{Binding ClearCommand}"
+      <Button DockPanel.Dock="Right" Content="清空" Command="{Binding ClearCommand}"
                     Padding="10,4" Margin="6,0,0,0" />
-            <Button DockPanel.Dock="Right" Content="取消下载" Command="{Binding CancelPullCommand}"
+      <Button DockPanel.Dock="Right" Content="取消下载" Command="{Binding CancelPullCommand}"
                     Padding="10,4" Margin="6,0,0,0"
                     Visibility="{Binding IsPulling, Converter={StaticResource BoolToVis}}" />
-            <Button DockPanel.Dock="Right" Content="下载模型" Command="{Binding PullModelCommand}"
+      <Button DockPanel.Dock="Right" Content="下载模型" Command="{Binding PullModelCommand}"
                     Padding="10,4" Margin="6,0,0,0" />
-            <Button DockPanel.Dock="Right" Content="刷新模型" Command="{Binding RefreshModelsCommand}"
+      <Button DockPanel.Dock="Right" Content="刷新模型" Command="{Binding RefreshModelsCommand}"
                     Padding="10,4" Margin="6,0,0,0" />
-            <Button DockPanel.Dock="Right" Content="导入" Click="ImportChat_Click"
+      <Button DockPanel.Dock="Right" Content="导入" Click="ImportChat_Click"
                     Padding="10,4" Margin="6,0,0,0" />
-            <Button DockPanel.Dock="Right" Content="导出" Click="ExportChat_Click"
+      <Button DockPanel.Dock="Right" Content="导出" Click="ExportChat_Click"
                     Padding="10,4" Margin="6,0,0,0" />
 
-            <TextBlock DockPanel.Dock="Left" Text="后端:" VerticalAlignment="Center" Margin="0,0,6,0" />
-            <ComboBox DockPanel.Dock="Left" Width="110" VerticalAlignment="Center"
+      <TextBlock DockPanel.Dock="Left" Text="后端:" VerticalAlignment="Center" Margin="0,0,6,0" />
+      <ComboBox DockPanel.Dock="Left" Width="110" VerticalAlignment="Center"
                       ItemsSource="{Binding ProviderKinds}"
                       SelectedItem="{Binding SelectedProvider}" />
 
-            <TextBlock DockPanel.Dock="Left" Text="模型:" VerticalAlignment="Center" Margin="12,0,6,0" />
-            <ComboBox DockPanel.Dock="Left" VerticalAlignment="Center" Width="220"
+      <TextBlock DockPanel.Dock="Left" Text="模型:" VerticalAlignment="Center" Margin="12,0,6,0" />
+      <ComboBox DockPanel.Dock="Left" VerticalAlignment="Center" Width="220"
                       ItemsSource="{Binding Models}"
                       IsEditable="True"
                       Text="{Binding SelectedModel, UpdateSourceTrigger=PropertyChanged}" />
 
-            <TextBlock DockPanel.Dock="Left" Text="思考:" VerticalAlignment="Center" Margin="12,0,6,0" />
-            <ComboBox DockPanel.Dock="Left" Width="90" VerticalAlignment="Center" HorizontalAlignment="Left"
+      <TextBlock DockPanel.Dock="Left" Text="思考:" VerticalAlignment="Center" Margin="12,0,6,0" />
+      <ComboBox DockPanel.Dock="Left" Width="90" VerticalAlignment="Center" HorizontalAlignment="Left"
                       ItemsSource="{Binding ThinkLevels}"
                       SelectedItem="{Binding SelectedThinkLevel}" />
-        </DockPanel>
+    </DockPanel>
 
-        <!-- 连接设置 & 双 AI 对话 -->
-        <StackPanel Grid.Row="1" Margin="0,0,0,6">
-            <Expander Header="连接设置" IsExpanded="False">
-                <Grid Margin="0,6,0,0">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto" />
-                        <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="Auto" />
-                        <ColumnDefinition Width="*" />
-                    </Grid.ColumnDefinitions>
+    <!-- 连接设置 & 双 AI 对话 -->
+    <StackPanel Grid.Row="1" Margin="0,0,0,6">
+      <Expander Header="连接设置" IsExpanded="False">
+        <Grid Margin="0,6,0,0">
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="*" />
+          </Grid.ColumnDefinitions>
 
-                    <TextBlock Grid.Column="0" Text="服务地址:" VerticalAlignment="Center" />
-                    <TextBox Grid.Column="1" Margin="6,0,12,0" VerticalContentAlignment="Center"
+          <TextBlock Grid.Column="0" Text="服务地址:" VerticalAlignment="Center" />
+          <TextBox Grid.Column="1" Margin="6,0,12,0" VerticalContentAlignment="Center"
                              Text="{Binding BaseUrl, UpdateSourceTrigger=PropertyChanged}" />
 
-                    <TextBlock Grid.Column="2" Text="API Key:" VerticalAlignment="Center" />
-                    <TextBox Grid.Column="3" Margin="6,0,0,0" VerticalContentAlignment="Center"
+          <TextBlock Grid.Column="2" Text="API Key:" VerticalAlignment="Center" />
+          <TextBox Grid.Column="3" Margin="6,0,0,0" VerticalContentAlignment="Center"
                              Text="{Binding ApiKey, UpdateSourceTrigger=PropertyChanged}" />
-                </Grid>
-            </Expander>
+        </Grid>
+      </Expander>
 
-            <Expander Header="双 AI 对话" IsExpanded="False" Margin="0,4,0,0">
-                <Grid Margin="0,6,0,0">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto" />
-                        <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="Auto" />
-                        <ColumnDefinition Width="*" />
-                    </Grid.ColumnDefinitions>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="Auto" />
-                    </Grid.RowDefinitions>
+      <Expander Header="双 AI 对话" IsExpanded="False" Margin="0,4,0,0">
+        <Grid Margin="0,6,0,0">
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="*" />
+          </Grid.ColumnDefinitions>
+          <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+          </Grid.RowDefinitions>
 
-                    <TextBlock Grid.Row="0" Grid.Column="0" Text="话题:" VerticalAlignment="Top" />
-                    <TextBox Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="3" Margin="6,0,0,4"
+          <TextBlock Grid.Row="0" Grid.Column="0" Text="话题:" VerticalAlignment="Top" />
+          <TextBox Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="3" Margin="6,0,0,4"
                              Text="{Binding DualTopic, UpdateSourceTrigger=PropertyChanged}"
                              AcceptsReturn="True" TextWrapping="Wrap" MinHeight="48"
                              VerticalScrollBarVisibility="Auto" />
 
-                    <TextBlock Grid.Row="1" Grid.Column="0" Text="AI A 论据:" VerticalAlignment="Top" />
-                    <TextBox Grid.Row="1" Grid.Column="1" Margin="6,0,4,4" MinHeight="40"
+          <TextBlock Grid.Row="1" Grid.Column="0" Text="AI A 论据:" VerticalAlignment="Top" />
+          <TextBox Grid.Row="1" Grid.Column="1" Margin="6,0,4,4" MinHeight="40"
                              Text="{Binding DualArgumentA, UpdateSourceTrigger=PropertyChanged}"
                              AcceptsReturn="True" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto" />
-                    <TextBlock Grid.Row="1" Grid.Column="2" Text="模型:" VerticalAlignment="Center" />
-                    <ComboBox Grid.Row="1" Grid.Column="3" Margin="6,0,0,4"
+          <TextBlock Grid.Row="1" Grid.Column="2" Text="模型:" VerticalAlignment="Center" />
+          <ComboBox Grid.Row="1" Grid.Column="3" Margin="6,0,0,4"
                               ItemsSource="{Binding Models}"
                               IsEditable="True"
                               Text="{Binding DualModelA, UpdateSourceTrigger=PropertyChanged}" />
 
-                    <TextBlock Grid.Row="2" Grid.Column="0" Text="AI B 论据:" VerticalAlignment="Top" />
-                    <TextBox Grid.Row="2" Grid.Column="1" Margin="6,0,4,4" MinHeight="40"
+          <TextBlock Grid.Row="2" Grid.Column="0" Text="AI B 论据:" VerticalAlignment="Top" />
+          <TextBox Grid.Row="2" Grid.Column="1" Margin="6,0,4,4" MinHeight="40"
                              Text="{Binding DualArgumentB, UpdateSourceTrigger=PropertyChanged}"
                              AcceptsReturn="True" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto" />
-                    <TextBlock Grid.Row="2" Grid.Column="2" Text="模型:" VerticalAlignment="Center" />
-                    <ComboBox Grid.Row="2" Grid.Column="3" Margin="6,0,0,4"
+          <TextBlock Grid.Row="2" Grid.Column="2" Text="模型:" VerticalAlignment="Center" />
+          <ComboBox Grid.Row="2" Grid.Column="3" Margin="6,0,0,4"
                               ItemsSource="{Binding Models}"
                               IsEditable="True"
                               Text="{Binding DualModelB, UpdateSourceTrigger=PropertyChanged}" />
 
-                    <TextBlock Grid.Row="3" Grid.Column="0" Text="轮数:" VerticalAlignment="Center" />
-                    <TextBox Grid.Row="3" Grid.Column="1" Width="60" HorizontalAlignment="Left" Margin="6,0,4,0"
+          <TextBlock Grid.Row="3" Grid.Column="0" Text="轮数:" VerticalAlignment="Center" />
+          <TextBox Grid.Row="3" Grid.Column="1" Width="60" HorizontalAlignment="Left" Margin="6,0,4,0"
                              Text="{Binding DualRounds, UpdateSourceTrigger=PropertyChanged}" />
-                    <Button Grid.Row="3" Grid.Column="3" Content="开始对话" HorizontalAlignment="Right"
+          <Button Grid.Row="3" Grid.Column="3" Content="开始对话" HorizontalAlignment="Right"
                             Command="{Binding StartDualChatCommand}" Padding="10,4" />
-                </Grid>
-            </Expander>
-        </StackPanel>
+        </Grid>
+      </Expander>
+    </StackPanel>
 
-        <!-- 消息列表 -->
-        <Border Grid.Row="2" BorderBrush="#DDDDDD" BorderThickness="1" CornerRadius="6" Background="#FAFAFA">
-            <ScrollViewer x:Name="MessagesScroll" VerticalScrollBarVisibility="Auto"
+    <!-- 消息列表 -->
+    <Border Grid.Row="2" BorderBrush="#DDDDDD" BorderThickness="1" CornerRadius="6" Background="#FAFAFA">
+      <ScrollViewer x:Name="MessagesScroll" VerticalScrollBarVisibility="Auto"
                           ScrollChanged="MessagesScroll_ScrollChanged">
-                <ItemsControl ItemsSource="{Binding Messages}" Margin="8">
-                    <ItemsControl.ItemTemplate>
-                        <DataTemplate DataType="{x:Type vm:ChatMessageViewModel}">
-                            <Grid Margin="0,4">
-                                <Border x:Name="Bubble" MaxWidth="888" Padding="12,8" CornerRadius="10"
+        <ItemsControl ItemsSource="{Binding Messages}" Margin="8">
+          <ItemsControl.ItemTemplate>
+            <DataTemplate DataType="{x:Type vm:ChatMessageViewModel}">
+              <Grid Margin="0,4">
+                <Border x:Name="Bubble" Padding="12,8" CornerRadius="10"
                                         HorizontalAlignment="Left"
                                         Background="#FFFFFF" BorderBrush="#E0E0E0" BorderThickness="1">
-                                    <StackPanel>
-                                        <TextBlock x:Name="AuthorText" Text="{Binding Author}"
+                  <StackPanel>
+                    <TextBlock x:Name="AuthorText" Text="{Binding Author}"
                                                    FontSize="11" Foreground="#999999" Margin="0,0,0,2" />
-                                        <Expander Header="思考过程" IsExpanded="True"
+                    <Expander Header="思考过程" IsExpanded="True"
                                                   Visibility="{Binding HasThinking, Converter={StaticResource BoolToVis}}"
                                                   Margin="0,0,0,4">
-                                            <TextBlock Text="{Binding Thinking}" FontSize="12" Foreground="#888888"
+                      <TextBlock Text="{Binding Thinking}" FontSize="12" Foreground="#888888"
                                                        TextWrapping="Wrap" FontStyle="Italic" />
-                                        </Expander>
-                                        <TextBlock x:Name="ContentText" Text="{Binding Content}"
+                    </Expander>
+                    <TextBlock x:Name="ContentText" Text="{Binding Content}"
                                                    TextWrapping="Wrap" FontSize="14" LineHeight="20"
                                                    Visibility="Collapsed" />
-                                        <FlowDocumentScrollViewer x:Name="MarkdownViewer"
+                    <FlowDocumentScrollViewer x:Name="MarkdownViewer"
                                                                   Document="{Binding Content, Converter={StaticResource MarkdownToFlowDocument}}"
                                                                   VerticalScrollBarVisibility="Auto"
                                                                   HorizontalScrollBarVisibility="Disabled"
                                                                   MaxHeight="720"
                                                                   BorderThickness="0"
                                                                   Background="Transparent" />
-                                        <ItemsControl ItemsSource="{Binding Images}">
-                                            <ItemsControl.ItemsPanel>
-                                                <ItemsPanelTemplate>
-                                                    <WrapPanel />
-                                                </ItemsPanelTemplate>
-                                            </ItemsControl.ItemsPanel>
-                                            <ItemsControl.ItemTemplate>
-                                                <DataTemplate>
-                                                    <Image Source="{Binding Converter={StaticResource FilePathToImage}}"
+                    <ItemsControl ItemsSource="{Binding Images}">
+                      <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                          <WrapPanel />
+                        </ItemsPanelTemplate>
+                      </ItemsControl.ItemsPanel>
+                      <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                          <Image Source="{Binding Converter={StaticResource FilePathToImage}}"
                                                            MaxWidth="200" MaxHeight="200" Margin="0,4,4,0" Stretch="Uniform"
                                                            Cursor="Hand"
                                                            MouseLeftButtonUp="MessageImage_MouseLeftButtonUp" />
-                                                </DataTemplate>
-                                            </ItemsControl.ItemTemplate>
-                                        </ItemsControl>
-                                        <Button Content="重试"
+                        </DataTemplate>
+                      </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                    <Button Content="重试"
                                                 Command="{Binding DataContext.RetryCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                                 CommandParameter="{Binding}"
                                                 Visibility="{Binding IsFailed, Converter={StaticResource BoolToVis}}"
                                                 HorizontalAlignment="Left" Padding="10,3" Margin="0,6,0,0" />
-                                    </StackPanel>
-                                </Border>
-                            </Grid>
-                            <DataTemplate.Triggers>
-                                <DataTrigger Binding="{Binding IsUser}" Value="True">
-                                    <Setter TargetName="Bubble" Property="HorizontalAlignment" Value="Right" />
-                                    <Setter TargetName="Bubble" Property="Background" Value="#4C8BF5" />
-                                    <Setter TargetName="Bubble" Property="BorderBrush" Value="#4C8BF5" />
-                                    <Setter TargetName="AuthorText" Property="Foreground" Value="#D8E6FF" />
-                                    <Setter TargetName="ContentText" Property="Foreground" Value="White" />
-                                    <Setter TargetName="ContentText" Property="Visibility" Value="Visible" />
-                                    <Setter TargetName="MarkdownViewer" Property="Visibility" Value="Collapsed" />
-                                </DataTrigger>
-                            </DataTemplate.Triggers>
-                        </DataTemplate>
-                    </ItemsControl.ItemTemplate>
-                </ItemsControl>
-            </ScrollViewer>
-        </Border>
+                    <TextBlock Text="{Binding MetaText}" FontSize="11" Foreground="#999999" Margin="0,4,0,0" />
+                  </StackPanel>
+                </Border>
+              </Grid>
+              <DataTemplate.Triggers>
+                <DataTrigger Binding="{Binding IsUser}" Value="True">
+                  <Setter TargetName="Bubble" Property="HorizontalAlignment" Value="Right" />
+                  <Setter TargetName="Bubble" Property="Background" Value="#4C8BF5" />
+                  <Setter TargetName="Bubble" Property="BorderBrush" Value="#4C8BF5" />
+                  <Setter TargetName="AuthorText" Property="Foreground" Value="#D8E6FF" />
+                  <Setter TargetName="ContentText" Property="Foreground" Value="White" />
+                  <Setter TargetName="ContentText" Property="Visibility" Value="Visible" />
+                  <Setter TargetName="MarkdownViewer" Property="Visibility" Value="Collapsed" />
+                </DataTrigger>
+              </DataTemplate.Triggers>
+            </DataTemplate>
+          </ItemsControl.ItemTemplate>
+        </ItemsControl>
+      </ScrollViewer>
+    </Border>
 
-        <!-- 状态栏 -->
-        <DockPanel Grid.Row="3" Margin="2,4,2,4">
-            <TextBlock DockPanel.Dock="Right" Text="{Binding TokenUsageText}" FontSize="11" Foreground="#666666" />
-            <TextBlock Text="{Binding StatusText}" FontSize="11" Foreground="#888888" TextTrimming="CharacterEllipsis" />
-        </DockPanel>
+    <!-- 状态栏 -->
+    <DockPanel Grid.Row="3" Margin="2,4,2,4">
+      <TextBlock DockPanel.Dock="Right" Text="{Binding TokenUsageText}" FontSize="11" Foreground="#666666" />
+      <TextBlock Text="{Binding StatusText}" FontSize="11" Foreground="#888888" TextTrimming="CharacterEllipsis" />
+    </DockPanel>
 
-        <!-- 输入区 -->
-        <Grid Grid.Row="4">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="Auto" />
-            </Grid.RowDefinitions>
+    <!-- 输入区 -->
+    <Grid Grid.Row="4">
+      <Grid.RowDefinitions>
+        <RowDefinition Height="Auto" />
+        <RowDefinition Height="Auto" />
+      </Grid.RowDefinitions>
 
-            <!-- 待发送图片预览 -->
-            <ItemsControl Grid.Row="0" ItemsSource="{Binding PendingImagePaths}"
+      <!-- 待发送图片预览 -->
+      <ItemsControl Grid.Row="0" ItemsSource="{Binding PendingImagePaths}"
                           HorizontalAlignment="Left">
-                <ItemsControl.ItemsPanel>
-                    <ItemsPanelTemplate>
-                        <WrapPanel />
-                    </ItemsPanelTemplate>
-                </ItemsControl.ItemsPanel>
-                <ItemsControl.ItemTemplate>
-                    <DataTemplate>
-                        <Border Margin="0,0,4,4" BorderBrush="#CCCCCC" BorderThickness="1" CornerRadius="4"
+        <ItemsControl.ItemsPanel>
+          <ItemsPanelTemplate>
+            <WrapPanel />
+          </ItemsPanelTemplate>
+        </ItemsControl.ItemsPanel>
+        <ItemsControl.ItemTemplate>
+          <DataTemplate>
+            <Border Margin="0,0,4,4" BorderBrush="#CCCCCC" BorderThickness="1" CornerRadius="4"
                                 Background="#F4F4F4" ToolTip="点击移除">
-                            <Grid>
-                                <Image Source="{Binding Converter={StaticResource FilePathToImage}}"
+              <Grid>
+                <Image Source="{Binding Converter={StaticResource FilePathToImage}}"
                                        MaxWidth="80" MaxHeight="80" Stretch="Uniform" />
-                                <Button Content="✕" Width="20" Height="20" Padding="0"
+                <Button Content="✕" Width="20" Height="20" Padding="0"
                                         HorizontalAlignment="Right" VerticalAlignment="Top"
                                         Command="{Binding DataContext.RemovePendingImageCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                         CommandParameter="{Binding}" />
-                            </Grid>
-                        </Border>
-                    </DataTemplate>
-                </ItemsControl.ItemTemplate>
-            </ItemsControl>
+              </Grid>
+            </Border>
+          </DataTemplate>
+        </ItemsControl.ItemTemplate>
+      </ItemsControl>
 
-            <Grid Grid.Row="1" Margin="0,4,0,0">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto" />
-                    <ColumnDefinition Width="*" />
-                    <ColumnDefinition Width="Auto" />
-                </Grid.ColumnDefinitions>
+      <Grid Grid.Row="1" Margin="0,4,0,0">
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="Auto" />
+          <ColumnDefinition Width="*" />
+          <ColumnDefinition Width="Auto" />
+        </Grid.ColumnDefinitions>
 
-                <Button Grid.Column="0" Content="🖼 图片" Click="AttachImages_Click"
+        <Button Grid.Column="0" Content="🖼 图片" Click="AttachImages_Click"
                         Padding="10,0" Margin="0,0,8,0" VerticalAlignment="Stretch" />
 
-                <TextBox x:Name="InputBox" Grid.Column="1"
+        <TextBox x:Name="InputBox" Grid.Column="1"
                          Text="{Binding InputText, UpdateSourceTrigger=PropertyChanged}"
                          AcceptsReturn="True" TextWrapping="Wrap"
                          MinHeight="56" MaxHeight="160" Padding="8"
@@ -254,9 +260,9 @@
                          VerticalContentAlignment="Top"
                          PreviewKeyDown="InputBox_PreviewKeyDown" />
 
-                <Button Grid.Column="2" Content="发送" Command="{Binding SendCommand}"
+        <Button Grid.Column="2" Content="发送" Command="{Binding SendCommand}"
                         Width="76" Margin="8,0,0,0" VerticalAlignment="Stretch" />
-            </Grid>
-        </Grid>
+      </Grid>
     </Grid>
+  </Grid>
 </UserControl>

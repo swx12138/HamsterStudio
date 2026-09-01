@@ -5,6 +5,7 @@ using HamsterStudio.ChatBox.Models;
 using HamsterStudio.ChatBox.Services;
 using Microsoft.Extensions.Logging;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.IO;
 using System.Text;
 
@@ -326,6 +327,8 @@ public partial class ChatBoxMainViewModel : ViewModel
         var assistant = new ChatMessageViewModel(ChatRole.Assistant, string.Empty, authorName: authorName);
         Messages.Add(assistant);
 
+        var stopwatch = Stopwatch.StartNew();
+
         var builder = new StringBuilder();
         var thinkingBuilder = new StringBuilder();
         try
@@ -368,6 +371,12 @@ public partial class ChatBoxMainViewModel : ViewModel
             assistant.IsFailed = true;
             throw;
         }
+        finally
+        {
+            stopwatch.Stop();
+            assistant.Elapsed = stopwatch.Elapsed;
+            assistant.WordCount = assistant.Content.Length;
+        }
     }
 
     private async Task SendCoreAsync(string text, IReadOnlyList<string>? images, bool addUserMessage = true)
@@ -388,6 +397,8 @@ public partial class ChatBoxMainViewModel : ViewModel
                 continue;
             history.Add(new ChatMessage(message.Role, message.Content, message.Images));
         }
+
+        var stopwatch = Stopwatch.StartNew();
 
         _cts = new CancellationTokenSource();
         IsBusy = true;
@@ -438,6 +449,10 @@ public partial class ChatBoxMainViewModel : ViewModel
         }
         finally
         {
+            stopwatch.Stop();
+            assistant.Elapsed = stopwatch.Elapsed;
+            assistant.WordCount = assistant.Content.Length;
+
             IsBusy = false;
             _cts.Dispose();
             _cts = null;
