@@ -25,7 +25,7 @@ public class OllamaChatProvider : IChatProvider
         return new ChatStreamResult(StreamAsync(settings, messages, usage, cancellationToken), usage.Task);
     }
 
-    private async IAsyncEnumerable<string> StreamAsync(
+    private async IAsyncEnumerable<ChatStreamChunk> StreamAsync(
         ChatProviderSettings settings,
         IReadOnlyList<ChatMessage> messages,
         TaskCompletionSource<ChatTokenUsage?> usage,
@@ -46,9 +46,17 @@ public class OllamaChatProvider : IChatProvider
             if (response is OllamaSharpChatDone done)
                 usage.TrySetResult(new ChatTokenUsage(done.PromptEvalCount, done.EvalCount));
 
-            var text = response?.Message?.Content;
+            var message = response?.Message;
+            if (message is null)
+                continue;
+
+            var thinking = message.Thinking;
+            if (!string.IsNullOrEmpty(thinking))
+                yield return new ChatStreamChunk(ChatChunkKind.Thinking, thinking);
+
+            var text = message.Content;
             if (!string.IsNullOrEmpty(text))
-                yield return text;
+                yield return new ChatStreamChunk(ChatChunkKind.Text, text);
         }
 
         usage.TrySetResult(null);

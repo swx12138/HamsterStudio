@@ -5,6 +5,7 @@ public class ChatMessageDto
 {
     public ChatRole Role { get; set; }
     public string Content { get; set; } = string.Empty;
+    public string? Thinking { get; set; }
     public List<string>? Images { get; set; }
 }
 

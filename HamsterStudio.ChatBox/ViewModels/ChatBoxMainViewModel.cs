@@ -327,14 +327,23 @@ public partial class ChatBoxMainViewModel : ViewModel
         Messages.Add(assistant);
 
         var builder = new StringBuilder();
+        var thinkingBuilder = new StringBuilder();
         try
         {
             var result = _chatService.ChatAsync(settings, request, cancellationToken);
 
             await foreach (var chunk in result.Chunks)
             {
-                builder.Append(chunk);
-                assistant.Content = builder.ToString();
+                if (chunk.Kind == ChatChunkKind.Thinking)
+                {
+                    thinkingBuilder.Append(chunk.Text);
+                    assistant.Thinking = thinkingBuilder.ToString();
+                }
+                else
+                {
+                    builder.Append(chunk.Text);
+                    assistant.Content = builder.ToString();
+                }
             }
 
             var usage = await result.Usage;
@@ -385,14 +394,23 @@ public partial class ChatBoxMainViewModel : ViewModel
         StatusText = "思考中…";
 
         var builder = new StringBuilder();
+        var thinkingBuilder = new StringBuilder();
         try
         {
             var result = _chatService.ChatAsync(BuildSettings(), history, _cts.Token);
 
             await foreach (var chunk in result.Chunks)
             {
-                builder.Append(chunk);
-                assistant.Content = builder.ToString();
+                if (chunk.Kind == ChatChunkKind.Thinking)
+                {
+                    thinkingBuilder.Append(chunk.Text);
+                    assistant.Thinking = thinkingBuilder.ToString();
+                }
+                else
+                {
+                    builder.Append(chunk.Text);
+                    assistant.Content = builder.ToString();
+                }
             }
 
             var usage = await result.Usage;
@@ -522,6 +540,7 @@ public partial class ChatBoxMainViewModel : ViewModel
                     {
                         Role = m.Role,
                         Content = m.Content,
+                        Thinking = string.IsNullOrEmpty(m.Thinking) ? null : m.Thinking,
                         Images = m.Images.Count > 0 ? m.Images.ToList() : null,
                     })
                     .ToList(),
@@ -555,7 +574,7 @@ public partial class ChatBoxMainViewModel : ViewModel
 
             foreach (var message in document.Messages)
             {
-                Messages.Add(new ChatMessageViewModel(message.Role, message.Content, message.Images));
+                Messages.Add(new ChatMessageViewModel(message.Role, message.Content, message.Images, thinking: message.Thinking));
             }
 
             StatusText = $"已导入 {document.Messages.Count} 条消息";

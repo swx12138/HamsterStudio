@@ -54,7 +54,7 @@ public class OpenAiChatProvider(HttpClient http) : IChatProvider
         return new ChatStreamResult(StreamAsync(settings, messages, usage, cancellationToken), usage.Task);
     }
 
-    private async IAsyncEnumerable<string> StreamAsync(
+    private async IAsyncEnumerable<ChatStreamChunk> StreamAsync(
         ChatProviderSettings settings,
         IReadOnlyList<ChatMessage> messages,
         TaskCompletionSource<ChatTokenUsage?> usage,
@@ -101,10 +101,11 @@ public class OpenAiChatProvider(HttpClient http) : IChatProvider
             if (data == "[DONE]")
                 break;
 
+            string? thinking;
             string? text;
             try
             {
-                text = ParseChunk(data, usage);
+                (thinking, text) = ParseChunk(data, usage);
             }
             catch (JsonException)
             {
@@ -112,14 +113,17 @@ public class OpenAiChatProvider(HttpClient http) : IChatProvider
                 continue;
             }
 
+            if (!string.IsNullOrEmpty(thinking))
+                yield return new ChatStreamChunk(ChatChunkKind.Thinking, thinking);
+
             if (!string.IsNullOrEmpty(text))
-                yield return text;
+                yield return new ChatStreamChunk(ChatChunkKind.Text, text);
         }
 
         usage.TrySetResult(null);
     }
 
-    private static string? ParseChunk(string data, TaskCompletionSource<ChatTokenUsage?> usage)
+    private static (string? Thinking, string? Text) ParseChunk(string data, TaskCompletionSource<ChatTokenUsage?> usage)
     {
         using var doc = JsonDocument.Parse(data);
         var root = doc.RootElement;
@@ -132,20 +136,36 @@ public class OpenAiChatProvider(HttpClient http) : IChatProvider
             usage.TrySetResult(new ChatTokenUsage(prompt, completion));
         }
 
-        // 增量文本（默认单 choice）
+        string? thinking = null;
+        string? text = null;
+
         if (root.TryGetProperty("choices", out var choices) && choices.ValueKind == JsonValueKind.Array)
         {
             foreach (var choice in choices.EnumerateArray())
             {
-                if (choice.ValueKind == JsonValueKind.Object &&
-                    choice.TryGetProperty("delta", out var delta) &&
-                    delta.ValueKind == JsonValueKind.Object &&
-                    delta.TryGetProperty("content", out var content) &&
-                    content.GetString() is { } text &&
-                    !string.IsNullOrEmpty(text))
-                {
-                    return text;
-                }
+                if (choice.ValueKind != JsonValueKind.Object)
+                    continue;
+                if (!choice.TryGetProperty("delta", out var delta) || delta.ValueKind != JsonValueKind.Object)
+                    continue;
+
+                thinking ??= ExtractDeltaText(delta, ["reasoning_content", "reasoning", "thinking"]);
+                text ??= ExtractDeltaText(delta, ["content"]);
+            }
+        }
+
+        return (thinking, text);
+    }
+
+    private static string? ExtractDeltaText(JsonElement delta, string[] propertyNames)
+    {
+        foreach (var name in propertyNames)
+        {
+            if (delta.TryGetProperty(name, out var el) &&
+                el.ValueKind == JsonValueKind.String &&
+                el.GetString() is { } s &&
+                !string.IsNullOrEmpty(s))
+            {
+                return s;
             }
         }
 

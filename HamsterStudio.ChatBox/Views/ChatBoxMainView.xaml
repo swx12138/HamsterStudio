@@ -142,6 +142,12 @@
                                     <StackPanel>
                                         <TextBlock x:Name="AuthorText" Text="{Binding Author}"
                                                    FontSize="11" Foreground="#999999" Margin="0,0,0,2" />
+                                        <Expander Header="思考过程" IsExpanded="True"
+                                                  Visibility="{Binding HasThinking, Converter={StaticResource BoolToVis}}"
+                                                  Margin="0,0,0,4">
+                                            <TextBlock Text="{Binding Thinking}" FontSize="12" Foreground="#888888"
+                                                       TextWrapping="Wrap" FontStyle="Italic" />
+                                        </Expander>
                                         <TextBlock x:Name="ContentText" Text="{Binding Content}"
                                                    TextWrapping="Wrap" FontSize="14" LineHeight="20"
                                                    Visibility="Collapsed" />

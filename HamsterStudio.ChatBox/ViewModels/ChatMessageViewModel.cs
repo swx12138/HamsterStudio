@@ -34,14 +34,22 @@ public partial class ChatMessageViewModel : ObservableObject
     [ObservableProperty]
     private string _editText = string.Empty;
 
+    /// <summary>思考（推理）过程内容。</summary>
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(HasThinking))]
+    private string _thinking = string.Empty;
+
+    public bool HasThinking => !string.IsNullOrEmpty(Thinking);
+
     [ObservableProperty]
     private string _content;
 
-    public ChatMessageViewModel(ChatRole role, string content, IReadOnlyList<string>? images = null, string? authorName = null)
+    public ChatMessageViewModel(ChatRole role, string content, IReadOnlyList<string>? images = null, string? authorName = null, string? thinking = null)
     {
         Role = role;
         _content = content;
         Images = images ?? Array.Empty<string>();
         _authorName = authorName;
+        _thinking = thinking ?? string.Empty;
     }
 }
