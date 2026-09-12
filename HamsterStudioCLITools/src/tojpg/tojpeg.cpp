@@ -10,6 +10,7 @@
  * 选项:
  *   -o, --output <路径>    输出文件路径 (默认: 输入路径替换扩展名为 .jpg)
  *   -q, --quality <值>     JPEG 质量 1-100 (默认: 95)
+ *       --mirror <方向>    镜像方向: horizontal/vertical/both (默认: 不镜像)
  *   -h, --help             显示此帮助信息
  *      --version           显示版本信息
  *
@@ -39,10 +40,10 @@ static std::string ToUtf8(std::wstring_view w)
     if (w.empty())
         return {};
     int n = ::WideCharToMultiByte(CP_UTF8, 0, w.data(), static_cast<int>(w.size()),
-                                  nullptr, 0, nullptr, nullptr);
+        nullptr, 0, nullptr, nullptr);
     std::string s(static_cast<size_t>(n), '\0');
     ::WideCharToMultiByte(CP_UTF8, 0, w.data(), static_cast<int>(w.size()),
-                          s.data(), n, nullptr, nullptr);
+        s.data(), n, nullptr, nullptr);
     return s;
 }
 
@@ -55,12 +56,14 @@ static void PrintUsage()
 选项:
   -o, --output <路径>    输出文件路径 (默认: 输入路径替换扩展名为 .jpg)
   -q, --quality <值>     JPEG 质量 1-100 (默认: 95)
+      --mirror <方向>    镜像方向: horizontal/vertical/both (默认: 不镜像)
   -h, --help             显示此帮助信息
       --version          显示版本信息
 
 示例:
   hamster-tojpg input.png
   hamster-tojpg input.png -o output.jpg -q 90
+    hamster-tojpg input.png --mirror horizontal
 )";
 }
 
@@ -88,6 +91,8 @@ int wmain(int argc, wchar_t** argv)
     fs::path input_path;
     fs::path output_path;
     int quality = 95;
+    int mirror_code = 0;
+    bool mirror_requested = false;
 
     for (size_t i = 0; i < args.size(); ++i)
     {
@@ -132,6 +137,27 @@ int wmain(int argc, wchar_t** argv)
                 return 1;
             }
         }
+        else if (args[i] == L"--mirror" || args[i] == L"--flip")
+        {
+            if (++i >= args.size())
+            {
+                std::cerr << "错误: --mirror/--flip 缺少方向参数。\n";
+                return 1;
+            }
+            if (args[i] == L"horizontal" || args[i] == L"h")
+                mirror_code = 0;
+            else if (args[i] == L"vertical" || args[i] == L"v")
+                mirror_code = 1;
+            else if (args[i] == L"both" || args[i] == L"hv" || args[i] == L"vh")
+                mirror_code = -1;
+            else
+            {
+                std::cerr << "错误: 无效的镜像方向: " << ToUtf8(args[i])
+                    << "，可选值为 horizontal、vertical 或 both。\n";
+                return 1;
+            }
+            mirror_requested = true;
+        }
         else if (!args[i].empty() && args[i][0] == L'-')
         {
             std::cerr << "错误: 未知选项: " << ToUtf8(args[i]) << "\n";
@@ -172,16 +198,39 @@ int wmain(int argc, wchar_t** argv)
         return 1;
     }
 
+    if (mirror_requested)
+    {
+        cv::flip(image, image, mirror_code);
+        std::cout << "已应用镜像: "
+            << (mirror_code == 1 ? "horizontal" : mirror_code == 0 ? "vertical" : "both")
+            << "\n";
+    }
+
     std::cout << std::format("图片尺寸: {}x{}\n", image.cols, image.rows);
 
     // 确定输出路径
     if (output_path.empty())
     {
-        output_path = input_path;
-        if (output_path.has_extension())
-            output_path.replace_extension(L".jpg");
-        else
-            output_path += L".jpg";
+        if (mirror_requested) {
+            std::string appe;
+            if (mirror_code == 1) {
+                appe = "_VF";
+            }
+            else if (mirror_code == 0) {
+                appe = "_HF";
+            }
+            else if (mirror_code == -1) {
+                appe = "_BF";
+            }
+            output_path = input_path.parent_path() / (input_path.stem().string() + appe + input_path.extension().string());
+        }
+        else {
+            output_path = input_path;
+            if (output_path.has_extension())
+                output_path.replace_extension(L".jpg");
+            else
+                output_path += L".jpg";
+        }
     }
 
     if (output_path == input_path)
