@@ -1,4 +1,5 @@
 ﻿using HamsterStudio.Barefeet.Services;
+using HamsterStudio.ChatBox;
 using HamsterStudio.ImageTool;
 using HamsterStudio.Photogrammetry;
 using HamsterStudio.Toolkits.Services;
@@ -26,6 +27,7 @@ public static class ConfigureWebApiExtensions
         PhotogrammetryProfile.RegisterServices(services);
         ImageToolProfile.RegisterServices(services);
         //GalleryProfile.RegisterServices(services);
+        ChatBoxProfile.RegisterServices(services);
     }
 
     private static string GetContentType(string path)

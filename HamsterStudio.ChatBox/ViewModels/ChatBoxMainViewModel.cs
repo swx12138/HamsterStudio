@@ -11,7 +11,7 @@ using System.Text;
 
 namespace HamsterStudio.ChatBox.ViewModels;
 
-public partial class ChatBoxMainViewModel : ViewModel
+public partial class ChatBoxMainViewModel : KnownViewModel
 {
     private readonly ChatService _chatService;
     private readonly ChatSessionService _chatSessionService;
@@ -90,6 +90,7 @@ public partial class ChatBoxMainViewModel : ViewModel
     {
         _chatService = chatService;
         _chatSessionService = chatSessionService;
+        DisplayName = "ChatBox";
     }
 
     private ChatProviderSettings BuildSettings() => new()
@@ -127,6 +128,7 @@ public partial class ChatBoxMainViewModel : ViewModel
         StopCommand.NotifyCanExecuteChanged();
         PullModelCommand.NotifyCanExecuteChanged();
         RetryCommand.NotifyCanExecuteChanged();
+        EditMessageCommand.NotifyCanExecuteChanged();
         StartDualChatCommand.NotifyCanExecuteChanged();
     }
 
@@ -160,19 +162,21 @@ public partial class ChatBoxMainViewModel : ViewModel
 
     private bool CanRetry() => !IsBusy;
 
+    private bool CanEdit() => !IsBusy;
+
     [RelayCommand(CanExecute = nameof(CanRetry))]
-    private async Task RetryAsync(ChatMessageViewModel? failedMessage)
+    private async Task RetryAsync(ChatMessageViewModel? message)
     {
-        if (failedMessage is null || IsBusy)
+        if (message is null || IsBusy)
             return;
 
-        var failedIndex = Messages.IndexOf(failedMessage);
-        if (failedIndex < 0)
+        var index = Messages.IndexOf(message);
+        if (index < 0)
             return;
 
-        // 找到该失败消息之前最近的一条用户消息
+        // 找到该消息之前最近的一条用户消息
         ChatMessageViewModel? userMessage = null;
-        for (var i = failedIndex - 1; i >= 0; i--)
+        for (var i = index - 1; i >= 0; i--)
         {
             if (Messages[i].Role == ChatRole.User)
             {
@@ -187,14 +191,15 @@ public partial class ChatBoxMainViewModel : ViewModel
         var text = userMessage.Content;
         var images = userMessage.Images.Count > 0 ? userMessage.Images.ToList() : null;
 
-        // 移除失败消息与其对应的用户消息，重新发送
-        Messages.Remove(failedMessage);
+        // 截断该消息及其之后的所有消息，再移除对应的用户消息，重新发送
+        while (Messages.Count > index)
+            Messages.RemoveAt(Messages.Count - 1);
         Messages.Remove(userMessage);
 
         await SendCoreAsync(text, images);
     }
 
-    [RelayCommand]
+    [RelayCommand(CanExecute = nameof(CanEdit))]
     private void EditMessage(ChatMessageViewModel? message)
     {
         if (message is null || IsBusy)

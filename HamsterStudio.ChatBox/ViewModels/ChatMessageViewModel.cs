@@ -12,6 +12,8 @@ public partial class ChatMessageViewModel : ObservableObject
 
     public bool IsUser => Role == ChatRole.User;
 
+    public bool IsAssistant => Role == ChatRole.Assistant;
+
     public string Author => _authorName ?? Role switch
     {
         ChatRole.User => "我",
@@ -28,7 +30,11 @@ public partial class ChatMessageViewModel : ObservableObject
 
     /// <summary>是否处于编辑状态。</summary>
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(IsNotEditing))]
     private bool _isEditing;
+
+    /// <summary>是否未处于编辑状态（用于显示内容与操作按钮）。</summary>
+    public bool IsNotEditing => !IsEditing;
 
     /// <summary>编辑中的文本。</summary>
     [ObservableProperty]

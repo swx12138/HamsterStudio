@@ -12,6 +12,37 @@
     <conv:FilePathToImageConverter x:Key="FilePathToImage" />
     <conv:MarkdownToFlowDocumentConverter x:Key="MarkdownToFlowDocument" />
     <BooleanToVisibilityConverter x:Key="BoolToVis" />
+
+    <!-- 仅图标 + ToolTip 的小按钮 -->
+    <Style x:Key="IconButton" TargetType="Button">
+      <Setter Property="Foreground" Value="#666666" />
+      <Setter Property="Background" Value="Transparent" />
+      <Setter Property="FontSize" Value="14" />
+      <Setter Property="Cursor" Value="Hand" />
+      <Setter Property="Padding" Value="6,2" />
+      <Setter Property="Margin" Value="0,0,4,0" />
+      <Setter Property="Template">
+        <Setter.Value>
+          <ControlTemplate TargetType="Button">
+            <Border x:Name="Bd" Background="{TemplateBinding Background}" CornerRadius="4" Padding="{TemplateBinding Padding}">
+              <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"
+                                TextElement.Foreground="{TemplateBinding Foreground}" />
+            </Border>
+            <ControlTemplate.Triggers>
+              <Trigger Property="IsMouseOver" Value="True">
+                <Setter TargetName="Bd" Property="Background" Value="#E4E4E4" />
+              </Trigger>
+              <Trigger Property="IsPressed" Value="True">
+                <Setter TargetName="Bd" Property="Background" Value="#D4D4D4" />
+              </Trigger>
+              <Trigger Property="IsEnabled" Value="False">
+                <Setter TargetName="Bd" Property="Opacity" Value="0.4" />
+              </Trigger>
+            </ControlTemplate.Triggers>
+          </ControlTemplate>
+        </Setter.Value>
+      </Setter>
+    </Style>
   </UserControl.Resources>
   <Grid Margin="8">
     <Grid.RowDefinitions>
@@ -141,7 +172,12 @@
           <ItemsControl.ItemTemplate>
             <DataTemplate DataType="{x:Type vm:ChatMessageViewModel}">
               <Grid Margin="0,4">
-                <Border x:Name="Bubble" Padding="12,8" CornerRadius="10"
+                <Grid.RowDefinitions>
+                  <RowDefinition Height="Auto" />
+                  <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+
+                <Border x:Name="Bubble" Grid.Row="0" Padding="12,8" CornerRadius="10"
                                         HorizontalAlignment="Left"
                                         Background="#FFFFFF" BorderBrush="#E0E0E0" BorderThickness="1">
                   <StackPanel>
@@ -153,39 +189,72 @@
                       <TextBlock Text="{Binding Thinking}" FontSize="12" Foreground="#888888"
                                                        TextWrapping="Wrap" FontStyle="Italic" />
                     </Expander>
-                    <TextBlock x:Name="ContentText" Text="{Binding Content}"
-                                                   TextWrapping="Wrap" FontSize="14" LineHeight="20"
-                                                   Visibility="Collapsed" />
-                    <FlowDocumentScrollViewer x:Name="MarkdownViewer"
-                                                                  Document="{Binding Content, Converter={StaticResource MarkdownToFlowDocument}}"
-                                                                  VerticalScrollBarVisibility="Auto"
-                                                                  HorizontalScrollBarVisibility="Disabled"
-                                                                  MaxHeight="720"
-                                                                  BorderThickness="0"
-                                                                  Background="Transparent" />
-                    <ItemsControl ItemsSource="{Binding Images}">
-                      <ItemsControl.ItemsPanel>
-                        <ItemsPanelTemplate>
-                          <WrapPanel />
-                        </ItemsPanelTemplate>
-                      </ItemsControl.ItemsPanel>
-                      <ItemsControl.ItemTemplate>
-                        <DataTemplate>
-                          <Image Source="{Binding Converter={StaticResource FilePathToImage}}"
-                                                           MaxWidth="200" MaxHeight="200" Margin="0,4,4,0" Stretch="Uniform"
-                                                           Cursor="Hand"
-                                                           MouseLeftButtonUp="MessageImage_MouseLeftButtonUp" />
-                        </DataTemplate>
-                      </ItemsControl.ItemTemplate>
-                    </ItemsControl>
-                    <Button Content="重试"
-                                                Command="{Binding DataContext.RetryCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                                CommandParameter="{Binding}"
-                                                Visibility="{Binding IsFailed, Converter={StaticResource BoolToVis}}"
-                                                HorizontalAlignment="Left" Padding="10,3" Margin="0,6,0,0" />
+
+                    <!-- 编辑态 -->
+                    <StackPanel Visibility="{Binding IsEditing, Converter={StaticResource BoolToVis}}">
+                      <TextBox Text="{Binding EditText, UpdateSourceTrigger=PropertyChanged}"
+                                                   AcceptsReturn="True" TextWrapping="Wrap"
+                                                   MinWidth="320" MinHeight="64" MaxHeight="240"
+                                                   Padding="6" VerticalScrollBarVisibility="Auto" />
+                    </StackPanel>
+
+                    <!-- 正常内容 -->
+                    <StackPanel Visibility="{Binding IsNotEditing, Converter={StaticResource BoolToVis}}">
+                      <TextBlock x:Name="ContentText" Text="{Binding Content}"
+                                                     TextWrapping="Wrap" FontSize="14" LineHeight="20"
+                                                     Visibility="Collapsed" />
+                      <FlowDocumentScrollViewer x:Name="MarkdownViewer"
+                                                                    Document="{Binding Content, Converter={StaticResource MarkdownToFlowDocument}}"
+                                                                    VerticalScrollBarVisibility="Auto"
+                                                                    HorizontalScrollBarVisibility="Disabled"
+                                                                    MaxHeight="720"
+                                                                    BorderThickness="0"
+                                                                    Background="Transparent" />
+                      <ItemsControl ItemsSource="{Binding Images}">
+                        <ItemsControl.ItemsPanel>
+                          <ItemsPanelTemplate>
+                            <WrapPanel />
+                          </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                          <DataTemplate>
+                            <Image Source="{Binding Converter={StaticResource FilePathToImage}}"
+                                                             MaxWidth="200" MaxHeight="200" Margin="0,4,4,0" Stretch="Uniform"
+                                                             Cursor="Hand"
+                                                             MouseLeftButtonUp="MessageImage_MouseLeftButtonUp" />
+                          </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                      </ItemsControl>
+                    </StackPanel>
+
                     <TextBlock Text="{Binding MetaText}" FontSize="11" Foreground="#999999" Margin="0,4,0,0" />
                   </StackPanel>
                 </Border>
+
+                <!-- 气泡下方的操作按钮：非编辑态 -->
+                <StackPanel x:Name="NormalActions" Grid.Row="1" Orientation="Horizontal"
+                                        HorizontalAlignment="Left" Margin="0,2,0,0"
+                                        Visibility="{Binding IsNotEditing, Converter={StaticResource BoolToVis}}">
+                  <Button Content="✎" ToolTip="编辑" Style="{StaticResource IconButton}"
+                                      Command="{Binding DataContext.EditMessageCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                      CommandParameter="{Binding}" />
+                  <Button Content="↻" ToolTip="重试" Style="{StaticResource IconButton}"
+                                      Command="{Binding DataContext.RetryCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                      CommandParameter="{Binding}"
+                                      Visibility="{Binding IsAssistant, Converter={StaticResource BoolToVis}}" />
+                </StackPanel>
+
+                <!-- 气泡下方的操作按钮：编辑态 -->
+                <StackPanel x:Name="EditActions" Grid.Row="1" Orientation="Horizontal"
+                                        HorizontalAlignment="Left" Margin="0,2,0,0"
+                                        Visibility="{Binding IsEditing, Converter={StaticResource BoolToVis}}">
+                  <Button Content="✓" ToolTip="保存" Style="{StaticResource IconButton}"
+                                      Command="{Binding DataContext.SaveEditCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                      CommandParameter="{Binding}" />
+                  <Button Content="✕" ToolTip="取消" Style="{StaticResource IconButton}"
+                                      Command="{Binding DataContext.CancelEditCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                      CommandParameter="{Binding}" />
+                </StackPanel>
               </Grid>
               <DataTemplate.Triggers>
                 <DataTrigger Binding="{Binding IsUser}" Value="True">
@@ -196,6 +265,8 @@
                   <Setter TargetName="ContentText" Property="Foreground" Value="White" />
                   <Setter TargetName="ContentText" Property="Visibility" Value="Visible" />
                   <Setter TargetName="MarkdownViewer" Property="Visibility" Value="Collapsed" />
+                  <Setter TargetName="NormalActions" Property="HorizontalAlignment" Value="Right" />
+                  <Setter TargetName="EditActions" Property="HorizontalAlignment" Value="Right" />
                 </DataTrigger>
               </DataTemplate.Triggers>
             </DataTemplate>
