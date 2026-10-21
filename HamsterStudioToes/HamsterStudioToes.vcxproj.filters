@@ -165,6 +165,12 @@
     <ClInclude Include="Image\Tools\PasteImageUtils.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="ColourSpaces\HueSaturationValue.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Export.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Image\ImageStitcher.cpp">
@@ -264,6 +270,9 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="Image\Tools\PasteImageUtils.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="ColourSpaces\HueSaturationValue.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
