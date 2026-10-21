@@ -7,7 +7,7 @@ using System.Windows.Input;
 
 namespace HamsterStudioGUI.ViewModels.SpacialDownloads;
 
-public partial class BilibiliSpDownloadsViewModel : KnownViewModel
+public partial class BilibiliSpDownloadsViewModel : ViewModel
 {
     [ObservableProperty]
     private string _bvid = string.Empty;

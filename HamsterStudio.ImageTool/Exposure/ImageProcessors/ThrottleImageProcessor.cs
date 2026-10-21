@@ -3,7 +3,7 @@ using System.Windows.Media.Imaging;
 
 namespace HamsterStudio.ImageTool.Exposure.ImageProcessors;
 
-public class ThrottleImageProcessor(IImageProcessor innerProcessor, ILogger? logger = null) : IImageProcessor
+public class ThrottleImageProcessor(IImageProcessor innerProcessor) : IImageProcessor
 {
     private DateTime _lastProcessTime = DateTime.MinValue;
     private readonly TimeSpan _throttleInterval = TimeSpan.FromMilliseconds(200);

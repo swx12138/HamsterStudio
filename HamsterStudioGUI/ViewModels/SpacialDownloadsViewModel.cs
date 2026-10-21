@@ -4,7 +4,7 @@ using Microsoft.Extensions.Logging;
 
 namespace HamsterStudioGUI.ViewModels;
 
-public class SpacialDownloadsViewModel(ILoggerFactory loggerFactory) : KnownViewModel(loggerFactory.CreateLogger<SpacialDownloadsViewModel>())
+public class SpacialDownloadsViewModel(ILoggerFactory loggerFactory) : ViewModel(loggerFactory.CreateLogger<SpacialDownloadsViewModel>())
 {
     public DirectLinkDownloadViewModel DirectLinkDownload { get; } = new(loggerFactory.CreateLogger<DirectLinkDownloadViewModel>());
     public BilibiliSpDownloadsViewModel BilibiliSpDownloadsViewModel { get; } = new(loggerFactory.CreateLogger<BilibiliSpDownloadsViewModel>());

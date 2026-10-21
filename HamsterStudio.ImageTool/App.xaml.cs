@@ -1,4 +1,6 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using HamsterStudio.Barefeet.Services;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using System.Windows;
 
 namespace HamsterStudio.ImageTool;
@@ -14,6 +16,7 @@ public partial class App : Application
     public App()
     {
         Services.AddLogging();
+        Services.AddSingleton(sp => new DirectoryMgmt(@"D:\HamsterStudioHome", sp.GetService<ILogger>()));
         ImageToolProfile.RegisterServices(Services);
     }
 
@@ -23,6 +26,4 @@ public partial class App : Application
         base.OnStartup(e);
     }
 
-
 }
-

@@ -14,7 +14,6 @@ namespace HamsterStudio.ImageTool.ViewModels;
 
 public partial class ExposureAdjustmentViewModel : KnownViewModel
 {
-    private readonly ILogger<ExposureAdjustmentViewModel>? _logger;
     private readonly Lazy<IImageProcessor> _imageProcessor = new(() => new ThrottleImageProcessor(
         new FallbackImageProcessor(
             new CppImageProcessor(),
@@ -23,7 +22,7 @@ public partial class ExposureAdjustmentViewModel : KnownViewModel
         )
     );
 
-    public ExposureAdjustmentViewModel(ILogger<ExposureAdjustmentViewModel> logger) : base(logger)
+    public ExposureAdjustmentViewModel(ILogger<ExposureAdjustmentViewModel> logger) : base("图片编辑器", logger)
     {
         // 初始化命令
         LoadImageCommand = new RelayCommand<string>(LoadImageFromPath);
@@ -34,7 +33,6 @@ public partial class ExposureAdjustmentViewModel : KnownViewModel
         SaveImageCommand = new RelayCommand(SaveImage);
 
         ImageAdjustments.PropertyChanged += ImageAdjustments_PropertyChanged;
-        DisplayName = "图片编辑器";
     }
 
     private void ImageAdjustments_PropertyChanged(object? sender, PropertyChangedEventArgs e)
@@ -223,11 +221,11 @@ public partial class ExposureAdjustmentViewModel : KnownViewModel
             //UpdateHistogram();
             ImageAdjustments.Reset();
 
-            _logger?.LogInformation($"图片加载成功: {filePath}");
+            logger?.LogInformation($"图片加载成功: {filePath}");
         }
         catch (Exception ex)
         {
-            _logger?.LogError(ex, $"图片加载失败: {filePath}");
+            logger?.LogError(ex, $"图片加载失败: {filePath}");
             MessageBox.Show($"无法加载图片: {ex.Message}", "错误",
                 MessageBoxButton.OK, MessageBoxImage.Error);
         }
@@ -270,7 +268,7 @@ public partial class ExposureAdjustmentViewModel : KnownViewModel
         }
         catch (Exception ex)
         {
-            _logger?.LogError(ex, "保存图片失败");
+            logger?.LogError(ex, "保存图片失败");
             MessageBox.Show($"保存失败: {ex.Message}", "错误",
                 MessageBoxButton.OK, MessageBoxImage.Error);
         }

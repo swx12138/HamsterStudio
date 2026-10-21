@@ -10,9 +10,8 @@ public partial class FileViewModel : KnownViewModel
 {
     public ICommand ShowImageCommand { get; }
 
-    public FileViewModel(FileInfo fileInfo, ILogger<FileViewModel> logger) : base(logger)
+    public FileViewModel(FileInfo fileInfo, ILogger<FileViewModel> logger) : base(fileInfo.Name, logger)
     {
-        DisplayName = fileInfo.Name;
         ShowImageCommand = new RelayCommand(() =>
         {
             var imageBrowser = new HandyControl.Controls.ImageBrowser(new Uri(fileInfo.FullName));

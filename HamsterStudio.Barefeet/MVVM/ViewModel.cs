@@ -24,10 +24,10 @@ public class ViewModel(ILogger? logger) : BindableBase(logger)
 
 }
 
-public partial class KnownViewModel(ILogger? logger) : ViewModel(logger)
+public partial class KnownViewModel(string displayName, ILogger? logger = null) : ViewModel(logger)
 {
     [ObservableProperty]
-    private string _displayName = string.Empty;
+    private string _displayName = displayName;
 
     protected override void OnPropertyChanged(PropertyChangedEventArgs e)
     {

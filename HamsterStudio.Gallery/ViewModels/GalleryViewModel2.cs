@@ -1,12 +1,12 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using HamsterStudio.Barefeet.MVVM;
+using HamsterStudio.Barefeet.Services;
 using HamsterStudio.Gallery.Models;
 using Microsoft.Extensions.Logging;
 using System.ComponentModel;
 using System.IO;
 using System.Windows.Input;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace HamsterStudio.Gallery.ViewModels;
 
@@ -27,12 +27,10 @@ public partial class GalleryViewModel2 : KnownViewModel
     [ObservableProperty]
     private bool _isThumbnailView = true;
 
-    public GalleryViewModel2(ILogger<GalleryViewModel2> logger, ThumbnailModeViewModel thumbnail, LargeImageViewModel largeImage) : base(logger)
+    public GalleryViewModel2(ILogger<GalleryViewModel2> logger, ThumbnailModeViewModel thumbnail, LargeImageViewModel largeImage,DirectoryMgmt directoryMgmt) : base("相册", logger)
     {
         ThumbnailModeViewModel = thumbnail;
         LargeImageViewModel = largeImage;
-
-        DisplayName = "相册";
 
         LoadFolderCommand = new RelayCommand<string>(dir =>
         {
@@ -70,10 +68,7 @@ public partial class GalleryViewModel2 : KnownViewModel
 #if DEBUG
         using (ThumbnailModeViewModel.CurrentFolder.SearchedViewSource.DeferRefresh())
         {
-            //GalleryFolders.Add(
-            //    GalleryFolderModel.LoadFolder(new DirectoryInfo(@"E:\Pictures\00_瞎拍\04_Cosplay")));
-            LoadFolder(@"E:\HamsterStudioHome\xiaohongshu"); 
-            LoadFolder(@"E:\Pictures\Boundhub_Album");
+            LoadFolder(Path.Combine(directoryMgmt.StorageHome, "xiaohongshu"));
         }
 #endif
 

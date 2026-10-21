@@ -21,4 +21,8 @@
         <ProjectReference Include="..\HamsterStudio.Toolkits\HamsterStudio.Toolkits.csproj" />
         <ProjectReference Include="..\HamsterStudioBridge\HamsterStudioBridge.vcxproj" />
     </ItemGroup>
+
+    <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
+      <Exec Command="copy /b $(SolutionDir)x64\$(ConfigurationName)\HamsterStudioToes64.dll $(OutDir)" />
+    </Target>
 </Project>
