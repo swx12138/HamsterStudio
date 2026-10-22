@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using HamsterStudio.Barefeet;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System.Windows;
 
@@ -21,6 +22,7 @@ public partial class App : Application
                 .AddDebug()       // 添加调试输出
                 .SetMinimumLevel(LogLevel.Information);
         });
+        BarefeetProfile.ConfigureService(Services);
         GalleryProfile.RegisterServices(Services);
     }
 

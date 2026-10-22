@@ -1,4 +1,6 @@
-﻿using HamsterStudio.Barefeet.Services;
+﻿using HamsterStudio.Barefeet;
+using HamsterStudio.Barefeet.Services;
+using HamsterStudio.Gallery;
 using HamsterStudio.ImageTool;
 using HamsterStudio.Photogrammetry;
 using HamsterStudio.Toolkits.Services;
@@ -14,18 +16,17 @@ namespace HamsterStudioGUI.Extensions;
 
 public static class ConfigureWebApiExtensions
 {
-    public static void ConfigureService(this IServiceCollection services, string home)
+    public static void ConfigureService(this IServiceCollection services)
     {
         services.AddSingleton<ThemeMgmt>();
 
         services.AddSingleton<ImageMetaInfoReadService>();
 
-        services.AddSingleton(sp => new DirectoryMgmt(home, sp.GetService<ILogger>()));
-        services.AddSingleton<DataStorageMgmt>();
+        BarefeetProfile.ConfigureService(services);
 
         PhotogrammetryProfile.RegisterServices(services);
         ImageToolProfile.RegisterServices(services);
-        //GalleryProfile.RegisterServices(services);
+        GalleryProfile.RegisterServices(services);
     }
 
     private static string GetContentType(string path)

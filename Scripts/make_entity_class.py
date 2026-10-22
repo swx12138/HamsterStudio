@@ -7,23 +7,9 @@ def read_json(filename: str):
         return json.load(f)
 
 
-def underline_to_big_camle(name: str):
-    new_name = name[0].upper()
-    try:
-        idx = 1
-        while idx < len(name) - 1:
-            if name[idx] == "_":
-                new_name += name[idx + 1].upper()
-                idx = idx + 1
-            else:
-                new_name += name[idx]
-            idx = idx + 1
-    except Exception as ex:
-        print(ex)
-    return new_name
-
-
 def to_camel_case(name: str):
+    if not name:
+        return name
     parts = map(lambda x: x[0].upper() + x[1:], name.split("_"))
     return "".join(parts)
 
@@ -45,10 +31,7 @@ def parse_object(data: dict[str,], name: str):
         if isinstance(data[k], bool):
             class_meta["members"].append({"type": "bool", "name": k})
         elif isinstance(data[k], int):
-            if data[k] >= 1 << 31:
-                class_meta["members"].append({"type": "long", "name": k})
-            else:
-                class_meta["members"].append({"type": "int", "name": k})
+            class_meta["members"].append({"type": "long", "name": k})
         elif isinstance(data[k], float):
             class_meta["members"].append({"type": "double", "name": k})
         elif isinstance(data[k], str):
@@ -62,7 +45,7 @@ def parse_object(data: dict[str,], name: str):
         elif isinstance(data[k], dict):
             meta = parse_object(data[k], k)
             class_meta["members"].append({"type": meta["name"], "name": k})
-        elif data[k] == None:
+        elif data[k] is None:
             class_meta["members"].append({"type": "object?", "name": k})
         else:
             raise Exception("Not support.")
@@ -71,7 +54,7 @@ def parse_object(data: dict[str,], name: str):
     return class_meta
 
 
-def generate_mamber_code(member):
+def generate_member_code(member):
     name = member["name"]
     type: str = member["type"]
     json_property = f'\t[JsonPropertyName("{name}")]'
@@ -85,12 +68,12 @@ def generate_mamber_code(member):
     return json_property + "\n" + declare
 
 
-def craete_csharp_class():
+def create_csharp_class():
     global class_metas
     class_metas.reverse()
     for meta in class_metas:
         declare = f"public class {meta['name']}\n{{\n"
-        member_lines = map(generate_mamber_code, meta["members"])
+        member_lines = map(generate_member_code, meta["members"])
         yield declare + "\n\n".join(member_lines) + "\n}"
 
 
@@ -99,6 +82,6 @@ if __name__ == "__main__":
     class_meta = parse_object(json_data, "ModuleTop")
     # print(json.dumps(class_metas, indent=2, ensure_ascii=False))
     with open("DataModel.cs", "w") as fp:
-        for cls in craete_csharp_class():
+        for cls in create_csharp_class():
             print(cls, file=fp)
             print("", file=fp)

@@ -58,7 +58,7 @@
     </None>
   </ItemGroup>
 
-  <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
     <Exec Command="copy /b $(SolutionDir)x64\$(ConfigurationName)\HamsterStudioToes64.dll $(OutDir)" />
   </Target>
 	

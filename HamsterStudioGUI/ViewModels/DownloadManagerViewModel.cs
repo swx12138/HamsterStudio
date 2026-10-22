@@ -1,5 +1,6 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using HamsterStudio.Barefeet.MVVM;
 using HamsterStudio.Web.Models;
 using HamsterStudio.Web.Services;
 using System.Windows.Data;
@@ -9,7 +10,7 @@ namespace HamsterStudioGUI.ViewModels;
 /// <summary>
 /// 下载管理面板的主 ViewModel
 /// </summary>
-public partial class DownloadManagerViewModel : ObservableObject
+public partial class DownloadManagerViewModel : KnownViewModel
 {
     private readonly IDownloadManager _downloadManager;
 
@@ -24,7 +25,7 @@ public partial class DownloadManagerViewModel : ObservableObject
             ? Packages
             : Packages.Where(p => p.Status == FilterStatus);
 
-    public DownloadManagerViewModel(IDownloadManager downloadManager)
+    public DownloadManagerViewModel(IDownloadManager downloadManager):base("📥 下载管理")
     {
         _downloadManager = downloadManager;
         // 允许后台线程（Web API）安全修改绑定到 UI 的集合
