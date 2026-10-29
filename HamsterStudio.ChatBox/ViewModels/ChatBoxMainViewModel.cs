@@ -86,11 +86,11 @@ public partial class ChatBoxMainViewModel : KnownViewModel
     [ObservableProperty]
     private int _dualRounds = 3;
 
-    public ChatBoxMainViewModel(ChatService chatService, ChatSessionService chatSessionService, ILogger<ChatBoxMainViewModel>? logger) : base(logger)
+    public ChatBoxMainViewModel(ChatService chatService, ChatSessionService chatSessionService, ILogger<ChatBoxMainViewModel>? logger)
+        : base("ChatBox", logger)
     {
         _chatService = chatService;
         _chatSessionService = chatSessionService;
-        DisplayName = "ChatBox";
     }
 
     private ChatProviderSettings BuildSettings() => new()

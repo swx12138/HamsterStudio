@@ -12,6 +12,7 @@
         public const string ImageToolMainViewDisplayName = "ImageTool";
         public const string PhotogrammetryMainViewDisplayName = "Photogrammetry";
         public const string ExposureAdjustmentViewDisplayName = "ExposureAdjustment";
+        public const string ShowChatBoxViewDisplayName = "ChatBox";
 
     }
 }

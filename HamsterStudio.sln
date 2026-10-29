@@ -65,8 +65,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HandyControl_Net_GE45", "su
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HamsterStudio.ChatBox", "HamsterStudio.ChatBox\HamsterStudio.ChatBox.csproj", "{7F54E790-D38E-49BE-A221-FFFE82345810}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HamsterStudio.ChatBox", "HamsterStudio.ChatBox\HamsterStudio.ChatBox.csproj", "{A84AA35B-3EF9-2266-BCCA-8303B1FF1D80}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
