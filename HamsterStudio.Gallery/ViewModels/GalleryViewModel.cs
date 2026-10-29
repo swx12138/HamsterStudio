@@ -7,6 +7,7 @@ using HamsterStudio.Gallery.Models;
 using HamsterStudio.Toolkits.Services;
 using Microsoft.Extensions.Logging;
 using Microsoft.Win32;
+using NLog;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -15,9 +16,9 @@ using System.Windows.Media.Imaging;
 
 namespace HamsterStudio.Gallery.ViewModels;
 
-public partial class GalleryViewModel : KnownViewModel
+public partial class GalleryViewModel(FileManagerViewModel fileManager, ThemeMgmt themeMgmt, ILogger<GalleryViewModel> logger) : KnownViewModel("图库", logger)
 {
-    public FileManagerViewModel? FileManager { get; }
+    public FileManagerViewModel? FileManager { get; } = fileManager;
 
     [ObservableProperty]
     private Visibility _galleriesVisible = Visibility.Visible;
@@ -26,19 +27,7 @@ public partial class GalleryViewModel : KnownViewModel
     private Visibility _galleryVisible = Visibility.Visible;
 
     [ObservableProperty]
-    private ThemeMgmt? _themeMgmt = null;
-
-    public GalleryViewModel(ILogger<GalleryViewModel> logger) : base(logger)
-    {
-    }
-
-    public GalleryViewModel(FileManagerViewModel fileManager, ThemeMgmt themeMgmt, ILogger<GalleryViewModel> logger) : base(logger)
-    {
-        DisplayName = "图库";
-
-        ThemeMgmt = themeMgmt;
-        FileManager = fileManager;
-    }
+    private ThemeMgmt? _themeMgmt = themeMgmt;
 
     [RelayCommand]
     private void OnClear()

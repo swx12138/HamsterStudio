@@ -7,6 +7,7 @@
 #include <istream>
 
 #include "../Shapes/Rectangle.h"
+#include "../Export.h"
 
 namespace ImageNamespace
 {
@@ -14,7 +15,9 @@ namespace ImageNamespace
 
 	struct ImageShape { int width, height, channels; };
 
-	class Image {
+#pragma warning(push)
+#pragma warning(disable : 4251)	// pImpl 私有成员无需 dll 接口
+	class TOES_API Image {
 		struct Impl;
 		std::shared_ptr<Impl> pImpl;
 
@@ -52,4 +55,5 @@ namespace ImageNamespace
 		static void CheckCuda();
 
 	};
+#pragma warning(pop)
 }

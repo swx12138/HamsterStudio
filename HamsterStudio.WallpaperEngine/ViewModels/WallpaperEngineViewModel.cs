@@ -7,20 +7,14 @@ using Microsoft.Extensions.Logging;
 
 namespace HamsterStudio.WallpaperEngine.ViewModels;
 
-public partial class WallpaperEngineViewModel : KnownViewModel
+public partial class WallpaperEngineViewModel(
+    ImageMetaInfoReadService svc, 
+    ThemeMgmt themeMgmt, 
+    ILogger<WallpaperEngineViewModel> logger, 
+    DirectoryMgmt directoryMgmt) : KnownViewModel("壁纸预览", logger)
 {
     [ObservableProperty]
-    public WallpaperShowConfig _configuration;
+    public WallpaperShowConfig _configuration = new WallpaperShowConfig(svc, logger, directoryMgmt);
 
-    public ThemeMgmt ThemeMgmt { get; }
-
-    public WallpaperEngineViewModel(ImageMetaInfoReadService svc, ThemeMgmt themeMgmt, ILogger<WallpaperEngineViewModel> logger, DirectoryMgmt directoryMgmt) : base(logger)
-    {
-        DisplayName = "壁纸预览";
-
-        ThemeMgmt = themeMgmt;
-
-        _configuration = new WallpaperShowConfig(svc, logger, directoryMgmt);
-
-    }
+    public ThemeMgmt ThemeMgmt { get; } = themeMgmt;
 }

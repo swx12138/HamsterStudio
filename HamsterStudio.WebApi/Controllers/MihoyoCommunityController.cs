@@ -50,7 +50,7 @@ public class MihoyoCommunityDownloadRequest
 
 [ApiController]
 [Route("/miyoushe")]
-public class MihoyoCommunityController(CommonDownloader downloader, DirectoryMgmt directoryMgmt, ILogger<MihoyoCommunityController> logger) : ControllerBase
+public class MihoyoCommunityController(CommonDownloader downloader, DirectoryMgmt directoryMgmt) : ControllerBase
 {
     private DirectoryInfo _directory = new(Path.Combine(directoryMgmt.StorageHome, "miyoushe"));
 

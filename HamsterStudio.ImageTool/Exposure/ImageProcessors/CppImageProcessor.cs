@@ -19,7 +19,7 @@ public struct NativeImageAdjustments
 }
 
 // C++实现
-public class CppImageProcessor(ILogger? logger = null) : IImageProcessor, IDisposable
+public class CppImageProcessor() : IImageProcessor, IDisposable
 {
     private nint _processorHandle = image_processor_create();
 

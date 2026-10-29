@@ -37,10 +37,8 @@ public partial class FileGroupViewModel : KnownViewModel
     public ICommand PrevPageCommand { get; }
     public ICommand NextPageCommand { get; }
 
-    public FileGroupViewModel(string groupName, ILogger? logger) : base(logger)
+    public FileGroupViewModel(string groupName, ILogger? logger) : base(groupName, logger)
     {
-        DisplayName = groupName;
-
         _CurrentPageView = BuildCurrentPageView();
 
         ViewCommand = new RelayCommand(() =>

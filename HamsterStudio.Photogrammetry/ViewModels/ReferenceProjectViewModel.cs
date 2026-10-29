@@ -78,11 +78,9 @@ public partial class ReferenceProjectViewModel : KnownViewModel
 
     public ICollectionView FilteredReferences { get; }
 
-    public ReferenceProjectViewModel(DataStorageMgmt dataStorageMgmt, ILogger<ReferenceProjectViewModel> logger) : base(logger)
+    public ReferenceProjectViewModel(DataStorageMgmt dataStorageMgmt, ILogger<ReferenceProjectViewModel> logger) : base("参考图", logger)
     {
         _dataStorageMgmt = dataStorageMgmt;
-
-        DisplayName = "参考图";
 
         FilteredReferences = CollectionViewSource.GetDefaultView(References);
         FilteredReferences.Filter = FilterPredicate;
