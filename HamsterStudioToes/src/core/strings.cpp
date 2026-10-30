@@ -1,8 +1,10 @@
 #include "core/strings.h"
 
 #include <Windows.h>
-#include <sstream>
 #include <algorithm>
+#include <cctype>
+#include <sstream>
+#include <stdexcept>
 
 std::string HamsterStudioToes::StringUtils::Huawei::utf8_to_string(std::string const& str)
 {
@@ -91,7 +93,9 @@ std::wstring HamsterStudioToes::StringUtils::to_wstring(std::string const& str)
 std::string HamsterStudioToes::StringUtils::to_lower(std::string const &str)
 {
 	std::string result(str);
-	std::transform(result.begin(), result.end(), result.begin(), std::tolower);
+	// std::tolower 的实参必须是 unsigned char 提升后的值，否则高位字节是未定义行为
+	std::transform(result.begin(), result.end(), result.begin(),
+		[](unsigned char ch) { return static_cast<char>(std::tolower(ch)); });
 	return result;
 }
 
@@ -104,13 +108,13 @@ constexpr size_t Size_1T = 1024 * Size_1G;
 
 std::string HamsterStudioToes::StringUtils::UnitedSize(size_t value)
 {
-	if (value > Size_1T) {
+	if (value >= Size_1T) {
 		return std::format("{:.3f}TB", 1.0 * value / Size_1T);
 	}
-	else if (value > Size_1G) {
+	else if (value >= Size_1G) {
 		return std::format("{:.3f}GB", 1.0 * value / Size_1G);
 	}
-	else if (value > Size_1M) {
+	else if (value >= Size_1M) {
 		return std::format("{:.3f}MB", 1.0 * value / Size_1M);
 	}
 	return std::format("{:.3f}KB", 1.0 * value / Size_1K);
@@ -118,29 +122,36 @@ std::string HamsterStudioToes::StringUtils::UnitedSize(size_t value)
 
 std::string HamsterStudioToes::StringUtils::Join(std::vector<std::string_view> const& vec, std::string delim)
 {
-	std::ostringstream _Stream;
-	_Stream << *vec.cbegin();
-	std::for_each(vec.cbegin() + 1, vec.cend(), [=, &_Stream](auto const val)
-		{ _Stream << delim << val; });
-	return _Stream.str();
+	// 原实现对空容器解引用 begin()，是未定义行为
+	std::string result;
+	for (size_t i = 0; i < vec.size(); ++i) {
+		if (i != 0) {
+			result += delim;
+		}
+		result += vec[i];
+	}
+	return result;
 }
 
 std::vector<std::string> HamsterStudioToes::StringUtils::Split(std::string const& str, std::string delim)
 {
-	std::vector<int> _Tmp;
-	auto _Pos = str.find_first_of(delim);
-	while (_Pos != std::string::npos)
-	{
-		_Tmp.push_back(static_cast<int>(_Pos));
-		_Pos = str.find_first_of(delim, _Pos + delim.length());
+	std::vector<std::string> _Ans;
+	if (delim.empty()) {
+		_Ans.push_back(str);
+		return _Ans;
 	}
 
-	std::vector<std::string> _Ans;
-	_Ans.emplace_back(str.substr(0, _Tmp[0]));
-	(void)std::adjacent_find(_Tmp.cbegin(), _Tmp.cend(), [=, &_Ans](auto a, auto b)
-		{ a += static_cast<int>(delim.length()); _Ans.push_back(str.substr(a, b - a)); return false; });
-	_Ans.emplace_back(str.substr(_Tmp[_Tmp.size() - 1] + static_cast<int>(delim.length())));
-	return _Ans;
+	// 原实现直接取 _Tmp[0]，字符串里没有分隔符时会越界读
+	size_t _Start = 0;
+	for (;;) {
+		size_t const _Pos = str.find(delim, _Start);
+		if (_Pos == std::string::npos) {
+			_Ans.push_back(str.substr(_Start));
+			return _Ans;
+		}
+		_Ans.push_back(str.substr(_Start, _Pos - _Start));
+		_Start = _Pos + delim.size();
+	}
 }
 
 std::vector<std::string> HamsterStudioToes::StringUtils::SplitV2(std::string const& str, char const delim)
@@ -157,12 +168,15 @@ std::vector<std::string> HamsterStudioToes::StringUtils::SplitV2(std::string con
 
 std::string HamsterStudioToes::StringUtils::Replace(std::string src, std::string const& which, std::string const& toWhat)
 {
-	auto pos = src.find(which);
-	while (pos != std::string::npos)
-	{
-		src.erase(pos, which.length());
-		src.insert(pos, toWhat);
-		pos = src.find(which);
+	// 空 needle 会让 find 永远命中位置 0，原实现因此死循环
+	if (which.empty()) {
+		return src;
+	}
+
+	size_t pos = 0;
+	while ((pos = src.find(which, pos)) != std::string::npos) {
+		src.replace(pos, which.size(), toWhat);
+		pos += toWhat.size();	// 跳过刚写入的内容，避免 toWhat 含 which 时反复命中
 	}
 	return src;
 }
@@ -184,35 +198,41 @@ HamsterStudioToes::StringUtils::ByteArray HamsterStudioToes::StringUtils::GetByt
 
 std::string HamsterStudioToes::StringUtils::Hex(ByteArray const& byts, bool upper)
 {
-	char szBuffer[3];
-	std::vector<char> _Ans;
+	// 原实现用 "%2X"，十六进制宽度 2 会以空格填充，0x0A 会被写成 " a"
+	char const* const digits = upper ? "0123456789ABCDEF" : "0123456789abcdef";
+	std::string _Ans;
+	_Ans.reserve(byts.size() * 2);
 	for (auto byt : byts)
 	{
-		sprintf_s(szBuffer, 3, upper ? "%2X" : "%2x", byt);
-		_Ans.emplace_back(szBuffer[0]);
-		_Ans.emplace_back(szBuffer[1]);
+		_Ans.push_back(digits[(byt >> 4) & 0x0f]);
+		_Ans.push_back(digits[byt & 0x0f]);
 	}
-	return std::string(_Ans.cbegin(), _Ans.cend());
+	return _Ans;
 }
 
 HamsterStudioToes::StringUtils::ByteArray HamsterStudioToes::StringUtils::Dehex(std::string const& str)
 {
-	const auto _Dehex = [](char ch)
-		{
-			if (isdigit(ch))
-				return ch - '0';
-			else if (isupper(ch))
-				return ch - 'A';
-			else if (islower(ch))
-				return ch - 'a';
-			return -1;
-		};
+	auto const nibble = [](char ch) -> int {
+		if (ch >= '0' && ch <= '9') return ch - '0';
+		if (ch >= 'a' && ch <= 'f') return ch - 'a' + 10;
+		if (ch >= 'A' && ch <= 'F') return ch - 'A' + 10;
+		return -1;
+	};
+
+	// 原实现对奇数字符串会多读一个字符，对非法字符也会算出一个错误的值
+	if (str.size() % 2 != 0) {
+		throw std::invalid_argument("Dehex: 输入长度必须为偶数");
+	}
 
 	ByteArray _Ans;
-	for (auto iter = str.cbegin(); iter != str.cend();)
-	{
-		auto val = _Dehex(*iter++);
-		_Ans.push_back(val * 16 + _Dehex(*iter++));
+	_Ans.reserve(str.size() / 2);
+	for (size_t i = 0; i < str.size(); i += 2) {
+		int const hi = nibble(str[i]);
+		int const lo = nibble(str[i + 1]);
+		if (hi < 0 || lo < 0) {
+			throw std::invalid_argument("Dehex: 输入含非十六进制字符");
+		}
+		_Ans.push_back(static_cast<uint8_t>((hi << 4) | lo));
 	}
 	return _Ans;
 }
@@ -225,5 +245,7 @@ bool HamsterStudioToes::StringUtils::isValidNum(std::string const& str)
 	if (str.length() != 1 && str[0] == '0') {
 		return false;
 	}
-	return all_of(str.cbegin(), str.cend(), isdigit);
+	// isdigit 同样要求实参可表示为 unsigned char
+	return std::all_of(str.cbegin(), str.cend(),
+		[](unsigned char ch) { return std::isdigit(ch) != 0; });
 }

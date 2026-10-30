@@ -1,15 +1,18 @@
 #include "core/codec/base64.h"
 
+#include <cctype>
+#include <stdexcept>
+
 namespace detail
 {
     constexpr inline char to_base64(uint8_t u8)
     {
         if (u8 < 26)
-            return 'A' + u8;
+            return static_cast<char>('A' + u8);
         else if (u8 < 52)
-            return 'a' + u8 - 26;
+            return static_cast<char>('a' + u8 - 26);
         else if (u8 < 62)
-            return '0' + u8 - 52;
+            return static_cast<char>('0' + u8 - 52);
         else if (u8 == 62)
             return '+';
         else if (u8 == 63)
@@ -19,12 +22,14 @@ namespace detail
 
     inline uint8_t from_base64(char ch)
     {
-        if (isupper(ch))
-            return ch - 'A';
-        else if (islower(ch))
-            return ch - 'a' + 26;
-        else if (isdigit(ch))
-            return ch - '0' + 52;
+        // ctype 系列要求实参可表示为 unsigned char，否则高位字节是未定义行为
+        auto const u = static_cast<unsigned char>(ch);
+        if (std::isupper(u))
+            return static_cast<uint8_t>(u - 'A');
+        else if (std::islower(u))
+            return static_cast<uint8_t>(u - 'a' + 26);
+        else if (std::isdigit(u))
+            return static_cast<uint8_t>(u - '0' + 52);
         else if ('+' == ch)
             return 62;
         else if ('/' == ch)
@@ -86,7 +91,18 @@ std::vector<uint8_t> HamsterStudioToes::Base64::Decode(std::string const& base64
     using namespace detail;
     std::vector<uint8_t> _Ans;
     const auto _Len = base64.size();
-    Diagnostics::Assert(_Len % 4 == 0);
+
+    // 长度不是 4 的倍数时无法确定填充位置，宁可拒绝也不要静默丢字节
+    if (_Len % 4 != 0) {
+        throw std::invalid_argument("Base64::Decode: 输入长度必须是 4 的倍数");
+    }
+
+    // 结尾的 '=' 表示被省略的字节数，解完要裁掉。原实现把 '=' 当 0 参与解码，
+    // 于是 "aGVsbG8=" 会多出一个 0x00 字节。
+    size_t _Pad = 0;
+    if (_Len != 0 && base64[_Len - 1] == '=') {
+        _Pad = (_Len >= 2 && base64[_Len - 2] == '=') ? 2u : 1u;
+    }
     for (auto i = 0u; i + 3 < _Len; i += 4)
     {
         auto a = from_base64(base64[i]),
@@ -97,5 +113,9 @@ std::vector<uint8_t> HamsterStudioToes::Base64::Decode(std::string const& base64
         _Ans.emplace_back(b << 4 | c >> 2);
         _Ans.emplace_back(c << 6 | d);
     }
+    if (_Pad > _Ans.size()) {
+        throw std::invalid_argument("Base64::Decode: 填充长度超过可用数据");
+    }
+    _Ans.resize(_Ans.size() - _Pad);
     return _Ans;
 }

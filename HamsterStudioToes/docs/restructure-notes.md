@@ -97,9 +97,37 @@ legacy 文件被扁平化到 `src/legacy/<域>/`，原先的 `./PixelData/PixelD
 ## 5. 剩余事项（未在本轮做）
 
 1. **`add()` 导出**：仍在导出表里，等确认后删除（删除后需同步更新基线）。
-2. **`TOES_API` 的 `dllimport` 分支**：补上后，测试才能改为链接 DLL，`Image` 等类才对外部 C++ 消费者可用。
+2. **`TOES_API` 的 `dllimport` 分支**：已在第二轮补上（见 §6）。
 3. **OpenCV 链接集中化**：仍有 4 个源文件用 `#pragma comment(lib, "opencv_world4120[.d]")`，未迁到工程级 `AdditionalDependencies`。
 4. **死脚本**：`makefile`（引用不存在的 `source/*.cc`）、`release.py`（只打包 `.cc/.hh`）、`gcc.md`、`note.md` 仍在根目录。
 5. **legacy 内部引用**：见 §3.4。
 6. **CI**：仓库仍无流水线；`.github/` 为空目录。
-7. **逻辑缺陷**：`StringUtils::Hex` 的 `%2X`、`Split` 越界、`Replace` 死循环、`Base64::Decode` 填充、`Math::IntegralResolver` 的 `throw new` 等，全部原样保留在 `src/core/`，待专项修复。
+7. **逻辑缺陷**：已在第二轮修复（见 §6）。
+
+---
+
+## 6. 第二轮：导入分支与 P0 修复（2026-10-30）
+
+### 6.1 改动
+
+| 文件 | 改动 |
+|---|---|
+| `include/hamster/toes/export.h` | 增加 `TOES_IMPORT` → `dllimport` 分支；导出 / 导入 / 静态库三态互斥 |
+| `src/core/strings.cpp` | `Hex` 改为查表零填充；`Dehex` 校验长度与字符合法性；`Split` 修复无分隔符越界并改为子串语义；`Join` 修复空容器解引用；`Replace` 修复空 needle 死循环与替换文本自包含；`to_lower`、`isValidNum` 修正 ctype 实参；`UnitedSize` 边界改 `>=` |
+| `src/core/codec/base64.cpp` | `Decode` 按 `'='` 裁剪填充字节，长度非法抛 `invalid_argument`；`from_base64` 修正 ctype 实参 |
+| `Tests/ToesTests.cpp` | 新增 `TestStringUtils`、`TestBase64` 两组共 22 条断言 |
+| `tools/check-abi.ps1` | 新增：导出表与基线比对，可用于提交前检查或 CI；`-Update` 写回基线 |
+
+### 6.2 验证
+
+| 检查 | 结果 |
+|---|---|
+| DLL 构建 | 退出码 0 |
+| 导出表 | 34 项，与基线一致（导入分支不改变导出） |
+| 测试 | **76 checks, 0 failure(s)**（第一轮为 54 项，新增 22 项） |
+| ABI 脚本 | `tools\check-abi.ps1` → 基线 34 / 当前 34，一致 |
+
+### 6.3 两点说明
+
+- 这些工具函数在库内**没有任何调用者**（`StringUtils` 与 `Base64` 的函数全库零引用）。上述缺陷属于**潜在陷阱**而非线上故障；修复的价值在于把行为固定成可测试的契约，避免后来者踩坑。
+- `TOES_IMPORT` 目前没有消费方启用：Bridge 与 CLITools 都未定义该宏，行为与之前一致。启用它可以消除"靠链接器 thunk 偶然工作"的未定义边界，但需要消费方工程同步定义宏。

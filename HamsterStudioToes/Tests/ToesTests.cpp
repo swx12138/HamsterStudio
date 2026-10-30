@@ -10,6 +10,8 @@
 #include <filesystem>
 #include <fstream>
 #include <string>
+#include <string_view>
+#include <stdexcept>
 #include <system_error>
 #include <utility>
 #include <vector>
@@ -28,6 +30,8 @@
 #include "stitch/paste.h"
 #include "legacy/media/Wave.h"
 #include "core/diagnostics.h"
+#include "core/strings.h"
+#include "core/codec/base64.h"
 #include "win32/pe.h"
 #include "win32/os.h"
 #include "legacy/nstd/string.h"
@@ -490,6 +494,89 @@ namespace
         cv::Mat const empty = stitch(none, toes::image::StretchMode::Fill, target, layout, kBorder);
         Check(empty.empty(), "Stitch: 空输入返回空 Mat");
     }
+
+    // ------------------------------------------- core/StringUtils 与 core/Base64
+
+    void TestStringUtils()
+    {
+        Section("core/StringUtils");
+
+        using namespace HamsterStudioToes::StringUtils;
+
+        // Hex 曾用 "%2X"：宽 2 的十六进制会以空格填充，0x0A 输出 " a"
+        ByteArray const bytes{ 0x00, 0x0a, 0x1f, 0xff };
+        Check(Hex(bytes) == "000a1fff", "Hex: 小值补零而不是空格");
+        Check(Hex(bytes, true) == "000A1FFF", "Hex: 大写模式");
+
+        // Dehex：奇数字符与非法字符应被拒绝，而不是越界读或算错
+        Check(Dehex("000a1fff") == bytes, "Dehex: 与 Hex 往返一致");
+        bool threw = false;
+        try { Dehex("abc"); }
+        catch (std::invalid_argument const &) { threw = true; }
+        Check(threw, "Dehex: 奇数长度抛异常");
+        threw = false;
+        try { Dehex("zz"); }
+        catch (std::invalid_argument const &) { threw = true; }
+        Check(threw, "Dehex: 非十六进制字符抛异常");
+
+        // Split：无分隔符时曾越界访问 _Tmp[0]
+        auto const plain = Split("abc", ",");
+        Check(plain.size() == 1 && plain[0] == "abc", "Split: 无分隔符返回单元素");
+        auto const three = Split("a,b,c", ",");
+        Check(three.size() == 3 && three[0] == "a" && three[2] == "c", "Split: 常规切分");
+        auto const tail = Split("a,", ",");
+        Check(tail.size() == 2 && tail[1].empty(), "Split: 结尾分隔符产生空尾项");
+        auto const emptyDelim = Split("abc", "");
+        Check(emptyDelim.size() == 1 && emptyDelim[0] == "abc", "Split: 空分隔符原样返回");
+
+        // Join：对空容器曾解引用 begin()
+        std::vector<std::string_view> const noneVec;
+        Check(Join(noneVec, "-").empty(), "Join: 空容器返回空串");
+        Check(Join({ "a", "b", "c" }, "-") == "a-b-c", "Join: 常规拼接");
+
+        // Replace：空 needle 曾导致死循环
+        Check(Replace("abc", "", "x") == "abc", "Replace: 空 needle 原样返回");
+        Check(Replace("aXbXc", "X", "-") == "a-b-c", "Replace: 全部替换");
+        Check(Replace("a", "a", "aa") == "aa", "Replace: 替换文本含 needle 时能终止");
+
+        // UnitedSize：边界值曾落到下一档
+        Check(UnitedSize(1024) == "1.000KB", "UnitedSize: 1024 归入 KB");
+        Check(UnitedSize(1024 * 1024) == "1.000MB", "UnitedSize: 1MB 归入 MB");
+        Check(UnitedSize(1024 * 1024 * 1024) == "1.000GB", "UnitedSize: 1GB 归入 GB");
+
+        Check(to_lower("AbC") == "abc", "to_lower: 基本转换");
+    }
+
+    void TestBase64()
+    {
+        Section("core/Base64");
+
+        using namespace HamsterStudioToes;
+
+        std::string const hello = "hello";
+        std::vector<uint8_t> const raw(hello.begin(), hello.end());
+        Check(Base64::Encode(raw) == "aGVsbG8=", "Base64: 5 字节编码正确");
+
+        // 带填充的输入曾被多解出一个 0x00 字节
+        Check(Base64::Decode("aGVsbG8=") == raw, "Base64: 填充不会解出多余字节");
+
+        bool roundTrip = true;
+        for (size_t n = 0; n <= 6; ++n) {
+            std::vector<uint8_t> v(n);
+            for (size_t i = 0; i < n; ++i) {
+                v[i] = static_cast<uint8_t>(i * 37 + 5);
+            }
+            if (Base64::Decode(Base64::Encode(v)) != v) {
+                roundTrip = false;
+            }
+        }
+        Check(roundTrip, "Base64: 0~6 字节编解码往返一致");
+
+        bool threw = false;
+        try { (void)Base64::Decode("abc"); }
+        catch (std::invalid_argument const &) { threw = true; }
+        Check(threw, "Base64: 非法长度抛异常");
+    }
 }
 
 int main()
@@ -507,6 +594,8 @@ int main()
         TestImageProcessor();
         TestPaste();
         TestStitch();
+        TestStringUtils();
+        TestBase64();
     }
     catch (std::exception const &ex) {
         std::printf("\nUNCAUGHT EXCEPTION: %s\n", ex.what());
