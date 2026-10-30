@@ -1,0 +1,59 @@
+﻿
+Dump of file D:\Develop\Code\HamsterStudio\x64\Release\HamsterStudioToes64.dll
+
+File Type: DLL
+
+  Section contains the following exports for HamsterStudioToes64.dll
+
+    00000000 characteristics
+    FFFFFFFF time date stamp
+        0.00 version
+           1 ordinal base
+          34 number of functions
+          34 number of names
+
+    ordinal hint RVA      name
+
+          1    0 00004650 ??0Image@0HamsterStudioToes@@QEAA@$$QEAV001@@Z = ??0Image@0HamsterStudioToes@@QEAA@$$QEAV001@@Z (public: __cdecl HamsterStudioToes::Image::Image::Image(class HamsterStudioToes::Image::Image &&))
+          2    1 00004580 ??0Image@0HamsterStudioToes@@QEAA@AEAV?$basic_istream@DU?$char_traits@D@std@@@std@@H@Z = ??0Image@0HamsterStudioToes@@QEAA@AEAV?$basic_istream@DU?$char_traits@D@std@@@std@@H@Z (public: __cdecl HamsterStudioToes::Image::Image::Image(class std::basic_istream<char,struct std::char_traits<char> > &,int))
+          3    2 000045F0 ??0Image@0HamsterStudioToes@@QEAA@AEBV001@@Z = ??0Image@0HamsterStudioToes@@QEAA@AEBV001@@Z (public: __cdecl HamsterStudioToes::Image::Image::Image(class HamsterStudioToes::Image::Image const &))
+          4    3 00004410 ??0Image@0HamsterStudioToes@@QEAA@AEBVpath@filesystem@std@@H@Z = ??0Image@0HamsterStudioToes@@QEAA@AEBVpath@filesystem@std@@H@Z (public: __cdecl HamsterStudioToes::Image::Image::Image(class std::filesystem::path const &,int))
+          5    4 00004340 ??0Image@0HamsterStudioToes@@QEAA@XZ = ??0Image@0HamsterStudioToes@@QEAA@XZ (public: __cdecl HamsterStudioToes::Image::Image::Image(void))
+          6    5 00003B90 ??1Image@0HamsterStudioToes@@QEAA@XZ = ??1?$shared_ptr@UImpl@Image@2HamsterStudioToes@@@std@@QEAA@XZ (public: __cdecl std::shared_ptr<struct HamsterStudioToes::Image::Image::Impl>::~shared_ptr<struct HamsterStudioToes::Image::Image::Impl>(void))
+          7    6 00001160 ??4HueSaturationValue@colors@toes@@QEAAAEAV012@$$QEAV012@@Z = ??4HueSaturationValue@colors@toes@@QEAAAEAV012@$$QEAV012@@Z (public: class toes::colors::HueSaturationValue & __cdecl toes::colors::HueSaturationValue::operator=(class toes::colors::HueSaturationValue &&))
+          8    7 00001160 ??4HueSaturationValue@colors@toes@@QEAAAEAV012@AEBV012@@Z = ??4HueSaturationValue@colors@toes@@QEAAAEAV012@$$QEAV012@@Z (public: class toes::colors::HueSaturationValue & __cdecl toes::colors::HueSaturationValue::operator=(class toes::colors::HueSaturationValue &&))
+          9    8 00004820 ??4Image@0HamsterStudioToes@@QEAAAEAV001@$$QEAV001@@Z = ??4Image@0HamsterStudioToes@@QEAAAEAV001@$$QEAV001@@Z (public: class HamsterStudioToes::Image::Image & __cdecl HamsterStudioToes::Image::Image::operator=(class HamsterStudioToes::Image::Image &&))
+         10    9 00004710 ??4Image@0HamsterStudioToes@@QEAAAEAV001@AEBV001@@Z = ??4Image@0HamsterStudioToes@@QEAAAEAV001@AEBV001@@Z (public: class HamsterStudioToes::Image::Image & __cdecl HamsterStudioToes::Image::Image::operator=(class HamsterStudioToes::Image::Image const &))
+         11    A 000077E0 ??4ImageLayout@ImageTools@HamsterStudioToes@@QEAAAEAU012@$$QEAU012@@Z = ??4ImageLayout@ImageTools@HamsterStudioToes@@QEAAAEAU012@$$QEAU012@@Z (public: struct HamsterStudioToes::ImageTools::ImageLayout & __cdecl HamsterStudioToes::ImageTools::ImageLayout::operator=(struct HamsterStudioToes::ImageTools::ImageLayout &&))
+         12    B 000077D0 ??4ImageLayout@ImageTools@HamsterStudioToes@@QEAAAEAU012@AEBU012@@Z = ??4ImageLayout@ImageTools@HamsterStudioToes@@QEAAAEAU012@AEBU012@@Z (public: struct HamsterStudioToes::ImageTools::ImageLayout & __cdecl HamsterStudioToes::ImageTools::ImageLayout::operator=(struct HamsterStudioToes::ImageTools::ImageLayout const &))
+         13    C 00001160 ??4LayoutHelper@ImageTools@HamsterStudioToes@@QEAAAEAV012@$$QEAV012@@Z = ??4HueSaturationValue@colors@toes@@QEAAAEAV012@$$QEAV012@@Z (public: class toes::colors::HueSaturationValue & __cdecl toes::colors::HueSaturationValue::operator=(class toes::colors::HueSaturationValue &&))
+         14    D 00001160 ??4LayoutHelper@ImageTools@HamsterStudioToes@@QEAAAEAV012@AEBV012@@Z = ??4HueSaturationValue@colors@toes@@QEAAAEAV012@$$QEAV012@@Z (public: class toes::colors::HueSaturationValue & __cdecl toes::colors::HueSaturationValue::operator=(class toes::colors::HueSaturationValue &&))
+         15    E 00004840 ??RImage@0HamsterStudioToes@@QEBA?AV001@AEBVRectangle@Shapes@1@@Z = ??RImage@0HamsterStudioToes@@QEBA?AV001@AEBVRectangle@Shapes@1@@Z (public: class HamsterStudioToes::Image::Image __cdecl HamsterStudioToes::Image::Image::operator()(class HamsterStudioToes::Shapes::Rectangle const &)const )
+         16    F 00004E60 ?AdaptiveResize@Image@1HamsterStudioToes@@QEBAXH@Z = ?AdaptiveResize@Image@1HamsterStudioToes@@QEBAXH@Z (public: void __cdecl HamsterStudioToes::Image::Image::AdaptiveResize(int)const )
+         17   10 000083F0 ?CalculateGridLayout@LayoutHelper@ImageTools@HamsterStudioToes@@SA?AUImageLayout@23@HHH@Z = ?CalculateGridLayout@LayoutHelper@ImageTools@HamsterStudioToes@@SA?AUImageLayout@23@HHH@Z (public: static struct HamsterStudioToes::ImageTools::ImageLayout __cdecl HamsterStudioToes::ImageTools::LayoutHelper::CalculateGridLayout(int,int,int))
+         18   11 00004F20 ?CheckCuda@Image@1HamsterStudioToes@@SAXXZ = ?CheckCuda@Image@1HamsterStudioToes@@SAXXZ (public: static void __cdecl HamsterStudioToes::Image::Image::CheckCuda(void))
+         19   12 00001170 ?CreateColorCircle@HueSaturationValue@colors@toes@@SA?AVMat@cv@@_NHH@Z = ?CreateColorCircle@HueSaturationValue@colors@toes@@SA?AVMat@cv@@_NHH@Z (public: static class cv::Mat __cdecl toes::colors::HueSaturationValue::CreateColorCircle(bool,int,int))
+         20   13 00001400 ?CreateHistogram@HueSaturationValue@colors@toes@@SA?AVMat@cv@@AEBV45@_NHH@Z = ?CreateHistogram@HueSaturationValue@colors@toes@@SA?AVMat@cv@@AEBV45@_NHH@Z (public: static class cv::Mat __cdecl toes::colors::HueSaturationValue::CreateHistogram(class cv::Mat const &,bool,int,int))
+         21   14 00007F80 ?FillBilinear@GradientFiller@ImageTools@HamsterStudioToes@@YAXAEAVMat@cv@@V?$Scalar_@N@5@111@Z = ?FillBilinear@GradientFiller@ImageTools@HamsterStudioToes@@YAXAEAVMat@cv@@V?$Scalar_@N@5@111@Z (void __cdecl HamsterStudioToes::ImageTools::GradientFiller::FillBilinear(class cv::Mat &,class cv::Scalar_<double>,class cv::Scalar_<double>,class cv::Scalar_<double>,class cv::Scalar_<double>))
+         22   15 00004990 ?FromByteArray@Image@1HamsterStudioToes@@SA?AV112@AEBV?$vector@EV?$allocator@E@std@@@std@@H@Z = ?FromByteArray@Image@1HamsterStudioToes@@SA?AV112@AEBV?$vector@EV?$allocator@E@std@@@std@@H@Z (public: static class HamsterStudioToes::Image::Image __cdecl HamsterStudioToes::Image::Image::FromByteArray(class std::vector<unsigned char,class std::allocator<unsigned char> > const &,int))
+         23   16 00004A30 ?FromByteArray@Image@1HamsterStudioToes@@SA?AV112@PEAE_KH@Z = ?FromByteArray@Image@1HamsterStudioToes@@SA?AV112@PEAE_KH@Z (public: static class HamsterStudioToes::Image::Image __cdecl HamsterStudioToes::Image::Image::FromByteArray(unsigned char *,unsigned __int64,int))
+         24   17 00004940 ?FromNativeMatPointer@Image@1HamsterStudioToes@@SA?AV112@PEAX@Z = ?FromNativeMatPointer@Image@1HamsterStudioToes@@SA?AV112@PEAX@Z (public: static class HamsterStudioToes::Image::Image __cdecl HamsterStudioToes::Image::Image::FromNativeMatPointer(void *))
+         25   18 00004B60 ?GetShape@Image@1HamsterStudioToes@@QEBA?AUImageShape@12@XZ = ?GetShape@Image@1HamsterStudioToes@@QEBA?AUImageShape@12@XZ (public: struct HamsterStudioToes::Image::ImageShape __cdecl HamsterStudioToes::Image::Image::GetShape(void)const )
+         26   19 00004B50 ?Height@Image@1HamsterStudioToes@@QEBAHXZ = ?Height@Image@1HamsterStudioToes@@QEBAHXZ (public: int __cdecl HamsterStudioToes::Image::Image::Height(void)const )
+         27   1A 00004B90 ?ImShow@Image@1HamsterStudioToes@@QEBAXH@Z = ?ImShow@Image@1HamsterStudioToes@@QEBAXH@Z (public: void __cdecl HamsterStudioToes::Image::Image::ImShow(int)const )
+         28   1B 00004930 ?NativeMatPointer@Image@1HamsterStudioToes@@QEBAPEAXXZ = ?NativeMatPointer@Image@1HamsterStudioToes@@QEBAPEAXXZ (public: void * __cdecl HamsterStudioToes::Image::Image::NativeMatPointer(void)const )
+         29   1C 00004CD0 ?Save@Image@1HamsterStudioToes@@QEBAXAEBVpath@filesystem@std@@H@Z = ?Save@Image@1HamsterStudioToes@@QEBAXAEBVpath@filesystem@std@@H@Z (public: void __cdecl HamsterStudioToes::Image::Image::Save(class std::filesystem::path const &,int)const )
+         30   1D 00004910 ?Valid@Image@1HamsterStudioToes@@QEBA_NXZ = ?Valid@Image@1HamsterStudioToes@@QEBA_NXZ (public: bool __cdecl HamsterStudioToes::Image::Image::Valid(void)const )
+         31   1E 00004B40 ?Width@Image@1HamsterStudioToes@@QEBAHXZ = ?Width@Image@1HamsterStudioToes@@QEBAHXZ (public: int __cdecl HamsterStudioToes::Image::Image::Width(void)const )
+         32   1F 00003BE0 ?__autoclassinit2@Image@1HamsterStudioToes@@QEAAX_K@Z = ?__autoclassinit2@Image@1HamsterStudioToes@@QEAAX_K@Z (public: void __cdecl HamsterStudioToes::Image::Image::__autoclassinit2(unsigned __int64))
+         33   20 00007980 ?stitch@Image@HamsterStudioToes@@YA?AV112@V?$vector@PEAXV?$allocator@PEAX@std@@@std@@W4StretchMode@image@toes@@UImageShape@12@UImageLayout@ImageTools@2@H@Z = ?stitch@Image@HamsterStudioToes@@YA?AV112@V?$vector@PEAXV?$allocator@PEAX@std@@@std@@W4StretchMode@image@toes@@UImageShape@12@UImageLayout@ImageTools@2@H@Z (class HamsterStudioToes::Image::Image __cdecl HamsterStudioToes::Image::stitch(class std::vector<void *,class std::allocator<void *> >,enum toes::image::StretchMode,struct HamsterStudioToes::Image::ImageShape,struct HamsterStudioToes::ImageTools::ImageLayout,int))
+         34   21 000071C0 add = add
+
+  Summary
+
+        1000 .data
+        1000 .pdata
+       26000 .rdata
+        1000 .reloc
+        1000 .rsrc
+        A000 .text

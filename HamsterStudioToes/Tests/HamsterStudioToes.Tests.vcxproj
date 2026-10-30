@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|x64">
@@ -54,7 +54,7 @@
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <LanguageStandard_C>stdclatest</LanguageStandard_C>
-      <AdditionalIncludeDirectories>$(ProjectDir)..;D:\Develop\01_CMakeInstall\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\src;D:\Develop\01_CMakeInstall\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
       <OpenMPSupport>true</OpenMPSupport>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
@@ -75,7 +75,7 @@
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <LanguageStandard_C>stdclatest</LanguageStandard_C>
-      <AdditionalIncludeDirectories>$(ProjectDir)..;D:\Develop\01_CMakeInstall\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\src;D:\Develop\01_CMakeInstall\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
       <OpenMPSupport>true</OpenMPSupport>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
@@ -93,18 +93,17 @@
     清单，但同样在本目录内，一并纳入覆盖率。
   -->
   <ItemGroup>
-    <ClCompile Include="ToesTests.cpp" />
-    <ClCompile Include="..\Algorithm\*.cpp" />
-    <ClCompile Include="..\ColourSpaces\*.cpp" />
-    <ClCompile Include="..\Hash\*.cpp" />
-    <ClCompile Include="..\Image\*.cpp" />
-    <ClCompile Include="..\Image\PixelData\*.cpp" />
-    <ClCompile Include="..\Image\Tools\*.cpp" />
-    <ClCompile Include="..\Media\*.cpp" />
-    <ClCompile Include="..\Tools\*.cpp" />
-    <ClCompile Include="..\Windows\*.cpp" />
-    <ClCompile Include="..\Windows\Tools\*.cpp" />
-    <ClCompile Include="..\nstd\containers\*.cpp" />
+    <ClCompile Include="..\tests\*.cpp" />
+    <ClCompile Include="..\src\core\**\*.cpp" />
+    <ClCompile Include="..\src\media\**\*.cpp" />
+    <ClCompile Include="..\src\imaging\**\*.cpp" />
+    <ClCompile Include="..\src\stitch\**\*.cpp" />
+    <ClCompile Include="..\src\color\**\*.cpp" />
+    <ClCompile Include="..\src\win32\**\*.cpp" />
+    <ClCompile Include="..\src\legacy\algorithm\Math.cpp" />
+    <ClCompile Include="..\src\legacy\algorithm\Sort.cpp" />
+    <ClCompile Include="..\src\legacy\media\Wave.cpp" />
+    <ClCompile Include="..\src\legacy\nstd\string.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
 </Project>

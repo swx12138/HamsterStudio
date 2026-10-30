@@ -1,4 +1,4 @@
-#include <Image/ImageStitcher.h>
+#include <hamster/toes/stitch.h>
 
 #include <Windows.h>
 

@@ -19,18 +19,18 @@
 
 #include <opencv2/opencv.hpp>
 
-#include "Algorithm/Math.h"
-#include "Algorithm/Search.hpp"
-#include "Algorithm/Sort.h"
-#include "Image/ImageProcessor.h"
-#include "Image/ImageStitcher.h"
-#include "Image/Tools/LayoutHelper.h"
-#include "Image/Tools/PasteImageUtils.h"
-#include "Media/Wave.h"
-#include "Tools/Diagnostics.h"
-#include "Windows/Platform.h"
-#include "Windows/Win32Utils.h"
-#include "nstd/containers/string.h"
+#include "legacy/algorithm/Math.h"
+#include "legacy/algorithm/Search.hpp"
+#include "legacy/algorithm/Sort.h"
+#include "imaging/adjustments.h"
+#include <hamster/toes/stitch.h>
+#include <hamster/toes/layout.h>
+#include "stitch/paste.h"
+#include "legacy/media/Wave.h"
+#include "core/diagnostics.h"
+#include "win32/pe.h"
+#include "win32/os.h"
+#include "legacy/nstd/string.h"
 
 // ImageStitcher.cpp 内部定义了按 cv::Mat 指针向量拼接的重载，但 ImageStitcher.h
 // 只声明了 void* 版本，外部无法直接调用。测试里显式声明一下；把它们正式暴露到

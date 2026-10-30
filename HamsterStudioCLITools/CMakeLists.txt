@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.20)
 project(HamsterStudioCLITools VERSION 1.0.0 LANGUAGES CXX)
 
-# 默认安装路径
+# 榛樿瀹夎璺緞
 set(CMAKE_INSTALL_PREFIX "D:/Develop/Tools" CACHE PATH "Install path" FORCE)
 
 # ============================================================
@@ -13,24 +13,24 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 
 
 # ============================================================
-# OpenMP (用于 BaitingMaster 的并行加速)
+# OpenMP (鐢ㄤ簬 BaitingMaster 鐨勫苟琛屽姞閫?
 # ============================================================
 find_package(OpenMP REQUIRED)
 
 # ============================================================
 # OpenCV
 # ============================================================
-# 优先查找 CUDA 版本
-# 注意：CUDA 版本的 OpenCVConfig.cmake 在 Release/Debug 子目录下（而非顶层），
-#       需要指向具体子目录。Visual Studio 多配置生成器下统一用 Release。
-# 消除 OpenCV 旧版 FindCUDA 模块的 CMP0146 警告
+# 浼樺厛鏌ユ壘 CUDA 鐗堟湰
+# 娉ㄦ剰锛欳UDA 鐗堟湰鐨?OpenCVConfig.cmake 鍦?Release/Debug 瀛愮洰褰曚笅锛堣€岄潪椤跺眰锛夛紝
+#       闇€瑕佹寚鍚戝叿浣撳瓙鐩綍銆俈isual Studio 澶氶厤缃敓鎴愬櫒涓嬬粺涓€鐢?Release銆?
+# 娑堥櫎 OpenCV 鏃х増 FindCUDA 妯″潡鐨?CMP0146 璀﹀憡
 if(CMAKE_VERSION VERSION_GREATER_EQUAL "3.27")
     cmake_policy(SET CMP0146 OLD)
 endif()
 
 find_package(OpenCV REQUIRED)
 if(OpenCV_FOUND)
-    # 检查是否真的有 CUDA 模块
+    # 妫€鏌ユ槸鍚︾湡鐨勬湁 CUDA 妯″潡
     list(FIND OpenCV_LIBS "opencv_cudawarping" _cuda_idx)
     if(_cuda_idx GREATER -1)
         add_compile_definitions(_CUDA_OPENCV)
@@ -47,76 +47,34 @@ else()
 endif()
 
 # ============================================================
-# HamsterStudioToes 静态库
+# HamsterStudioToes 闈欐€佸簱
 # ============================================================
-# HamsterStudioToes 源码（相对于项目根目录 ../HamsterStudioToes）
+# HamsterStudioToes 婧愮爜锛堢浉瀵逛簬椤圭洰鏍圭洰褰?../HamsterStudioToes锛?
 set(HAMSTER_TOES_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../HamsterStudioToes")
 
-set(HAMSTER_TOES_SOURCES
-    # Hash
-    ${HAMSTER_TOES_DIR}/Hash/Base64.cpp
-    ${HAMSTER_TOES_DIR}/Hash/MessageDigest.cpp
-
-    # Algorithm
-    ${HAMSTER_TOES_DIR}/Algorithm/Math.cpp
-    ${HAMSTER_TOES_DIR}/Algorithm/Sort.cpp
-
-    # Image
-    ${HAMSTER_TOES_DIR}/Image/Image.cpp
-    ${HAMSTER_TOES_DIR}/Image/ImageEditor.cpp
-    ${HAMSTER_TOES_DIR}/Image/ImageProcessor.cpp
-    ${HAMSTER_TOES_DIR}/Image/ImageSlider.cpp
-    ${HAMSTER_TOES_DIR}/Image/ImageStitcher.cpp
-
-    # Image/Tools
-    ${HAMSTER_TOES_DIR}/Image/Tools/GradientFiller.cpp
-    ${HAMSTER_TOES_DIR}/Image/Tools/LayoutHelper.cpp
-    ${HAMSTER_TOES_DIR}/Image/Tools/PasteImageUtils.cpp
-
-    # Image/PixelData
-    ${HAMSTER_TOES_DIR}/Image/PixelData/PixelData.cpp
-    ${HAMSTER_TOES_DIR}/Image/PixelData/PixelDataProcessor.cpp
-
-    # Tools
-    ${HAMSTER_TOES_DIR}/Tools/BaitingMaster.cpp
-    ${HAMSTER_TOES_DIR}/Tools/BigInteger.cpp
-    ${HAMSTER_TOES_DIR}/Tools/CmdLineArgsParser.cpp
-    ${HAMSTER_TOES_DIR}/Tools/Diagnostics.cpp
-    ${HAMSTER_TOES_DIR}/Tools/Keygen.cpp
-    ${HAMSTER_TOES_DIR}/Tools/NumberUtils.cpp
-    ${HAMSTER_TOES_DIR}/Tools/Screenshot.cpp
-    ${HAMSTER_TOES_DIR}/Tools/StreamReader.cpp
-    ${HAMSTER_TOES_DIR}/Tools/StringUtils.cpp
-
-    # Media
-    ${HAMSTER_TOES_DIR}/Media/MPEGLayer3.cpp
-    ${HAMSTER_TOES_DIR}/Media/Wave.cpp
-
-    # Windows
-    ${HAMSTER_TOES_DIR}/Windows/Application.cpp
-    ${HAMSTER_TOES_DIR}/Windows/Platform.cpp
-    ${HAMSTER_TOES_DIR}/Windows/Win32Utils.cpp
-    ${HAMSTER_TOES_DIR}/Windows/Window.cpp
-
-    # Windows/Tools
-    ${HAMSTER_TOES_DIR}/Windows/Tools/GdiplusEnv.cpp
-    ${HAMSTER_TOES_DIR}/Windows/Tools/TaskbarCtrl.cpp
-    ${HAMSTER_TOES_DIR}/Windows/Tools/WindowComposition.cpp
+file(GLOB_RECURSE HAMSTER_TOES_SOURCES CONFIGURE_DEPENDS
+    ${HAMSTER_TOES_DIR}/src/core/*.cpp
+    ${HAMSTER_TOES_DIR}/src/media/*.cpp
+    ${HAMSTER_TOES_DIR}/src/imaging/*.cpp
+    ${HAMSTER_TOES_DIR}/src/stitch/*.cpp
+    ${HAMSTER_TOES_DIR}/src/color/*.cpp
+    ${HAMSTER_TOES_DIR}/src/win32/*.cpp
 )
 
-# 收集所有头文件路径
+# 鏀堕泦鎵€鏈夊ご鏂囦欢璺緞
 set(HAMSTER_TOES_INCLUDE_DIRS
-    ${HAMSTER_TOES_DIR}
+    ${HAMSTER_TOES_DIR}/include
+    ${HAMSTER_TOES_DIR}/src
     ${OpenCV_INCLUDE_DIRS}
 )
 
-# 收集链接库
+# 鏀堕泦閾炬帴搴?
 set(HAMSTER_TOES_LIBS
     ${OpenCV_LIBS}
     ${CMAKE_DL_LIBS}
 )
 
-# Windows 特有链接库
+# Windows 鐗规湁閾炬帴搴?
 if(WIN32)
     list(APPEND HAMSTER_TOES_LIBS
         gdiplus
@@ -131,7 +89,7 @@ if(WIN32)
     )
 endif()
 
-# 创建 HamsterStudioToes 静态库
+# 鍒涘缓 HamsterStudioToes 闈欐€佸簱
 add_library(HamsterStudioToes STATIC ${HAMSTER_TOES_SOURCES})
 target_include_directories(HamsterStudioToes PUBLIC ${HAMSTER_TOES_INCLUDE_DIRS})
 target_link_libraries(HamsterStudioToes PUBLIC ${HAMSTER_TOES_LIBS} OpenMP::OpenMP_CXX)
@@ -148,7 +106,7 @@ target_compile_definitions(HamsterStudioToes PRIVATE
 )
 
 # ============================================================
-# 可执行文件 1: hamster-stitch (与 HamsterStudioNativeCLI 相同)
+# 鍙墽琛屾枃浠?1: hamster-stitch (涓?HamsterStudioNativeCLI 鐩稿悓)
 # ============================================================
 add_executable(hamster-stitch
     src/stitch/main.cpp
@@ -157,7 +115,7 @@ target_link_libraries(hamster-stitch PRIVATE HamsterStudioToes)
 target_compile_options(hamster-stitch PRIVATE /utf-8)
 
 # ============================================================
-# 可执行文件 2: hamster-bait (调用 BaitingMaster)
+# 鍙墽琛屾枃浠?2: hamster-bait (璋冪敤 BaitingMaster)
 # ============================================================
 add_executable(hamster-bait
     src/bait/main.cpp
@@ -166,7 +124,7 @@ target_link_libraries(hamster-bait PRIVATE HamsterStudioToes)
 target_compile_options(hamster-bait PRIVATE /utf-8)
 
 # ============================================================
-# 可执行文件 3: hamster-cat (Windows 版 cat 命令)
+# 鍙墽琛屾枃浠?3: hamster-cat (Windows 鐗?cat 鍛戒护)
 # ============================================================
 add_executable(hamster-cat
     src/cat/cat.cpp
@@ -175,7 +133,7 @@ target_link_libraries(hamster-cat PRIVATE HamsterStudioToes)
 target_compile_options(hamster-cat PRIVATE /utf-8)
 
 # ============================================================
-# 可执行文件 4: hamster-tojpg (图片转 JPEG 命令)
+# 鍙墽琛屾枃浠?4: hamster-tojpg (鍥剧墖杞?JPEG 鍛戒护)
 # ============================================================
 add_executable(hamster-tojpg
     src/tojpg/tojpeg.cpp
@@ -184,7 +142,7 @@ target_link_libraries(hamster-tojpg PRIVATE HamsterStudioToes)
 target_compile_options(hamster-tojpg PRIVATE /utf-8)
 
 # ============================================================
-# 可执行文件 5: hamster-tovid (图片合成视频命令)
+# 鍙墽琛屾枃浠?5: hamster-tovid (鍥剧墖鍚堟垚瑙嗛鍛戒护)
 # ============================================================
 add_executable(hamster-tovid
     src/tovid/main.cpp
@@ -193,7 +151,7 @@ target_link_libraries(hamster-tovid PRIVATE HamsterStudioToes)
 target_compile_options(hamster-tovid PRIVATE /utf-8)
 
 # ============================================================
-# 安装规则
+# 瀹夎瑙勫垯
 # ============================================================
 install(TARGETS hamster-stitch hamster-bait hamster-cat hamster-tojpg hamster-tovid
     RUNTIME DESTINATION ../Tools/hamster-cli

@@ -1,5 +1,5 @@
-#include <Image/Image.h>
-#include <Tools/BaitingMaster.h>
+#include <hamster/toes/image.h>
+#include "media/baiting.h"
 
 #include <Windows.h>
 

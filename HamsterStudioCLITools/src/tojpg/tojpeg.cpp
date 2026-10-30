@@ -19,7 +19,7 @@
  *   hamster-tojpg input.png -o output.jpg -q 90
  */
 
-#include <Image/Tools/ImageUtils.hpp>
+#include "media/io.hpp"
 
 #include <Windows.h>
 

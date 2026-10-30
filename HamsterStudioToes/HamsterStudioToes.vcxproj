@@ -26,19 +26,6 @@
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
-    <ConfigurationType>StaticLibrary</ConfigurationType>
-    <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v145</PlatformToolset>
-    <CharacterSet>Unicode</CharacterSet>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
-    <ConfigurationType>StaticLibrary</ConfigurationType>
-    <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v145</PlatformToolset>
-    <WholeProgramOptimization>true</WholeProgramOptimization>
-    <CharacterSet>Unicode</CharacterSet>
-  </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
@@ -59,12 +46,6 @@
   </ImportGroup>
   <ImportGroup Label="Shared">
   </ImportGroup>
-  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-  </ImportGroup>
-  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-  </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
@@ -78,34 +59,6 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <TargetName>$(ProjectName)$(PlatformArchitecture)</TargetName>
   </PropertyGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <ClCompile>
-      <WarningLevel>Level3</WarningLevel>
-      <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <ConformanceMode>true</ConformanceMode>
-    </ClCompile>
-    <Link>
-      <SubSystem>
-      </SubSystem>
-      <GenerateDebugInformation>true</GenerateDebugInformation>
-    </Link>
-  </ItemDefinitionGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <ClCompile>
-      <WarningLevel>Level3</WarningLevel>
-      <FunctionLevelLinking>true</FunctionLevelLinking>
-      <IntrinsicFunctions>true</IntrinsicFunctions>
-      <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <ConformanceMode>true</ConformanceMode>
-    </ClCompile>
-    <Link>
-      <SubSystem>
-      </SubSystem>
-      <GenerateDebugInformation>true</GenerateDebugInformation>
-    </Link>
-  </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
@@ -114,7 +67,7 @@
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <LanguageStandard_C>stdclatest</LanguageStandard_C>
-      <AdditionalIncludeDirectories>D:\Develop\01_CMakeInstall\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)include;$(ProjectDir)src;$(OpenCVRoot)\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
       <OpenMPSupport>true</OpenMPSupport>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
@@ -122,7 +75,7 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>D:\Develop\01_CMakeInstall\$(PlatformName)\vc17\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(OpenCVRoot)\$(Platform)\vc17\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -135,7 +88,7 @@
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <LanguageStandard_C>stdclatest</LanguageStandard_C>
-      <AdditionalIncludeDirectories>D:\Develop\01_CMakeInstall\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)include;$(ProjectDir)src;$(OpenCVRoot)\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
       <OpenMPSupport>true</OpenMPSupport>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
@@ -143,98 +96,14 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>D:\Develop\01_CMakeInstall\$(PlatformName)\vc17\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(OpenCVRoot)\$(Platform)\vc17\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="Algorithm\Array.hpp" />
-    <ClInclude Include="Algorithm\Fibonacci.hpp" />
-    <ClInclude Include="ColourSpaces\HueSaturationValue.h" />
-    <ClInclude Include="Export.h" />
-    <ClInclude Include="Hash\Base64.h" />
-    <ClInclude Include="Hash\hash.hpp" />
-    <ClInclude Include="Hash\MessageDigest.h" />
-    <ClInclude Include="Algorithm\Math.h" />
-    <ClInclude Include="Algorithm\Search.hpp" />
-    <ClInclude Include="Algorithm\Sort.h" />
-    <ClInclude Include="Image\Image.h" />
-    <ClInclude Include="Image\Tools\PasteImageUtils.h" />
-    <ClInclude Include="Shapes\Rectangle.h" />
-    <ClInclude Include="Shapes\ShapeIf.h" />
-    <ClInclude Include="Tools\BaitingMaster.h" />
-    <ClInclude Include="Media\MPEGLayer3.h" />
-    <ClInclude Include="Media\Wave.h" />
-    <ClInclude Include="Tools\BigInteger.h" />
-    <ClInclude Include="Tools\Keygen.h" />
-    <ClInclude Include="Tools\NumberUtils.h" />
-    <ClInclude Include="Tools\StreamReader.h" />
-    <ClInclude Include="Windows\Application.h" />
-    <ClInclude Include="Tools\CmdLineArgsParser.h" />
-    <ClInclude Include="Tools\Diagnostics.h" />
-    <ClInclude Include="Tools\Event.hpp" />
-    <ClInclude Include="Tools\Print.hpp" />
-    <ClInclude Include="Tools\Semaphore.hpp" />
-    <ClInclude Include="Tools\StopWatch.hpp" />
-    <ClInclude Include="Tools\WatchDog.hpp" />
-    <ClInclude Include="Tools\HtmlDocument.hpp" />
-    <ClInclude Include="Image\Effects\BlackSoftEffect.hpp" />
-    <ClInclude Include="Image\Effects\Effects.hpp" />
-    <ClInclude Include="Image\ImageEditor.h" />
-    <ClInclude Include="Image\ImageProcessor.h" />
-    <ClInclude Include="Image\ImageSlider.h" />
-    <ClInclude Include="Image\ImageStitcher.h" />
-    <ClInclude Include="Image\PixelData\PixelData.h" />
-    <ClInclude Include="Image\PixelData\PixelDataProcessor.h" />
-    <ClInclude Include="Image\PixelData\PopularColors.hpp" />
-    <ClInclude Include="Tools\Screenshot.h" />
-    <ClInclude Include="Image\Tools\GradientFiller.h" />
-    <ClInclude Include="Image\Tools\LayoutHelper.h" />
-    <ClInclude Include="Tools\StringUtils.h" />
-    <ClInclude Include="Windows\Control.h" />
-    <ClInclude Include="Windows\Drawing.h" />
-    <ClInclude Include="Windows\Platform.h" />
-    <ClInclude Include="Windows\Tools\GdiplusEnv.h" />
-    <ClInclude Include="Windows\Tools\TaskbarCtrl.h" />
-    <ClInclude Include="Windows\Tools\WindowComposition.h" />
-    <ClInclude Include="Windows\Win32Utils.h" />
-    <ClInclude Include="Windows\ShellApi.h" />
-    <ClInclude Include="Windows\Window.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="ColourSpaces\HueSaturationValue.cpp" />
-    <ClCompile Include="Hash\Base64.cpp" />
-    <ClCompile Include="Hash\MessageDigest.cpp" />
-    <ClCompile Include="Algorithm\Math.cpp" />
-    <ClCompile Include="Algorithm\Sort.cpp" />
-    <ClCompile Include="Image\Tools\PasteImageUtils.cpp" />
-    <ClCompile Include="Tools\BaitingMaster.cpp" />
-    <ClCompile Include="Image\Image.cpp" />
-    <ClCompile Include="Media\MPEGLayer3.cpp" />
-    <ClCompile Include="Media\Wave.cpp" />
-    <ClCompile Include="Tools\NumberUtils.cpp" />
-    <ClCompile Include="Tools\StreamReader.cpp" />
-    <ClCompile Include="Windows\Application.cpp" />
-    <ClCompile Include="Tools\BigInteger.cpp" />
-    <ClCompile Include="Tools\Keygen.cpp" />
-    <ClCompile Include="Tools\CmdLineArgsParser.cpp" />
-    <ClCompile Include="dllmain.cpp" />
-    <ClCompile Include="Tools\Diagnostics.cpp" />
-    <ClCompile Include="Tools\StringUtils.cpp" />
-    <ClCompile Include="Image\ImageEditor.cpp" />
-    <ClCompile Include="Image\ImageProcessor.cpp" />
-    <ClCompile Include="Image\ImageSlider.cpp" />
-    <ClCompile Include="Image\ImageStitcher.cpp" />
-    <ClCompile Include="Image\PixelData\PixelData.cpp" />
-    <ClCompile Include="Image\PixelData\PixelDataProcessor.cpp" />
-    <ClCompile Include="Tools\Screenshot.cpp" />
-    <ClCompile Include="Image\Tools\GradientFiller.cpp" />
-    <ClCompile Include="Image\Tools\LayoutHelper.cpp" />
-    <ClCompile Include="Windows\Platform.cpp" />
-    <ClCompile Include="Windows\Tools\GdiplusEnv.cpp" />
-    <ClCompile Include="Windows\Tools\TaskbarCtrl.cpp" />
-    <ClCompile Include="Windows\Tools\WindowComposition.cpp" />
-    <ClCompile Include="Windows\Win32Utils.cpp" />
-    <ClCompile Include="Windows\Window.cpp" />
+    <ClCompile Include="src\**\*.cpp" Exclude="src\legacy\**\*" />
+    <ClInclude Include="include\**\*.h" />
+    <ClInclude Include="src\**\*.h" Exclude="src\legacy\**\*" />
+    <ClInclude Include="src\**\*.hpp" Exclude="src\legacy\**\*" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -1,0 +1,10 @@
+<Project>
+  <PropertyGroup>
+    <OpenCVRoot Condition="'$(OpenCVRoot)'==''">D:\Develop\01_CMakeInstall</OpenCVRoot>
+    <LanguageStandard>stdcpplatest</LanguageStandard>
+    <LanguageStandard_C>stdclatest</LanguageStandard_C>
+    <MultiProcessorCompilation>true</MultiProcessorCompilation>
+    <OpenMPSupport>true</OpenMPSupport>
+    <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
+  </PropertyGroup>
+</Project>

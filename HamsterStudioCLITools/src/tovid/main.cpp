@@ -24,7 +24,7 @@
 // 禁用 Windows.h 的 min/max 宏，避免与 std::min/std::max 冲突
 #define NOMINMAX
 
-#include <Image/Tools/ImageUtils.hpp>
+#include "media/io.hpp"
 
 #include <Windows.h>
 
