@@ -177,3 +177,43 @@ legacy 文件被扁平化到 `src/legacy/<域>/`，原先的 `./PixelData/PixelD
 ### 7.5 本轮操作失误（已恢复）
 
 批量改写脚本把嵌套数组当作二维表传给函数，PowerShell 将其展平为字符串数组，`$pr[0]`/`$pr[1]` 退化成单个字符，于是对 6 个文件执行了单字符全局替换（如 `#include` → `#iaclude`）。已从 git 恢复这些文件并重做；恢复时发现 `pe.h`/`pe.cpp` 因 §7.3 的原因不在 git 中，改为从重构前的 `Windows/Platform.*` 历史版本重建。
+
+---
+
+## 8. 第四轮：去掉工程文件里的通配符（2026-10-30）
+
+### 8.1 问题
+
+构建时出现告警：
+
+```
+warning : VC 项目不支持项目项定义中使用的通配符和/或其他一些 MSBuild 构造
+```
+
+起因是第三轮为消除三套源清单的漂移，把两个工程改成了通配符（`src\**\*.cpp`、`..\src\core\**\*.cpp` 等）。MSBuild 能正常展开，但 **Visual C++ 的项目系统不支持项目项通配符**，它会告警并可能让 IDE 出现异常行为。
+
+### 8.2 方案
+
+保留"清单由文件系统生成"的做法，但**写回时展开成显式条目**。新增 `tools/sync-project.ps1`：
+
+| 用法 | 作用 |
+|---|---|
+| `tools\sync-project.ps1` | 扫描 `src/`、`include/`、`tests/`，重写两个工程的文件清单 |
+| `tools\sync-project.ps1 -Check` | 只比对不改写；失步时返回 1，可用于 CI 或提交前检查 |
+
+规则：库工程收录 `src/` 下全部 `.cpp` 与 `.h/.hpp`（排除 `legacy/`），加上 `include/` 下的公开头；测试工程收录 `tests/` 与 `src/` 下的全部 `.cpp`（排除 `legacy/` 与 `dllmain.cpp`），外加 4 个它要测的 legacy 源。
+
+注意测试工程的条目要带 `..\` 前缀（相对工程所在目录），库工程则相对工作区根。
+
+### 8.3 结果
+
+| 工程 | 条目 | 通配符 |
+|---|---|---|
+| `HamsterStudioToes.vcxproj` | 18 个源 + 24 个头 | 0 |
+| `HamsterStudioToes.Tests.vcxproj` | 23 个源 | 0 |
+
+两个工程重建均无告警；测试 76 项全部通过；`-Check` 报 `in sync`。
+
+### 8.4 使用约定
+
+新增、移动或删除源文件后跑一次 `tools\sync-project.ps1`。忘记跑时，`-Check` 会报告失步并按非零码退出，可以挂在 CI 或提交前检查里。

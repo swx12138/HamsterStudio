@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|x64">
@@ -94,18 +94,30 @@
     Hash/SecureHashAlgorithm.cpp 与 nstd/containers/string.cpp 不属于库的编译
     清单，但同样在本目录内，一并纳入覆盖率。
   -->
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ItemGroup>
-    <ClCompile Include="..\tests\*.cpp" />
-    <ClCompile Include="..\src\core\**\*.cpp" />
-    <ClCompile Include="..\src\media\**\*.cpp" />
-    <ClCompile Include="..\src\imaging\**\*.cpp" />
-    <ClCompile Include="..\src\stitch\**\*.cpp" />
-    <ClCompile Include="..\src\color\**\*.cpp" />
-    <ClCompile Include="..\src\platform\**\*.cpp" />
+    <ClCompile Include="..\src\color\hsv.cpp" />
+    <ClCompile Include="..\src\core\codec\base64.cpp" />
+    <ClCompile Include="..\src\core\codec\md5.cpp" />
+    <ClCompile Include="..\src\core\diagnostics.cpp" />
+    <ClCompile Include="..\src\core\numbers.cpp" />
+    <ClCompile Include="..\src\core\stream.cpp" />
+    <ClCompile Include="..\src\core\strings.cpp" />
+    <ClCompile Include="..\src\dllmain.cpp" />
+    <ClCompile Include="..\src\imaging\adjustments.cpp" />
+    <ClCompile Include="..\src\imaging\gradient.cpp" />
+    <ClCompile Include="..\src\imaging\screenshot.cpp" />
     <ClCompile Include="..\src\legacy\algorithm\Math.cpp" />
     <ClCompile Include="..\src\legacy\algorithm\Sort.cpp" />
     <ClCompile Include="..\src\legacy\media\Wave.cpp" />
     <ClCompile Include="..\src\legacy\nstd\string.cpp" />
+    <ClCompile Include="..\src\media\baiting.cpp" />
+    <ClCompile Include="..\src\media\image.cpp" />
+    <ClCompile Include="..\src\platform\os.cpp" />
+    <ClCompile Include="..\src\platform\pe.cpp" />
+    <ClCompile Include="..\src\stitch\layout.cpp" />
+    <ClCompile Include="..\src\stitch\paste.cpp" />
+    <ClCompile Include="..\src\stitch\stitch.cpp" />
+    <ClCompile Include="..\tests\ToesTests.cpp" />
   </ItemGroup>
-  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
 </Project>
