@@ -59,24 +59,28 @@ namespace ImageProcessorNamespace
 		PerformanceStats getStats() const { return stats_; }
 
 	private:
-		// OpenCV核心处理函数
-		void applyExposure(cv::Mat &image, double exposure);
-		void applySaturation(cv::Mat &image, double saturation);
-		void applyVibrance(cv::Mat &image, double vibrance);
-		void applyTemperatureTint(cv::Mat &image, double temperature, double tint);
-		void applyToneAdjustments(cv::Mat &image, const ImageAdjustments &adj);
+		// 把 8UC4 / 8UC3 拆成「3 通道 BGR + 可选 alpha」，处理完再合并回 image.mat。
+		// 之所以绕这一道：cvtColor 直接写进 4 通道 Mat 时会把 Mat 重新分配，
+		// 于是调用方传进来的像素内存一个字节都不会被写入——那正是 ImageData 的契约。
+		static bool SplitToBGR(const cv::Mat &src, cv::Mat &bgr, cv::Mat &alpha);
+		static void MergeFromBGR(cv::Mat &dst, const cv::Mat &bgr, const cv::Mat &alpha);
 
-		// 直方图计算优化版本
+		// 纯像素运算，不读写任何成员，因此可以安全地在分块并行里并发调用
+		void processBGR(cv::Mat &bgr, const ImageAdjustments &adj) const;
+
+		// 处理一整行分块。抽出来是为了让「指定线程数 / 不指定线程数」两个 pragma
+		// 共用同一份循环体（OpenMP 的 num_threads(0) 是非法值）
+		void processTileRow(cv::Mat &bgr, const ImageAdjustments &adj, int y, int tileSize) const;
+
+		void applyExposure(cv::Mat &bgr, double exposure) const;
+		void applyTemperatureTint(cv::Mat &bgr, double temperature, double tint) const;
+		void applyToneAdjustments(cv::Mat &bgr, const ImageAdjustments &adj) const;
+
 		HistogramData calculateHistogramOptimized(const cv::Mat &image);
 
-		// 并行处理辅助函数
-		void processChunk(cv::Mat &chunk, const ImageAdjustments &adj);
+		void updateStats(const cv::Mat &mat, double elapsedMs);
 
 		PerformanceStats stats_;
-
-		// 查找表（可选保留）
-		cv::Mat exposureLUT_;
-		cv::Mat temperatureLUT_;
 
 		ImageProcessor(const ImageProcessor &) = delete;
 		ImageProcessor &operator=(const ImageProcessor &) = delete;

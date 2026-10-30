@@ -3,8 +3,12 @@
 
 #include <opencv2/opencv.hpp>
 
+#include <algorithm>
 #include <filesystem>
 #include <random>
+#include <vector>
+
+#include "./Tools/ImageUtils.hpp"
 
 #ifdef _DEBUG
 #pragma comment(lib, "opencv_world4120d.lib")
@@ -32,6 +36,10 @@ int HamsterStudioToes::ImageSlider::ShowImage(std::string const &filename)
     static const auto cur_dir_len = std::filesystem::current_path().string().length();
 
     auto img = cv::imread(filename);
+    if (img.empty()) {
+        return 1;   // 读到损坏文件或非图片时直接跳过，避免用空 Mat 继续算尺寸
+    }
+
     temp = cv::Mat::zeros(client_height, client_width, img.type());
 
     // 扁度
@@ -61,34 +69,40 @@ int HamsterStudioToes::ImageSlider::ShowImage(std::string const &filename)
 
 int HamsterStudioToes::ImageSlider::run(int delay)
 {
+    namespace fs = std::filesystem;
     using namespace std;
+
+    playing_delay = delay;
+
+    // 收集当前目录下的图片。原来这里是一个空的 while (true)，调用即满核空转、永不返回。
+    vector<string> files;
+    {
+        error_code ec;
+        for (fs::directory_iterator it{ fs::current_path(), fs::directory_options::skip_permission_denied, ec }, end;
+             !ec && it != end; it.increment(ec)) {
+            if (!it->is_regular_file(ec)) {
+                continue;
+            }
+            if (auto const &path = it->path(); toes::IsSupportedExtension(path)) {
+                files.push_back(path.string());
+            }
+        }
+    }
+
+    if (files.empty()) {
+        return 0;
+    }
+    sort(files.begin(), files.end());
+
     try {
-        // auto args = tos::parser::CmdLineArgs::getInst();
-        // playing_delay = args.has_key("delay") ? util::stoi(args["delay"]) : args.has_key("d") ? util::stoi(args["d"])
-        //                                                                                       : delay;
-        // bool recur = args.has_key("recur");
-        // bool rand_play = args.has_key("rand");
-
-        // cout << (recur ? "" : "非") << "递归读取" << endl;
-        // cout << (rand_play ? "" : "非") << "随机播放" << endl;
-        // cout << "播放间隔:" << (delay > 0 ? to_string(delay) : "随机") << endl;
-
-        // vector<string> files = util::fs::GetFiles(filesystem::current_path(), util::ImageFilterOpenCV, recur);
-        // cout << "共计读取 " << files.size() << " 个文件." << endl;
-
-        while (true) {
-            // if (rand_play)
-            //{
-            //     shuffle(files.begin(), files.end(), random_device{});
-            // }
-
-            // for (auto const &file : files)
-            //{
-            //     cout << file;
-            //     int delay = ShowImage(file);
-            //     cv::waitKey(delay);
-            //     cout << "  delay:" << delay << "ms" << endl;
-            // }
+        for (auto const &file : files) {
+            int const wait = ShowImage(file);
+            if (cv::waitKey(wait) == 27) {          // ESC 退出
+                break;
+            }
+            if (cv::getWindowProperty(svTitle, cv::WND_PROP_VISIBLE) < 1) {
+                break;                              // 窗口已被用户关闭
+            }
         }
     }
     catch (cv::Exception &ex) {
@@ -100,6 +114,7 @@ int HamsterStudioToes::ImageSlider::run(int delay)
     catch (...) {
         cout << "未知异常" << endl;
     }
+
     return 0;
 }
 

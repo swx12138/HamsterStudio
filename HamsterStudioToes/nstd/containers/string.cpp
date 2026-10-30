@@ -1,7 +1,11 @@
 #include "string.h"
 
-#include <memory>
 #include <algorithm>
+#include <cctype>
+#include <cstring>
+#include <memory>
+
+#include <utility>
 
 toes::nstd::String::String(char const* str)
 	:data_(nullptr)
@@ -19,6 +23,34 @@ toes::nstd::String::String(char const* str)
 		data_[i] = str[i];
 	}
 	data_[len_] = '\0';
+}
+
+toes::nstd::String::String(String const& other)
+	: data_(nullptr), cap_(0), len_(0)
+{
+	CopyFrom(other);
+}
+
+toes::nstd::String::String(String&& other) noexcept
+	: data_(nullptr), cap_(0), len_(0)
+{
+	MoveFrom(std::move(other));
+}
+
+toes::nstd::String& toes::nstd::String::operator=(String const& other)
+{
+	if (this != &other) {
+		CopyFrom(other);
+	}
+	return *this;
+}
+
+toes::nstd::String& toes::nstd::String::operator=(String&& other) noexcept
+{
+	if (this != &other) {
+		MoveFrom(std::move(other));
+	}
+	return *this;
 }
 
 toes::nstd::String::~String()
@@ -74,23 +106,19 @@ void toes::nstd::String::Reverse()
 
 void toes::nstd::String::ToLower()
 {
-	for (int i = 0;i < len_;i++)
+	if (data_ == nullptr) return;
+	for (size_t i = 0; i < len_; ++i)
 	{
-		if (islower(data_[i]))
-		{
-			data_[i] = data_[i] - 'a' + 'A';
-		}
+		data_[i] = static_cast<char>(std::tolower(static_cast<unsigned char>(data_[i])));
 	}
 }
 
 void toes::nstd::String::ToUpper()
 {
-	for (int i = 0;i < len_;i++)
+	if (data_ == nullptr) return;
+	for (size_t i = 0; i < len_; ++i)
 	{
-		if (isupper(data_[i]))
-		{
-			data_[i] = data_[i] - 'A' + 'a';
-		}
+		data_[i] = static_cast<char>(std::toupper(static_cast<unsigned char>(data_[i])));
 	}
 }
 

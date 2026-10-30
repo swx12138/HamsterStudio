@@ -2,9 +2,10 @@
 
 #define WaveMediaNamespace HamsterStudioToes::Media
 
+#include <array>
 #include <filesystem>
 #include <memory>
-#include <array>
+#include <vector>
 
 namespace WaveMediaNamespace
 {
@@ -38,7 +39,7 @@ namespace WaveMediaNamespace
 		struct DataTrunk {
 			uint8_t Id[4];
 			uint32_t Size;
-			uint8_t* Data;
+			std::vector<uint8_t> Data;	// 原来是裸 new[]，拷一次就 double free
 		};
 
 		struct WaveFormatStruct {
@@ -50,9 +51,7 @@ namespace WaveMediaNamespace
 		WaveFormatStruct _wave;
 		mutable size_t _wave_p = 0;
 	public:
-		explicit WaveFormat(std::filesystem::path const& path) noexcept;
-
-		~WaveFormat() noexcept;
+		explicit WaveFormat(std::filesystem::path const& path);
 
 		std::vector<uint8_t> Read(int nReadCount) const;
 		uint8_t Read8Bit() const;

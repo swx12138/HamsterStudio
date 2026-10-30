@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cstddef>
 #include <ostream>
 
 namespace toes::nstd {
@@ -10,6 +11,10 @@ namespace toes::nstd {
 		size_t len_;
 	public:
 		explicit String(char const* str);
+		String(String const& other);			// 原来没有拷贝构造，浅拷贝后必定 double free
+		String(String&& other) noexcept;
+		String& operator=(String const& other);
+		String& operator=(String&& other) noexcept;
 		~String();
 
 		char const* Data() const;

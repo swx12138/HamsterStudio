@@ -28,8 +28,69 @@ using namespace HamsterStudioToes;
 
 #include "./Tools/ImageUtils.hpp"
 
+namespace
+{
+    // 边距为负数时按格子尺寸自动取 3% 左右
+    int NormalizeBorder(int borderThickness, ImageShape target)
+    {
+        if (borderThickness >= 0)
+        {
+            return borderThickness;
+        }
+        return std::min(target.width, target.height) / 33;
+    }
+
+    // 画布尺寸与底色。原来 CPU / CUDA 两条路径各写了一遍，现在只留这一份。
+    cv::Mat CreateCanvas(ImageShape target, ImageLayout const& layout, int borderThickness)
+    {
+        int const width = layout.cols * target.width + (layout.cols + 1) * borderThickness;
+        int const height = layout.rows * target.height + (layout.rows + 1) * borderThickness;
+
+        cv::Mat canvas = cv::Mat::zeros(height, width, CV_8UC3);
+        ImageTools::GradientFiller::FillBilinear(canvas,
+            PixelData::PantoneColors::YearColor_2025_MochaMousse,
+            PixelData::PantoneColors::YearColor_2024_PeachFuzz,
+            PixelData::PantoneColors::YearColor_2023_VivaMagenta,
+            PixelData::PantoneColors::YearColor_2022_VeryPeri);
+        return canvas;
+    }
+
+    // 第 index 张图在画布上的落位；行号越界时返回空矩形，表示剩下的图放不下
+    cv::Rect TileRect(int index, ImageShape target, ImageLayout const& layout, int borderThickness)
+    {
+        int const row = index / layout.cols;
+        if (row >= layout.rows)
+        {
+            return cv::Rect();
+        }
+
+        int const col = index % layout.cols;
+        return cv::Rect(
+            borderThickness + col * (target.width + borderThickness),
+            borderThickness + row * (target.height + borderThickness),
+            target.width,
+            target.height);
+    }
+
+    // 统一的行列铺排循环；具体怎么贴由 paste(index, rect) 决定
+    template <typename PasteFn>
+    void StitchTiles(int count, ImageShape target, ImageLayout const& layout, int borderThickness, PasteFn&& paste)
+    {
+        for (int i = 0; i < count; ++i)
+        {
+            cv::Rect const rc = TileRect(i, target, layout, borderThickness);
+            if (rc.width == 0 || rc.height == 0)
+            {
+                Diagnostics::Trace::TraceError("警告: 图片数量超过了计算的行列数，剩余图片将被忽略。");
+                break;
+            }
+            paste(i, rc);
+        }
+    }
+}
+
 /*
- * 跟之前的区别时是旧的函数会自动计算布局和排序，修改布局为输入，按照数组顺序排序
+ * 跟之前的区别是：旧函数会自动计算布局和排序，现在布局作为输入，按数组顺序铺排。
  */
 cv::Mat stitch(std::vector<cv::Mat const*> const& images, StretchMode stretchMode, ImageShape target_size, ImageUtilsNamespace::ImageLayout const& layout, int borderThickness)
 {
@@ -39,49 +100,23 @@ cv::Mat stitch(std::vector<cv::Mat const*> const& images, StretchMode stretchMod
         return cv::Mat();
     }
 
-    if (borderThickness < 0)
-    {
-        borderThickness = std::min(target_size.width, target_size.height) / 33; // 默认边距为格子尺寸的 3%
-    }
+    borderThickness = NormalizeBorder(borderThickness, target_size);
 
-    // 2. 创建拼接画布
-    const int canvas_width = layout.cols * target_size.width + (layout.cols + 1) * borderThickness;
-    const int canvas_height = layout.rows * target_size.height + (layout.rows + 1) * borderThickness;
-    cv::Mat canvas = cv::Mat::zeros(canvas_height, canvas_width, CV_8UC3);
-    ImageTools::GradientFiller::FillBilinear(canvas,
-        PixelData::PantoneColors::YearColor_2025_MochaMousse,
-        PixelData::PantoneColors::YearColor_2024_PeachFuzz,
-        PixelData::PantoneColors::YearColor_2023_VivaMagenta,
-        PixelData::PantoneColors::YearColor_2022_VeryPeri);
-
-    // 3. 循环填充图片
-    for (int i = 0; i < static_cast<int>(images.size()); ++i)
-    {
-        int row_idx = i / layout.cols;
-        int col_idx = i % layout.cols;
-
-        if (row_idx >= layout.rows)
+    cv::Mat canvas = CreateCanvas(target_size, layout, borderThickness);
+    StitchTiles(static_cast<int>(images.size()), target_size, layout, borderThickness,
+        [&](int i, cv::Rect const& rc)
         {
-            Diagnostics::Trace::TraceError("警告: 图片数量超过了计算的行列数，剩余图片将被忽略。");
-            break; // 防止越界
-        }
+            cv::Mat roi = canvas(rc);
+            ImagePaster::Paste(&roi, images[i], stretchMode);
+        });
 
-        // 定义画布上的感兴趣区域 (ROI)
-        cv::Mat roi = canvas(cv::Rect(
-            borderThickness + col_idx * (target_size.width + borderThickness),
-            borderThickness + row_idx * (target_size.height + borderThickness),
-            target_size.width,
-            target_size.height));
-        ImagePaster::Paste(&roi, images[i], stretchMode);
-    }
     return canvas;
 }
 
 /**
  * @brief 拼接图片的核心算法
  * @param images 输入的图片向量
- * @param target_width 每个格子的目标宽度
- * @param target_height 每个格子的目标高度
+ * @param target_size 每个格子的目标尺寸
  * @return 拼接后的单张图片
  */
 cv::Mat stitch(std::vector<cv::Mat const*> const& images, StretchMode stretchMode, ImageShape target_size, int borderThickness)
@@ -104,13 +139,12 @@ cv::Mat stitch(std::vector<cv::Mat const*> const& images, StretchMode stretchMod
 /**
  * @brief 拼接图片的核心算法
  * @param images 输入的图片向量
- * @param target_width 每个格子的目标宽度
- * @param target_height 每个格子的目标高度
+ * @param target_size 每个格子的目标尺寸
  * @return 拼接后的单张图片
  */
 cv::Mat stitch(const std::vector<cv::Mat>& images, StretchMode stretchMode, ImageShape target_size, int borderThickness = -1)
 {
-    std::vector<cv::Mat const*> ptrs{ images.size() };
+    std::vector<cv::Mat const*> ptrs(images.size());
     std::transform(images.begin(), images.end(), ptrs.begin(), [](cv::Mat const& m)
         { return &m; });
     return stitch(ptrs, stretchMode, target_size, borderThickness);
@@ -127,46 +161,49 @@ cv::Mat stitch(std::vector<std::filesystem::path> const& image_paths, StretchMod
         return cv::Mat();
     }
 
-    if (borderThickness < 0)
-    {
-        borderThickness = std::min(target_size.width, target_size.height) / 33;
-    }
+    borderThickness = NormalizeBorder(borderThickness, target_size);
 
-    const int canvas_width = layout.cols * target_size.width + (layout.cols + 1) * borderThickness;
-    const int canvas_height = layout.rows * target_size.height + (layout.rows + 1) * borderThickness;
-    cv::Mat canvas = cv::Mat::zeros(canvas_height, canvas_width, CV_8UC3);
-    ImageTools::GradientFiller::FillBilinear(canvas,
-        PixelData::PantoneColors::YearColor_2025_MochaMousse,
-        PixelData::PantoneColors::YearColor_2024_PeachFuzz,
-        PixelData::PantoneColors::YearColor_2023_VivaMagenta,
-        PixelData::PantoneColors::YearColor_2022_VeryPeri);
-
-    for (int i = 0; i < static_cast<int>(image_paths.size()); ++i)
-    {
-        int row_idx = i / layout.cols;
-        int col_idx = i % layout.cols;
-
-        if (row_idx >= layout.rows)
+    cv::Mat canvas = CreateCanvas(target_size, layout, borderThickness);
+    StitchTiles(static_cast<int>(image_paths.size()), target_size, layout, borderThickness,
+        [&](int i, cv::Rect const& rc)
         {
-            Diagnostics::Trace::TraceError("警告: 图片数量超过了计算的行列数，剩余图片将被忽略。");
-            break;
-        }
-
-        cv::Mat roi = canvas(cv::Rect(
-            borderThickness + col_idx * (target_size.width + borderThickness),
-            borderThickness + row_idx * (target_size.height + borderThickness),
-            target_size.width,
-            target_size.height));
-
-        // 逐张加载，用完即释
-        cv::Mat img = toes::Imread(image_paths[i], cv::IMREAD_COLOR);
-        if (!img.empty())
+            // 逐张加载，用完即释
+            cv::Mat img = toes::Imread(image_paths[i], cv::IMREAD_COLOR);
+            if (img.empty())
+            {
+                return;
+            }
+            cv::Mat roi = canvas(rc);
             ImagePaster::Paste(&roi, &img, stretchMode);
-    }
+        });
+
     return canvas;
 }
 
 #ifdef _CUDA_OPENCV
+namespace
+{
+    // 把一张图缩放并贴到 GPU 画布的指定区域
+    void PasteCudaTile(cv::cuda::GpuMat& gpuCanvas, cv::Rect const& rc, cv::Mat const& image, ImageShape target)
+    {
+        cv::cuda::GpuMat gpuImg;
+        gpuImg.upload(image);
+
+        cv::cuda::GpuMat gpuResized;
+        if (gpuImg.cols != target.width || gpuImg.rows != target.height)
+        {
+            cv::cuda::resize(gpuImg, gpuResized, cv::Size(target.width, target.height));
+        }
+        else
+        {
+            gpuResized = gpuImg;
+        }
+
+        cv::cuda::GpuMat gpuRoi = gpuCanvas(rc);
+        gpuResized.copyTo(gpuRoi);
+    }
+}
+
 /**
  * @brief CUDA 加速版拼接（指针重载，需指定布局）
  */
@@ -178,54 +215,24 @@ cv::Mat stitchCUDA(std::vector<cv::Mat const*> const& images, StretchMode stretc
         return cv::Mat();
     }
 
-    if (borderThickness < 0)
-    {
-        borderThickness = std::min(target_size.width, target_size.height) / 33;
-    }
+    // 注意：CUDA 路径目前始终按「填满格子」处理，未按 stretchMode 区分，
+    // 与 CPU 版本行为不一致（历史遗留，需 CUDA 环境才能验证）。
+    (void)stretchMode;
 
-    const int canvas_width = layout.cols * target_size.width + (layout.cols + 1) * borderThickness;
-    const int canvas_height = layout.rows * target_size.height + (layout.rows + 1) * borderThickness;
+    borderThickness = NormalizeBorder(borderThickness, target_size);
 
-    cv::Mat canvas = cv::Mat::zeros(canvas_height, canvas_width, CV_8UC3);
-    ImageTools::GradientFiller::FillBilinear(canvas,
-        PixelData::PantoneColors::YearColor_2025_MochaMousse,
-        PixelData::PantoneColors::YearColor_2024_PeachFuzz,
-        PixelData::PantoneColors::YearColor_2023_VivaMagenta,
-        PixelData::PantoneColors::YearColor_2022_VeryPeri);
+    cv::Mat canvas = CreateCanvas(target_size, layout, borderThickness);
 
-    cv::cuda::GpuMat gpu_canvas;
-    gpu_canvas.upload(canvas);
+    cv::cuda::GpuMat gpuCanvas;
+    gpuCanvas.upload(canvas);
 
-    for (int i = 0; i < static_cast<int>(images.size()); ++i)
-    {
-        int row_idx = i / layout.cols;
-        int col_idx = i % layout.cols;
-        if (row_idx >= layout.rows)
-            break;
-
-        cv::Rect roi_rect(
-            borderThickness + col_idx * (target_size.width + borderThickness),
-            borderThickness + row_idx * (target_size.height + borderThickness),
-            target_size.width, target_size.height);
-
-        cv::cuda::GpuMat gpu_img;
-        gpu_img.upload(*images[i]);
-
-        cv::cuda::GpuMat gpu_resized;
-        if (images[i]->cols != target_size.width || images[i]->rows != target_size.height)
+    StitchTiles(static_cast<int>(images.size()), target_size, layout, borderThickness,
+        [&](int i, cv::Rect const& rc)
         {
-            cv::cuda::resize(gpu_img, gpu_resized, cv::Size(target_size.width, target_size.height));
-        }
-        else
-        {
-            gpu_resized = gpu_img;
-        }
+            PasteCudaTile(gpuCanvas, rc, *images[i], target_size);
+        });
 
-        cv::cuda::GpuMat gpu_roi = gpu_canvas(roi_rect);
-        gpu_resized.copyTo(gpu_roi);
-    }
-
-    gpu_canvas.download(canvas);
+    gpuCanvas.download(canvas);
     return canvas;
 }
 
@@ -234,7 +241,7 @@ cv::Mat stitchCUDA(std::vector<cv::Mat const*> const& images, StretchMode stretc
  */
 cv::Mat stitchCUDA(const std::vector<cv::Mat>& images, StretchMode stretchMode, ImageShape target_size, int borderThickness = -1)
 {
-    std::vector<cv::Mat const*> ptrs{ images.size() };
+    std::vector<cv::Mat const*> ptrs(images.size());
     std::transform(images.begin(), images.end(), ptrs.begin(), [](cv::Mat const& m)
         { return &m; });
     return stitchCUDA(ptrs, stretchMode, target_size, ImageTools::LayoutHelper::CalculateGridLayout(static_cast<int>(images.size()), target_size.width, target_size.height), borderThickness);
@@ -251,61 +258,30 @@ cv::Mat stitchCUDA(std::vector<std::filesystem::path> const& image_paths, Stretc
         return cv::Mat();
     }
 
-    if (borderThickness < 0)
-    {
-        borderThickness = std::min(target_size.width, target_size.height) / 33;
-    }
+    // 同上：CUDA 路径尚未区分 stretchMode
+    (void)stretchMode;
 
-    const int canvas_width = layout.cols * target_size.width + (layout.cols + 1) * borderThickness;
-    const int canvas_height = layout.rows * target_size.height + (layout.rows + 1) * borderThickness;
+    borderThickness = NormalizeBorder(borderThickness, target_size);
 
-    cv::Mat canvas = cv::Mat::zeros(canvas_height, canvas_width, CV_8UC3);
-    ImageTools::GradientFiller::FillBilinear(canvas,
-        PixelData::PantoneColors::YearColor_2025_MochaMousse,
-        PixelData::PantoneColors::YearColor_2024_PeachFuzz,
-        PixelData::PantoneColors::YearColor_2023_VivaMagenta,
-        PixelData::PantoneColors::YearColor_2022_VeryPeri);
+    cv::Mat canvas = CreateCanvas(target_size, layout, borderThickness);
 
-    cv::cuda::GpuMat gpu_canvas;
-    gpu_canvas.upload(canvas);
+    cv::cuda::GpuMat gpuCanvas;
+    gpuCanvas.upload(canvas);
 
-    for (int i = 0; i < static_cast<int>(image_paths.size()); ++i)
-    {
-        int row_idx = i / layout.cols;
-        int col_idx = i % layout.cols;
-        if (row_idx >= layout.rows)
-            break;
-
-        cv::Rect roi_rect(
-            borderThickness + col_idx * (target_size.width + borderThickness),
-            borderThickness + row_idx * (target_size.height + borderThickness),
-            target_size.width, target_size.height);
-
-        // 逐张加载到 CPU，上传 GPU，用完即释
-        cv::Mat img = toes::Imread(image_paths[i], cv::IMREAD_COLOR);
-        if (img.empty())
-            continue;
-
-        cv::cuda::GpuMat gpu_img;
-        gpu_img.upload(img);
-        img.release(); // CPU 侧立即释放
-
-        cv::cuda::GpuMat gpu_resized;
-        if (gpu_img.cols != target_size.width || gpu_img.rows != target_size.height)
+    StitchTiles(static_cast<int>(image_paths.size()), target_size, layout, borderThickness,
+        [&](int i, cv::Rect const& rc)
         {
-            cv::cuda::resize(gpu_img, gpu_resized, cv::Size(target_size.width, target_size.height));
-        }
-        else
-        {
-            gpu_resized = gpu_img;
-        }
+            cv::Mat img = toes::Imread(image_paths[i], cv::IMREAD_COLOR);
+            if (img.empty())
+            {
+                return;
+            }
 
-        cv::cuda::GpuMat gpu_roi = gpu_canvas(roi_rect);
-        gpu_resized.copyTo(gpu_roi);
-        // gpu_img, gpu_resized, gpu_roi 在此释放
-    }
+            PasteCudaTile(gpuCanvas, rc, img, target_size);
+            img.release(); // CPU 侧立即释放
+        });
 
-    gpu_canvas.download(canvas);
+    gpuCanvas.download(canvas);
     return canvas;
 }
 #endif // _CUDA_OPENCV
@@ -490,6 +466,7 @@ int ImageNamespace::stitch_cli_main(std::vector<std::string> const& args)
 
     auto elapsed_ms = std::chrono::duration_cast<std::chrono::milliseconds>(watch.elapsed()).count();
     Diagnostics::Trace::TraceInfo(std::format(L"Total processing time: {} ms", elapsed_ms));
-    system("pause");
+
+    // 这里原来有 system("pause")：库函数不该卡在控制台按键上，也不该拉起 cmd.exe
     return 0;
 }

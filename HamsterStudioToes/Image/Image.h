@@ -27,10 +27,10 @@ namespace ImageNamespace
 		explicit Image(fs::path const& path, int opencvReadFlag = 1);
 		explicit Image(std::istream& is, int opencvReadFlag = 1);
 
-		Image(Image const& image) noexcept;
+		Image(Image const& image);
 		Image(Image&& image) noexcept;
 
-		Image& operator=(Image const& image) noexcept;
+		Image& operator=(Image const& image);
 		Image& operator=(Image&& image) noexcept;
 
 		Image operator()(Shapes::Rectangle const& rect) const;

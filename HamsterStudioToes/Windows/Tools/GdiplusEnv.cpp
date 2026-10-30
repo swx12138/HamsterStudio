@@ -10,13 +10,19 @@ struct Win32Namespace::GdiplusEnv::GdiplusEnvImpl
 	Gdiplus::GdiplusStartupInput in;
 };
 
-Win32Namespace::GdiplusEnv::GdiplusEnv() noexcept
+Win32Namespace::GdiplusEnv::GdiplusEnv()
 {
-	auto status = Gdiplus::GdiplusStartup(&impl_->token, &impl_->in, nullptr);
+	impl_ = std::make_unique<GdiplusEnvImpl>();
 
+	auto const status = Gdiplus::GdiplusStartup(&impl_->token, &impl_->in, nullptr);
+	if (status != Gdiplus::Ok) {
+		impl_.reset();	// 启动失败就不该在析构时对无效 token 调用 GdiplusShutdown
+	}
 }
 
 Win32Namespace::GdiplusEnv::~GdiplusEnv() noexcept
 {
-	Gdiplus::GdiplusShutdown(impl_->token);
+	if (impl_) {
+		Gdiplus::GdiplusShutdown(impl_->token);
+	}
 }

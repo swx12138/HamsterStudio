@@ -18,11 +18,11 @@ void HamsterStudioToes::Sort::Buble(int* arr, int len)
     for (int i = 0; i < len; i++)
     {
         swapped = false;
-        for (int j = len - 1; j >= i; j--)
+        for (int j = len - 1; j > i; j--)
         {
-            if (arr[j - 1] > j[arr])
+            if (arr[j - 1] > arr[j])
             {
-                Swap(arr[j - 1], j[arr]);
+                Swap(arr[j - 1], arr[j]);
                 swapped = true;
             }
         }

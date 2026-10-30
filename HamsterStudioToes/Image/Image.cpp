@@ -47,7 +47,7 @@ ImageNamespace::Image::Image(std::istream &is, int opencvReadFlag)
 }
 
 // 复制构造函数
-ImageNamespace::Image::Image(Image const &image) noexcept
+ImageNamespace::Image::Image(Image const &image)
 	:Image()
 {
 	pImpl->mat = image.pImpl->mat.clone();
@@ -61,7 +61,7 @@ ImageNamespace::Image::Image(Image &&image) noexcept
 }
 
 // 复制赋值
-ImageNamespace::Image& ImageNamespace::Image::operator=(Image const &image) noexcept
+ImageNamespace::Image& ImageNamespace::Image::operator=(Image const &image)
 {
 	if (this != &image) {
 		if (!pImpl) {

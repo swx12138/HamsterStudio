@@ -375,3 +375,5 @@ FodyWeavers.xsd
 /HamsterStudioNativeCLI/vscode-extension-samples-main.zip
 HamsterStudioCLITools/build/
 .vscode/
+
+.dsh-acl-recovery/

@@ -17,7 +17,7 @@ namespace HamsterStudioToes
         int client_width;
         int client_height;
         std::string svTitle;
-        int playing_delay;
+        int playing_delay = 0;
         double cd;
     };
 

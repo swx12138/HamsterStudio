@@ -13,7 +13,7 @@ namespace MPEGLayer3MediaNamespace
 		std::shared_ptr<Format> _data;
 
 	public:
-		explicit MPEGLayer3Format(std::filesystem::path const& filepath) noexcept;
+		explicit MPEGLayer3Format(std::filesystem::path const& filepath);
 
 		~MPEGLayer3Format() noexcept;
 

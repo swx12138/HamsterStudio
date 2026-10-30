@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Sort.h"
+
 #include <cstdint>
 
 namespace HamsterStudioToes::Search
@@ -52,21 +54,21 @@ namespace HamsterStudioToes::Search
             if (!Sort::IsIncreasing(arr, len))
                 return NPos;
             int start = 0, end = len - 1;
-            while (start < end)
+            while (start <= end)
             {
-                int mid = (end + start) / 2;
-                int pr = pred(target, arr[mid]);
+                int const mid = start + (end - start) / 2;
+                int const pr = pred(target, arr[mid]);
                 if (pr == 0)
                 {
                     return mid;
                 }
                 else if (pr < 0)
                 {
-                    end = mid;
+                    end = mid - 1;
                 }
                 else
                 {
-                    start = mid;
+                    start = mid + 1;
                 }
             }
             return NPos;

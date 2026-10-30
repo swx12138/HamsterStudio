@@ -9,7 +9,7 @@ namespace Win32Namespace
 	class GdiplusEnv
 	{
 	public:
-		explicit GdiplusEnv()noexcept;
+		explicit GdiplusEnv();
 		~GdiplusEnv() noexcept;
 
 	private:

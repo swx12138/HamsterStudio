@@ -12,7 +12,7 @@ using namespace ImageEditorNamespace;
 class ImageEditor::ImageData {
 	cv::Mat image_;
 public:
-	explicit ImageData(std::string const &filepath) noexcept
+	explicit ImageData(std::string const &filepath)
 	{
 		image_ = cv::imread(filepath);
 		if (!image_.empty()) {
@@ -42,7 +42,16 @@ bool ImageEditor::LoadImage(std::string_view filename) {
 
 bool ImageEditor::SaveImage(std::string_view filename)
 {
-	return cv::imwrite(std::string(filename), imageData_->GetImage());
+	if (!imageData_) {
+		return false;
+	}
+
+	cv::Mat &image = imageData_->GetImage();
+	if (image.empty()) {
+		return false;
+	}
+
+	return cv::imwrite(std::string(filename), image);
 }
 
 void ImageEditor::SetPixelDataProcessor(PixelDataProcessor::Pointer processor) noexcept
@@ -52,9 +61,14 @@ void ImageEditor::SetPixelDataProcessor(PixelDataProcessor::Pointer processor) n
 
 void ImageEditor::ApplyPixelDataProcessor() noexcept
 {
+	// 这个函数标了 noexcept，未加载图像或未设置处理器时不能靠解空指针来"失败"
+	if (!imageData_ || !pixelDataProcessor_) {
+		return;
+	}
+
 	// 遍历图像的每个像素，并应用PixelDataProcessor
 	cv::Mat &image = imageData_->GetImage();
-	Diagnostics::Trace::TraceInfo(std::format("Image type: ", image.type()));
+	Diagnostics::Trace::TraceInfo(std::format("Image type: {}", image.type()));
 	for (int y = 0; y < image.rows; ++y) {
 		for (int x = 0; x < image.cols; ++x) {
 			cv::Vec3f &pixel = image.at<cv::Vec3f>(y, x);

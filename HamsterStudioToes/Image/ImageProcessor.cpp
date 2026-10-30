@@ -17,70 +17,135 @@
 #pragma comment(lib, "opencv_world4120.lib")
 #endif // _DEBUG
 
+namespace {
+	// 8 位通道的取值范围，LUT 与直方图都用它
+	constexpr int kLevels = 256;
+}
+
 ImageProcessorNamespace::ImageProcessor::ImageProcessor() noexcept {
-	// 初始化OpenCV相关资源
-	cv::setNumThreads(0);  // 默认使用OpenCV内部线程管理
+	// 这里原本调用 cv::setNumThreads(0)，而 0 在 OpenCV 里表示「关闭并行」，
+	// 与本类声称的并行处理正好相反。不调用才是「交给 OpenCV 自己管理线程」。
 }
 
 ImageProcessorNamespace::ImageProcessor::~ImageProcessor() noexcept = default;
 
-bool ImageProcessorNamespace::ImageProcessor::processImage(ImageData &image, const ImageAdjustments &adjustments) {
-	if (!image.isValid()) return false;
+bool ImageProcessorNamespace::ImageProcessor::SplitToBGR(const cv::Mat &src, cv::Mat &bgr, cv::Mat &alpha)
+{
+	if (src.empty() || src.depth() != CV_8U) {
+		return false;
+	}
 
-	auto startTime = std::chrono::high_resolution_clock::now();
+	if (src.channels() == 3) {
+		bgr = src.clone();
+		alpha.release();
+		return true;
+	}
 
-	cv::Mat &mat = image.mat;
+	if (src.channels() != 4) {
+		return false;
+	}
 
-	// 1. 曝光调整（使用LUT加速）
-	if (adjustments.exposure != 0.0) {
-		applyExposure(mat, adjustments.exposure);
+	std::vector<cv::Mat> channels;
+	cv::split(src, channels);
+	alpha = channels[3];
+	cv::merge(std::vector<cv::Mat>{ channels[0], channels[1], channels[2] }, bgr);
+	return true;
+}
+
+void ImageProcessorNamespace::ImageProcessor::MergeFromBGR(cv::Mat &dst, const cv::Mat &bgr, const cv::Mat &alpha)
+{
+	cv::Mat merged;
+	if (alpha.empty()) {
+		merged = bgr;
+	}
+	else {
+		std::vector<cv::Mat> channels{ bgr, alpha };
+		cv::merge(channels, merged);
+	}
+
+	// 只有尺寸和类型都对上才写回原缓冲区；否则 replace 头部（正常路径不会走到）
+	if (merged.size() == dst.size() && merged.type() == dst.type()) {
+		merged.copyTo(dst);
+	}
+	else {
+		dst = merged;
+	}
+}
+
+void ImageProcessorNamespace::ImageProcessor::processBGR(cv::Mat &bgr, const ImageAdjustments &adj) const
+{
+	// 1. 曝光调整
+	if (adj.exposure != 0.0) {
+		applyExposure(bgr, adj.exposure);
 	}
 
 	// 2. 色温和色调
-	if (adjustments.temperature != 0.0 || adjustments.tint != 0.0) {
-		applyTemperatureTint(mat, adjustments.temperature, adjustments.tint);
+	if (adj.temperature != 0.0 || adj.tint != 0.0) {
+		applyTemperatureTint(bgr, adj.temperature, adj.tint);
 	}
 
-	// 3. 转换为HSV进行饱和度和鲜艳度调整
-	if (adjustments.saturation != 0.0 || adjustments.vibrance != 0.0) {
+	// 3. 饱和度与鲜艳度
+	if (adj.saturation != 0.0 || adj.vibrance != 0.0) {
 		cv::Mat hsv;
-		cv::cvtColor(mat, hsv, cv::COLOR_BGR2HSV);
+		cv::cvtColor(bgr, hsv, cv::COLOR_BGR2HSV);
 
 		std::vector<cv::Mat> channels;
 		cv::split(hsv, channels);
+		cv::Mat &s = channels[1];
 
-		// 饱和度调整
-		if (adjustments.saturation != 0.0) {
-			double scale = 1.0 + adjustments.saturation / 100.0;
-			channels[1] = channels[1] * scale;
-			cv::min(channels[1], 255, channels[1]);
+		if (adj.saturation != 0.0) {
+			// 先用独立的 dst 算好再赋值，避免原地读写同一块内存
+			cv::Mat scaled;
+			s.convertTo(scaled, -1, 1.0 + adj.saturation / 100.0);
+			s = scaled;
 		}
 
-		// 鲜艳度调整（只调整低饱和度区域）
-		if (adjustments.vibrance != 0.0) {
-			cv::Mat lowSaturationMask = channels[1] < 25;
-			double vibranceScale = 1.0 + adjustments.vibrance / 100.0 * 0.5;
-			channels[1].setTo(channels[1] * vibranceScale, lowSaturationMask);
-			cv::min(channels[1], 255, channels[1]);
+		if (adj.vibrance != 0.0) {
+			cv::Mat const lowSaturationMask = s < 25;
+			double const vibranceScale = 1.0 + adj.vibrance / 100.0 * 0.5;
+
+			cv::Mat boosted;
+			cv::multiply(s, cv::Scalar::all(vibranceScale), boosted);
+			boosted.copyTo(s, lowSaturationMask);
 		}
 
 		cv::merge(channels, hsv);
-		cv::cvtColor(hsv, mat, cv::COLOR_HSV2BGR);
+		cv::cvtColor(hsv, bgr, cv::COLOR_HSV2BGR);
 	}
 
-	// 4. 色调调整（高光/阴影等）
-	if (adjustments.highlights != 0.0 || adjustments.shadows != 0.0 ||
-		adjustments.whites != 0.0 || adjustments.blacks != 0.0) {
-		applyToneAdjustments(mat, adjustments);
+	// 4. 亮度范围调整（高光/阴影/白色/黑色）
+	if (adj.highlights != 0.0 || adj.shadows != 0.0 ||
+		adj.whites != 0.0 || adj.blacks != 0.0) {
+		applyToneAdjustments(bgr, adj);
 	}
+}
 
-	auto endTime = std::chrono::high_resolution_clock::now();
-	std::chrono::duration<double, std::milli> duration = endTime - startTime;
+void ImageProcessorNamespace::ImageProcessor::processTileRow(cv::Mat &bgr, const ImageAdjustments &adj, int y, int tileSize) const
+{
+	int const rows = bgr.rows;
+	int const cols = bgr.cols;
 
-	// 更新统计
-	stats_.processingTimeMs = duration.count();
-	stats_.pixelsProcessed = static_cast<int64_t>(mat.total());
-	stats_.pixelsPerSecond = stats_.pixelsProcessed / (duration.count() / 1000.0);
+	for (int x = 0; x < cols; x += tileSize) {
+		cv::Rect const tileRect(x, y, std::min(tileSize, cols - x), std::min(tileSize, rows - y));
+		cv::Mat tile = bgr(tileRect);
+		processBGR(tile, adj);
+	}
+}
+
+bool ImageProcessorNamespace::ImageProcessor::processImage(ImageData &image, const ImageAdjustments &adjustments) {
+	if (!image.isValid()) return false;
+
+	auto const startTime = std::chrono::high_resolution_clock::now();
+
+	cv::Mat bgr, alpha;
+	if (!SplitToBGR(image.mat, bgr, alpha)) return false;
+
+	processBGR(bgr, adjustments);
+	MergeFromBGR(image.mat, bgr, alpha);
+
+	auto const endTime = std::chrono::high_resolution_clock::now();
+	std::chrono::duration<double, std::milli> const duration = endTime - startTime;
+	updateStats(image.mat, duration.count());
 
 	return true;
 }
@@ -88,129 +153,117 @@ bool ImageProcessorNamespace::ImageProcessor::processImage(ImageData &image, con
 bool ImageProcessorNamespace::ImageProcessor::processImageMT(ImageData &image, const ImageAdjustments &adjustments, int threadCount) {
 	if (!image.isValid()) return false;
 
-	auto startTime = std::chrono::high_resolution_clock::now();
+	auto const startTime = std::chrono::high_resolution_clock::now();
 
-	cv::Mat &mat = image.mat;
+	cv::Mat bgr, alpha;
+	if (!SplitToBGR(image.mat, bgr, alpha)) return false;
 
-	// 设置OpenCV线程数
+	constexpr int tileSize = 256;
+	int const rows = bgr.rows;
+	int const cols = bgr.cols;
+
+	// 这里不再调用 cv::setNumThreads(threadCount)：那是改进程级的全局状态，会波及
+	// 同一进程里所有其他 OpenCV 使用者。threadCount 现在只作用于下面的分块并行。
+	//
+	// 各分块写的是互不相交的 ROI，processBGR 又是 const、不碰任何成员，统计信息在
+	// 循环结束后统一更新，数据竞争不存在。
 	if (threadCount > 0) {
-		cv::setNumThreads(threadCount);
+#pragma omp parallel for num_threads(threadCount) if(rows * cols > 10000)
+		for (int y = 0; y < rows; y += tileSize) {
+			processTileRow(bgr, adjustments, y, tileSize);
+		}
 	}
-
-	// 分块并行处理
-	const int tileSize = 256;
-	const int rows = mat.rows;
-	const int cols = mat.cols;
-
+	else {
 #pragma omp parallel for if(rows * cols > 10000)
-	for (int y = 0; y < rows; y += tileSize) {
-		for (int x = 0; x < cols; x += tileSize) {
-			int tileHeight = std::min(tileSize, rows - y);
-			int tileWidth = std::min(tileSize, cols - x);
-
-			cv::Rect tileRect(x, y, tileWidth, tileHeight);
-			cv::Mat tile = mat(tileRect);
-
-			// 处理当前tile
-			ImageData tileData;
-			tileData.mat = tile;
-			processImage(tileData, adjustments);
+		for (int y = 0; y < rows; y += tileSize) {
+			processTileRow(bgr, adjustments, y, tileSize);
 		}
 	}
 
-	auto endTime = std::chrono::high_resolution_clock::now();
-	std::chrono::duration<double, std::milli> duration = endTime - startTime;
+	MergeFromBGR(image.mat, bgr, alpha);
 
-	// 更新统计
-	stats_.processingTimeMs = duration.count();
-	stats_.pixelsProcessed = static_cast<int64_t>(mat.total());
-	stats_.pixelsPerSecond = stats_.pixelsProcessed / (duration.count() / 1000.0);
+	auto const endTime = std::chrono::high_resolution_clock::now();
+	std::chrono::duration<double, std::milli> const duration = endTime - startTime;
+	updateStats(image.mat, duration.count());
 
 	return true;
 }
 
-void ImageProcessorNamespace::ImageProcessor::applyExposure(cv::Mat& image, double exposure) {
-	double factor = std::pow(2.0, exposure);
+void ImageProcessorNamespace::ImageProcessor::updateStats(const cv::Mat &mat, double elapsedMs)
+{
+	stats_.processingTimeMs = elapsedMs;
+	stats_.pixelsProcessed = static_cast<int64_t>(mat.total());
+	stats_.pixelsPerSecond = stats_.pixelsProcessed / std::max(elapsedMs / 1000.0, 1e-9);
+}
 
-	if (exposureLUT_.empty()) {
-		exposureLUT_.create(1, 256, CV_8UC3);
-		uint8_t* p = exposureLUT_.ptr();
-		for (int i = 0; i < 256; ++i) {
-			for (int c = 0; c < 3; ++c) {
-				p[i * 3 + c] = cv::saturate_cast<uint8_t>(i * factor);
-			}
-		}
+void ImageProcessorNamespace::ImageProcessor::applyExposure(cv::Mat &bgr, double exposure) const {
+	double const factor = std::pow(2.0, exposure);
+
+	// LUT 每次按当前曝光值重建。原来把它缓存成成员，第二次换曝光值仍沿用第一次的表。
+	cv::Mat lut(1, kLevels, CV_8UC1);
+	uchar *p = lut.ptr<uchar>();
+	for (int i = 0; i < kLevels; ++i) {
+		p[i] = cv::saturate_cast<uchar>(i * factor);
 	}
 
-	cv::LUT(image, exposureLUT_, image);
+	// 单通道 LUT 会作用到 BGR 三个通道上
+	cv::Mat out;
+	cv::LUT(bgr, lut, out);
+	out.copyTo(bgr);
 }
 
-void ImageProcessorNamespace::ImageProcessor::applySaturation(cv::Mat& image, double saturation)
-{
+void ImageProcessorNamespace::ImageProcessor::applyTemperatureTint(cv::Mat &bgr, double temperature, double tint) const {
+	// 色温：加红、减蓝；色调：加红、减绿（BGR 顺序为 0=B 1=G 2=R）
+	double const deltaBlue = -temperature * 0.5;
+	double const deltaGreen = -tint * 0.5;
+	double const deltaRed = temperature * 0.25 + tint * 0.25;
+
+	cv::Mat out;
+	cv::add(bgr, cv::Scalar(deltaBlue, deltaGreen, deltaRed), out);
+	out.copyTo(bgr);
 }
 
-void ImageProcessorNamespace::ImageProcessor::applyVibrance(cv::Mat& image, double vibrance)
-{
-}
-
-void ImageProcessorNamespace::ImageProcessor::applyTemperatureTint(cv::Mat &image, double temperature, double tint) {
-	// 色温：增加红色，减少蓝色
-	// 色调：增加红色，减少绿色
-	cv::Mat adjustment = cv::Mat::zeros(1, 3, CV_64F);
-
-	// 色温调整
-	adjustment.at<double>(0, 2) += temperature * 0.25;  // 增加红色
-	adjustment.at<double>(0, 0) -= temperature * 0.5;   // 减少蓝色
-
-	// 色调调整
-	adjustment.at<double>(0, 2) += tint * 0.25;         // 增加红色
-	adjustment.at<double>(0, 1) -= tint * 0.5;          // 减少绿色
-
-	// 应用调整
-	cv::add(image, cv::Scalar(adjustment.at<double>(0, 0),
-		adjustment.at<double>(0, 1),
-		adjustment.at<double>(0, 2)), image);
-}
-
-void ImageProcessorNamespace::ImageProcessor::applyToneAdjustments(cv::Mat &image, const ImageAdjustments &adj) {
-	// 转换为Lab颜色空间进行更精确的亮度调整
+void ImageProcessorNamespace::ImageProcessor::applyToneAdjustments(cv::Mat &bgr, const ImageAdjustments &adj) const {
+	// 转到 Lab 空间，只动 L 通道
 	cv::Mat lab;
-	cv::cvtColor(image, lab, cv::COLOR_BGR2Lab);
+	cv::cvtColor(bgr, lab, cv::COLOR_BGR2Lab);
 
 	std::vector<cv::Mat> labChannels;
 	cv::split(lab, labChannels);
 	cv::Mat &lightness = labChannels[0];
 
-	// 高光调整
 	if (adj.highlights != 0.0) {
-		cv::Mat highlightsMask = lightness > 200;
-		double factor = 1.0 + adj.highlights / 100.0;
-		lightness.setTo(lightness * factor, highlightsMask);
+		cv::Mat const mask = lightness > 200;
+		cv::Mat adjusted;
+		lightness.convertTo(adjusted, -1, 1.0 + adj.highlights / 100.0);
+		adjusted.copyTo(lightness, mask);
 	}
 
-	// 阴影调整
 	if (adj.shadows != 0.0) {
-		cv::Mat shadowsMask = lightness < 50;
-		double factor = 1.0 + adj.shadows / 100.0;
-		lightness.setTo(lightness * factor, shadowsMask);
+		cv::Mat const mask = lightness < 50;
+		cv::Mat adjusted;
+		lightness.convertTo(adjusted, -1, 1.0 + adj.shadows / 100.0);
+		adjusted.copyTo(lightness, mask);
 	}
 
-	// 白色调整
 	if (adj.whites != 0.0) {
-		cv::Mat whitesMask = lightness > 240;
-		double boost = adj.whites / 100.0 * 15.0;  // 最大增加15
-		lightness.setTo(cv::min(lightness + boost, 255.0), whitesMask);
+		cv::Mat const mask = lightness > 240;
+		cv::Mat adjusted;
+		cv::add(lightness, cv::Scalar::all(adj.whites / 100.0 * 15.0), adjusted);
+		adjusted.copyTo(lightness, mask);
 	}
 
-	// 黑色调整
 	if (adj.blacks != 0.0) {
-		cv::Mat blacksMask = lightness < 15;
-		double reduction = adj.blacks / 100.0 * 15.0;  // 最大减少15
-		lightness.setTo(cv::max(lightness - reduction, 0.0), blacksMask);
+		cv::Mat const mask = lightness < 15;
+		cv::Mat adjusted;
+		cv::subtract(lightness, cv::Scalar::all(adj.blacks / 100.0 * 15.0), adjusted);
+		adjusted.copyTo(lightness, mask);
 	}
 
+	cv::Mat out;
 	cv::merge(labChannels, lab);
-	cv::cvtColor(lab, image, cv::COLOR_Lab2BGR);
+	cv::cvtColor(lab, out, cv::COLOR_Lab2BGR);
+	out.copyTo(bgr);
 }
 
 ImageProcessorNamespace::HistogramData ImageProcessorNamespace::ImageProcessor::calculateHistogram(const ImageData &image) {
@@ -222,32 +275,34 @@ ImageProcessorNamespace::HistogramData ImageProcessorNamespace::ImageProcessor::
 ImageProcessorNamespace::HistogramData ImageProcessorNamespace::ImageProcessor::calculateHistogramOptimized(const cv::Mat &image) {
 	HistogramData hist;
 
-	if (image.empty() || image.channels() != 4) return hist;
+	if (image.empty() || image.depth() != CV_8U) return hist;
+	if (image.channels() != 3 && image.channels() != 4) return hist;
 
-	// 分离通道
 	std::vector<cv::Mat> channels;
 	cv::split(image, channels);
 
-	// 计算每个通道的直方图（OpenCV并行优化）
-	const int histSize = 256;
-	const float range[] = { 0, 256 };
-	const float *histRange = { range };
+	int const histSize[] = { kLevels };
+	float const range[] = { 0, 256 };
+	float const *histRange[] = { range };
+	int const channel0[] = { 0 };
 
-	// 计算RGB直方图
-	//cv::calcHist(&channels[0], 1, 0, cv::Mat(), hist.blue, 1, &histSize, &histRange);
-	//cv::calcHist(&channels[1], 1, 0, cv::Mat(), hist.green, 1, &histSize, &histRange);
-	//cv::calcHist(&channels[2], 1, 0, cv::Mat(), hist.red, 1, &histSize, &histRange);
+	auto fill = [&](const cv::Mat &plane, int32_t *dst) {
+		cv::Mat h;
+		cv::calcHist(&plane, 1, channel0, cv::Mat(), h, 1, histSize, histRange);
+		for (int i = 0; i < kLevels; ++i) {
+			dst[i] = cv::saturate_cast<int32_t>(h.at<float>(i));
+		}
+	};
 
-	// 计算亮度直方图
+	fill(channels[0], hist.blue);
+	fill(channels[1], hist.green);
+	fill(channels[2], hist.red);
+
 	cv::Mat gray;
-	cv::cvtColor(image, gray, cv::COLOR_BGRA2GRAY);
-	//cv::calcHist(&gray, 1, 0, cv::Mat(), hist.luminance, 1, &histSize, &histRange);
+	cv::cvtColor(image, gray, image.channels() == 4 ? cv::COLOR_BGRA2GRAY : cv::COLOR_BGR2GRAY);
+	fill(gray, hist.luminance);
 
 	return hist;
-}
-
-void ImageProcessorNamespace::ImageProcessor::processChunk(cv::Mat& chunk, const ImageAdjustments& adj)
-{
 }
 
 // 工厂函数
