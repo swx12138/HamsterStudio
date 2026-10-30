@@ -1,6 +1,6 @@
 #include "core/stream.h"
 
-HamsterStudioToes::Tools::StreamReader::StreamReader(std::istream& is) noexcept
+toes::tools::StreamReader::StreamReader(std::istream& is) noexcept
 	: stream_(is)
 {
 #ifdef _DEBUG
@@ -8,7 +8,7 @@ HamsterStudioToes::Tools::StreamReader::StreamReader(std::istream& is) noexcept
 #endif // _DEBUG
 }
 
-size_t HamsterStudioToes::Tools::StreamReader::GetSize() const
+size_t toes::tools::StreamReader::GetSize() const
 {
 	auto p = stream_.tellg();
 	stream_.seekg(0, std::ios::end);
@@ -17,23 +17,23 @@ size_t HamsterStudioToes::Tools::StreamReader::GetSize() const
 	return static_cast<size_t>(endp);
 }
 
-size_t HamsterStudioToes::Tools::StreamReader::GetPostion() const
+size_t toes::tools::StreamReader::GetPostion() const
 {
 	auto p = stream_.tellg();
 	return static_cast<size_t>(p);
 }
 
-bool HamsterStudioToes::Tools::StreamReader::Read(void* dest, size_t n) const
+bool toes::tools::StreamReader::Read(void* dest, size_t n) const
 {
 	return stream_.read((char*)dest, n).gcount() == n;
 }
 
-void HamsterStudioToes::Tools::StreamReader::SeekForward(int n) const
+void toes::tools::StreamReader::SeekForward(int n) const
 {
 	stream_.seekg(n, std::ios::cur);
 }
 
-void HamsterStudioToes::Tools::StreamReader::SeekBackward(int n) const
+void toes::tools::StreamReader::SeekBackward(int n) const
 {
 #ifdef _DEBUG
 	const auto old_pos = stream_.tellg();

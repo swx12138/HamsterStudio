@@ -4,7 +4,7 @@
 
 #include <cstdint>
 
-namespace HamsterStudioToes::Search
+namespace toes::Search
 {
     using Postion = size_t;
     const Postion NPos = UINT64_MAX;

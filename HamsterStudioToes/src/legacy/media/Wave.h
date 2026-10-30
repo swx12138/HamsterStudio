@@ -1,6 +1,6 @@
 #pragma once
 
-#define WaveMediaNamespace HamsterStudioToes::Media
+#define WaveMediaNamespace toes::Media
 
 #include <array>
 #include <filesystem>

@@ -9,14 +9,14 @@
 #include <vector>
 #include <array>
 
-namespace ImageNamespace
+namespace toes::image
 {
-	using namespace PASTE_IMAGE_UTILS_NAMESPACE;
+	using namespace toes::image;
 
 	/// 拼接模式：None=全部, Portrait=仅竖屏, Landscape=仅横屏
 	enum class ImageStitcheMode { None, Portrait, Landscape };
 
-	TOES_API Image stitch(std::vector<void*> mats, StretchMode mode, ImageShape size, ImageUtilsNamespace::ImageLayout layout, int spacing);
+	TOES_API Image stitch(std::vector<void*> mats, StretchMode mode, ImageShape size, toes::image::ImageLayout layout, int spacing);
 
 	int stitch_cli_main(std::vector<std::string> const& args);
 

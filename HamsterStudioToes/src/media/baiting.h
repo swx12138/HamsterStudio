@@ -4,11 +4,11 @@
 
 #include <hamster/toes/image.h>
 
-namespace HamsterStudioToes
+namespace toes
 {
 	class BaitingMaster
 	{
 	public:
-		static std::vector<ImageNamespace::Image> Baiting(ImageNamespace::Image const& img, int const cols = 2);
+		static std::vector<toes::image::Image> Baiting(toes::image::Image const& img, int const cols = 2);
 	};
 }

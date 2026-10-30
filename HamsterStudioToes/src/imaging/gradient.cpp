@@ -11,7 +11,7 @@
 #pragma comment(lib, "opencv_world4120.lib")
 #endif // _DEBUG
 
-void GradientFillerNamespace::FillSolidColor(cv::Mat& mat, cv::Scalar color)
+void toes::image::FillSolidColor(cv::Mat& mat, cv::Scalar color)
 {
 	if (mat.empty()) return;
 	mat.setTo(color);
@@ -26,7 +26,7 @@ static cv::Vec3b interpolateColor(const cv::Scalar& c1, const cv::Scalar& c2, do
 	return color;
 }
 
-void GradientFillerNamespace::FillLinear(cv::Mat& mat, cv::Scalar color_start, cv::Scalar color_end, const std::string& direction)
+void toes::image::FillLinear(cv::Mat& mat, cv::Scalar color_start, cv::Scalar color_end, const std::string& direction)
 {
 	if (mat.empty()) return;
 
@@ -49,7 +49,7 @@ void GradientFillerNamespace::FillLinear(cv::Mat& mat, cv::Scalar color_start, c
 	}
 }
 
-void GradientFillerNamespace::FillRadial(cv::Mat& mat, cv::Point center, int radius, cv::Scalar const& color_center, cv::Scalar const& color_edge)
+void toes::image::FillRadial(cv::Mat& mat, cv::Point center, int radius, cv::Scalar const& color_center, cv::Scalar const& color_edge)
 {
 	if (mat.empty()) return;
 
@@ -66,7 +66,7 @@ void GradientFillerNamespace::FillRadial(cv::Mat& mat, cv::Point center, int rad
 
 void FillBilinearAVX2(cv::Mat& mat, cv::Scalar color_tl, cv::Scalar color_tr, cv::Scalar color_bl, cv::Scalar color_br);
 
-void GradientFillerNamespace::FillBilinear(cv::Mat& mat, cv::Scalar color_tl, cv::Scalar color_tr, cv::Scalar color_bl, cv::Scalar color_br)
+void toes::image::FillBilinear(cv::Mat& mat, cv::Scalar color_tl, cv::Scalar color_tr, cv::Scalar color_bl, cv::Scalar color_br)
 {
 	if (mat.empty()) return;
 
@@ -92,7 +92,7 @@ void GradientFillerNamespace::FillBilinear(cv::Mat& mat, cv::Scalar color_tl, cv
 	}
 }
 
-void GradientFillerNamespace::DrawFilledRoundRect(cv::Mat& img, const cv::Point& topLeft, const cv::Size& rectSize, int cornerRadius, const cv::Scalar& color)
+void toes::image::DrawFilledRoundRect(cv::Mat& img, const cv::Point& topLeft, const cv::Size& rectSize, int cornerRadius, const cv::Scalar& color)
 {
 	// 绘制矩形(不包括圆角)
 	cv::rectangle(img,
@@ -236,7 +236,7 @@ void FillBilinearAVX2(cv::Mat& mat, cv::Scalar color_tl, cv::Scalar color_tr, cv
 #include <chrono>
 #include <iostream>
 
-int GradientFillerNamespace::gradient_filler_test_main()
+int toes::image::gradient_filler_test_main()
 {
 	cv::Mat mat(840, 840, CV_8UC3);
 
@@ -245,19 +245,19 @@ int GradientFillerNamespace::gradient_filler_test_main()
 	TimeUnit min = TimeUnit::max(), max = TimeUnit::min(), sum = TimeUnit(0);
 	for (int i = 0; i < 1000; i++) {
 		auto start = system_clock::now();
-		GradientFiller::FillBilinear(mat,
-			PixelData::PantoneColors::YearColor_2025_MochaMousse,
-			PixelData::PantoneColors::YearColor_2024_PeachFuzz,
-			PixelData::PantoneColors::YearColor_2023_VivaMagenta,
-			PixelData::PantoneColors::YearColor_2022_VeryPeri
+		FillBilinear(mat,
+			colors::PantoneColors::YearColor_2025_MochaMousse,
+			colors::PantoneColors::YearColor_2024_PeachFuzz,
+			colors::PantoneColors::YearColor_2023_VivaMagenta,
+			colors::PantoneColors::YearColor_2022_VeryPeri
 		);
 		auto used = duration_cast<TimeUnit>(system_clock::now() - start);
-		Diagnostics::Trace::TraceInfo(std::format("used {} ms", used));
+		diagnostics::Trace::TraceInfo(std::format("used {} ms", used));
 		if (min > used) { min = used; }
 		if (max < used) { max = used; }
 		sum += used;
 	}
-	Diagnostics::Trace::TraceInfo(
+	diagnostics::Trace::TraceInfo(
 		std::format("min {}us, max {}us, average {}ms",
 			min.count(), max.count(), sum.count() / 1000.0 / 1000));
 

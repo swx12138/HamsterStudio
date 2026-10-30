@@ -4,7 +4,7 @@
 #include <functional>
 #include <numeric>
 
-namespace HamsterStudioToes::Math
+namespace toes::Math
 {
     template <typename _Ty>
     _Ty Sum(std::vector<_Ty> const& arr)

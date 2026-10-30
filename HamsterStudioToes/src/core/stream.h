@@ -2,7 +2,7 @@
 
 #include <istream>
 
-namespace HamsterStudioToes::Tools {
+namespace toes::tools {
 
 	class  StreamReader {
 		std::istream& stream_;

@@ -2,7 +2,7 @@
 
 #include <chrono>
 
-namespace HamsterStudioToes
+namespace toes
 {
 	class StopWatch {
 		using Clock = std::chrono::steady_clock;

@@ -41,7 +41,7 @@ namespace detail
 
 }
 
-std::string HamsterStudioToes::Base64::Encode(std::vector<uint8_t> const& bytes)
+std::string toes::base64::Encode(std::vector<uint8_t> const& bytes)
 {
     using namespace detail;
     std::vector<char> _Ans;
@@ -86,7 +86,7 @@ std::string HamsterStudioToes::Base64::Encode(std::vector<uint8_t> const& bytes)
 
 #include "core/diagnostics.h"
 
-std::vector<uint8_t> HamsterStudioToes::Base64::Decode(std::string const& base64)
+std::vector<uint8_t> toes::base64::Decode(std::string const& base64)
 {
     using namespace detail;
     std::vector<uint8_t> _Ans;

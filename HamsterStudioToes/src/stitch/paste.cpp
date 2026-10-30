@@ -7,8 +7,8 @@
 #include <hamster/toes/gradient.h>
 #include "imaging/popular_colors.hpp"
 
-using namespace GradientFillerNamespace;
-using namespace PantoneColorsNamespace;
+using namespace toes::image;
+using namespace toes::colors;
 
 // 通道对齐：把 image 转成与目标相同的通道数。
 // 关键点是「必须在创建 ROI 之前」完成转换——直接对 ROI 调 cvtColor，目标类型
@@ -110,7 +110,7 @@ static void PasteImageNone(cv::Mat& canvas, const cv::Mat& image)
 	PasteCroppedCentered(canvas, image);
 }
 
-void PASTE_IMAGE_UTILS_NAMESPACE::ImagePaster::Paste(void* pCanvasMat, void const* pMat, StretchMode stretchMode)
+void toes::image::ImagePaster::Paste(void* pCanvasMat, void const* pMat, StretchMode stretchMode)
 {
 	auto& canvas = *reinterpret_cast<cv::Mat*>(pCanvasMat);
 	if (canvas.empty()) {

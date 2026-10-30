@@ -3,9 +3,7 @@
 #include <memory>
 #include <string_view>
 
-#define ScreenshotNamespace HamsterStudioToes
-
-namespace ScreenshotNamespace
+namespace toes::imaging
 {
     class Screenshot
     {

@@ -2,7 +2,7 @@
 
 #include <hamster/toes/layout.h>
 
-using namespace ImageUtilsNamespace;
+using namespace toes::image;
 
 #include <cmath>
 

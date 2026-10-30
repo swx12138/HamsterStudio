@@ -3,7 +3,7 @@
 #include <stack>
 #include <stdexcept>
 
-int HamsterStudioToes::Math::Common::gcd(int a, int b)
+int toes::Math::Common::gcd(int a, int b)
 {
     int g = b;
     while (b > 0) {
@@ -14,16 +14,16 @@ int HamsterStudioToes::Math::Common::gcd(int a, int b)
     return g;
 }
 
-HamsterStudioToes::Math::ScaleConversion::ScaleConversion(int scale)
+toes::Math::ScaleConversion::ScaleConversion(int scale)
     : m_scale(scale)
 {
 }
 
-HamsterStudioToes::Math::ScaleConversion::~ScaleConversion()
+toes::Math::ScaleConversion::~ScaleConversion()
 {
 }
 
-std::string HamsterStudioToes::Math::ScaleConversion::operator()(int v) const
+std::string toes::Math::ScaleConversion::operator()(int v) const
 {
     // m_scale == 0 会在取模时除零；m_scale == 1 会让下面的缩放循环永不收敛
     if (m_scale < 2) {
@@ -47,12 +47,12 @@ std::string HamsterStudioToes::Math::ScaleConversion::operator()(int v) const
     return str;
 }
 
-HamsterStudioToes::Math::IntegralResolver::IntegralResolver(uint8_t level)
+toes::Math::IntegralResolver::IntegralResolver(uint8_t level)
 {
     _level = level;
 }
 
-double HamsterStudioToes::Math::IntegralResolver::s(std::function<double(double)>&& func, double start, double end) const
+double toes::Math::IntegralResolver::s(std::function<double(double)>&& func, double start, double end) const
 {
 
     if (end <= start) {

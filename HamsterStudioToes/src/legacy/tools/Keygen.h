@@ -2,7 +2,7 @@
 
 #include <string>
 
-namespace HamsterStudioToes
+namespace toes
 {
 	constexpr std::string_view NoramlTempl{ "0123456789AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz_" };
 	constexpr std::string_view NoramlTempl2{ "0123456789AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz_!@#$%^&*+-" };

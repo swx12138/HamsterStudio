@@ -33,7 +33,7 @@ constexpr unsigned int MD5_Shift[] = {
 #include <sstream>
 #include <iomanip>
 
-void HamsterStudioToes::Hash::MD5::reset()
+void toes::hash::MD5::reset()
 {
 	m_dataLen = 0;
 	m_bitLen = 0;
@@ -43,7 +43,7 @@ void HamsterStudioToes::Hash::MD5::reset()
 	m_finalized = false;
 }
 
-void HamsterStudioToes::Hash::MD5::update(const uint8_t* data, size_t length)
+void toes::hash::MD5::update(const uint8_t* data, size_t length)
 {
 	if (m_finalized) return;
 	for (size_t i = 0; i < length; ++i) {
@@ -56,7 +56,7 @@ void HamsterStudioToes::Hash::MD5::update(const uint8_t* data, size_t length)
 	}
 }
 
-void HamsterStudioToes::Hash::MD5::update(const std::string& str)
+void toes::hash::MD5::update(const std::string& str)
 {
 	update(reinterpret_cast<const uint8_t*>(str.data()), str.size());
 }
@@ -66,7 +66,7 @@ static inline uint32_t rotl(uint32_t x, uint32_t n)
 	return (x << n) | (x >> (32 - n));
 }
 
-std::string HamsterStudioToes::Hash::MD5::final()
+std::string toes::hash::MD5::final()
 {
 	if (!m_finalized) {
 		uint64_t totalBits = m_bitLen + static_cast<uint64_t>(m_dataLen) * 8;
@@ -121,7 +121,7 @@ static inline uint32_t I(uint32_t x, uint32_t y, uint32_t z)
 	return y ^ (x | ~z);
 }
 
-void HamsterStudioToes::Hash::MD5::transform(const uint8_t block[64])
+void toes::hash::MD5::transform(const uint8_t block[64])
 {
 	// MD5 消息字为小端序
 	uint32_t M[16];
@@ -172,10 +172,10 @@ void HamsterStudioToes::Hash::MD5::transform(const uint8_t block[64])
 
 #include <iostream>
 
-int HamsterStudioToes::Hash::md5_test_main()
+int toes::hash::md5_test_main()
 {
 	auto test_str = "hello,world";
-	HamsterStudioToes::Hash::MD5 md5;
+	toes::hash::MD5 md5;
 	md5.update(test_str);
 	std::cout << md5.final() << std::endl;
 	return 0;

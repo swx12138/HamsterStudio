@@ -1,6 +1,6 @@
 #include "Sort.h"
 
-bool HamsterStudioToes::Sort::IsIncreasing(int* arr, int len)
+bool toes::Sort::IsIncreasing(int* arr, int len)
 {
     if (len < 2)
         return true;
@@ -12,7 +12,7 @@ bool HamsterStudioToes::Sort::IsIncreasing(int* arr, int len)
     return true;
 }
 
-void HamsterStudioToes::Sort::Buble(int* arr, int len)
+void toes::Sort::Buble(int* arr, int len)
 {
     bool swapped = false;
     for (int i = 0; i < len; i++)

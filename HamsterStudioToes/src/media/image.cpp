@@ -13,25 +13,25 @@
 #endif // _DEBUG
 
 #include "core/diagnostics.h"
-using namespace HamsterStudioToes;
+using namespace toes;
 
 #include <fstream>
 
 cv::Mat loadMatFromStream(std::istream& is, int flags = cv::IMREAD_COLOR);
 
-struct ImageNamespace::Image::Impl
+struct toes::image::Image::Impl
 {
 	cv::Mat mat;
 };
 
 // 默认构造
-ImageNamespace::Image::Image()
+toes::image::Image::Image()
 {
 	pImpl = std::make_shared<Impl>();
 }
 
 // 从文件读取
-ImageNamespace::Image::Image(fs::path const& path, int opencvReadFlag)
+toes::image::Image::Image(fs::path const& path, int opencvReadFlag)
 	:Image()
 {
 	//pImpl->mat = LoadImageCV(path);
@@ -40,28 +40,28 @@ ImageNamespace::Image::Image(fs::path const& path, int opencvReadFlag)
 }
 
 // 从流读取
-ImageNamespace::Image::Image(std::istream &is, int opencvReadFlag)
+toes::image::Image::Image(std::istream &is, int opencvReadFlag)
 	:Image()
 {
 	pImpl->mat = loadMatFromStream(is, opencvReadFlag);
 }
 
 // 复制构造函数
-ImageNamespace::Image::Image(Image const &image)
+toes::image::Image::Image(Image const &image)
 	:Image()
 {
 	pImpl->mat = image.pImpl->mat.clone();
 }
 
 // 移动构造函数
-ImageNamespace::Image::Image(Image &&image) noexcept
+toes::image::Image::Image(Image &&image) noexcept
 {
 	pImpl = image.pImpl;
 	image.pImpl = nullptr;
 }
 
 // 复制赋值
-ImageNamespace::Image& ImageNamespace::Image::operator=(Image const &image)
+toes::image::Image& toes::image::Image::operator=(Image const &image)
 {
 	if (this != &image) {
 		if (!pImpl) {
@@ -73,7 +73,7 @@ ImageNamespace::Image& ImageNamespace::Image::operator=(Image const &image)
 }
 
 // 移动赋值
-ImageNamespace::Image& ImageNamespace::Image::operator=(Image &&image) noexcept
+toes::image::Image& toes::image::Image::operator=(Image &&image) noexcept
 {
 	if (this != &image) {  // 防止自赋值
 		pImpl = std::move(image.pImpl);  // 或者 pImpl.swap(image.pImpl)
@@ -82,7 +82,7 @@ ImageNamespace::Image& ImageNamespace::Image::operator=(Image &&image) noexcept
 	return *this;
 }
 
-ImageNamespace::Image ImageNamespace::Image::operator()(Shapes::Rectangle const& rect) const
+toes::image::Image toes::image::Image::operator()(shapes::Rectangle const& rect) const
 {
 	cv::Rect rc(rect.left, rect.top, rect.width, rect.height);
 	Image roi;
@@ -90,7 +90,7 @@ ImageNamespace::Image ImageNamespace::Image::operator()(Shapes::Rectangle const&
 	return roi;
 }
 
-bool ImageNamespace::Image::Valid() const
+bool toes::image::Image::Valid() const
 {
 	if (pImpl == nullptr) {
 		return false;
@@ -98,41 +98,41 @@ bool ImageNamespace::Image::Valid() const
 	return !pImpl->mat.empty();
 }
 
-void* ImageNamespace::Image::NativeMatPointer() const
+void* toes::image::Image::NativeMatPointer() const
 {
 	return &pImpl->mat;
 }
 
-ImageNamespace::Image ImageNamespace::Image::FromNativeMatPointer(void* pointer)
+toes::image::Image toes::image::Image::FromNativeMatPointer(void* pointer)
 {
 	Image img;
 	img.pImpl->mat = *reinterpret_cast<cv::Mat*>(pointer);
 	return img;
 }
 
-ImageNamespace::Image ImageNamespace::Image::FromByteArray(std::vector<uint8_t> const& data, int flags)
+toes::image::Image toes::image::Image::FromByteArray(std::vector<uint8_t> const& data, int flags)
 {
 	Image img;
 	img.pImpl->mat = cv::imdecode(data, flags);
 	return img;
 }
 
-ImageNamespace::Image ImageNamespace::Image::FromByteArray(uint8_t* data, size_t dataLen, int flags)
+toes::image::Image toes::image::Image::FromByteArray(uint8_t* data, size_t dataLen, int flags)
 {
 	return FromByteArray(std::vector<uint8_t>(data, data + dataLen), flags);
 }
 
-int ImageNamespace::Image::Width() const
+int toes::image::Image::Width() const
 {
 	return pImpl->mat.cols;
 }
 
-int ImageNamespace::Image::Height() const
+int toes::image::Image::Height() const
 {
 	return pImpl->mat.rows;
 }
 
-ImageNamespace::ImageShape ImageNamespace::Image::GetShape() const
+toes::image::ImageShape toes::image::Image::GetShape() const
 {
 	int width = pImpl->mat.cols;
 	int height = pImpl->mat.rows;
@@ -140,7 +140,7 @@ ImageNamespace::ImageShape ImageNamespace::Image::GetShape() const
 	return { width, height, channels };
 }
 
-void ImageNamespace::Image::ImShow(int width) const
+void toes::image::Image::ImShow(int width) const
 {
 	cv::Mat resized;
 	cv::resize(pImpl->mat, resized, cv::Size(width, width * pImpl->mat.rows / pImpl->mat.cols));
@@ -148,12 +148,12 @@ void ImageNamespace::Image::ImShow(int width) const
 	cv::waitKey();
 }
 
-void ImageNamespace::Image::Save(fs::path const& filename, int quality) const
+void toes::image::Image::Save(fs::path const& filename, int quality) const
 {
 	cv::imwrite(filename.generic_string(), pImpl->mat, { cv::IMWRITE_JPEG_QUALITY,quality });
 }
 
-void ImageNamespace::Image::AdaptiveResize(int shortSide) const
+void toes::image::Image::AdaptiveResize(int shortSide) const
 {
 	if (Width() <= shortSide || Height() <= shortSide) {
 		return;
@@ -179,7 +179,7 @@ void ImageNamespace::Image::AdaptiveResize(int shortSide) const
 #endif // _CUDA_OPENCV
 }
 
-void ImageNamespace::Image::CheckCuda()
+void toes::image::Image::CheckCuda()
 {
 	std::ostringstream oss;
 	oss << "OpenCV Version: " << CV_VERSION << std::endl;
@@ -199,7 +199,7 @@ void ImageNamespace::Image::CheckCuda()
 	else {
 		oss << "No CUDA devices found or CUDA support not compiled correctly." << std::endl;
 	}
-	Diagnostics::Trace::TraceInfo(oss.str());
+	diagnostics::Trace::TraceInfo(oss.str());
 }
 
 /**

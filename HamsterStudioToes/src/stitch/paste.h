@@ -1,8 +1,6 @@
 #pragma once
 
-#define PASTE_IMAGE_UTILS_NAMESPACE toes::image
-
-namespace PASTE_IMAGE_UTILS_NAMESPACE {
+namespace toes::image {
 
 	enum class StretchMode { None, Fill, Uniform, UniformToFill };
 

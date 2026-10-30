@@ -2,7 +2,7 @@
 
 #include <string>
 
-namespace HamsterStudioToes
+namespace toes
 {
     class ImageSlider
     {

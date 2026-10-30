@@ -4,7 +4,7 @@
 #include <cctype>
 #include <vector>
 
-namespace HamsterStudioToes::Base64
+namespace toes::base64
 {
     std::string Encode(std::vector<uint8_t> const& bytes);
 

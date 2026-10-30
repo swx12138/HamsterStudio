@@ -4,7 +4,7 @@
 
 #include <string>
 
-#define ImageEditorNamespace HamsterStudioToes::ImageEditor
+#define ImageEditorNamespace toes::legacy::ImageEditor
 
 namespace ImageEditorNamespace
 {

@@ -11,25 +11,19 @@
 #include <opencv2/imgproc.hpp>
 #include <opencv2/core/hal/intrin.hpp>  // SIMD内部函数
 
-#ifdef _DEBUG
-#pragma comment(lib, "opencv_world4120d.lib")
-#else
-#pragma comment(lib, "opencv_world4120.lib")
-#endif // _DEBUG
-
 namespace {
 	// 8 位通道的取值范围，LUT 与直方图都用它
 	constexpr int kLevels = 256;
 }
 
-ImageProcessorNamespace::ImageProcessor::ImageProcessor() noexcept {
+toes::imaging::ImageProcessor::ImageProcessor() noexcept {
 	// 这里原本调用 cv::setNumThreads(0)，而 0 在 OpenCV 里表示「关闭并行」，
 	// 与本类声称的并行处理正好相反。不调用才是「交给 OpenCV 自己管理线程」。
 }
 
-ImageProcessorNamespace::ImageProcessor::~ImageProcessor() noexcept = default;
+toes::imaging::ImageProcessor::~ImageProcessor() noexcept = default;
 
-bool ImageProcessorNamespace::ImageProcessor::SplitToBGR(const cv::Mat &src, cv::Mat &bgr, cv::Mat &alpha)
+bool toes::imaging::ImageProcessor::SplitToBGR(const cv::Mat &src, cv::Mat &bgr, cv::Mat &alpha)
 {
 	if (src.empty() || src.depth() != CV_8U) {
 		return false;
@@ -52,7 +46,7 @@ bool ImageProcessorNamespace::ImageProcessor::SplitToBGR(const cv::Mat &src, cv:
 	return true;
 }
 
-void ImageProcessorNamespace::ImageProcessor::MergeFromBGR(cv::Mat &dst, const cv::Mat &bgr, const cv::Mat &alpha)
+void toes::imaging::ImageProcessor::MergeFromBGR(cv::Mat &dst, const cv::Mat &bgr, const cv::Mat &alpha)
 {
 	cv::Mat merged;
 	if (alpha.empty()) {
@@ -72,7 +66,7 @@ void ImageProcessorNamespace::ImageProcessor::MergeFromBGR(cv::Mat &dst, const c
 	}
 }
 
-void ImageProcessorNamespace::ImageProcessor::processBGR(cv::Mat &bgr, const ImageAdjustments &adj) const
+void toes::imaging::ImageProcessor::processBGR(cv::Mat &bgr, const ImageAdjustments &adj) const
 {
 	// 1. 曝光调整
 	if (adj.exposure != 0.0) {
@@ -120,7 +114,7 @@ void ImageProcessorNamespace::ImageProcessor::processBGR(cv::Mat &bgr, const Ima
 	}
 }
 
-void ImageProcessorNamespace::ImageProcessor::processTileRow(cv::Mat &bgr, const ImageAdjustments &adj, int y, int tileSize) const
+void toes::imaging::ImageProcessor::processTileRow(cv::Mat &bgr, const ImageAdjustments &adj, int y, int tileSize) const
 {
 	int const rows = bgr.rows;
 	int const cols = bgr.cols;
@@ -132,7 +126,7 @@ void ImageProcessorNamespace::ImageProcessor::processTileRow(cv::Mat &bgr, const
 	}
 }
 
-bool ImageProcessorNamespace::ImageProcessor::processImage(ImageData &image, const ImageAdjustments &adjustments) {
+bool toes::imaging::ImageProcessor::processImage(ImageData &image, const ImageAdjustments &adjustments) {
 	if (!image.isValid()) return false;
 
 	auto const startTime = std::chrono::high_resolution_clock::now();
@@ -150,7 +144,7 @@ bool ImageProcessorNamespace::ImageProcessor::processImage(ImageData &image, con
 	return true;
 }
 
-bool ImageProcessorNamespace::ImageProcessor::processImageMT(ImageData &image, const ImageAdjustments &adjustments, int threadCount) {
+bool toes::imaging::ImageProcessor::processImageMT(ImageData &image, const ImageAdjustments &adjustments, int threadCount) {
 	if (!image.isValid()) return false;
 
 	auto const startTime = std::chrono::high_resolution_clock::now();
@@ -189,14 +183,14 @@ bool ImageProcessorNamespace::ImageProcessor::processImageMT(ImageData &image, c
 	return true;
 }
 
-void ImageProcessorNamespace::ImageProcessor::updateStats(const cv::Mat &mat, double elapsedMs)
+void toes::imaging::ImageProcessor::updateStats(const cv::Mat &mat, double elapsedMs)
 {
 	stats_.processingTimeMs = elapsedMs;
 	stats_.pixelsProcessed = static_cast<int64_t>(mat.total());
 	stats_.pixelsPerSecond = stats_.pixelsProcessed / std::max(elapsedMs / 1000.0, 1e-9);
 }
 
-void ImageProcessorNamespace::ImageProcessor::applyExposure(cv::Mat &bgr, double exposure) const {
+void toes::imaging::ImageProcessor::applyExposure(cv::Mat &bgr, double exposure) const {
 	double const factor = std::pow(2.0, exposure);
 
 	// LUT 每次按当前曝光值重建。原来把它缓存成成员，第二次换曝光值仍沿用第一次的表。
@@ -212,7 +206,7 @@ void ImageProcessorNamespace::ImageProcessor::applyExposure(cv::Mat &bgr, double
 	out.copyTo(bgr);
 }
 
-void ImageProcessorNamespace::ImageProcessor::applyTemperatureTint(cv::Mat &bgr, double temperature, double tint) const {
+void toes::imaging::ImageProcessor::applyTemperatureTint(cv::Mat &bgr, double temperature, double tint) const {
 	// 色温：加红、减蓝；色调：加红、减绿（BGR 顺序为 0=B 1=G 2=R）
 	double const deltaBlue = -temperature * 0.5;
 	double const deltaGreen = -tint * 0.5;
@@ -223,7 +217,7 @@ void ImageProcessorNamespace::ImageProcessor::applyTemperatureTint(cv::Mat &bgr,
 	out.copyTo(bgr);
 }
 
-void ImageProcessorNamespace::ImageProcessor::applyToneAdjustments(cv::Mat &bgr, const ImageAdjustments &adj) const {
+void toes::imaging::ImageProcessor::applyToneAdjustments(cv::Mat &bgr, const ImageAdjustments &adj) const {
 	// 转到 Lab 空间，只动 L 通道
 	cv::Mat lab;
 	cv::cvtColor(bgr, lab, cv::COLOR_BGR2Lab);
@@ -266,13 +260,13 @@ void ImageProcessorNamespace::ImageProcessor::applyToneAdjustments(cv::Mat &bgr,
 	out.copyTo(bgr);
 }
 
-ImageProcessorNamespace::HistogramData ImageProcessorNamespace::ImageProcessor::calculateHistogram(const ImageData &image) {
+toes::imaging::HistogramData toes::imaging::ImageProcessor::calculateHistogram(const ImageData &image) {
 	if (!image.isValid()) return HistogramData();
 
 	return calculateHistogramOptimized(image.mat);
 }
 
-ImageProcessorNamespace::HistogramData ImageProcessorNamespace::ImageProcessor::calculateHistogramOptimized(const cv::Mat &image) {
+toes::imaging::HistogramData toes::imaging::ImageProcessor::calculateHistogramOptimized(const cv::Mat &image) {
 	HistogramData hist;
 
 	if (image.empty() || image.depth() != CV_8U) return hist;
@@ -306,6 +300,6 @@ ImageProcessorNamespace::HistogramData ImageProcessorNamespace::ImageProcessor::
 }
 
 // 工厂函数
-std::unique_ptr<ImageProcessorNamespace::ImageProcessor> ImageProcessorNamespace::CreateImageProcessor() {
-	return std::make_unique<ImageProcessorNamespace::ImageProcessor>();
+std::unique_ptr<toes::imaging::ImageProcessor> toes::imaging::CreateImageProcessor() {
+	return std::make_unique<toes::imaging::ImageProcessor>();
 }

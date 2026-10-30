@@ -1,6 +1,6 @@
 #include "imaging/screenshot.h"
 
-#include "win32/os.h"
+#include "platform/os.h"
 
 #include <opencv2/opencv.hpp>
 #include <vector>
@@ -12,7 +12,7 @@
 // 只负责捕获屏幕像素，不管理 GDI 泄漏
 cv::Mat getScreenshot()
 {
-    double zoom = Win32Namespace::GetWindowsZoom();
+    double zoom = toes::win32::GetWindowsZoom();
     int width  = static_cast<int>(GetSystemMetrics(SM_CXSCREEN) * zoom);
     int height = static_cast<int>(GetSystemMetrics(SM_CYSCREEN) * zoom);
 
@@ -75,13 +75,13 @@ cv::Mat getScreenshot()
 }
 
 // ---------- Impl 实现 ----------
-struct ScreenshotNamespace::Screenshot::Impl
+struct toes::imaging::Screenshot::Impl
 {
     cv::Mat m_data;
 };
 
 // ---------- Screenshot 成员函数 ----------
-ScreenshotNamespace::Screenshot::Screenshot()
+toes::imaging::Screenshot::Screenshot()
 {
     auto scr = getScreenshot();
     if (scr.empty()) {
@@ -101,7 +101,7 @@ ScreenshotNamespace::Screenshot::Screenshot()
     pImpl->m_data = scr(cv::Rect(pt.x, pt.y, rc.right, rc.bottom)).clone();
 }
 
-ScreenshotNamespace::Screenshot::Screenshot(int x, int y, int width, int height)
+toes::imaging::Screenshot::Screenshot(int x, int y, int width, int height)
 {
     auto scr = getScreenshot();
     pImpl = std::make_unique<Impl>();
@@ -110,9 +110,9 @@ ScreenshotNamespace::Screenshot::Screenshot(int x, int y, int width, int height)
     }
 }
 
-ScreenshotNamespace::Screenshot::~Screenshot() = default; // 必须在此定义，让 unique_ptr 看到 Impl 的完整定义
+toes::imaging::Screenshot::~Screenshot() = default; // 必须在此定义，让 unique_ptr 看到 Impl 的完整定义
 
-void ScreenshotNamespace::Screenshot::saveAs(std::string_view filename)
+void toes::imaging::Screenshot::saveAs(std::string_view filename)
 {
     if (!pImpl->m_data.empty()) {
         cv::imwrite(filename.data(), pImpl->m_data);

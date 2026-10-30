@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|x64">
@@ -63,6 +63,7 @@
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>D:\Develop\01_CMakeInstall\x64\vc17\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>$(OpenCVLibName);%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -84,6 +85,7 @@
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>D:\Develop\01_CMakeInstall\x64\vc17\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>$(OpenCVLibName);%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <!--
@@ -99,7 +101,7 @@
     <ClCompile Include="..\src\imaging\**\*.cpp" />
     <ClCompile Include="..\src\stitch\**\*.cpp" />
     <ClCompile Include="..\src\color\**\*.cpp" />
-    <ClCompile Include="..\src\win32\**\*.cpp" />
+    <ClCompile Include="..\src\platform\**\*.cpp" />
     <ClCompile Include="..\src\legacy\algorithm\Math.cpp" />
     <ClCompile Include="..\src\legacy\algorithm\Sort.cpp" />
     <ClCompile Include="..\src\legacy\media\Wave.cpp" />

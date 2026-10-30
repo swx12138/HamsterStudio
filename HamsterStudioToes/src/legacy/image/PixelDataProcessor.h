@@ -4,7 +4,7 @@
 
 #include <memory>
 
-#define PixelDataProcessorNamespace HamsterStudioToes::PixelData::Processors
+#define PixelDataProcessorNamespace toes::colors::Processors
 
 namespace PixelDataProcessorNamespace {
 

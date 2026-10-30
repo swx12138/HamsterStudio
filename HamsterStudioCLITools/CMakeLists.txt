@@ -58,7 +58,7 @@ file(GLOB_RECURSE HAMSTER_TOES_SOURCES CONFIGURE_DEPENDS
     ${HAMSTER_TOES_DIR}/src/imaging/*.cpp
     ${HAMSTER_TOES_DIR}/src/stitch/*.cpp
     ${HAMSTER_TOES_DIR}/src/color/*.cpp
-    ${HAMSTER_TOES_DIR}/src/win32/*.cpp
+    ${HAMSTER_TOES_DIR}/src/platform/*.cpp
 )
 
 # 鏀堕泦鎵€鏈夊ご鏂囦欢璺緞

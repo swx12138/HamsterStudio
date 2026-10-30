@@ -6,7 +6,7 @@
 #include <sstream>
 #include <stdexcept>
 
-std::string HamsterStudioToes::StringUtils::Huawei::utf8_to_string(std::string const& str)
+std::string toes::strings::Huawei::utf8_to_string(std::string const& str)
 {
 	auto nwLen = ::MultiByteToWideChar(CP_UTF8, 0, str.c_str(), -1, NULL, 0);
 
@@ -33,7 +33,7 @@ std::string HamsterStudioToes::StringUtils::Huawei::utf8_to_string(std::string c
 	return retStr;
 }
 
-std::string HamsterStudioToes::StringUtils::Huawei::string_to_utf8(std::string const& str)
+std::string toes::strings::Huawei::string_to_utf8(std::string const& str)
 {
 	long long nwLen = ::MultiByteToWideChar(CP_ACP, 0, str.c_str(), -1, NULL, 0);
 
@@ -60,7 +60,7 @@ std::string HamsterStudioToes::StringUtils::Huawei::string_to_utf8(std::string c
 	return retStr;
 }
 
-std::string HamsterStudioToes::StringUtils::to_string(std::wstring const& wstr)
+std::string toes::strings::to_string(std::wstring const& wstr)
 {
 	std::string result;
 	int len = ::WideCharToMultiByte(CP_ACP, 0, wstr.c_str(), static_cast<int>(wstr.size()), NULL, 0, NULL, NULL);
@@ -75,7 +75,7 @@ std::string HamsterStudioToes::StringUtils::to_string(std::wstring const& wstr)
 	return result;
 }
 
-std::wstring HamsterStudioToes::StringUtils::to_wstring(std::string const& str)
+std::wstring toes::strings::to_wstring(std::string const& str)
 {
 	std::wstring result;
 	int len = ::MultiByteToWideChar(CP_ACP, 0, str.c_str(), static_cast<int>(str.size()), NULL, 0);
@@ -90,7 +90,7 @@ std::wstring HamsterStudioToes::StringUtils::to_wstring(std::string const& str)
 	return result;
 }
 
-std::string HamsterStudioToes::StringUtils::to_lower(std::string const &str)
+std::string toes::strings::to_lower(std::string const &str)
 {
 	std::string result(str);
 	// std::tolower 的实参必须是 unsigned char 提升后的值，否则高位字节是未定义行为
@@ -106,7 +106,7 @@ constexpr size_t Size_1T = 1024 * Size_1G;
 
 #include <format>
 
-std::string HamsterStudioToes::StringUtils::UnitedSize(size_t value)
+std::string toes::strings::UnitedSize(size_t value)
 {
 	if (value >= Size_1T) {
 		return std::format("{:.3f}TB", 1.0 * value / Size_1T);
@@ -120,7 +120,7 @@ std::string HamsterStudioToes::StringUtils::UnitedSize(size_t value)
 	return std::format("{:.3f}KB", 1.0 * value / Size_1K);
 }
 
-std::string HamsterStudioToes::StringUtils::Join(std::vector<std::string_view> const& vec, std::string delim)
+std::string toes::strings::Join(std::vector<std::string_view> const& vec, std::string delim)
 {
 	// 原实现对空容器解引用 begin()，是未定义行为
 	std::string result;
@@ -133,7 +133,7 @@ std::string HamsterStudioToes::StringUtils::Join(std::vector<std::string_view> c
 	return result;
 }
 
-std::vector<std::string> HamsterStudioToes::StringUtils::Split(std::string const& str, std::string delim)
+std::vector<std::string> toes::strings::Split(std::string const& str, std::string delim)
 {
 	std::vector<std::string> _Ans;
 	if (delim.empty()) {
@@ -154,7 +154,7 @@ std::vector<std::string> HamsterStudioToes::StringUtils::Split(std::string const
 	}
 }
 
-std::vector<std::string> HamsterStudioToes::StringUtils::SplitV2(std::string const& str, char const delim)
+std::vector<std::string> toes::strings::SplitV2(std::string const& str, char const delim)
 {
 	std::vector<std::string> ret;
 	std::stringstream ss(str);
@@ -166,7 +166,7 @@ std::vector<std::string> HamsterStudioToes::StringUtils::SplitV2(std::string con
 	return ret;
 }
 
-std::string HamsterStudioToes::StringUtils::Replace(std::string src, std::string const& which, std::string const& toWhat)
+std::string toes::strings::Replace(std::string src, std::string const& which, std::string const& toWhat)
 {
 	// 空 needle 会让 find 永远命中位置 0，原实现因此死循环
 	if (which.empty()) {
@@ -181,7 +181,7 @@ std::string HamsterStudioToes::StringUtils::Replace(std::string src, std::string
 	return src;
 }
 
-HamsterStudioToes::StringUtils::ByteArray HamsterStudioToes::StringUtils::operator""_ba(const char* szData, const size_t len)
+toes::strings::ByteArray toes::strings::operator""_ba(const char* szData, const size_t len)
 {
 	ByteArray _Ans;
 	for (int i = 0u; i < len; i++)
@@ -191,12 +191,12 @@ HamsterStudioToes::StringUtils::ByteArray HamsterStudioToes::StringUtils::operat
 	return _Ans;
 }
 
-HamsterStudioToes::StringUtils::ByteArray HamsterStudioToes::StringUtils::GetBytes(std::string const& str)
+toes::strings::ByteArray toes::strings::GetBytes(std::string const& str)
 {
 	return ByteArray(str.cbegin(), str.cend());
 }
 
-std::string HamsterStudioToes::StringUtils::Hex(ByteArray const& byts, bool upper)
+std::string toes::strings::Hex(ByteArray const& byts, bool upper)
 {
 	// 原实现用 "%2X"，十六进制宽度 2 会以空格填充，0x0A 会被写成 " a"
 	char const* const digits = upper ? "0123456789ABCDEF" : "0123456789abcdef";
@@ -210,7 +210,7 @@ std::string HamsterStudioToes::StringUtils::Hex(ByteArray const& byts, bool uppe
 	return _Ans;
 }
 
-HamsterStudioToes::StringUtils::ByteArray HamsterStudioToes::StringUtils::Dehex(std::string const& str)
+toes::strings::ByteArray toes::strings::Dehex(std::string const& str)
 {
 	auto const nibble = [](char ch) -> int {
 		if (ch >= '0' && ch <= '9') return ch - '0';
@@ -237,7 +237,7 @@ HamsterStudioToes::StringUtils::ByteArray HamsterStudioToes::StringUtils::Dehex(
 	return _Ans;
 }
 
-bool HamsterStudioToes::StringUtils::isValidNum(std::string const& str)
+bool toes::strings::isValidNum(std::string const& str)
 {
 	if (str.length() == 0) {
 		return false;

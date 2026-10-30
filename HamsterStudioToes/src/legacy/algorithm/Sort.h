@@ -1,6 +1,6 @@
 #pragma once
 
-namespace HamsterStudioToes
+namespace toes
 {
     template <typename _Ty>
     void Swap(_Ty &a, _Ty &b)
@@ -11,7 +11,7 @@ namespace HamsterStudioToes
     }
 }
 
-namespace HamsterStudioToes::Sort
+namespace toes::Sort
 {
     bool IsIncreasing(int* arr, int len);
 

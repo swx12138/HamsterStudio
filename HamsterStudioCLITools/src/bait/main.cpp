@@ -8,7 +8,7 @@
 #include <string>
 #include <string_view>
 
-using namespace HamsterStudioToes;
+using namespace toes;
 
 static void PrintUsage()
 {
@@ -107,7 +107,7 @@ int main(int argc, char** argv)
 
     // 加载图片
     std::cout << std::format("正在加载: {} ...\n", input_path.string());
-    ImageNamespace::Image img(input_path);
+    toes::image::Image img(input_path);
 
     if (!img.Valid())
     {

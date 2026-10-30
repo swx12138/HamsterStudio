@@ -32,16 +32,16 @@
 #include "core/diagnostics.h"
 #include "core/strings.h"
 #include "core/codec/base64.h"
-#include "win32/pe.h"
-#include "win32/os.h"
+#include "platform/pe.h"
+#include "platform/os.h"
 #include "legacy/nstd/string.h"
 
 // ImageStitcher.cpp 内部定义了按 cv::Mat 指针向量拼接的重载，但 ImageStitcher.h
 // 只声明了 void* 版本，外部无法直接调用。测试里显式声明一下；把它们正式暴露到
 // 头文件属于后续 API 清理，不在本次范围内。
 cv::Mat stitch(std::vector<cv::Mat const *> const &images, toes::image::StretchMode mode,
-               HamsterStudioToes::Image::ImageShape target,
-               HamsterStudioToes::ImageTools::ImageLayout const &layout, int borderThickness);
+               toes::image::ImageShape target,
+               toes::image::ImageLayout const &layout, int borderThickness);
 
 namespace
 {
@@ -89,7 +89,7 @@ namespace
         Section("Algorithm/Sort");
 
         int a[] = { 5, -3, 9, 5, 0, 12, -7 };
-        HamsterStudioToes::Sort::Buble(a, static_cast<int>(std::size(a)));
+        toes::Sort::Buble(a, static_cast<int>(std::size(a)));
 
         bool sorted = true;
         for (size_t i = 1; i < std::size(a); ++i) {
@@ -99,10 +99,10 @@ namespace
         Check(a[0] == -7 && a[std::size(a) - 1] == 12, "Buble: 首尾元素正确");
 
         int one[] = { 42 };
-        HamsterStudioToes::Sort::Buble(one, 1);
+        toes::Sort::Buble(one, 1);
         Check(one[0] == 42, "Buble: len=1 不越界");
 
-        HamsterStudioToes::Sort::Buble(nullptr, 0);
+        toes::Sort::Buble(nullptr, 0);
         Check(true, "Buble: len=0 不越界");
     }
 
@@ -110,31 +110,31 @@ namespace
     {
         Section("Algorithm/Search");
 
-        HamsterStudioToes::Search::BinarySearch bs;
+        toes::Search::BinarySearch bs;
         int a[] = { -7, -3, 0, 5, 5, 9, 12 };
         int const n = static_cast<int>(std::size(a));
 
         bool all = true;
         for (int i = 0; i < n; ++i) {
             auto const p = bs(a[i], a, n);
-            if (p == HamsterStudioToes::Search::NPos || a[p] != a[i]) all = false;
+            if (p == toes::Search::NPos || a[p] != a[i]) all = false;
         }
         Check(all, "BinarySearch: 每个元素都能命中");
 
         int two[] = { 1, 2 };
         Check(bs(2, two, 2) == 1, "BinarySearch: {1,2} 找 2 能返回（曾死循环）");
         Check(bs(1, two, 2) == 0, "BinarySearch: {1,2} 找 1 能返回");
-        Check(bs(100, two, 2) == HamsterStudioToes::Search::NPos, "BinarySearch: 缺失值返回 NPos");
+        Check(bs(100, two, 2) == toes::Search::NPos, "BinarySearch: 缺失值返回 NPos");
     }
 
     void TestScaleConversion()
     {
         Section("Algorithm/Math");
 
-        HamsterStudioToes::Math::ScaleConversion hex(16);
+        toes::Math::ScaleConversion hex(16);
         Check(!hex(255).empty(), "ScaleConversion(16): 非空");
-        Check(HamsterStudioToes::Math::ScaleConversion(1)(10).empty(), "ScaleConversion(1): 不死循环");
-        Check(HamsterStudioToes::Math::ScaleConversion(0)(10).empty(), "ScaleConversion(0): 不除零");
+        Check(toes::Math::ScaleConversion(1)(10).empty(), "ScaleConversion(1): 不死循环");
+        Check(toes::Math::ScaleConversion(0)(10).empty(), "ScaleConversion(0): 不除零");
     }
 
     // ---------------------------------------------------------------- WAV
@@ -171,7 +171,7 @@ namespace
         }
 
         {
-            HamsterStudioToes::Media::WaveFormat wave(path);
+            toes::Media::WaveFormat wave(path);
             Check(wave.GetBytePerSecond() == 8000, "Wave: 跳过 fact 块后读对 bytes_per_sec");
             Check(wave.Read16Bit() == 0x3412u, "Wave: 第一个 16 位字 = 0x3412（曾返回 1）");
             Check(wave.Read16Bit() == 0x7856u, "Wave: 第二个 16 位字 = 0x7856");
@@ -218,7 +218,7 @@ namespace
         bool threw = false;
         int code = 0;
         try {
-            HamsterStudioToes::Diagnostics::ThrowLastError();
+            toes::diagnostics::ThrowLastError();
         }
         catch (std::system_error const &ex) {
             threw = true;
@@ -230,7 +230,7 @@ namespace
         ::SetLastError(ERROR_NO_MORE_FILES);
         threw = false;
         try {
-            HamsterStudioToes::Diagnostics::ThrowLastError({ ERROR_NO_MORE_FILES });
+            toes::diagnostics::ThrowLastError({ ERROR_NO_MORE_FILES });
         }
         catch (...) {
             threw = true;
@@ -242,7 +242,7 @@ namespace
             std::vector<std::filesystem::path> links;
             threw = false;
             try {
-                HamsterStudioToes::Win32Utils::EnumHardLinkFiles(self, [&](std::filesystem::path const &p) {
+                toes::win32::EnumHardLinkFiles(self, [&](std::filesystem::path const &p) {
                     links.push_back(p);
                     return true;
                 });
@@ -267,7 +267,7 @@ namespace
             return;
         }
 
-        HamsterStudioToes::PortableExecutable pe(kKernel32);
+        toes::pe::PortableExecutable pe(kKernel32);
         Check(pe.GetTimeDateStamp() != 0, "PE: GetTimeDateStamp 非 0");
         Check(pe.GetFoa(0) == 0, "PE: 头部区域的 RVA 原样返回");
 
@@ -295,7 +295,7 @@ namespace
         if (std::filesystem::exists(kWow64)) {
             threw = false;
             try {
-                HamsterStudioToes::PortableExecutable wrongBitness(kWow64);
+                toes::pe::PortableExecutable wrongBitness(kWow64);
             }
             catch (std::runtime_error const &) {
                 threw = true;
@@ -310,7 +310,7 @@ namespace
     {
         Section("Image/ImageProcessor");
 
-        using namespace HamsterStudioToes::ImageProcessor;
+        using namespace toes::imaging;
 
         constexpr int W = 32;
         constexpr int H = 24;
@@ -453,8 +453,8 @@ namespace
     {
         Section("Image/ImageStitcher");
 
-        using ImageShape = HamsterStudioToes::Image::ImageShape;
-        using ImageLayout = HamsterStudioToes::ImageTools::ImageLayout;
+        using ImageShape = toes::image::ImageShape;
+        using ImageLayout = toes::image::ImageLayout;
 
         constexpr int kCell = 100;
         constexpr int kBorder = 8;
@@ -501,7 +501,7 @@ namespace
     {
         Section("core/StringUtils");
 
-        using namespace HamsterStudioToes::StringUtils;
+        using namespace toes::strings;
 
         // Hex 曾用 "%2X"：宽 2 的十六进制会以空格填充，0x0A 输出 " a"
         ByteArray const bytes{ 0x00, 0x0a, 0x1f, 0xff };
@@ -551,14 +551,14 @@ namespace
     {
         Section("core/Base64");
 
-        using namespace HamsterStudioToes;
+        using namespace toes;
 
         std::string const hello = "hello";
         std::vector<uint8_t> const raw(hello.begin(), hello.end());
-        Check(Base64::Encode(raw) == "aGVsbG8=", "Base64: 5 字节编码正确");
+        Check(base64::Encode(raw) == "aGVsbG8=", "Base64: 5 字节编码正确");
 
         // 带填充的输入曾被多解出一个 0x00 字节
-        Check(Base64::Decode("aGVsbG8=") == raw, "Base64: 填充不会解出多余字节");
+        Check(base64::Decode("aGVsbG8=") == raw, "Base64: 填充不会解出多余字节");
 
         bool roundTrip = true;
         for (size_t n = 0; n <= 6; ++n) {
@@ -566,14 +566,14 @@ namespace
             for (size_t i = 0; i < n; ++i) {
                 v[i] = static_cast<uint8_t>(i * 37 + 5);
             }
-            if (Base64::Decode(Base64::Encode(v)) != v) {
+            if (base64::Decode(base64::Encode(v)) != v) {
                 roundTrip = false;
             }
         }
         Check(roundTrip, "Base64: 0~6 字节编解码往返一致");
 
         bool threw = false;
-        try { (void)Base64::Decode("abc"); }
+        try { (void)base64::Decode("abc"); }
         catch (std::invalid_argument const &) { threw = true; }
         Check(threw, "Base64: 非法长度抛异常");
     }

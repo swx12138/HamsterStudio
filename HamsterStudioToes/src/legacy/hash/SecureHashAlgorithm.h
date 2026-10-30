@@ -4,7 +4,7 @@
 
 #include <string>
 
-namespace HamsterStudioToes::Hash
+namespace toes::hash
 {
     class SHA256 {
         uint8_t  m_data[64] = { 0 };

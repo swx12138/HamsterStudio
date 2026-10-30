@@ -3,12 +3,12 @@
 #include "core/diagnostics.h"
 #include <hamster/toes/geometry.h>
 
-using namespace HamsterStudioToes;
+using namespace toes;
 
-std::vector<ImageNamespace::Image> BaitingMaster::Baiting(ImageNamespace::Image const& img, int const cols)
+std::vector<toes::image::Image> BaitingMaster::Baiting(toes::image::Image const& img, int const cols)
 {
 	if (!img.Valid()) {
-		Diagnostics::Trace::TraceError(L"图像是空的");
+		diagnostics::Trace::TraceError(L"图像是空的");
 		return {};
 	}
 
@@ -23,18 +23,18 @@ std::vector<ImageNamespace::Image> BaitingMaster::Baiting(ImageNamespace::Image 
 		cell_height = static_cast<decltype(cell_height)>(width * 4.0 / (3.0 * cols));
 		cell_width = static_cast<decltype(cell_height)>(cell_height / 4.0 * 3.0);
 		total_cell_width = cell_width * cols;
-		Diagnostics::Trace::TraceInfo(std::format(L"图像宽度不足，已调整 cell_height 至 {}", cell_height));
+		diagnostics::Trace::TraceInfo(std::format(L"图像宽度不足，已调整 cell_height 至 {}", cell_height));
 	}
 
 	const auto left_start = (width - total_cell_width) / 2;
 	const auto top = (img.Height() - cell_height) / 2;
-	std::vector<Image::Image> results(cols);
+	std::vector<toes::image::Image> results(cols);
 #pragma omp parallel for num_threads(2)
 	for (int col = 0; col < cols; ++col)
 	{
-		Shapes::Rectangle rc{ left_start + cell_width * col, top, cell_width, cell_height };
+		shapes::Rectangle rc{ left_start + cell_width * col, top, cell_width, cell_height };
 		results[col] = img(rc);
 	}
-	Diagnostics::Trace::TraceInfo(std::format(L"Split {} images", results.size()));
+	diagnostics::Trace::TraceInfo(std::format(L"Split {} images", results.size()));
 	return results;
 }

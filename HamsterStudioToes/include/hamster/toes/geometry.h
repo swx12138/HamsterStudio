@@ -2,9 +2,7 @@
 
 #include <concepts>
 
-#define ShapeNamespace HamsterStudioToes::Shapes
-
-namespace ShapeNamespace
+namespace toes::shapes
 {
 	template<typename _Ty>
 	concept IsShape = true;

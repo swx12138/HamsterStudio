@@ -2,15 +2,15 @@
 
 #include <random>
 
-HamsterStudioToes::RandomPasswordGenerator::RandomPasswordGenerator(std::string_view _Templ)
+toes::RandomPasswordGenerator::RandomPasswordGenerator(std::string_view _Templ)
 	: templ(_Templ) {
 }
 
-HamsterStudioToes::RandomPasswordGenerator::RandomPasswordGenerator()
+toes::RandomPasswordGenerator::RandomPasswordGenerator()
 	: RandomPasswordGenerator(NoramlTempl) {
 }
 
-std::string HamsterStudioToes::RandomPasswordGenerator::operator()(size_t len)
+std::string toes::RandomPasswordGenerator::operator()(size_t len)
 {
 	std::string str;
 	str.resize(len);

@@ -1,6 +1,6 @@
 #pragma once
 
-#define MPEGLayer3MediaNamespace HamsterStudioToes::Media
+#define MPEGLayer3MediaNamespace toes::Media
 
 #include <memory>
 #include <filesystem>

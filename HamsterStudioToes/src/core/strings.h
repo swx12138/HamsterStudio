@@ -3,7 +3,7 @@
 #include <string>
 #include <vector>
 
-namespace HamsterStudioToes::StringUtils
+namespace toes::strings
 {
 	namespace Huawei
 	{

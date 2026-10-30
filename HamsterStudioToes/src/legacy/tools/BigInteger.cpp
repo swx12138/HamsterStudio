@@ -1,6 +1,6 @@
 #include "BigInteger.h"
 
-std::string HamsterStudioToes::AddNumber(std::string num1, std::string num2)
+std::string toes::AddNumber(std::string num1, std::string num2)
 {
 	std::string _Ans;
 	auto iter1 = num1.crbegin(), iter2 = num2.crbegin();
@@ -43,35 +43,35 @@ std::string HamsterStudioToes::AddNumber(std::string num1, std::string num2)
 	return _Ans;
 }
 
-HamsterStudioToes::BigInteger::BigInteger(std::string const& val)
+toes::BigInteger::BigInteger(std::string const& val)
 	: _Num(val) {
 }
 
-HamsterStudioToes::BigInteger::BigInteger() :
+toes::BigInteger::BigInteger() :
 	BigInteger("0") {
 }
 
-HamsterStudioToes::BigInteger::BigInteger(int val)
+toes::BigInteger::BigInteger(int val)
 {
 	*this = val;
 }
 
-void HamsterStudioToes::BigInteger::operator=(int val)
+void toes::BigInteger::operator=(int val)
 {
 	_Num = std::to_string(val);
 }
 
-HamsterStudioToes::BigInteger HamsterStudioToes::BigInteger::operator+(Const_Reference bigNumber)
+toes::BigInteger toes::BigInteger::operator+(Const_Reference bigNumber)
 {
 	return BigInteger{ AddNumber(_Num, bigNumber._Num) };
 }
 
-bool HamsterStudioToes::BigInteger::operator==(std::string const& val)
+bool toes::BigInteger::operator==(std::string const& val)
 {
 	return val == _Num;
 }
 
-HamsterStudioToes::BigInteger::operator std::string() const
+toes::BigInteger::operator std::string() const
 {
 	return _Num;
 }

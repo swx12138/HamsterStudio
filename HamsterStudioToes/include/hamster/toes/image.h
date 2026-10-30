@@ -1,7 +1,5 @@
 #pragma once
 
-#define ImageNamespace HamsterStudioToes::Image
-
 #include <memory>
 #include <filesystem>
 #include <istream>
@@ -9,7 +7,7 @@
 #include <hamster/toes/geometry.h>
 #include <hamster/toes/export.h>
 
-namespace ImageNamespace
+namespace toes::image
 {
 	namespace fs = std::filesystem;
 
@@ -33,7 +31,7 @@ namespace ImageNamespace
 		Image& operator=(Image const& image);
 		Image& operator=(Image&& image) noexcept;
 
-		Image operator()(Shapes::Rectangle const& rect) const;
+		Image operator()(shapes::Rectangle const& rect) const;
 
 	public:
 		bool Valid() const;

@@ -130,4 +130,50 @@ legacy 文件被扁平化到 `src/legacy/<域>/`，原先的 `./PixelData/PixelD
 ### 6.3 两点说明
 
 - 这些工具函数在库内**没有任何调用者**（`StringUtils` 与 `Base64` 的函数全库零引用）。上述缺陷属于**潜在陷阱**而非线上故障；修复的价值在于把行为固定成可测试的契约，避免后来者踩坑。
-- `TOES_IMPORT` 目前没有消费方启用：Bridge 与 CLITools 都未定义该宏，行为与之前一致。启用它可以消除"靠链接器 thunk 偶然工作"的未定义边界，但需要消费方工程同步定义宏。
+- `TOES_IMPORT` 目前没有消费方启用；且 **C++/CLI 消费方不应启用**（原因见 §7.4）。纯 C++ 消费方定义它可显式走 `dllimport`。
+
+---
+
+## 7. 第三轮：OpenCV 集中化、死脚本清理、根命名空间统一（2026-10-30）
+
+### 7.1 变更
+
+| 项 | 内容 |
+|---|---|
+| OpenCV 链接 | 删除 3 个源文件里的 `#pragma comment(lib, …)`；`Directory.Build.props` 新增 `$(OpenCVLibName)`（Debug→`opencv_world4120d.lib`，其余→`opencv_world4120.lib`）；两个工程在 `AdditionalDependencies` 引用它 |
+| 死脚本 | 删除 `makefile`、`release.py`、`gcc.md`、`note.md` |
+| 根命名空间 | `HammerStudioToes::` 全部改为 `toes::`；9 个 `#define XxxNamespace` 宏删除，改用真实命名空间 |
+| 目录改名 | `src/win32/` → `src/platform/`（原因见 §7.3） |
+
+命名空间映射：`Image`/`ImageTools` → `toes::image`、`ImageProcessor` → `toes::imaging`、`PixelData` → `toes::colors`、`Shapes` → `toes::shapes`、`Win32Utils` → `toes::win32`、`Diagnostics` → `toes::diagnostics`、`StringUtils` → `toes::strings`、`Base64` → `toes::base64`、`Hash` → `toes::hash`、`Tools` → `toes::tools`、`PortableExecutable` 等 → `toes::pe`、`BaitingMaster`/`StopWatch` → `toes` 根。legacy 一并改为 `toes::*`。
+
+### 7.2 这是破坏性 ABI 变更
+
+导出符号的修饰名含命名空间，因此**导出表整体变化**。`docs/abi-baseline.txt` 已用 `tools/check-abi.ps1 -Update` 重新生成（仍为 34 项，符号前缀变为 `toes::`）。任何针对旧 DLL 编译的二进制都必须重编。
+
+### 7.3 发现的 .gitignore 陷阱
+
+根 `.gitignore` 第 26 行 `[Ww][Ii][Nn]32/` 本意忽略 VS 的 `Win32/` 输出目录，但它会匹配**任意层级**下名为 win32 的目录。此前新建的 `src/win32/` 因此被静默忽略，5 个文件从未进入仓库，两次提交里的 "clean" 是假象。改名为 `src/platform/` 后恢复正常跟踪。
+
+### 7.4 Bridge 链接问题（已定位并修复）
+
+现象：Bridge 的 Release 构建报 LNK2028，符号修饰名带 `$$F`（`__clrcall`，托管调用约定）。
+
+排查过程：
+
+- 怀疑 LTCG（`/GL` 与 `/clr` 不兼容）→ 关闭全程序优化后仍然失败，排除；
+- 怀疑原生头被当作托管代码 → `#pragma managed(push, off)` 触发 C3821，排除；
+- 对照时间线：15:48 那次 Release 构建成功时，Bridge 尚未定义 `TOES_IMPORT`。
+
+结论：**是 `TOES_IMPORT`（`dllimport`）导致的**。在 `/clr` 编译单元里，`__declspec(dllimport)` 会让编译器按托管约定解析外部符号，生成带 `$$F` 的修饰名，而导入库导出的是原生符号。去掉该宏、并确保链接的是当前导入库之后，Debug 与 Release 均链接成功。
+
+结论与约束：
+
+- `TOES_IMPORT` 分支对纯 C++ 消费方是正确的；
+- **C++/CLI（`/clr`）消费方不能定义它**，那类工程依赖原有的 thunk 机制即可正常工作。这条限制已写入 `include/hamster/toes/export.h` 的注释。
+
+**当前状态**：C# 端在 Debug 与 Release 下均可正常重建与运行（此前"Bridge 链接失败"的结论是错的，已更正）。
+
+### 7.5 本轮操作失误（已恢复）
+
+批量改写脚本把嵌套数组当作二维表传给函数，PowerShell 将其展平为字符串数组，`$pr[0]`/`$pr[1]` 退化成单个字符，于是对 6 个文件执行了单字符全局替换（如 `#include` → `#iaclude`）。已从 git 恢复这些文件并重做；恢复时发现 `pe.h`/`pe.cpp` 因 §7.3 的原因不在 git 中，改为从重构前的 `Windows/Platform.*` 历史版本重建。

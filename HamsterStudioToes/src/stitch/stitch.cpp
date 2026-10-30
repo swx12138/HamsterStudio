@@ -18,13 +18,13 @@
 #include "core/strings.h"
 #include "core/diagnostics.h"
 #include "core/stopwatch.hpp"
-#include "win32/os.h"
+#include "platform/os.h"
 
 #include <ranges>
 
-using namespace ImageNamespace;
-using namespace ImageUtilsNamespace;
-using namespace HamsterStudioToes;
+using namespace toes::image;
+using namespace toes::image;
+using namespace toes;
 
 #include "media/io.hpp"
 
@@ -47,11 +47,11 @@ namespace
         int const height = layout.rows * target.height + (layout.rows + 1) * borderThickness;
 
         cv::Mat canvas = cv::Mat::zeros(height, width, CV_8UC3);
-        ImageTools::GradientFiller::FillBilinear(canvas,
-            PixelData::PantoneColors::YearColor_2025_MochaMousse,
-            PixelData::PantoneColors::YearColor_2024_PeachFuzz,
-            PixelData::PantoneColors::YearColor_2023_VivaMagenta,
-            PixelData::PantoneColors::YearColor_2022_VeryPeri);
+        FillBilinear(canvas,
+            colors::PantoneColors::YearColor_2025_MochaMousse,
+            colors::PantoneColors::YearColor_2024_PeachFuzz,
+            colors::PantoneColors::YearColor_2023_VivaMagenta,
+            colors::PantoneColors::YearColor_2022_VeryPeri);
         return canvas;
     }
 
@@ -81,7 +81,7 @@ namespace
             cv::Rect const rc = TileRect(i, target, layout, borderThickness);
             if (rc.width == 0 || rc.height == 0)
             {
-                Diagnostics::Trace::TraceError("警告: 图片数量超过了计算的行列数，剩余图片将被忽略。");
+                diagnostics::Trace::TraceError("警告: 图片数量超过了计算的行列数，剩余图片将被忽略。");
                 break;
             }
             paste(i, rc);
@@ -92,11 +92,11 @@ namespace
 /*
  * 跟之前的区别是：旧函数会自动计算布局和排序，现在布局作为输入，按数组顺序铺排。
  */
-cv::Mat stitch(std::vector<cv::Mat const*> const& images, StretchMode stretchMode, ImageShape target_size, ImageUtilsNamespace::ImageLayout const& layout, int borderThickness)
+cv::Mat stitch(std::vector<cv::Mat const*> const& images, StretchMode stretchMode, ImageShape target_size, toes::image::ImageLayout const& layout, int borderThickness)
 {
     if (images.empty())
     {
-        Diagnostics::Trace::TraceError(L"错误: 输入图片列表为空，无法进行拼接。");
+        diagnostics::Trace::TraceError(L"错误: 输入图片列表为空，无法进行拼接。");
         return cv::Mat();
     }
 
@@ -127,11 +127,11 @@ cv::Mat stitch(std::vector<cv::Mat const*> const& images, StretchMode stretchMod
         target_size.height = images[0]->rows;
     }
 
-    Diagnostics::Trace::TraceInfo(std::format(L"开始拼接 {} 张图片，每个格子尺寸: {}*{}，边距: {}",
+    diagnostics::Trace::TraceInfo(std::format(L"开始拼接 {} 张图片，每个格子尺寸: {}*{}，边距: {}",
         images.size(), target_size.width, target_size.height, borderThickness));
 
-    auto layout = ImageTools::LayoutHelper::CalculateGridLayout(static_cast<int>(images.size()), target_size.width, target_size.height);
-    Diagnostics::Trace::TraceInfo(std::format(L"计算得到的布局: {} 行 x {} 列。", layout.rows, layout.cols));
+    auto layout = image::LayoutHelper::CalculateGridLayout(static_cast<int>(images.size()), target_size.width, target_size.height);
+    diagnostics::Trace::TraceInfo(std::format(L"计算得到的布局: {} 行 x {} 列。", layout.rows, layout.cols));
 
     return stitch(images, stretchMode, target_size, layout, borderThickness);
 }
@@ -153,11 +153,11 @@ cv::Mat stitch(const std::vector<cv::Mat>& images, StretchMode stretchMode, Imag
 /**
  * @brief 基于路径的拼接 —— 逐个加载即用即弃，峰值内存仅画布 + 1 张图片
  */
-cv::Mat stitch(std::vector<std::filesystem::path> const& image_paths, StretchMode stretchMode, ImageShape target_size, ImageUtilsNamespace::ImageLayout const& layout, int borderThickness)
+cv::Mat stitch(std::vector<std::filesystem::path> const& image_paths, StretchMode stretchMode, ImageShape target_size, toes::image::ImageLayout const& layout, int borderThickness)
 {
     if (image_paths.empty())
     {
-        Diagnostics::Trace::TraceError(L"错误: 输入图片列表为空，无法进行拼接。");
+        diagnostics::Trace::TraceError(L"错误: 输入图片列表为空，无法进行拼接。");
         return cv::Mat();
     }
 
@@ -207,11 +207,11 @@ namespace
 /**
  * @brief CUDA 加速版拼接（指针重载，需指定布局）
  */
-cv::Mat stitchCUDA(std::vector<cv::Mat const*> const& images, StretchMode stretchMode, ImageShape target_size, ImageUtilsNamespace::ImageLayout const& layout, int borderThickness)
+cv::Mat stitchCUDA(std::vector<cv::Mat const*> const& images, StretchMode stretchMode, ImageShape target_size, toes::image::ImageLayout const& layout, int borderThickness)
 {
     if (images.empty())
     {
-        Diagnostics::Trace::TraceError(L"错误: 输入图片列表为空，无法进行拼接。");
+        diagnostics::Trace::TraceError(L"错误: 输入图片列表为空，无法进行拼接。");
         return cv::Mat();
     }
 
@@ -244,17 +244,17 @@ cv::Mat stitchCUDA(const std::vector<cv::Mat>& images, StretchMode stretchMode, 
     std::vector<cv::Mat const*> ptrs(images.size());
     std::transform(images.begin(), images.end(), ptrs.begin(), [](cv::Mat const& m)
         { return &m; });
-    return stitchCUDA(ptrs, stretchMode, target_size, ImageTools::LayoutHelper::CalculateGridLayout(static_cast<int>(images.size()), target_size.width, target_size.height), borderThickness);
+    return stitchCUDA(ptrs, stretchMode, target_size, image::LayoutHelper::CalculateGridLayout(static_cast<int>(images.size()), target_size.width, target_size.height), borderThickness);
 }
 
 /**
  * @brief CUDA 加速版基于路径的拼接 —— 逐个加载即用即弃
  */
-cv::Mat stitchCUDA(std::vector<std::filesystem::path> const& image_paths, StretchMode stretchMode, ImageShape target_size, ImageUtilsNamespace::ImageLayout const& layout, int borderThickness)
+cv::Mat stitchCUDA(std::vector<std::filesystem::path> const& image_paths, StretchMode stretchMode, ImageShape target_size, toes::image::ImageLayout const& layout, int borderThickness)
 {
     if (image_paths.empty())
     {
-        Diagnostics::Trace::TraceError(L"错误: 输入图片列表为空，无法进行拼接。");
+        diagnostics::Trace::TraceError(L"错误: 输入图片列表为空，无法进行拼接。");
         return cv::Mat();
     }
 
@@ -286,38 +286,38 @@ cv::Mat stitchCUDA(std::vector<std::filesystem::path> const& image_paths, Stretc
 }
 #endif // _CUDA_OPENCV
 
-ImageNamespace::Image ImageNamespace::stitch(std::vector<void*> mats, StretchMode mode, ImageShape size, ImageUtilsNamespace::ImageLayout layout, int spacing)
+toes::image::Image toes::image::stitch(std::vector<void*> mats, StretchMode mode, ImageShape size, toes::image::ImageLayout layout, int spacing)
 {
     auto transforma = mats | std::views::transform([](void* ptr)
         { return reinterpret_cast<cv::Mat const*>(ptr); }) |
         std::ranges::to<std::vector>();
     auto img = ::stitch(transforma, mode, size, layout, spacing);
-    return ImageNamespace::Image::FromNativeMatPointer(&img);
+    return toes::image::Image::FromNativeMatPointer(&img);
 }
 
 #include <iostream>
 #include <io.h>    // _setmode
 #include <fcntl.h> // _O_U16TEXT
 
-int ImageNamespace::stitch_cli_main(std::vector<std::string> const& args)
+int toes::image::stitch_cli_main(std::vector<std::string> const& args)
 {
-    // Diagnostics::Trace::TraceInfo(L"HamsterStudioToes Image Stitcher CLI Tool");
+    // diagnostics::Trace::TraceInfo(L"HamsterStudioToes Image Stitcher CLI Tool");
 #ifdef _CUDA_OPENCV
     if (int deviceCount = cv::cuda::getCudaEnabledDeviceCount(); deviceCount == 0)
     {
-        Diagnostics::Trace::TraceInfo("No CUDA device enabled.");
+        diagnostics::Trace::TraceInfo("No CUDA device enabled.");
         return 1;
     }
     else
     {
-        Diagnostics::Trace::TraceInfo(std::format("{} CUDA device(s) enabled.", deviceCount));
+        diagnostics::Trace::TraceInfo(std::format("{} CUDA device(s) enabled.", deviceCount));
     }
 #else
-    Diagnostics::Trace::TraceInfo("_CUDA_OPENCV not defined, using CPU implementation.");
+    diagnostics::Trace::TraceInfo("_CUDA_OPENCV not defined, using CPU implementation.");
 #endif
 
     namespace fs = std::filesystem;
-    HamsterStudioToes::StopWatch watch;
+    toes::StopWatch watch;
 
     fs::path image_folder_path = fs::current_path();
 
@@ -330,8 +330,8 @@ int ImageNamespace::stitch_cli_main(std::vector<std::string> const& args)
             { return !path.filename().wstring().starts_with(L"result_"); }) |
         std::views::filter(toes::IsSupportedExtension) | std::ranges::to<std::vector>();
 
-    std::ranges::sort(image_paths, Win32Utils::PathCompare);
-    Diagnostics::Trace::TraceInfo(std::format(L"找到 {} 张图片，正在加载...", image_paths.size()));
+    std::ranges::sort(image_paths, win32::PathCompare);
+    diagnostics::Trace::TraceInfo(std::format(L"找到 {} 张图片，正在加载...", image_paths.size()));
 
     if (image_paths.empty())
     {
@@ -350,7 +350,7 @@ int ImageNamespace::stitch_cli_main(std::vector<std::string> const& args)
             portrait_paths.push_back(path);
         else
             landscape_paths.push_back(path);
-        Diagnostics::Trace::TraceInfo(L"Checked: " + path.generic_wstring());
+        diagnostics::Trace::TraceInfo(L"Checked: " + path.generic_wstring());
         // img 在此释放，不占用内存
     }
 
@@ -361,7 +361,7 @@ int ImageNamespace::stitch_cli_main(std::vector<std::string> const& args)
         return 1;
     }
 
-    Diagnostics::Trace::TraceInfo(std::format(L"加载完成。共计: {} 张 (横屏: {}, 竖屏: {})。",
+    diagnostics::Trace::TraceInfo(std::format(L"加载完成。共计: {} 张 (横屏: {}, 竖屏: {})。",
         total_count, landscape_paths.size(), portrait_paths.size()));
 
     auto name = image_folder_path.filename().wstring();
@@ -377,7 +377,7 @@ int ImageNamespace::stitch_cli_main(std::vector<std::string> const& args)
         {
             if (paths.empty())
             {
-                Diagnostics::Trace::TraceWarning(L"没有足够的图片进行拼接。");
+                diagnostics::Trace::TraceWarning(L"没有足够的图片进行拼接。");
                 return;
             }
 
@@ -385,7 +385,7 @@ int ImageNamespace::stitch_cli_main(std::vector<std::string> const& args)
             cv::Mat first = toes::Imread(paths[0], cv::IMREAD_COLOR);
             if (first.empty())
             {
-                Diagnostics::Trace::TraceWarning(L"无法读取首张图片，跳过拼接。");
+                diagnostics::Trace::TraceWarning(L"无法读取首张图片，跳过拼接。");
                 return;
             }
 
@@ -396,23 +396,23 @@ int ImageNamespace::stitch_cli_main(std::vector<std::string> const& args)
                 target.height = static_cast<int>(DefaultShape.width * first.rows / first.cols);
             first.release();
 
-            auto layout = ImageTools::LayoutHelper::CalculateGridLayout(static_cast<int>(paths.size()), target.width, target.height);
-            Diagnostics::Trace::TraceInfo(std::format(L"布局: {} 行 x {} 列。", layout.rows, layout.cols));
+            auto layout = image::LayoutHelper::CalculateGridLayout(static_cast<int>(paths.size()), target.width, target.height);
+            diagnostics::Trace::TraceInfo(std::format(L"布局: {} 行 x {} 列。", layout.rows, layout.cols));
 
             cv::Mat result;
 #ifdef _CUDA_OPENCV
-            Diagnostics::Trace::TraceInfo(L"使用 CUDA 加速进行图片拼接...");
+            diagnostics::Trace::TraceInfo(L"使用 CUDA 加速进行图片拼接...");
             result = ::stitchCUDA(paths, StretchMode::Uniform, target, layout, -1);
 #else
-            Diagnostics::Trace::TraceInfo(L"使用 CPU 进行图片拼接...");
+            diagnostics::Trace::TraceInfo(L"使用 CPU 进行图片拼接...");
             result = ::stitch(paths, StretchMode::Uniform, target, layout, -1);
 #endif
             if (!result.empty())
             {
                 if (toes::Imwrite(out_path, result))
-                    Diagnostics::Trace::TraceInfo(L"已保存: " + out_path.generic_wstring());
+                    diagnostics::Trace::TraceInfo(L"已保存: " + out_path.generic_wstring());
                 else
-                    Diagnostics::Trace::TraceError(L"保存失败: " + out_path.generic_wstring());
+                    diagnostics::Trace::TraceError(L"保存失败: " + out_path.generic_wstring());
             }
         };
 
@@ -427,11 +427,11 @@ int ImageNamespace::stitch_cli_main(std::vector<std::string> const& args)
     if (args.size() != 2)
     {
 #ifdef _DEBUG
-        Diagnostics::Trace::TraceWarning("No mode specified, generating all results sequentially...");
+        diagnostics::Trace::TraceWarning("No mode specified, generating all results sequentially...");
         portrait_task();
         landscape_task();
 #else
-        Diagnostics::Trace::TraceWarning("No mode specified, generating all results in parallel...");
+        diagnostics::Trace::TraceWarning("No mode specified, generating all results in parallel...");
         std::jthread th_portrait(portrait_task);
         std::jthread th_landscape(landscape_task);
         th_landscape.join();
@@ -440,17 +440,17 @@ int ImageNamespace::stitch_cli_main(std::vector<std::string> const& args)
     }
     else if (args[1] == "portrait" || args[1] == "p")
     {
-        Diagnostics::Trace::TraceInfo("Generating portrait stitched image...");
+        diagnostics::Trace::TraceInfo("Generating portrait stitched image...");
         portrait_task();
     }
     else if (args[1] == "landscape" || args[1] == "l")
     {
-        Diagnostics::Trace::TraceInfo("Generating landscape stitched image...");
+        diagnostics::Trace::TraceInfo("Generating landscape stitched image...");
         landscape_task();
     }
     else if (args[1] == "all" || args[1] == "a")
     {
-        Diagnostics::Trace::TraceInfo("Generating all stitched images...");
+        diagnostics::Trace::TraceInfo("Generating all stitched images...");
         // 横屏在前，竖屏在后
         auto all_paths = landscape_paths;
         all_paths.insert(all_paths.end(), portrait_paths.begin(), portrait_paths.end());
@@ -465,7 +465,7 @@ int ImageNamespace::stitch_cli_main(std::vector<std::string> const& args)
     }
 
     auto elapsed_ms = std::chrono::duration_cast<std::chrono::milliseconds>(watch.elapsed()).count();
-    Diagnostics::Trace::TraceInfo(std::format(L"Total processing time: {} ms", elapsed_ms));
+    diagnostics::Trace::TraceInfo(std::format(L"Total processing time: {} ms", elapsed_ms));
 
     // 这里原来有 system("pause")：库函数不该卡在控制台按键上，也不该拉起 cmd.exe
     return 0;

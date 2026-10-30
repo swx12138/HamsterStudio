@@ -239,7 +239,7 @@ struct MPEGLayer3MediaNamespace::MPEGLayer3Format::Format
 
 #include <iostream>
 
-static inline int process_id3v2_info(HamsterStudioToes::Tools::StreamReader &reader)
+static inline int process_id3v2_info(toes::tools::StreamReader &reader)
 {
 	VariableBitRateHeader vbrHeader = { 0 };
 	reader.Read(&vbrHeader, sizeof(vbrHeader));
@@ -247,7 +247,7 @@ static inline int process_id3v2_info(HamsterStudioToes::Tools::StreamReader &rea
 	return sizeof(vbrHeader);
 }
 
-static inline int process_id3v2(HamsterStudioToes::Tools::StreamReader &reader)
+static inline int process_id3v2(toes::tools::StreamReader &reader)
 {
 	ID3V2 id3v2;
 
@@ -268,7 +268,7 @@ static inline int process_id3v2(HamsterStudioToes::Tools::StreamReader &reader)
 				i += process_id3v2_info(reader);
 			}
 			else {
-				const auto tagFrameSize = HamsterStudioToes::Tools::SwitchEndian(tagFrame.size);
+				const auto tagFrameSize = toes::tools::SwitchEndian(tagFrame.size);
 				char *pBuffer = new char[tagFrameSize];
 				reader.Read(pBuffer, tagFrameSize);
 				auto ppbuffer = pBuffer;
@@ -284,7 +284,7 @@ static inline int process_id3v2(HamsterStudioToes::Tools::StreamReader &reader)
 	return id3v2_size;
 }
 
-static inline int process_frame(HamsterStudioToes::Tools::StreamReader &reader, FrameHeader const &header)
+static inline int process_frame(toes::tools::StreamReader &reader, FrameHeader const &header)
 {
 	const auto blockSize = get_block_size(header);
 	reader.SeekForward(blockSize - 4);

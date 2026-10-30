@@ -19,7 +19,7 @@
 #pragma warning(push)
 #pragma warning(disable : 4244)
 
-HamsterStudioToes::ImageSlider::ImageSlider(std::string_view windowName, int cw, int ch)
+toes::legacy::ImageSlider::ImageSlider(std::string_view windowName, int cw, int ch)
 {
     client_width = cw;
     client_height = ch;
@@ -30,7 +30,7 @@ HamsterStudioToes::ImageSlider::ImageSlider(std::string_view windowName, int cw,
     cv::moveWindow(svTitle, 10, 10);
 }
 
-int HamsterStudioToes::ImageSlider::ShowImage(std::string const &filename)
+int toes::legacy::ImageSlider::ShowImage(std::string const &filename)
 {
     static cv::Mat temp;
     static const auto cur_dir_len = std::filesystem::current_path().string().length();
@@ -67,7 +67,7 @@ int HamsterStudioToes::ImageSlider::ShowImage(std::string const &filename)
     return playing_delay > 0 ? playing_delay : std::random_device {}() % 3000 + 1500;
 }
 
-int HamsterStudioToes::ImageSlider::run(int delay)
+int toes::legacy::ImageSlider::run(int delay)
 {
     namespace fs = std::filesystem;
     using namespace std;

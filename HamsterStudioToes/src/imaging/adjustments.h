@@ -6,9 +6,7 @@
 #include <vector>
 #include <memory>
 
-#define ImageProcessorNamespace HamsterStudioToes::ImageProcessor
-
-namespace ImageProcessorNamespace
+namespace toes::imaging
 {
 	struct ImageAdjustments {
 		double exposure = 0.0;

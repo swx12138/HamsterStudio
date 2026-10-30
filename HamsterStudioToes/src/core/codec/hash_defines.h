@@ -2,7 +2,7 @@
 
 #include <cstdint>
 
-namespace HamsterStudioToes::Hash
+namespace toes::hash
 {
 #pragma pack(push, 1)
 

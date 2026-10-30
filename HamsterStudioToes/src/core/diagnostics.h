@@ -4,7 +4,7 @@
 #include <string>
 #include <vector>
 
-namespace HamsterStudioToes::Diagnostics
+namespace toes::diagnostics
 {
 	class AssertException : public std::runtime_error
 	{

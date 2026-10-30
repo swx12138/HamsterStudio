@@ -1,6 +1,6 @@
 #include "core/numbers.h"
 
-uint32_t HamsterStudioToes::Tools::SwitchEndian(uint32_t val)
+uint32_t toes::tools::SwitchEndian(uint32_t val)
 {
 	return ((val & 0x000000FF) << 24) |
 		((val & 0x0000FF00) << 8) |

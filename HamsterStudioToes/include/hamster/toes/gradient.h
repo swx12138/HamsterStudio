@@ -4,9 +4,7 @@
 
 #include <hamster/toes/export.h>
 
-#define GradientFillerNamespace HamsterStudioToes::ImageTools::GradientFiller
-
-namespace GradientFillerNamespace {
+namespace toes::image {
 	void FillSolidColor(cv::Mat& mat, cv::Scalar color);
 
 	/**

@@ -27,7 +27,7 @@ constexpr uint32_t SHA256_Constants[] = {
 #include <sstream>
 #include <iomanip>
 
-void HamsterStudioToes::Hash::SHA256::reset()
+void toes::hash::SHA256::reset()
 {
 	m_dataLen = 0;
 	m_bitLen = 0;
@@ -37,7 +37,7 @@ void HamsterStudioToes::Hash::SHA256::reset()
 	m_finalized = false;
 }
 
-void HamsterStudioToes::Hash::SHA256::update(const uint8_t* data, size_t length)
+void toes::hash::SHA256::update(const uint8_t* data, size_t length)
 {
 	if (m_finalized) return;
 	for (size_t i = 0; i < length; ++i) {
@@ -50,12 +50,12 @@ void HamsterStudioToes::Hash::SHA256::update(const uint8_t* data, size_t length)
 	}
 }
 
-void HamsterStudioToes::Hash::SHA256::update(const std::string& str)
+void toes::hash::SHA256::update(const std::string& str)
 {
 	update(reinterpret_cast<const uint8_t*>(str.data()), str.size());
 }
 
-std::string HamsterStudioToes::Hash::SHA256::final()
+std::string toes::hash::SHA256::final()
 {
 	if (!m_finalized) {
 		// 总比特长度
@@ -96,7 +96,7 @@ static inline uint32_t rotr(uint32_t x, uint32_t n)
 	return (x >> n) | (x << (32 - n));
 }
 
-void HamsterStudioToes::Hash::SHA256::transform(const uint8_t block[64])
+void toes::hash::SHA256::transform(const uint8_t block[64])
 {
 	uint32_t w[64];
 	// 准备消息调度 0..15

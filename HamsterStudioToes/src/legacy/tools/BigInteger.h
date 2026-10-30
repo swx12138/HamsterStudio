@@ -2,7 +2,7 @@
 
 #include <string>
 
-namespace HamsterStudioToes
+namespace toes
 {
 	std::string AddNumber(std::string num1, std::string num2);
 

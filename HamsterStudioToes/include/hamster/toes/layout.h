@@ -1,12 +1,10 @@
 #pragma once
 
-#define ImageUtilsNamespace HamsterStudioToes::ImageTools
-
 #include <utility>
 
 #include <hamster/toes/export.h>
 
-namespace ImageUtilsNamespace
+namespace toes::image
 {
 
 	struct TOES_API ImageLayout { int rows, cols; };

@@ -1,6 +1,6 @@
 #pragma once
 
-#define PixelDataNamespace HamsterStudioToes::PixelData
+#define PixelDataNamespace toes::colors
 
 namespace PixelDataNamespace {
 

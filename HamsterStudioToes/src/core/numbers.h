@@ -2,7 +2,7 @@
 
 #include <cstdint>
 
-namespace HamsterStudioToes::Tools
+namespace toes::tools
 {
 	uint32_t SwitchEndian(uint32_t val);
 }

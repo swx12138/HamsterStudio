@@ -2,9 +2,7 @@
 
 #include <opencv2/core.hpp>
 
-#define PantoneColorsNamespace HamsterStudioToes::PixelData
-
-namespace PantoneColorsNamespace::PantoneColors
+namespace toes::colors::PantoneColors
 {
 	const cv::Scalar YearColor_2026_CloudDancer { 0xf5, 0xf5, 0xf5 };		// PANTONE 11-4201 TCX
 	const cv::Scalar YearColor_2025_MochaMousse { 100 , 119, 164 };		// PANTONE 17-1230 : Capturing a Global Mood of Connection, Comfort, and Harmony
