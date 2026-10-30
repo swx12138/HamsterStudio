@@ -1,12 +1,14 @@
-﻿using HamsterStudio.Barefeet;
+using HamsterStudio.Barefeet;
 using HamsterStudio.Barefeet.Services;
-using HamsterStudio.Gallery;
 using HamsterStudio.ChatBox;
+using HamsterStudio.Gallery;
 using HamsterStudio.ImageTool;
 using HamsterStudio.Photogrammetry;
 using HamsterStudio.Toolkits.Services;
 using HamsterStudio.Toolkits.Services.ImageMetaInfoReader;
+using HamsterStudio.WallpaperEngine;
 using HamsterStudio.WebApi;
+using HamsterStudioGUI.ViewModels;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.FileProviders;
@@ -20,8 +22,10 @@ public static class ConfigureWebApiExtensions
     public static void ConfigureService(this IServiceCollection services)
     {
         services.AddSingleton<ThemeMgmt>();
-
         services.AddSingleton<ImageMetaInfoReadService>();
+
+        services.AddTransient<SpacialDownloadsViewModel>();
+        services.AddTransient<DownloadManagerViewModel>();
 
         BarefeetProfile.ConfigureService(services);
 
@@ -29,6 +33,7 @@ public static class ConfigureWebApiExtensions
         ImageToolProfile.RegisterServices(services);
         GalleryProfile.RegisterServices(services);
         ChatBoxProfile.RegisterServices(services);
+        WallpaperEngineProfile.RegisterServices(services);
     }
 
     private static string GetContentType(string path)

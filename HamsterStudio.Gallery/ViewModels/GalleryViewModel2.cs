@@ -68,7 +68,7 @@ public partial class GalleryViewModel2 : KnownViewModel
 #if DEBUG
         using (ThumbnailModeViewModel.CurrentFolder.SearchedViewSource.DeferRefresh())
         {
-            LoadFolder(Path.Combine(directoryMgmt.StorageHome, "xiaohongshu"));
+            LoadFolder(Path.Combine(directoryMgmt.StorageHome, "Bilibili", "Dynamic"));
         }
 #endif
 

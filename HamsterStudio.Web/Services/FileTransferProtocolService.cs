@@ -14,6 +14,8 @@ public enum FileTransferProtocolStatusCode
     ServerReady = 220,
     NeedPassword = 331,
     LoginSuccess = 230,
+
+    NoUser = 530,
 }
 
 /// <summary>
@@ -67,7 +69,8 @@ public class FileTransferProtocolService(DirectoryMgmt directoryMgmt, ILogger<Fi
         {
             if (Users.Count == 0)
             {
-                throw new InvalidOperationException("未配置任何 FTP 用户，请先添加用户到 Users 列表");
+                logger.LogWarning("未配置任何 FTP 用户，请先添加用户到 Users 列表");
+                return FileTransferProtocolStatusCode.NoUser;
             }
 
             _server = new AuthenticatedFtpServer(HostName, Port, RootDirectory, logger, Users);
